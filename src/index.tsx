@@ -1,19 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './components/APP/App';
 import reportWebVitals from './reportWebVitals';
-import TestPage from './components/APP/test/test';
+import TestPage from './components/test/test';
+import { MainMenu, MainMenuItem } from './components/MainMenu/MainMenu';
+import { HashRouter, Route, Switch } from 'react-router-dom';
+import App from './components/APP/App';
 
-ReactDOM.render(
+const menuItems = [
+  new MainMenuItem("Home", "/"),
+  new MainMenuItem("App", "/app"),
+  new MainMenuItem("Contact", "/contact/"),
+  new MainMenuItem("Log in", "/user/login/"),
+  new MainMenuItem("Register", "/user/register/"),
+]
+
+ReactDOM.render( 
   <React.StrictMode>
-  {/*   <App /> */}
-    <TestPage />
+    <MainMenu items= {menuItems} />
+    {/* mehanizam rutiranja */}
+    <HashRouter>
+      <Switch>
+        <Route exact path="/" component={ TestPage }  />
+        <Route exact path="/app" component={ App }  />
+      </Switch>
+    </HashRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

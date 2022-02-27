@@ -90,32 +90,33 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 sapNumber: res.data.sapNumber,
                 categoryName: res.data.category.name,
             }
-            this.setArticles(articleData)    
-        })
-        /* api('api/feature/?join=articleFeature&filter=articleFeature.articleId||$eq||' + this.props.match.params.articleID, 'get', {} ) */
-        api('api/article/' + this.props.match.params.articleID, 'get', {} )
-        .then ((res: ApiResponse) => {
+            this.setArticles(articleData)
+
             const articleFeaturesData: FeaturesType[] = 
-            (res.data.features.map((articleFeature: articleFeaturesDto) => {
-                const object: FeaturesType = {
-                    name: articleFeature.name,
+            (res.data.features.map((articleFeatureName: articleFeaturesDto) => {
+                return {
+                name: articleFeatureName.name,
+                value: (res.data.articleFeature.map(res.data.articleFeature.value))
                 }
-                return object;
-            })
-            )
+            }))
 
             this.setArticleFeatures(articleFeaturesData)
 
-             const featureData: FeaturesType[] =
-            res.data.articleFeature.map((articleFeature: articleFeaturesDto) => {
+            /* const featureData: FeaturesType[] =
+            res.data.articleFeature.map((articleFeatureValue: articleFeaturesDto) => {
                 return {
-                    value: articleFeature.value,
+                    value: articleFeatureValue.value,
                 }
             });
 
-            this.setFeaturesData(featureData); 
-        })
-        
+            this.setFeaturesData(featureData); */
+
+            /* api('api/feature/?join=articleFeature&filter=articleFeature.articleId||$eq||' + this.props.match.params.articleID, 'get', {} )
+            .then((res : ApiResponse) => {
+            
+                
+            }) */
+        })    
   }
 
     render(){
@@ -132,7 +133,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         { this.printErrorMessage () }
                         { this.singleArticle(this.state.articles) }
                         {console.log(this.state.articles)}
-                        { this.showArticleFeatures() } 
+                        {console.log(this.state.features)}
+                        {console.log(this.state.featuresData)}
+                        { this.showArticleFeatures() }
                     </Card.Text>
                 </Card.Body>
                 
@@ -187,11 +190,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             )
         }
         return (
-            <Row>
-                { this.state.features?.map(this.singleFeatures) }
-                { this.state.featuresData?.map(this.singleValueFeatures) }
-            </Row>
-
+                 this.state.features?.map(this.singleFeatures),
+                 this.state.featuresData?.map(this.singleValueFeatures) 
         );
     } 
 
@@ -203,7 +203,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     <Card.Img variant="top" src="" className="w-100"/>
                         <Card.Body>
                             <ListGroup className="list-group-flush">
-                                <ListGroupItem> <strong>Name:</strong> {features.name}</ListGroupItem>
+                                <ListGroupItem> <strong>Name1:</strong> {features.name}</ListGroupItem>
                             </ListGroup>
                         </Card.Body>
                     <Card.Footer>
@@ -220,6 +220,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     <Card.Img variant="top" src="" className="w-100"/>
                         <Card.Body>
                             <ListGroup className="list-group-flush">
+                            <ListGroupItem> <strong>name:</strong> {featureValue.name}</ListGroupItem>
                                 <ListGroupItem> <strong>Value:</strong> {featureValue.value}</ListGroupItem>
                             </ListGroup>
                         </Card.Body>

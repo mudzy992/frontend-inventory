@@ -1,15 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'jquery/dist/jquery.js';
+import 'popper.js/dist/popper.js';
+import 'bootstrap/dist/js/bootstrap.min.js';
 import reportWebVitals from './reportWebVitals';
-import TestPage from './components/test/test';
 import { MainMenu, MainMenuItem } from './components/MainMenu/MainMenu';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import App from './components/APP/App';
+import CategoryPage from './components/Categories/Categories';
+import HomePage from './components/HomePage/HomePage';
+import ArticlePage from './components/ArticlePage/ArticlePage';
 
 const menuItems = [
   new MainMenuItem("Home", "/"),
-  new MainMenuItem("App", "/app"),
+  new MainMenuItem("App", "/test"),
   new MainMenuItem("Contact", "/contact/"),
   new MainMenuItem("Log in", "/user/login/"),
   new MainMenuItem("Register", "/user/register/"),
@@ -21,8 +26,9 @@ ReactDOM.render(
     {/* mehanizam rutiranja */}
     <HashRouter>
       <Switch>
-        <Route exact path="/" component={ TestPage }  />
-        <Route exact path="/app" component={ App }  />
+        <Route exact path="/" component={ HomePage }  />
+        <Route path="/category/:categoryID" component={ CategoryPage }/>
+        <Route path="/article/:articleID" component={ ArticlePage }/>
       </Switch>
     </HashRouter>
   </React.StrictMode>,

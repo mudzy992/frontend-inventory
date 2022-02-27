@@ -3,4 +3,7 @@ export default class ArticleType {
     name?: string;
     excerpt?: string;
     description?: string;
+    comment?: string;
+    sapNumber?: string;
+    categoryName?: string;
 }

@@ -1,11 +1,11 @@
-import { faListAlt } from '@fortawesome/free-solid-svg-icons';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../API/api';
-import { Button, Card, Col, Container, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
-import ArticleType from '../../types/ArticleType';
+import {Card, Col, Container, Row } from 'react-bootstrap';
 import FeaturesType from '../../types/FeaturesType';
-import { Alert } from '@mui/material';
+import ApiArticleDto from '../../dtos/ApiArticleDto';
+import Moment from 'moment';
 
 interface ArticlePageProperties {
     match: {
@@ -15,18 +15,17 @@ interface ArticlePageProperties {
     }
 }
 
-interface ArticlePageState {
-    message: string;
-    articles: ArticleType;
-    features?: FeaturesType[];
-    featuresData?: FeaturesType[];
+interface FeatureData {
+    name: string;
+    value: string;
 }
 
-interface articleFeaturesDto {
-    name: string;
-    value: string; 
-    
+interface ArticlePageState {
+    message: string;
+    articles?:   ApiArticleDto;
+    features: FeatureData[];
 }
+
 
 export default class ArticlePage extends React.Component<ArticlePageProperties> {
     state: ArticlePageState;
@@ -35,25 +34,19 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         super(props);
         this.state = {
             message : "",
-            articles: {}
+            features: []
         }
     }
 
-    private setArticles(articles: ArticleType) {
+    private setArticles(articleData: ApiArticleDto | undefined) {
         this.setState(Object.assign(this.state, {
-            articles: articles
-        }))
-    }
-
-    private setArticleFeatures(articleFeatures: FeaturesType[]) {
-        this.setState(Object.assign(this.state, {
-            features: articleFeatures
+            articles: articleData
         }))
     }
 
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
-            featuresData: featuresData
+            features: featuresData
         }))
     }
 
@@ -79,45 +72,46 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         api('api/article/' + this.props.match.params.articleID, 'get', {} )
         .then ((res: ApiResponse)=> {
             if (res.status === 'error') {
-                return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                this.setArticles(undefined);
+                this.setFeaturesData([]);
+                this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                return;
             }
-            const articleData: ArticleType = {
-                articleId: res.data.articleId,
-                name: res.data.name,
-                excerpt: res.data.excerpt,
-                description: res.data.description,
-                comment: res.data.comment,
-                sapNumber: res.data.sapNumber,
-                categoryName: res.data.category.name,
-            }
-            this.setArticles(articleData)
 
-            const articleFeaturesData: FeaturesType[] = 
-            (res.data.features.map((articleFeatureName: articleFeaturesDto) => {
-                return {
-                name: articleFeatureName.name,
-                value: (res.data.articleFeature.map(res.data.articleFeature.value))
-                }
-            }))
-
-            this.setArticleFeatures(articleFeaturesData)
-
-            /* const featureData: FeaturesType[] =
-            res.data.articleFeature.map((articleFeatureValue: articleFeaturesDto) => {
-                return {
-                    value: articleFeatureValue.value,
-                }
-            });
-
-            this.setFeaturesData(featureData); */
-
-            /* api('api/feature/?join=articleFeature&filter=articleFeature.articleId||$eq||' + this.props.match.params.articleID, 'get', {} )
-            .then((res : ApiResponse) => {
+            const data: ApiArticleDto = res.data;
+            this.setErrorMessage('')
+            this.setArticles(data)
             
-                
-            }) */
+            const features : FeaturesType[] = [];
+
+            for (const articleFeature of data.articleFeature) {
+                const value = articleFeature.value;
+                let name = '';
+
+                for (const feature of data.features) {
+                    if (feature.featureId === articleFeature.featureId) {
+                        name = feature.name;
+                        break;
+                    }
+                }
+
+                features.push({ name, value });
+            }
+            this.setFeaturesData(features);
         })    
   }
+
+  private printOptionalMessage() {
+    if (this.state.message === '') {
+        return;
+    }
+
+    return (
+        <Card.Text>
+            { this.state.message }
+        </Card.Text>
+    );
+}
 
     render(){
         return(
@@ -125,109 +119,103 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 <Card className="text-white bg-dark">
                     <Card.Header>
                         <Card.Title>
-                            <FontAwesomeIcon icon={faListAlt}/> Artikli
+                            <FontAwesomeIcon icon={faListCheck}/> {
+                                this.state.articles ?
+                                this.state.articles?.name :
+                                'Article not found'
+                            }
                         </Card.Title>
                     </Card.Header>
                 <Card.Body>
                     <Card.Text>
-                        { this.printErrorMessage () }
-                        { this.singleArticle(this.state.articles) }
-                        {console.log(this.state.articles)}
-                        {console.log(this.state.features)}
-                        {console.log(this.state.featuresData)}
-                        { this.showArticleFeatures() }
+                    { this.printOptionalMessage() }
+
+                        {
+                            this.state.articles ?
+                            ( this.renderArticleData(this.state.articles) ) :
+                            ''
+                        }
                     </Card.Text>
                 </Card.Body>
-                
                 </Card>
             </Container>
         )
     }
 
-    private printErrorMessage() {
-        if(this.state.message === "") {
-            return;
-        }
+    renderArticleData(article: ApiArticleDto) {
         return (
-            <Alert severity="error"
-                    style={{marginTop:15}}
-                    className={ this.state.message ? '' : 'd-none' }>
-                    { this.state.message }
-            </Alert>
-        )
-    } 
+            <Row>
+                <Col xs="12" lg="8">
+                    <div className="excerpt">
+                        { article.excerpt }
+                    </div>
 
-    private singleArticle(article: ArticleType){
-        return(
-            /* Ono kako želimo da prikažemo kategoriju (dizajn) */
-            <Col lg="4" md="6" sm="6" xs="12">
-                <Card className="text-dark bg-light mb-3">
-                    <Card.Img variant="top" src="" className="w-100"/>
-                        <Card.Body>
-                            <Card.Title>
-                                {article.name}
+                    <hr />
+                    
+                    <div className="description">
+                        { article.description }
+                    </div>
+
+                    <hr />
+
+                    <b>Detalji opreme:</b><br />
+
+                    <ul>
+                        { this.state.features.map(feature => (
+                            <li>
+                                { feature.name }: { feature.value }
+                            </li>
+                        ), this) }
+                    </ul>
+                </Col>
+                <Col xs="12" lg="4" style={{padding:20}}>
+                    <Row>
+                        <Card className="text-dark bg-light mb-3">
+                            <Card.Title style={{marginTop:10}}>
+                            Detalji korisnika:
                             </Card.Title>
-                            <ListGroup className="list-group-flush">
-                                <ListGroupItem> <strong>Excerpt:</strong> {article.excerpt}</ListGroupItem>
-                                <ListGroupItem> <strong>Excerpt:</strong> {article.description}</ListGroupItem>
-                                <ListGroupItem> <strong>Excerpt:</strong> {article.comment}</ListGroupItem>
-                                <ListGroupItem> <strong>Excerpt:</strong> {article.categoryName}</ListGroupItem>
-                                <ListGroupItem> <strong>Excerpt:</strong> {article.sapNumber}</ListGroupItem>
-                            </ListGroup>
-                        </Card.Body>
-                    <Card.Footer>
-                        Footer
-                    </Card.Footer>  
-                </Card>
-            </Col>
-        )
-    }
+                            <Card.Body>
+                                <ul>
+                                        {/* Ako je lista duža od 2 novi interfejs ili bolja varijanta rekonfiguracija baze, 
+                                        dodati u userArticle prilikom zaduživanja artikla da se upiše stanje i serijski broj, i to polje staviti uniq zajedno s userId
+                                        tako da jedan korisnik ne može zadužiti više istih artikala po serijskim broju i unique na serijski broj kako se nikako ne bi mogao
+                                        zadužiti artikal ako je već zadužem pod tim serijskim brojem. Skinuti provjeru zaduženja po articleId, glavna provjera da bude serijski broj*/}
+                                {this.state.articles?.userDetails.map(user => (
+                                    <><li>Ime: {user.surname}</li>
+                                    <li>Prezime: {user.forname}</li>
+                                    <li>Email: {user.email}</li>
+                                    <li>Sektor: {user.department}</li>
+                                    <li>Radno mjest: {user.jobTitle}</li>
+                                    <li>Lokacija: {user.location}</li>
+                                    <hr />
+                                    </> 
+                                ), this)}
+                                    </ul>
+                            </Card.Body>
+                        </Card>
+                    </Row>
 
-    private showArticleFeatures() {
-        if (this.state.features?.length === 0) {
-            return (
-                <div>There are now articles in this category.</div>
-            )
-        }
-        return (
-                 this.state.features?.map(this.singleFeatures),
-                 this.state.featuresData?.map(this.singleValueFeatures) 
+                    <Row>
+                    <Card className="text-dark bg-light mb-3">
+                            <Card.Title style={{marginTop:10}}>
+                            Status:
+                            </Card.Title>
+                            <Card.Body>
+                                <ul>
+                                {this.state.articles?.userArticles.map(userArticles => (
+                                    <>
+                                    <li>Količina: {userArticles.value}</li>
+                                    <li>Status: <b>{userArticles.status} </b></li>
+                                    <li>Datum zaduženja: {Moment(userArticles.timestamp).format('DD.MM.YYYY. - HH:mm')}</li>
+                                    <hr />
+                                    </> 
+                                ), this)}
+                                    </ul>
+                            </Card.Body>
+                        </Card>
+                    </Row>
+                </Col>
+            </Row>
         );
-    } 
-
-    private singleFeatures(features: FeaturesType){
-        return(
-            /* Ono kako želimo da prikažemo kategoriju (dizajn) */
-            <Col lg="4" md="6" sm="6" xs="12">
-                <Card className="text-dark bg-light mb-3">
-                    <Card.Img variant="top" src="" className="w-100"/>
-                        <Card.Body>
-                            <ListGroup className="list-group-flush">
-                                <ListGroupItem> <strong>Name1:</strong> {features.name}</ListGroupItem>
-                            </ListGroup>
-                        </Card.Body>
-                    <Card.Footer>
-                    </Card.Footer>  
-                </Card>
-            </Col>
-        )
     }
-    private singleValueFeatures(featureValue: FeaturesType){
-        return(
-            /* Ono kako želimo da prikažemo kategoriju (dizajn) */
-            <Col lg="4" md="6" sm="6" xs="12">
-                <Card className="text-dark bg-light mb-3">
-                    <Card.Img variant="top" src="" className="w-100"/>
-                        <Card.Body>
-                            <ListGroup className="list-group-flush">
-                            <ListGroupItem> <strong>name:</strong> {featureValue.name}</ListGroupItem>
-                                <ListGroupItem> <strong>Value:</strong> {featureValue.value}</ListGroupItem>
-                            </ListGroup>
-                        </Card.Body>
-                    <Card.Footer>
-                    </Card.Footer>  
-                </Card>
-            </Col>
-        )
-    } 
 }

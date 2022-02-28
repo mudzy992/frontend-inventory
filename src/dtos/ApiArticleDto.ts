@@ -1,26 +1,26 @@
-export default class ArticleType {
-    articleId?: number;
-    name?: string;
-    excerpt?: string;
-    description?: string;
-    comment?: string;
-    concract?: string;
-    sapNumber?: string;
-    categoryId?: number;
+export default interface ApiArticleDto {
+    articleId: number;
+    name: string;
+    excerpt: string;
+    description: string;
+    comment: string;
+    concract: string;
+    sapNumber: string;
+    categoryId: number;
     category?: {
         name: string;
         imagePath: string;
-    }
-    articleFeature?: {
+    };
+    articleFeature: {
         articleFeatureId: number;
         featureId: number;
         value: string;
     }[];
-    features?: {
+    features: {
         featureId: number;
         name: string;
     }[];
-    userDetails?:{
+    userDetails:{
         userId: number;
         surname: string;
         forname: string;
@@ -29,10 +29,10 @@ export default class ArticleType {
         department: string;
         location: string;
     }[];
-    userArticles?:{
+    userArticles:{
         userArticleId: number;
         value: string;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
-    }[]
+    }[];
 }

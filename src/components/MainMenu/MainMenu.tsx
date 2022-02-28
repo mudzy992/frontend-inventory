@@ -47,7 +47,7 @@ export class MainMenu extends React.Component<MainMenuProperties> {
             expand="lg" 
             collapseOnSelect={false}>
                 <Container>
-                    <Navbar.Brand href="/"> <FontAwesomeIcon icon = { faStoreAlt } /> Aplikacija</Navbar.Brand>
+                    <Navbar.Brand href="/"> <FontAwesomeIcon icon = { faStoreAlt } /> Inventory Database</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                             <Navbar.Collapse id="basic-navbar-nav">
                                 <Nav className='ml-auto'>

@@ -1,7 +1,5 @@
 import { faListAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button } from '@mui/material';
-import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import { Alert, Container } from '@mui/material';
 import React from 'react';
 import { Card, Col, ListGroup, ListGroupItem, Row } from 'react-bootstrap';

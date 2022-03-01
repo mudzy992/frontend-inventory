@@ -34,5 +34,6 @@ export default interface ApiArticleDto {
         value: string;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
+        serialNumber: string;
     }[];
 }

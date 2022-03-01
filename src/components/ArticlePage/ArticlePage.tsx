@@ -22,7 +22,7 @@ interface FeatureData {
 
 interface ArticlePageState {
     message: string;
-    articles?:   ApiArticleDto;
+    articles?: ApiArticleDto;
     features: FeatureData[];
 }
 
@@ -102,16 +102,16 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
   }
 
   private printOptionalMessage() {
-    if (this.state.message === '') {
-        return;
-    }
+        if (this.state.message === '') {
+            return;
+        }
 
-    return (
-        <Card.Text>
-            { this.state.message }
-        </Card.Text>
-    );
-}
+        return (
+            <Card.Text>
+                { this.state.message }
+            </Card.Text>
+        );
+    }
 
     render(){
         return(

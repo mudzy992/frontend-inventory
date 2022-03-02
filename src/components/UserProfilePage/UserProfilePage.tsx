@@ -1,11 +1,15 @@
 import React from "react";
-import {Card, Col, Container, Row, Table } from 'react-bootstrap';
+import {Card, Col, Container, Row,  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../API/api';
 import { faListCheck } from "@fortawesome/free-solid-svg-icons";
 import ApiUserProfileDto from "../../dtos/ApiUserProfileDto";
 import Moment from 'moment';
 import ResponsibilityType from "../../types/ResponsibilityType";
+import DebtType from "../../types/DebtType";
+import DestroyedType from "../../types/DestroyedType";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
+import Paper from '@mui/material/Paper';
 
 
 
@@ -19,6 +23,25 @@ interface UserProfilePageProperties {
 }
 
 interface responsibilityData {
+    articleId: number;
+    name: string;
+    value: number;
+    status: string;
+    timestamp: string;
+    serialNumber: string;
+}
+
+interface debtData {
+    articleId: number;
+    name: string;
+    value: number;
+    status: string;
+    timestamp: string;
+    serialNumber: string;
+}
+
+interface destroyedData {
+    articleId: number;
     name: string;
     value: number;
     status: string;
@@ -32,6 +55,8 @@ interface UserProfilePageState {
     users?: ApiUserProfileDto;
     message: string;
     responsibility: responsibilityData[];
+    debt: debtData[];
+    destroyed: destroyedData[];
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -43,12 +68,26 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         this.state = {
             message: "",
             responsibility: [],
+            debt: [],
+            destroyed: [],
         }
     }
 
     private setResponsibility(responsibilityData: ResponsibilityType[]) {
         this.setState(Object.assign(this.state, {
             responsibility: responsibilityData
+        }))
+    }
+
+    private setDebt(debtData: DebtType[]) {
+        this.setState(Object.assign(this.state, {
+            debt: debtData
+        }))
+    }
+
+    private setDestroyed(destroyedData: DestroyedType[]) {
+        this.setState(Object.assign(this.state, {
+            destroyed: destroyedData
         }))
     }
 
@@ -112,6 +151,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
 
             const responsibility : ResponsibilityType[] = [];
             for (const resArticles of data.responsibilityArticles) {
+                const articleId = resArticles.articleId;
                 const value = resArticles.value;
                 const status = resArticles.status;
                 const serialNumber = resArticles.serialNumber;
@@ -125,10 +165,42 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         break;
                     }
                 }
-                responsibility.push({name, value, status, timestamp, serialNumber})
+                responsibility.push({articleId, name, value, status, timestamp, serialNumber})
             }
             this.setResponsibility(responsibility)
-        }) 
+        })
+        api('api/debtArticles/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
+        .then((res:ApiResponse)=>{
+
+            const debt : DebtType[] = [];
+            for (const debtArticles of res.data) {
+                const articleId = debtArticles.articleId;
+                const value = debtArticles.value;
+                const status = debtArticles.comment;
+                const serialNumber = debtArticles.serialNumber;
+                const timestamp = debtArticles.timestamp;
+                const name = debtArticles.article.name;
+
+                debt.push({articleId, name, value, status, timestamp, serialNumber})
+            }
+            this.setDebt(debt)
+        })
+        api('api/destroyedArticles/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
+        .then((res:ApiResponse)=>{
+
+            const destroyed : DestroyedType[] = [];
+            for (const destroyedArticles of res.data) {
+                const articleId = destroyedArticles.articleId;
+                const value = destroyedArticles.value;
+                const status = destroyedArticles.comment;
+                const serialNumber = destroyedArticles.serialNumber;
+                const timestamp = destroyedArticles.timestamp;
+                const name = destroyedArticles.article. name;
+
+                destroyed.push({articleId, name, value, status, timestamp, serialNumber})
+            }
+            this.setDestroyed(destroyed)
+        })
     }
     
     /* KRAJ GET I MOUNT FUNKCIJA */
@@ -164,6 +236,139 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         )
     }
 
+    private responsibilityArticlesOnUser () {
+        if (this.state.responsibility.length === 0 ) {
+            return (
+                <>
+                <b>Zadužena oprema</b><br />
+                <Alert>Korisnik nema zadužene opreme</Alert>
+                </>
+            )
+        }
+        return (
+            <>
+            <b>Zadužena oprema</b><br />
+            <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>#</TableCell>
+                            <TableCell>Naziv</TableCell>
+                            <TableCell>Količina</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Datum zaduženja</TableCell>
+                            <TableCell>Serijski broj</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {this.state.responsibility?.map(ura => (
+                            <TableRow hover>
+                                <TableCell>{ura.articleId}</TableCell>
+                                <TableCell>{ura.name}</TableCell>
+                                <TableCell>{ura.value}</TableCell>
+                                <TableCell>{ura.status}</TableCell>
+                                <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                <TableCell>{ura.serialNumber}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            </>
+        )
+    }
+
+    private debtArticlesOnUser () {
+        if (this.state.debt.length === 0){
+            return (
+                <>
+                <hr />
+                <b>Razdužena oprema</b><br />
+                <Alert>Korisnik nema razdužene opreme</Alert>
+                </>
+            )
+        }
+        return(
+            <>
+            <hr />
+            <b>Razdužena oprema</b><br />
+            <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>#</TableCell>
+                            <TableCell>Naziv</TableCell>
+                            <TableCell>Količina</TableCell>
+                            <TableCell>Komentar</TableCell>
+                            <TableCell>Datum razdužena</TableCell>
+                            <TableCell>Serijski broj</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {this.state.debt?.map(debt => (
+                            <TableRow hover>
+                                <TableCell>{debt.articleId}</TableCell>
+                                <TableCell>{debt.name}</TableCell>
+                                <TableCell>{debt.value}</TableCell>
+                                <TableCell>{debt.status}</TableCell>
+                                <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                <TableCell>{debt.serialNumber}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            </>
+            )
+
+    }
+
+    private destroyedArticlesOnUser () {
+        if (this.state.destroyed.length === 0 ) {
+            return (
+                <>
+                <hr />
+                <b>Uništena oprema</b><br />
+                <Alert>Korisnik nema otpisane opreme</Alert>
+                 
+                </>
+               
+            )
+        }
+        return(
+        <>
+        <hr />
+        <b>Uništena oprema</b><br />
+        <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                <TableHead>
+                    <TableRow>
+                        <TableCell>#</TableCell>
+                        <TableCell>Naziv</TableCell>
+                        <TableCell>Količina</TableCell>
+                        <TableCell>Komentar</TableCell>
+                        <TableCell>Datum uništenja</TableCell>
+                        <TableCell>Serijski broj</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {this.state.destroyed?.map(destroyed => (
+                        <TableRow hover>
+                            <TableCell>{destroyed.articleId}</TableCell>
+                            <TableCell>{destroyed.name}</TableCell>
+                            <TableCell>{destroyed.value}</TableCell>
+                            <TableCell>{destroyed.status}</TableCell>
+                            <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                            <TableCell>{destroyed.serialNumber}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
+        </>
+        )
+    }
+
     renderArticleData(user: ApiUserProfileDto) {
         return (
             <Row>
@@ -179,41 +384,9 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     </div>
 
                     <hr />
-
-                    <b>Detalji opreme:</b><br />
-
-                    <Table striped bordered hover variant="dark">
-                        <thead>
-                            <tr>
-                            <th>#</th>
-                            <th>Naziv</th>
-                            <th>Količina</th>
-                            <th>Status</th>
-                            <th>Datum zaduženja</th>
-                            <th>Serijski broj</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.state.responsibility?.map(ura => (
-                                <tr>
-                                    <td></td>
-                                    <td>{ura.name}</td>
-                                    <td>{ura.value}</td>
-                                    <td>{ura.status}</td>
-                                    <td>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</td>
-                                    <td>{ura.serialNumber}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-
-                    <ul>
-                        { user.articles.map(artikal => (
-                            <li>
-                                { artikal.name }: { artikal.sapNumber }
-                            </li>
-                        ), this) }
-                    </ul>
+                    {this.responsibilityArticlesOnUser()}
+                    {this.debtArticlesOnUser()}
+                    {this.destroyedArticlesOnUser()}
                 </Col>
                 <Col xs="12" lg="4" style={{padding:20}}>
                     <Row>

@@ -1,4 +1,4 @@
-export default class ResponsibilityType {
+export default class DestroyedType {
     articleId?: number;
     name?: string;
     value?: number;

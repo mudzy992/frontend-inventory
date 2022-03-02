@@ -1,4 +1,4 @@
-export default class ResponsibilityType {
+export default class DebtType {
     articleId?: number;
     name?: string;
     value?: number;

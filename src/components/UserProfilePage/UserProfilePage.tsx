@@ -208,7 +208,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
         return(
-            <Container style={{marginTop:15}}>
+            <Container style={{marginTop:20}}>
                 <Card className="text-white bg-dark">
                     <Card.Header>
                         <Card.Title>
@@ -363,8 +363,23 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     renderArticleData(user: ApiUserProfileDto) {
         return (
             <Row>
+                <Col xs="12" lg="4" style={{ padding:5, paddingLeft:17}}>
+                        <ul className="list-group">
+                            <>
+                            <li className="list-group-item active"><b>Detalji korisnika</b></li>
+                            <li className="list-group-item">Ime: {user.surname}</li>
+                            <li className="list-group-item">Prezime: {user.forname}</li>
+                            <li className="list-group-item">Email: {user.email}</li>
+                            <li className="list-group-item">Sektor: {user.department}</li>
+                            <li className="list-group-item">Radno mjest: {user.jobTitle}</li>
+                            <li className="list-group-item">Lokacija: {user.location}</li>
+                            </> 
+                        </ul>
+                    <Row>
+                    </Row>
+                </Col>
                 <Col xs="12" lg="8" >
-                    <Row style={{padding:5}}>
+                    <Row style={{padding: 5}}>
                       {this.responsibilityArticlesOnUser()}  
                     </Row>
                     <Row style={{padding:5}}>
@@ -374,53 +389,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                      {this.destroyedArticlesOnUser()}   
                     </Row>
                 </Col>
-                <Col xs="12" lg="4" style={{padding:20}}>
-                    <Row>
-                        <Card className="text-dark bg-light mb-3">
-                            <Card.Title style={{marginTop:10}}>
-                            Detalji korisnika:
-                            </Card.Title>
-                            <Card.Body>
-                                <ul>
-                                        {/* Ako je lista duža od 2 novi interfejs ili bolja varijanta rekonfiguracija baze, 
-                                        dodati u userArticle prilikom zaduživanja artikla da se upiše stanje i serijski broj, i to polje staviti uniq zajedno s userId
-                                        tako da jedan korisnik ne može zadužiti više istih artikala po serijskim broju i unique na serijski broj kako se nikako ne bi mogao
-                                        zadužiti artikal ako je već zadužem pod tim serijskim brojem. Skinuti provjeru zaduženja po articleId, glavna provjera da bude serijski broj*/}
-    
-                                    <><li>Ime: {user.surname}</li>
-                                    <li>Prezime: {user.forname}</li>
-                                    <li>Email: {user.email}</li>
-                                    <li>Sektor: {user.department}</li>
-                                    <li>Radno mjest: {user.jobTitle}</li>
-                                    <li>Lokacija: {user.location}</li>
-                                    <hr />
-                                    </> 
-
-                                    </ul>
-                            </Card.Body>
-                        </Card>
-                    </Row>
-
-                    <Row>
-                    <Card className="text-dark bg-light mb-3">
-                            <Card.Title style={{marginTop:10}}>
-                            Status:
-                            </Card.Title>
-                            <Card.Body>
-                                <ul>
-                                {user.responsibilityArticles.map(responsibility => (
-                                    <>
-                                    <li>Količina: {responsibility.value}</li>
-                                    <li>Status: <b>{responsibility.status} </b></li>
-                                    <li>Datum zaduženja: {Moment(responsibility.timestamp).format('DD.MM.YYYY. - HH:mm')}</li>
-                                    <hr />
-                                    </> 
-                                ), this)}
-                                    </ul>
-                            </Card.Body>
-                        </Card>
-                    </Row>
-                </Col>
+                
             </Row>
         );
     }

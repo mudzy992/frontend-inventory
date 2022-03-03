@@ -10,8 +10,7 @@ import ApiUserDto from '../../dtos/ApiUserDto';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
-import { faArrowDownShortWide, faUsers } from "@fortawesome/free-solid-svg-icons";
-import PlaylistPlayIcon from '@mui/icons-material/PlaylistPlay';
+import { faArrowDownShortWide, faUser, faUsers,  } from "@fortawesome/free-solid-svg-icons";
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -23,12 +22,14 @@ interface UserPageState {
     message: string;
 }
 
+
+
 const columns = [{  
     dataField: 'userId',  
     text: '#',
     formatter: (row: any) => (
         <div style={{justifyContent: 'center', display: 'flex'}}>
-          <a href={`#/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> Profil</a>
+          <a href={`#/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <FontAwesomeIcon icon={faUser}/> Profil</a>
         </div>
       )
   },  
@@ -47,7 +48,8 @@ const columns = [{
   {  
     dataField: 'forname',  
     text: 'Prezime',  
-    sort:true  
+    sort:true,
+    
   },
   {  
     dataField: 'jobTitle',  
@@ -80,7 +82,7 @@ export default class UserPage extends React.Component {
             users: []
         }
     }
-
+    
     /* SET FUNKCIJE ĆEMO DEFINISATI PRIJE RENDERA */
     private setUsers(userData: ApiUserDto[]) {
         const users: UserType[] = userData.map(user => {
@@ -223,18 +225,19 @@ export default class UserPage extends React.Component {
           return(
             <>
                 <BootstrapTable
-                    wrapperClasses='table-responsive'
-                    classes="react-bootstrap-table"
-                    keyField='surname' 
-                    bordered={false}
-                    striped  
-                    hover  
-                    data={ this.state.users }
-                    columns={columns}
-                    expandRow={ expandRow}
-                    filter={ filterFactory() }
-                    pagination={ paginationFactory(options) }
-                />
+                        keyField="userId"
+                        data={ this.state.users }
+                        columns={ columns }
+                        wrapperClasses='table-responsive'
+                        classes="react-bootstrap-table"
+                        bordered={false}
+                        striped
+                        hover
+                        expandRow={expandRow}
+                        filter={filterFactory()}
+                        pagination={paginationFactory(options)}
+                        />
+
                 {this.printOptionalMessage()}
             </>
      )}
@@ -264,7 +267,7 @@ export default class UserPage extends React.Component {
                 ), this)
          )
      }
-
+     
     render() {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */

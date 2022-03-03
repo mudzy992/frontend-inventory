@@ -1,5 +1,7 @@
 import React from "react";
-import {Card, Col, Container, Table } from 'react-bootstrap';
+import {Card, Col, Container, Row } from 'react-bootstrap';
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
+import Paper from '@mui/material/Paper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../API/api';
 import UserType from '../../types/UserType';
@@ -8,8 +10,8 @@ import ApiUserDto from '../../dtos/ApiUserDto';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
-
+import { faArrowDownShortWide, faUsers } from "@fortawesome/free-solid-svg-icons";
+import PlaylistPlayIcon from '@mui/icons-material/PlaylistPlay';
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -25,16 +27,21 @@ const columns = [{
     dataField: 'userId',  
     text: '#',
     formatter: (row: any) => (
-        <div>
+        <div style={{justifyContent: 'center', display: 'flex'}}>
           <a href={`#/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> Profil</a>
         </div>
       )
   },  
   {  
     dataField: 'surname', 
-    text: 'Ime',  
+    text: 'Ime ',  
     sort:true,
     filter: textFilter(),
+    formatter: (row: any) => (
+        <div>
+            <FontAwesomeIcon icon={faArrowDownShortWide}/> {`${row}`}
+        </div>
+    )
     
   },
   {  
@@ -136,7 +143,6 @@ export default class UserPage extends React.Component {
     componentDidMount(){
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
-        
     }
 
     componentDidUpdate(){
@@ -148,7 +154,6 @@ export default class UserPage extends React.Component {
         if (this.state.message === '') {
             return;
         }
-
         return (
             <Card.Text>
                 { this.state.message }
@@ -175,9 +180,7 @@ export default class UserPage extends React.Component {
     
     /* KRAJ GET I MOUNT FUNKCIJA */
 
-    render() {
-        /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
-        /* kraj provjera */
+    private TableContent () {
         const options = {  
             page: 0, /* Koja je prva stranica prikaza na učitavanju */   
             sizePerPageList: [ {  
@@ -200,66 +203,93 @@ export default class UserPage extends React.Component {
         const expandRow = {
             renderer: (row: UserType) => (
                 <>
-                <Table striped hover variant="light">
-                <thead>
-                    <tr>
-                    <th>#</th>
-                    <th>Naziv</th>
-                    <th>Ugovor</th>
-                    <th>SAP broj</th> 
-                    </tr>
-                </thead>
-                <tbody>
-                    {row.articles?.map(article => (
-                    <tr>
-                        <td>{article.articleId}</td>
-                        <td><Link to ={`/article/${article.articleId}`}>{article.name} </Link></td>
-                        <td>{article.concract}</td>
-                        <td>{article.sapNumber}</td>
-                    </tr>
-                    ), this)}
-                </tbody>
-                </Table>
-                <ul>
-            </ul>
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                    <TableHead>
+                    <TableRow>
+                        <TableCell>#</TableCell>
+                        <TableCell>Naziv</TableCell>
+                        <TableCell>Ugovor</TableCell>
+                        <TableCell>SAP broj</TableCell> 
+                    </TableRow>
+                </TableHead>
+                    {this.ExtendedTableContent(row)}
+                    </Table>
+                </TableContainer>
             </>
-            ),
+            ), onlyOneExpanding: true, /* Poigrat se malo ovdje sa css, pokušati zbaciti fade */
           };
 
-    return(
-        /* prikaz klijentu */
-        <>
-        <Container style={{marginTop:15}}>
-            <Col lg="12" md="4" sm="6" xs="12">
-                <Card className="text-dark bg-light">
-                <Card.Body>
-                    <Card.Header>
-                        <Card.Title>
-                            <FontAwesomeIcon icon={faUsers}/> Spisak korisnika
-                        </Card.Title>
-                    </Card.Header>
-                    <Card.Text>
-                    <BootstrapTable 
+          return(
+            <>
+                <BootstrapTable
+                    wrapperClasses='table-responsive'
+                    classes="react-bootstrap-table"
                     keyField='surname' 
+                    bordered={false}
                     striped  
                     hover  
                     data={ this.state.users }
                     columns={columns}
-                    expandRow={ expandRow }
+                    expandRow={ expandRow}
                     filter={ filterFactory() }
                     pagination={ paginationFactory(options) }
-                    />
+                />
+                {this.printOptionalMessage()}
+            </>
+     )}
 
-                    {this.printOptionalMessage()}
-                    </Card.Text>
+     private ExtendedTableContent (row:UserType) {
+         if (row.articles?.length === 0) {
+                 return (
+                     <TableRow>
+                         <TableCell colSpan={4}>
+                         <Alert variant="filled" severity="info">Korisnik nema zadužene opreme</Alert>
+                         </TableCell>
+                    </TableRow>
+                 )
+             }
+         return (
+            row.articles?.map(article => (
+                <>
+                <TableBody>
+                    <TableRow hover>
+                        <TableCell>{article.articleId}</TableCell>
+                        <TableCell><Link style={{textDecoration: 'none', fontWeight:'bold'}} to ={`/article/${article.articleId}`}>{article.name} </Link></TableCell>
+                        <TableCell>{article.concract}</TableCell>
+                        <TableCell>{article.sapNumber}</TableCell>
+                    </TableRow>
+                </TableBody>
+                </>
+                ), this)
+         )
+     }
+
+    render() {
+        /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
+        /* kraj provjera */
+        return (
+        <>
+            <Container style={{marginTop:10}} fluid="md">
+                <Col>
+                    <Card className="text-dark bg-light">
+                    <Card.Body>
+                        <Card.Header>
+                            <Card.Title>
+                                <FontAwesomeIcon icon={faUsers}/> Spisak korisnika
+                            </Card.Title>
+                        </Card.Header>
+                        <Row> 
+                            <Card.Text>
+                            {this.TableContent()}  
+                            </Card.Text>
+                        </Row>
                     </Card.Body>
-                </Card>
-            </Col>    
-        </Container>
-        
-        </>
+                    </Card>
+                </Col>
+            </Container>
+        </>  
     )}
-
 }
 
 

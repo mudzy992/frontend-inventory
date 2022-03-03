@@ -16,8 +16,8 @@ import UserPage from './components/UserPage/UserPage';
 import UserProfilePage from './components/UserProfilePage/UserProfilePage';
 
 const menuItems = [
-  new MainMenuItem("Home", "/"),
-  new MainMenuItem("App", "/user"),
+  new MainMenuItem("Naslovna", "/"),
+  new MainMenuItem("Korisnici", "/user"),
   new MainMenuItem("Contact", "/contact/"),
   new MainMenuItem("Log in", "/user/login/"),
   new MainMenuItem("Register", "/user/register/"),

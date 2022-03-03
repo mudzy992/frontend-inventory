@@ -121,7 +121,6 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         if (this.state.message === '') {
             return;
         }
-
         return (
             <Card.Text>
                 { this.state.message }
@@ -223,7 +222,6 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 <Card.Body>
                     <Card.Text>
                     { this.printOptionalMessage() }
-
                         {
                             this.state.users ?
                             ( this.renderArticleData(this.state.users) ) :
@@ -241,15 +239,15 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             return (
                 <>
                 <b>Zadužena oprema</b><br />
-                <Alert>Korisnik nema zadužene opreme</Alert>
+                <Alert variant="filled" severity="info">Korisnik nema zadužene opreme</Alert>
                 </>
             )
         }
         return (
             <>
             <b>Zadužena oprema</b><br />
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 700 }} aria-label="customized table">
+            <TableContainer style={{maxHeight:300, overflowY: 'auto'}} component={Paper}>
+                <Table sx={{ minWidth: 700}} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell>#</TableCell>
@@ -282,17 +280,15 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         if (this.state.debt.length === 0){
             return (
                 <>
-                <hr />
                 <b>Razdužena oprema</b><br />
-                <Alert>Korisnik nema razdužene opreme</Alert>
+                <Alert variant="filled" severity="info">Korisnik nema razdužene opreme</Alert>
                 </>
             )
         }
         return(
             <>
-            <hr />
             <b>Razdužena oprema</b><br />
-            <TableContainer component={Paper}>
+            <TableContainer style={{maxHeight:300, overflowY: 'auto'}} component={Paper}>
                 <Table sx={{ minWidth: 700 }} aria-label="customized table">
                     <TableHead>
                         <TableRow>
@@ -319,28 +315,23 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 </Table>
             </TableContainer>
             </>
-            )
-
+        )
     }
 
     private destroyedArticlesOnUser () {
         if (this.state.destroyed.length === 0 ) {
             return (
                 <>
-                <hr />
                 <b>Uništena oprema</b><br />
-                <Alert>Korisnik nema otpisane opreme</Alert>
-                 
+                <Alert variant="filled" severity="info">Korisnik nema otpisane opreme</Alert>
                 </>
-               
             )
         }
         return(
         <>
-        <hr />
         <b>Uništena oprema</b><br />
-        <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <TableContainer style={{maxHeight:300, overflowY: 'auto'}} component={Paper}>
+            <Table sx={{ minWidth: 700 }} aria-label="custumuzed table">
                 <TableHead>
                     <TableRow>
                         <TableCell>#</TableCell>
@@ -372,21 +363,16 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     renderArticleData(user: ApiUserProfileDto) {
         return (
             <Row>
-                <Col xs="12" lg="8">
-                    <div className="excerpt">
-                        { user.surname }
-                    </div>
-
-                    <hr />
-                    
-                    <div className="description">
-                        { user.forname }
-                    </div>
-
-                    <hr />
-                    {this.responsibilityArticlesOnUser()}
-                    {this.debtArticlesOnUser()}
-                    {this.destroyedArticlesOnUser()}
+                <Col xs="12" lg="8" >
+                    <Row style={{padding:5}}>
+                      {this.responsibilityArticlesOnUser()}  
+                    </Row>
+                    <Row style={{padding:5}}>
+                      {this.debtArticlesOnUser()}  
+                    </Row>
+                    <Row style={{padding:5}}>
+                     {this.destroyedArticlesOnUser()}   
+                    </Row>
                 </Col>
                 <Col xs="12" lg="4" style={{padding:20}}>
                     <Row>

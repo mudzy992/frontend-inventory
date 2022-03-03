@@ -1,5 +1,5 @@
 import React from "react";
-import {Card, Col, Container, Row,  } from 'react-bootstrap';
+import {Card, CardGroup, Col, Container, Row,  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../API/api';
 import { faListCheck } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +10,8 @@ import DebtType from "../../types/DebtType";
 import DestroyedType from "../../types/DestroyedType";
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 import Paper from '@mui/material/Paper';
+import ArticleByUserData from "../../data/ArticleByUserData";
+import ArticleByUserType from "../../types/ArticleByUserType";
 
 
 
@@ -35,7 +37,7 @@ interface debtData {
     articleId: number;
     name: string;
     value: number;
-    status: string;
+    comment: string;
     timestamp: string;
     serialNumber: string;
 }
@@ -44,7 +46,7 @@ interface destroyedData {
     articleId: number;
     name: string;
     value: number;
-    status: string;
+    comment: string;
     timestamp: string;
     serialNumber: string;
 }
@@ -57,6 +59,7 @@ interface UserProfilePageState {
     responsibility: responsibilityData[];
     debt: debtData[];
     destroyed: destroyedData[];
+    articlesByUser: ArticleByUserData[];
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -70,6 +73,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             responsibility: [],
             debt: [],
             destroyed: [],
+            articlesByUser: [],
         }
     }
 
@@ -94,6 +98,12 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     private setUsers(userProfileDate: ApiUserProfileDto | undefined) {
         this.setState(Object.assign(this.state, {
             users: userProfileDate
+        }))
+    }
+
+    private setArticleByUser(articleByUserData: ArticleByUserType[]) {
+        this.setState(Object.assign(this.state, {
+            articlesByUser: articleByUserData
         }))
     }
 
@@ -170,35 +180,18 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         })
         api('api/debtArticles/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
         .then((res:ApiResponse)=>{
-
-            const debt : DebtType[] = [];
-            for (const debtArticles of res.data) {
-                const articleId = debtArticles.articleId;
-                const value = debtArticles.value;
-                const status = debtArticles.comment;
-                const serialNumber = debtArticles.serialNumber;
-                const timestamp = debtArticles.timestamp;
-                const name = debtArticles.article.name;
-
-                debt.push({articleId, name, value, status, timestamp, serialNumber})
-            }
+            const debt : DebtType[] = res.data;
             this.setDebt(debt)
         })
         api('api/destroyedArticles/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
         .then((res:ApiResponse)=>{
-
-            const destroyed : DestroyedType[] = [];
-            for (const destroyedArticles of res.data) {
-                const articleId = destroyedArticles.articleId;
-                const value = destroyedArticles.value;
-                const status = destroyedArticles.comment;
-                const serialNumber = destroyedArticles.serialNumber;
-                const timestamp = destroyedArticles.timestamp;
-                const name = destroyedArticles.article. name;
-
-                destroyed.push({articleId, name, value, status, timestamp, serialNumber})
-            }
+            const destroyed : DestroyedType[] = res.data;
             this.setDestroyed(destroyed)
+        })
+        api('api/article/?join=userDetails&filter=userDetails.userId||$eq||' + this.props.match.params.userID, 'get', {} )
+        .then((res:ApiResponse) => {
+            const articleByUser : ArticleByUserType[] = res.data;
+            this.setArticleByUser(articleByUser)
         })
     }
     
@@ -306,7 +299,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                                 <TableCell>{debt.articleId}</TableCell>
                                 <TableCell>{debt.name}</TableCell>
                                 <TableCell>{debt.value}</TableCell>
-                                <TableCell>{debt.status}</TableCell>
+                                <TableCell>{debt.comment}</TableCell>
                                 <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                 <TableCell>{debt.serialNumber}</TableCell>
                             </TableRow>
@@ -348,7 +341,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             <TableCell>{destroyed.articleId}</TableCell>
                             <TableCell>{destroyed.name}</TableCell>
                             <TableCell>{destroyed.value}</TableCell>
-                            <TableCell>{destroyed.status}</TableCell>
+                            <TableCell>{destroyed.comment}</TableCell>
                             <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                             <TableCell>{destroyed.serialNumber}</TableCell>
                         </TableRow>
@@ -360,10 +353,10 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         )
     }
 
-    renderArticleData(user: ApiUserProfileDto) {
+    private renderArticleData(user: ApiUserProfileDto) {
         return (
             <Row>
-                <Col xs="12" lg="4" style={{ padding:5, paddingLeft:17}}>
+                <Col xs="12" lg="4" style={{ padding:5, paddingLeft:5}}>
                         <ul className="list-group">
                             <>
                             <li className="list-group-item active"><b>Detalji korisnika</b></li>
@@ -380,6 +373,9 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 </Col>
                 <Col xs="12" lg="8" >
                     <Row style={{padding: 5}}>
+                      {this.articlesByUser()}  
+                    </Row>
+                    <Row style={{padding: 5}}>
                       {this.responsibilityArticlesOnUser()}  
                     </Row>
                     <Row style={{padding:5}}>
@@ -393,6 +389,30 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             </Row>
         );
     }
+
+    private articlesByUser(){
+        return (
+                this.state.articlesByUser.map(kategorija => (
+<>
+                    {/* <CardGroup>
+                        <Card>
+                            <Card.Title>
+                                {kategorija.category.name}
+                            </Card.Title>
+                        </Card>
+                    </CardGroup> */}
+
+                <Col xs lg="2" style={{maxWidth:150, height:150, display:'inherit'}}>
+                    <Row style={{padding:5}}>
+                        <Card bg="light" text="dark" className="mb-2">
+                            <Card.Title>
+                                {kategorija.category.name}
+                            </Card.Title>
+                        </Card>
+                    </Row>
+                </Col>
+                 </>
+            ))
+        )
+    }
 }
-
-

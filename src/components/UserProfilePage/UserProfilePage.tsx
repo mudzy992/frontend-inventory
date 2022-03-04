@@ -1,8 +1,8 @@
 import React from "react";
-import {Card, CardGroup, Col, Container, Row,  } from 'react-bootstrap';
+import {Card, Col, Container, Row,  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../API/api';
-import { faListCheck } from "@fortawesome/free-solid-svg-icons";
+import { faDesktop, faListCheck } from "@fortawesome/free-solid-svg-icons";
 import ApiUserProfileDto from "../../dtos/ApiUserProfileDto";
 import Moment from 'moment';
 import ResponsibilityType from "../../types/ResponsibilityType";
@@ -402,16 +402,21 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         </Card>
                     </CardGroup> */}
 
-                <Col xs lg="2" style={{maxWidth:150, height:150, display:'inherit'}}>
-                    <Row style={{padding:5}}>
-                        <Card bg="light" text="dark" className="mb-2">
-                            <Card.Title>
-                                {kategorija.category.name}
-                            </Card.Title>
+                <Col xs="12" lg="4" >
+                    <Row style={{paddingLeft:5}}>
+                        <Card bg="light" text="dark" className="mb-2" style={{}}>
+                            <Col xs="12" lg="12" style={{display:'flex', flex:'items-center', }}>
+                                <Row style={{justifyContent: 'center', paddingTop:8, marginRight:5, maxWidth:50, width:50}} >
+                                    <i className={`${kategorija.category.imagePath}`} style={{fontSize: 20}}></i>
+                                </Row>
+                                <Row style={{ display:'flex', flex:'items-center', textAlign:'left', padding:10}}>
+                                    <b>{kategorija.category.name}</b>
+                                </Row>
+                            </Col>
                         </Card>
                     </Row>
                 </Col>
-                 </>
+</>
             ))
         )
     }

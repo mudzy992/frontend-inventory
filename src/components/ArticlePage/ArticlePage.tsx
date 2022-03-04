@@ -176,10 +176,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </Card.Title>
                             <Card.Body>
                                 <ul>
-                                        {/* Ako je lista duža od 2 novi interfejs ili bolja varijanta rekonfiguracija baze, 
-                                        dodati u userArticle prilikom zaduživanja artikla da se upiše stanje i serijski broj, i to polje staviti uniq zajedno s userId
-                                        tako da jedan korisnik ne može zadužiti više istih artikala po serijskim broju i unique na serijski broj kako se nikako ne bi mogao
-                                        zadužiti artikal ako je već zadužem pod tim serijskim brojem. Skinuti provjeru zaduženja po articleId, glavna provjera da bude serijski broj*/}
                                 {this.state.articles?.userDetails.map(user => (
                                     <><li>Ime: {user.surname}</li>
                                     <li>Prezime: {user.forname}</li>

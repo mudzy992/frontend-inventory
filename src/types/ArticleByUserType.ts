@@ -54,5 +54,5 @@ export default interface ArticleByUserType {
         comment:string;
         serialNumber:string;
         timestamp:string;
-    }[]
+    }[];
 }

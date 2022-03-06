@@ -258,7 +258,7 @@ export default class UserPage extends React.Component {
                 <TableBody>
                     <TableRow hover>
                         <TableCell>{article.articleId}</TableCell>
-                        <TableCell><Link style={{textDecoration: 'none', fontWeight:'bold'}} to ={`/article/${article.articleId}`}>{article.name} </Link></TableCell>
+                        <TableCell><Link style={{textDecoration: 'none', fontWeight:'bold'}} to={`/article/${article.articleId}`}>{article.name} </Link></TableCell>
                         <TableCell>{article.concract}</TableCell>
                         <TableCell>{article.sapNumber}</TableCell>
                     </TableRow>

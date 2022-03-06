@@ -99,7 +99,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             }
             this.setFeaturesData(features);
         })    
-  }
+    }
 
   private printOptionalMessage() {
         if (this.state.message === '') {
@@ -144,6 +144,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     renderArticleData(article: ApiArticleDto) {
         return (
+
             <Row>
                 <Col xs="12" lg="8">
                     <div className="excerpt">

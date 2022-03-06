@@ -1,4 +1,4 @@
-export default interface ApiArticleByUserDto {
+export default interface ArticleByUserType {
     articleId: number;
     name: string;
     excerpt: string;
@@ -7,7 +7,7 @@ export default interface ApiArticleByUserDto {
     concract: string;
     sapNumber: string;
     categoryId: number;
-    category?: {
+    category: {
         name: string;
         imagePath: string;
         parentCategoryId:number;
@@ -54,5 +54,5 @@ export default interface ApiArticleByUserDto {
         comment:string;
         serialNumber:string;
         timestamp:string;
-    }[]
+    }[];
 }

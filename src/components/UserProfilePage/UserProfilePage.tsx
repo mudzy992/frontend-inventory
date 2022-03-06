@@ -1,18 +1,17 @@
 import React from "react";
-import {Card, Col, Container, Row,  } from 'react-bootstrap';
+import {Card, Col, Container, Row, Badge} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../API/api';
-import { faDesktop, faListCheck } from "@fortawesome/free-solid-svg-icons";
-import ApiUserProfileDto from "../../dtos/ApiUserProfileDto";
+import { faListCheck } from "@fortawesome/free-solid-svg-icons";
 import Moment from 'moment';
-import ResponsibilityType from "../../types/ResponsibilityType";
-import DebtType from "../../types/DebtType";
-import DestroyedType from "../../types/DestroyedType";
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link} from "@mui/material";
 import Paper from '@mui/material/Paper';
 import ArticleByUserData from "../../data/ArticleByUserData";
 import ArticleByUserType from "../../types/ArticleByUserType";
-
+import ApiUserProfileDto from "../../dtos/ApiUserProfileDto";
+import ResponsibilityType from "../../types/ResponsibilityType";
+import DebtType from "../../types/DebtType";
+import DestroyedType from "../../types/DestroyedType";
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -31,15 +30,18 @@ interface responsibilityData {
     status: string;
     timestamp: string;
     serialNumber: string;
+    categoryId: number;
 }
 
 interface debtData {
     articleId: number;
-    name: string;
     value: number;
     comment: string;
     timestamp: string;
     serialNumber: string;
+    article:{
+        name: string;
+    }
 }
 
 interface destroyedData {
@@ -49,6 +51,9 @@ interface destroyedData {
     comment: string;
     timestamp: string;
     serialNumber: string;
+    article:{
+        name: string;
+    }
 }
 
 interface UserProfilePageState {
@@ -119,7 +124,6 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     componentDidMount(){
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
-        
     }
 
     componentDidUpdate(){
@@ -194,13 +198,17 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             this.setArticleByUser(articleByUser)
         })
     }
+
+    
     
     /* KRAJ GET I MOUNT FUNKCIJA */
 
     render() {
+        
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
         return(
+            
             <Container style={{marginTop:20}}>
                 <Card className="text-white bg-dark">
                     <Card.Header>
@@ -255,7 +263,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         {this.state.responsibility?.map(ura => (
                             <TableRow hover>
                                 <TableCell>{ura.articleId}</TableCell>
-                                <TableCell>{ura.name}</TableCell>
+                                <TableCell><Link href={`#/article/${ura.articleId}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{ura.name}</Link></TableCell>
                                 <TableCell>{ura.value}</TableCell>
                                 <TableCell>{ura.status}</TableCell>
                                 <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -297,7 +305,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         {this.state.debt?.map(debt => (
                             <TableRow hover>
                                 <TableCell>{debt.articleId}</TableCell>
-                                <TableCell>{debt.name}</TableCell>
+                                <TableCell><Link href={`#/article/${debt.articleId}`} style={{textDecoration: 'none', fontWeight:'bold'}}>{debt.article.name}</Link></TableCell>
                                 <TableCell>{debt.value}</TableCell>
                                 <TableCell>{debt.comment}</TableCell>
                                 <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -339,7 +347,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     {this.state.destroyed?.map(destroyed => (
                         <TableRow hover>
                             <TableCell>{destroyed.articleId}</TableCell>
-                            <TableCell>{destroyed.name}</TableCell>
+                            <TableCell><Link href={`#/article/${destroyed.articleId}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{destroyed.article.name}</Link></TableCell>
                             <TableCell>{destroyed.value}</TableCell>
                             <TableCell>{destroyed.comment}</TableCell>
                             <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -353,27 +361,25 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         )
     }
 
-    private renderArticleData(user: ApiUserProfileDto) {
+    private renderArticleData(user: ApiUserProfileDto) {   
         return (
             <Row>
-                <Col xs="12" lg="4" style={{ padding:5, paddingLeft:5}}>
-                        <ul className="list-group">
-                            <>
-                            <li className="list-group-item active"><b>Detalji korisnika</b></li>
-                            <li className="list-group-item">Ime: {user.surname}</li>
-                            <li className="list-group-item">Prezime: {user.forname}</li>
-                            <li className="list-group-item">Email: {user.email}</li>
-                            <li className="list-group-item">Sektor: {user.department}</li>
-                            <li className="list-group-item">Radno mjest: {user.jobTitle}</li>
-                            <li className="list-group-item">Lokacija: {user.location}</li>
-                            </> 
-                        </ul>
-                    <Row>
-                    </Row>
+                <Col xs="12" lg="3" style={{ backgroundColor:"", padding:5, paddingLeft:5}}>
+                    <ul className="list-group">
+                        <>
+                        <li className="list-group-item active"><b>Detalji korisnika</b></li>
+                        <li className="list-group-item">Ime: {user.surname}</li>
+                        <li className="list-group-item">Prezime: {user.forname}</li>
+                        <li className="list-group-item">Email: {user.email}</li>
+                        <li className="list-group-item">Sektor: {user.department}</li>
+                        <li className="list-group-item">Radno mjest: {user.jobTitle}</li>
+                        <li className="list-group-item">Lokacija: {user.location}</li>
+                        </> 
+                    </ul>
                 </Col>
-                <Col xs="12" lg="8" >
+                <Col xs="12" lg="9" >
                     <Row style={{padding: 5}}>
-                      {this.articlesByUser()}  
+                      {this.articlesByUser()}
                     </Row>
                     <Row style={{padding: 5}}>
                       {this.responsibilityArticlesOnUser()}  
@@ -385,39 +391,59 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                      {this.destroyedArticlesOnUser()}   
                     </Row>
                 </Col>
-                
             </Row>
         );
     }
 
-    private articlesByUser(){
+    private articlesByUser (){
         return (
-                this.state.articlesByUser.map(kategorija => (
-<>
-                    {/* <CardGroup>
-                        <Card>
-                            <Card.Title>
-                                {kategorija.category.name}
-                            </Card.Title>
-                        </Card>
-                    </CardGroup> */}
 
-                <Col xs="12" lg="4" >
-                    <Row style={{paddingLeft:5}}>
-                        <Card bg="light" text="dark" className="mb-2" style={{}}>
-                            <Col xs="12" lg="12" style={{display:'flex', flex:'items-center', }}>
-                                <Row style={{justifyContent: 'center', paddingTop:8, marginRight:5, maxWidth:50, width:50}} >
-                                    <i className={`${kategorija.category.imagePath}`} style={{fontSize: 20}}></i>
-                                </Row>
-                                <Row style={{ display:'flex', flex:'items-center', textAlign:'left', padding:10}}>
-                                    <b>{kategorija.category.name}</b>
-                                </Row>
-                            </Col>
-                        </Card>
-                    </Row>
-                </Col>
-</>
-            ))
-        )
+        this.state.articlesByUser.map (artikal => (
+            <>
+            <Col xs="6" md="4" lg="3" sm="4" mb-2>
+            <a data-bs-toggle="modal" data-bs-target={`#model-${artikal.articleId}`}>
+                <Card h-100 bg="light" text="dark" style={{marginBottom:8}} >
+                    <Card.Body style={{display:"flex", flexDirection:"column", alignItems:"center"}}>
+                    <Badge pill bg="primary">
+                    {artikal.category.name}
+                    </Badge>{<div style={{fontSize:11}}>{artikal.name}</div>}
+                        <i className={`${artikal.category.imagePath}`} style={{fontSize: 52}}></i>
+                        <div className="modal fade" id={`model-${artikal.articleId}`} aria-hidden="true" tabIndex={-1 } style={{color:"black"}}>
+                            <div className="modal-dialog modal-dialog-centered modal-lg" style={{width:"auto", height:"auto"}}>
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title">{artikal.name}</h5>
+                                        
+                                    </div>
+                                    <div className="modal-body">
+                                        <TableContainer>
+                                            <Table >
+                                                <TableBody>
+                                                    <TableCell align="left" >
+                                                            { artikal.features.map(feature => (
+                                                            <TableRow > 
+                                                                    {feature.name }
+                                                            </TableRow>
+                                                        ), this) } 
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        { artikal.articleFeature.map(feature => (
+                                                            <TableRow >
+                                                                {feature.value}
+                                                            </TableRow>
+                                                        ), this) }
+                                                    </TableCell>
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Card.Body>
+                </Card></a>
+            </Col>
+            </>
+        )))
     }
 }

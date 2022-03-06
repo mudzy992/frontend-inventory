@@ -5,4 +5,7 @@ export default class DebtType {
     comment?: string;
     timestamp?: string;
     serialNumber?: string;
+    article?:{
+        name: string;
+    }
 }

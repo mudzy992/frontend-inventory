@@ -45,7 +45,7 @@ export class MainMenu extends React.Component<MainMenuProperties> {
             variant="dark" 
             sticky="top" 
             expand="lg" 
-            collapseOnSelect={false}>
+            collapseOnSelect={true}>
                 <Container>
                     <Navbar.Brand href="/"> <FontAwesomeIcon icon = { faStoreAlt } /> Inventory Database</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav"/>

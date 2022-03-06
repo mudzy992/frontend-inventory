@@ -1,13 +1,3 @@
-/* export default class UserType {
-    userId?: number;
-    surname?: string;
-    forname?: string;
-    email?: string;
-    jobTitle?: string;
-    department?: string;
-    location?: string;
-} */
-
 export default class UserProfileType {
     userId?: number;
     surname?: string;

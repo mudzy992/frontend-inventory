@@ -5,4 +5,5 @@ export default class ResponsibilityType {
     status?: string;
     timestamp?: string;
     serialNumber?: string;
+    categoryId?: number;
 }

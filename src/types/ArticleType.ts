@@ -31,8 +31,28 @@ export default class ArticleType {
     }[];
     userArticles?:{
         userArticleId: number;
+        articleId: number;
         value: string;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
-    }[]
+        serialNumber: string;
+    }[];
+    destroyed?:{
+        destroyedId: number;
+        articleId: number;
+        value: string;
+        comment: string;
+        timestamp: string;
+        serialNumber: string;
+        status: 'otpisano';
+    }[];
+    debtItems?:{
+        debtItemsId: number;
+        articleId: number;
+        value: string;
+        comment: string;
+        serialNumber: string;
+        timestamp: string;
+        status: 'razduženo';
+    }[];
 }

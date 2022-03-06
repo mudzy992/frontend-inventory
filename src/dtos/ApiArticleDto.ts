@@ -20,6 +20,15 @@ export default interface ApiArticleDto {
         featureId: number;
         name: string;
     }[];
+    userArticles:{
+        userArticleId: number;
+        articleId: number;
+        userId: number;
+        value: string;
+        status: 'zaduženo' | 'razduženo' | 'otpisano';
+        timestamp: string;
+        serialNumber: string;
+    }[];
     userDetails:{
         userId: number;
         surname: string;
@@ -29,11 +38,24 @@ export default interface ApiArticleDto {
         department: string;
         location: string;
     }[];
-    userArticles:{
-        userArticleId: number;
+    destroyed:{
+        destroyedId: number;
+        articleId: number;
+        userId: number;
         value: string;
-        status: 'zaduženo' | 'razduženo' | 'otpisano';
+        comment: string;
         timestamp: string;
         serialNumber: string;
+        status: 'otpisano';
+    }[];
+    debtItems:{
+        debtItemsId: number;
+        articleId: number;
+        userId: number;
+        value: string;
+        comment: string;
+        serialNumber: string;
+        timestamp: string;
+        status: 'razduženo';
     }[];
 }

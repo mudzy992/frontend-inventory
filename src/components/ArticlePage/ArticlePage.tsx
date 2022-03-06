@@ -6,6 +6,9 @@ import {Card, Col, Container, Row } from 'react-bootstrap';
 import FeaturesType from '../../types/FeaturesType';
 import ApiArticleDto from '../../dtos/ApiArticleDto';
 import Moment from 'moment';
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, TableSortLabel} from "@mui/material";
+import ArticleTimelineType from '../../types/ArticleTimelineType';
+import Paper from '@mui/material/Paper';
 
 interface ArticlePageProperties {
     match: {
@@ -20,10 +23,22 @@ interface FeatureData {
     value: string;
 }
 
+interface ArticleTimelineData {
+    surname: string;
+    forname: string;
+    name: string;
+    status: string;
+    comment: string;
+    serialNumber: string;
+    sapNumber: string;
+    timestamp: string;
+}
+
 interface ArticlePageState {
     message: string;
     articles?: ApiArticleDto;
     features: FeatureData[];
+    articleTimeline: ArticleTimelineData[];
 }
 
 
@@ -34,7 +49,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         super(props);
         this.state = {
             message : "",
-            features: []
+            features: [],
+            articleTimeline: []
         }
     }
 
@@ -47,6 +63,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
             features: featuresData
+        }))
+    }
+
+    private setArticleTimelineData(articleTimelineData: ArticleTimelineType[]) {
+        this.setState(Object.assign(this.state, {
+            articleTimeline: articleTimelineData
         }))
     }
 
@@ -98,6 +120,84 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 features.push({ name, value });
             }
             this.setFeaturesData(features);
+
+            const articleTimeline : ArticleTimelineType[] = [];
+            
+            for (const statusRespon of data.userArticles) {
+                let sapNumber = data.sapNumber;
+                let surname = '';
+                let forname = '';
+                let comment = '';
+                let status = '';
+                let serialNumber = '';
+                let timestamp = '';
+                if(statusRespon.articleId === data.articleId)
+                    {
+                    status = statusRespon.status;
+                    comment = '';
+                    serialNumber = statusRespon.serialNumber;
+                    timestamp = statusRespon.timestamp;
+                    for(const user of data.userDetails) {
+                        if(statusRespon.userId === user.userId) {
+                            surname = user.surname;
+                            forname = user.forname;
+                        }
+                        surname = "Zad Test";
+                        forname = "";
+                    }
+                }
+                articleTimeline.push({surname, forname, status, comment, serialNumber, sapNumber, timestamp})
+            }
+            for (const statusDebt of data.debtItems) {
+                let sapNumber = data.sapNumber;
+                let surname = '';
+                let forname = '';
+                let comment = '';
+                let status = '';
+                let serialNumber = '';
+                let timestamp = '';
+                if(statusDebt.articleId === data.articleId)
+                    {
+                    status = statusDebt.status;
+                    comment = statusDebt.comment;
+                    serialNumber = statusDebt.serialNumber;
+                    timestamp = statusDebt.timestamp;
+                    for(const user of data.userDetails) {
+                        if(statusDebt.userId === user.userId){
+                            surname = user.surname;
+                            forname = user.forname;
+                        }
+                            surname = "debt test"
+                            forname = ""
+                    }
+                }
+                articleTimeline.push({surname, forname, status, comment, serialNumber, sapNumber, timestamp})
+            }
+
+            for (const statusDestroy of data.destroyed) {
+                let sapNumber = data.sapNumber;
+                let surname = '';
+                let forname = '';
+                let comment = '';
+                let status = '';
+                let serialNumber = '';
+                let timestamp = '';
+                if(statusDestroy.articleId === data.articleId)
+                    {
+                    status = statusDestroy.status;
+                    comment = statusDestroy.comment;
+                    serialNumber = statusDestroy.serialNumber;
+                    timestamp = statusDestroy.timestamp;
+                    for(const user of data.userDetails) {
+                        if(user.userId === statusDestroy.userId){
+                           surname = user.surname;
+                           forname = user.forname;
+                        }
+                    }
+                }
+                articleTimeline.push({surname, forname, status, comment, serialNumber, sapNumber, timestamp})
+            }
+            this.setArticleTimelineData(articleTimeline)
         })    
     }
 
@@ -168,6 +268,37 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </li>
                         ), this) }
                     </ul>
+                    <div>
+                    <>
+                    <b>Kretanje opreme</b><br />
+                    <TableContainer style={{maxHeight:300, overflowY: 'auto'}} component={Paper}>
+                        <Table sx={{ minWidth: 700}} stickyHeader aria-label="sticky table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Korisnik</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell>Komentar</TableCell>
+                                    <TableCell>Serijski broj</TableCell>
+                                    <TableCell>SAP broj</TableCell>
+                                    <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {this.state.articleTimeline?.map(articleTimeline => (
+                                    <TableRow hover>
+                                        <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
+                                        <TableCell>{articleTimeline.status}</TableCell>
+                                        <TableCell>{articleTimeline.comment}</TableCell>
+                                        <TableCell>{articleTimeline.serialNumber}</TableCell>
+                                        <TableCell>{articleTimeline.sapNumber}</TableCell>
+                                        <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+            </> 
+                    </div>
                 </Col>
                 <Col xs="12" lg="4" style={{padding:20}}>
                     <Row>

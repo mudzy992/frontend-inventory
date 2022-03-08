@@ -123,7 +123,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
             const articleTimeline : ArticleTimelineType[] = [];
             
-            for (const statusRespon of data.userArticles) {
+            for (const statusRespon of data.userArticle) {
                 let sapNumber = data.sapNumber;
                 let surname = '';
                 let forname = '';
@@ -142,63 +142,13 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             surname = user.surname;
                             forname = user.forname;
                         }
-                        surname = "Zad Test";
-                        forname = "";
-                    }
-                }
-                articleTimeline.push({surname, forname, status, comment, serialNumber, sapNumber, timestamp})
-            }
-            for (const statusDebt of data.debtItems) {
-                let sapNumber = data.sapNumber;
-                let surname = '';
-                let forname = '';
-                let comment = '';
-                let status = '';
-                let serialNumber = '';
-                let timestamp = '';
-                if(statusDebt.articleId === data.articleId)
-                    {
-                    status = statusDebt.status;
-                    comment = statusDebt.comment;
-                    serialNumber = statusDebt.serialNumber;
-                    timestamp = statusDebt.timestamp;
-                    for(const user of data.userDetails) {
-                        if(statusDebt.userId === user.userId){
-                            surname = user.surname;
-                            forname = user.forname;
-                        }
-                            surname = "debt test"
-                            forname = ""
-                    }
-                }
-                articleTimeline.push({surname, forname, status, comment, serialNumber, sapNumber, timestamp})
-            }
-
-            for (const statusDestroy of data.destroyed) {
-                let sapNumber = data.sapNumber;
-                let surname = '';
-                let forname = '';
-                let comment = '';
-                let status = '';
-                let serialNumber = '';
-                let timestamp = '';
-                if(statusDestroy.articleId === data.articleId)
-                    {
-                    status = statusDestroy.status;
-                    comment = statusDestroy.comment;
-                    serialNumber = statusDestroy.serialNumber;
-                    timestamp = statusDestroy.timestamp;
-                    for(const user of data.userDetails) {
-                        if(user.userId === statusDestroy.userId){
-                           surname = user.surname;
-                           forname = user.forname;
-                        }
                     }
                 }
                 articleTimeline.push({surname, forname, status, comment, serialNumber, sapNumber, timestamp})
             }
             this.setArticleTimelineData(articleTimeline)
-        })    
+        })
+        /* Poseban api za sortiranje po timestampu */
     }
 
   private printOptionalMessage() {
@@ -330,7 +280,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </Card.Title>
                             <Card.Body>
                                 <ul>
-                                {this.state.articles?.userArticles.map(userArticles => (
+                                {this.state.articles?.responsibility.map(userArticles => (
                                     <>
                                     <li>Količina: {userArticles.value}</li>
                                     <li>Status: <b>{userArticles.status} </b></li>

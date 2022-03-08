@@ -20,11 +20,13 @@ export default interface ApiArticleDto {
         featureId: number;
         name: string;
     }[];
-    userArticles:{
+    userArticle:{
         userArticleId: number;
+        responsibilityId: number;
+        debtId: number;
+        destroyId: number;
         articleId: number;
         userId: number;
-        value: string;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
@@ -37,6 +39,14 @@ export default interface ApiArticleDto {
         jobTitle: string;
         department: string;
         location: string;
+    }[];
+    articlesInStock:{
+        stockId: number;
+        timestamp: string;
+        articleId: number;
+        valueOnConcract: number;
+        valueAvailable: number;
+        sapNumber: string;
     }[];
     destroyed:{
         destroyedId: number;
@@ -54,6 +64,15 @@ export default interface ApiArticleDto {
         userId: number;
         value: string;
         comment: string;
+        serialNumber: string;
+        timestamp: string;
+        status: 'razduženo';
+    }[];
+    responsibility:{
+        responsibilityId: number;
+        articleId: number;
+        userId: number;
+        value: string;
         serialNumber: string;
         timestamp: string;
         status: 'razduženo';

@@ -161,7 +161,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             const data: ApiUserProfileDto = res.data;
             this.setErrorMessage('')
             this.setUsers(data)
-
+            /* Višek koda je za responsibility jer ga imam u UserArticle i tu ga mogu izvući */
             const responsibility : ResponsibilityType[] = [];
             for (const resArticles of data.responsibilityArticles) {
                 const articleId = resArticles.articleId;
@@ -182,12 +182,13 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             }
             this.setResponsibility(responsibility)
         })
-        api('api/debtArticles/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
+        /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
+        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
         .then((res:ApiResponse)=>{
             const debt : DebtType[] = res.data;
             this.setDebt(debt)
         })
-        api('api/destroyedArticles/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
+        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {} )
         .then((res:ApiResponse)=>{
             const destroyed : DestroyedType[] = res.data;
             this.setDestroyed(destroyed)

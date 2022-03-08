@@ -21,7 +21,7 @@ export default interface ArticleByUserType {
         featureId: number;
         name: string;
     }[];
-    userArticles?:{
+    userArticle?:{
         userArticleId: number;
         value: string;
         status: 'zaduženo' | 'razduženo' | 'otpisano';

@@ -2,7 +2,7 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../API/api';
-import {Card, Col, Container, Row } from 'react-bootstrap';
+import {Badge, Card, Col, Container, ListGroup, Row } from 'react-bootstrap';
 import FeaturesType from '../../types/FeaturesType';
 import ApiArticleDto from '../../dtos/ApiArticleDto';
 import Moment from 'moment';
@@ -165,15 +165,21 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     render(){
         return(
-            <Container style={{marginTop:15}}>
+            <Container  style={{marginTop:15}}>
                 <Card className="text-white bg-dark">
-                    <Card.Header>
-                        <Card.Title>
-                            <FontAwesomeIcon icon={faListCheck}/> {
+                    <Card.Header >
+                        <Card.Title style={{display:"flex", justifyContent:"start", }}>
+                            <FontAwesomeIcon style={{marginRight:5}} icon={faListCheck}/>{
                                 this.state.articles ?
                                 this.state.articles?.name :
                                 'Article not found'
                             }
+                            {this.badgeStatus()}
+                            {this.state.articles?.userArticle.map(status => (
+                                <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
+                                {status.status}
+                              </Badge>
+                            ))}
                         </Card.Title>
                     </Card.Header>
                 <Card.Body>
@@ -192,105 +198,146 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         )
     }
 
+    private badgeStatus(){
+        let status = "";
+
+        this.state.articles?.userArticle.map(stat => (
+            status = stat.status
+        ))
+        if(status === 'zaduženo') {
+            <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
+                {this.state.articles?.userArticle.map(staRes => (staRes.status))}
+            </Badge>
+        }
+        if(status === 'razduženo') {
+            <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
+                {this.state.articles?.userArticle.map(staRes => (staRes.status))}
+            </Badge>
+        }
+        if(status === 'otpisano') {
+            <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
+                {this.state.articles?.userArticle.map(staRes => (staRes.status))}
+            </Badge>
+        }
+    }
+    
+
     renderArticleData(article: ApiArticleDto) {
         return (
 
             <Row>
                 <Col xs="12" lg="8">
-                    <div className="excerpt">
-                        { article.excerpt }
-                    </div>
-
-                    <hr />
-                    
-                    <div className="description">
-                        { article.description }
-                    </div>
-
-                    <hr />
-
-                    <b>Detalji opreme:</b><br />
-
-                    <ul>
-                        { this.state.features.map(feature => (
-                            <li>
-                                { feature.name }: { feature.value }
-                            </li>
-                        ), this) }
-                    </ul>
-                    <div>
-                    <>
-                    <b>Kretanje opreme</b><br />
-                    <TableContainer style={{maxHeight:300, overflowY: 'auto'}} component={Paper}>
-                        <Table sx={{ minWidth: 700}} stickyHeader aria-label="sticky table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Korisnik</TableCell>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell>Komentar</TableCell>
-                                    <TableCell>Serijski broj</TableCell>
-                                    <TableCell>SAP broj</TableCell>
-                                    <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {this.state.articleTimeline?.map(articleTimeline => (
-                                    <TableRow hover>
-                                        <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
-                                        <TableCell>{articleTimeline.status}</TableCell>
-                                        <TableCell>{articleTimeline.comment}</TableCell>
-                                        <TableCell>{articleTimeline.serialNumber}</TableCell>
-                                        <TableCell>{articleTimeline.sapNumber}</TableCell>
-                                        <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-            </> 
-                    </div>
-                </Col>
-                <Col xs="12" lg="4" style={{padding:20}}>
                     <Row>
-                        <Card className="text-dark bg-light mb-3">
-                            <Card.Title style={{marginTop:10}}>
-                            Detalji korisnika:
-                            </Card.Title>
-                            <Card.Body>
-                                <ul>
-                                {this.state.articles?.userDetails.map(user => (
-                                    <><li>Ime: {user.surname}</li>
-                                    <li>Prezime: {user.forname}</li>
-                                    <li>Email: {user.email}</li>
-                                    <li>Sektor: {user.department}</li>
-                                    <li>Radno mjest: {user.jobTitle}</li>
-                                    <li>Lokacija: {user.location}</li>
-                                    <hr />
-                                    </> 
-                                ), this)}
-                                    </ul>
-                            </Card.Body>
-                        </Card>
+                        <Col xs="12" lg="4" sm="4" style={{justifyContent:'center', alignItems:"center", display:"flex"}}>
+                            <i className={`${article.category?.imagePath}`} style={{fontSize: 150}}></i>
+                            </Col>
+                        <Col xs="12" lg="8" sm="8"> 
+                            <Card bg="dark" text="light" className="mb-3">
+                                <Card.Header>Detalji opreme</Card.Header>
+                                <ListGroup variant="flush" >
+                                    { this.state.features.map(feature => (
+                                        <ListGroup.Item>
+                                            <b>{ feature.name }:</b> { feature.value }
+                                        </ListGroup.Item>
+                                    ), this) }
+                                </ListGroup>
+                            </Card>
+                        </Col>
                     </Row>
 
                     <Row>
-                    <Card className="text-dark bg-light mb-3">
-                            <Card.Title style={{marginTop:10}}>
-                            Status:
-                            </Card.Title>
-                            <Card.Body>
-                                <ul>
-                                {this.state.articles?.responsibility.map(userArticles => (
-                                    <>
-                                    <li>Količina: {userArticles.value}</li>
-                                    <li>Status: <b>{userArticles.status} </b></li>
-                                    <li>Datum zaduženja: {Moment(userArticles.timestamp).format('DD.MM.YYYY. - HH:mm')}</li>
-                                    <hr />
-                                    </> 
-                                ), this)}
-                                    </ul>
-                            </Card.Body>
+                        <Col xs="12" lg="12" sm="12">
+                        <Card bg="dark" text="light" className="mb-3">
+                                <Card.Header>Detaljan opis</Card.Header>
+                                <Card.Body style={{borderRadius:"0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background:"white", color:"black"}}>{ article.description }</Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    <Row>
+                        <Col>
+                        <Card className="mb-3">
+                        <TableContainer style={{maxHeight:300, overflowY: 'auto'}} component={Paper}>
+                            <Table sx={{ minWidth: 700}} stickyHeader aria-label="sticky table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Korisnik</TableCell>
+                                        <TableCell>Status</TableCell>
+                                        <TableCell>Komentar</TableCell>
+                                        <TableCell>Serijski broj</TableCell>
+                                        <TableCell>SAP broj</TableCell>
+                                        <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {this.state.articleTimeline?.map(articleTimeline => (
+                                        <TableRow hover>
+                                            <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
+                                            <TableCell>{articleTimeline.status}</TableCell>
+                                            <TableCell>{articleTimeline.comment}</TableCell>
+                                            <TableCell>{articleTimeline.serialNumber}</TableCell>
+                                            <TableCell>{articleTimeline.sapNumber}</TableCell>
+                                            <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                         </Card>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col sm="12" xs="12" lg="4" >
+                    <Row>
+                        <Col>
+                        {/* Logika da se Card ne prikazuje u ovom polju ako je artikal razdužen ili otpisan, tj. da se prikaže poruka */}
+                            <Card bg="success" text="white" className="mb-2">
+                                <Card.Header>Detalji korisnika</Card.Header>
+                                <ListGroup variant="flush" >
+                                    {this.state.articles?.userDetails.map(user => (
+                                    <><ListGroup.Item>Ime: {user.surname}</ListGroup.Item>
+                                    <ListGroup.Item>Prezime: {user.forname}</ListGroup.Item>
+                                    <ListGroup.Item>Email: {user.email}</ListGroup.Item>
+                                    <ListGroup.Item>Sektor: {user.department}</ListGroup.Item>
+                                    <ListGroup.Item>Radno mjest: {user.jobTitle}</ListGroup.Item>
+                                    <ListGroup.Item>Lokacija: {user.location}</ListGroup.Item>
+                                    </> 
+                                ), this)}  
+                                </ListGroup>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    <Row>
+                        <Col>
+                            <Card className="text-dark bg-light mb-2">
+                                <Card.Header>Status</Card.Header>
+                                <ListGroup variant="flush" >
+                                    {this.state.articles?.responsibility.map(userArticles => (
+                                        <><ListGroup.Item>Količina: {userArticles.value}</ListGroup.Item>
+                                        <ListGroup.Item>Status: <b>{userArticles.status}</b></ListGroup.Item>
+                                        <ListGroup.Item>Datum zaduženja: {Moment(userArticles.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                        </> 
+                                    ), this)}  
+                                </ListGroup>
+                            </Card>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Card className="text-dark bg-light mb-2" >
+                                <Card.Header>U skladištu</Card.Header>
+                                <ListGroup variant="flush" >
+                                    {this.state.articles?.articlesInStock.map(arStock => (
+                                        <><ListGroup.Item>Stanje po ugovoru: {arStock.valueOnConcract}</ListGroup.Item>
+                                        <ListGroup.Item>Trenutno stanje: {arStock.valueAvailable}</ListGroup.Item>
+                                        <ListGroup.Item>SAP broj: {arStock.sapNumber}</ListGroup.Item>
+                                        <ListGroup.Item>Stanje na: {Moment(arStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                        </> 
+                                    ), this)}  
+                                </ListGroup>
+                            </Card>
+                        </Col>
                     </Row>
                 </Col>
             </Row>

@@ -261,8 +261,10 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.state.responsibility?.map(ura => (
+                    {this.state.responsibility?.map(ura => (
+                            
                             <TableRow hover>
+                                
                                 <TableCell>{ura.articleId}</TableCell>
                                 <TableCell><Link href={`#/article/${ura.articleId}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{ura.name}</Link></TableCell>
                                 <TableCell>{ura.value}</TableCell>

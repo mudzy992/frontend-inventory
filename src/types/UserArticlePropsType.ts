@@ -1,4 +1,4 @@
-export default class userArticlePropsType {
+export default class UserArticlePropsType {
     name?: string;
     articleId?: number;
     serialNumber?: string;

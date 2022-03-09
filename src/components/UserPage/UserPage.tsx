@@ -11,18 +11,24 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import { faArrowDownShortWide, faUser, faUsers,  } from "@fortawesome/free-solid-svg-icons";
+import UserArticlePropsType from "../../types/UserArticlePropsType";
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
+interface UserArticlePropData {
+    name: string;
+    articleId: number;
+    serialNumber: string;
+    sapNumber: string; 
+}
 
 interface UserPageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users: UserType[];
     message: string;
+    userArticles: UserArticlePropData[];
 }
-
-
 
 const columns = [{  
     dataField: 'userId',  
@@ -68,9 +74,6 @@ const columns = [{
   },
 ];
 
-
-
-
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
 export default class UserPage extends React.Component {
     state: UserPageState;
@@ -79,59 +82,23 @@ export default class UserPage extends React.Component {
         super(props);
         this.state = {
             message: "",
-            users: []
+            users: [],
+            userArticles: [],
         }
     }
     
     /* SET FUNKCIJE ĆEMO DEFINISATI PRIJE RENDERA */
-    private setUsers(userData: ApiUserDto[]) {
-        const users: UserType[] = userData.map(user => {
-            return {
-                userId: user.userId,
-                surname: user.surname,
-                forname: user.forname,
-                email: user.email,
-                jobTitle: user.jobTitle,
-                department: user.department,
-                location: user.location,
-                articles: user.articles.map(userArticles => ({
-                    articleId: userArticles.articleId,
-                    name: userArticles.name,
-                    excerpt: userArticles.excerpt,
-                    description: userArticles.description,
-                    comment: userArticles.description,
-                    concract: userArticles.concract,
-                    categoryId: userArticles.categoryId,
-                    sapNumber: userArticles.sapNumber
-                })),
-                /* FALI USER ARTICLE */
-                responsibilityArticles: user.responsibilityArticles.map(ra =>({
-                    userArticleId: ra.responsibilityId,
-                    value: ra.value,
-                    status: ra.status,
-                    timestamp: ra.timestamp,
-                    serialNumber: ra.serialNumber
-                })),
-                debtItems: user.debtItems.map(debtItems=> ({
-                    debtItemsId: debtItems.debtItemsId,
-                    value: debtItems.value,
-                    comment: debtItems.comment,
-                    timestamp: debtItems.timestamp,
-                    serialNumber: debtItems.serialNumber
-                })),
-                destroyeds: user.destroyeds.map(destroyed=> ({
-                    destroyedId: destroyed.destroyedId,
-                    value: destroyed.value,
-                    comment: destroyed.comment,
-                    timestamp: destroyed.timestamp,
-                    serialNumber: destroyed.serialNumber
-                }))
-            }
-        })
-        const newState = Object.assign(this.state, {
-            users: users
-          })
-          this.setState(newState)
+
+    private setUsers(userData: ApiUserDto) {
+        this.setState(Object.assign(this.state, {
+            users: userData
+        }))
+    }
+
+    private setUserArticle(userArticleData: UserArticlePropsType[]) {
+        this.setState(Object.assign(this.state, {
+            userArticle: userArticleData
+        }))
     }
 
     private setErrorMessage(message: string) {
@@ -177,7 +144,28 @@ export default class UserPage extends React.Component {
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom učitavanja korisnika');
             }
-            this.setUsers(res.data)
+            /* this.setUsers(res.data) */
+           /*  const data : ApiUserDto[] = res.data */
+            const data: ApiUserDto = res.data;
+            this.setUsers(data)
+
+            const userArticles : UserArticlePropsType[] = [];
+
+            for(const article of data.articles) {
+                let name = article.name;
+                let articleId = article.articleId;
+                let serialNumber = '';
+                let sapNumber = article.sapNumber
+                /* for(const sb of data.userArticle){
+                    if(article.articleId === sb.articleId)
+                    {
+                        serialNumber = sb.serialNumber
+                        break;  
+                    }
+                } */
+              userArticles.push({name, articleId, serialNumber, sapNumber})  
+            }
+            this.setUserArticle(userArticles)
         }) 
     }
     
@@ -213,6 +201,7 @@ export default class UserPage extends React.Component {
                         <TableCell>#</TableCell>
                         <TableCell>Naziv</TableCell>
                         <TableCell>Ugovor</TableCell>
+                        <TableCell>SAP broj</TableCell>
                         <TableCell>SAP broj</TableCell> 
                     </TableRow>
                 </TableHead>
@@ -238,7 +227,6 @@ export default class UserPage extends React.Component {
                         filter={filterFactory()}
                         pagination={paginationFactory(options)}
                         />
-
                 {this.printOptionalMessage()}
             </>
      )}
@@ -262,6 +250,7 @@ export default class UserPage extends React.Component {
                         <TableCell><Link style={{textDecoration: 'none', fontWeight:'bold'}} to={`/article/${article.articleId}`}>{article.name} </Link></TableCell>
                         <TableCell>{article.concract}</TableCell>
                         <TableCell>{article.sapNumber}</TableCell>
+                        <TableCell>{this.state.userArticles.map(sb => (sb.articleId))}</TableCell>
                     </TableRow>
                 </TableBody>
                 </>

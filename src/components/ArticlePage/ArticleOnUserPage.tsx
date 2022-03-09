@@ -6,7 +6,7 @@ import {Badge, Card, Col, Container, ListGroup, Row } from 'react-bootstrap';
 import FeaturesType from '../../types/FeaturesType';
 import ApiArticleDto from '../../dtos/ApiArticleDto';
 import Moment from 'moment';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, TableSortLabel} from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, TableSortLabel} from "@mui/material";
 import ArticleTimelineType from '../../types/ArticleTimelineType';
 import Paper from '@mui/material/Paper';
 
@@ -14,6 +14,7 @@ interface ArticlePageProperties {
     match: {
         params: {
             articleID: number;
+            serialNumber: string;
         }
     }
 }
@@ -42,7 +43,7 @@ interface ArticlePageState {
 }
 
 
-export default class ArticlePage extends React.Component<ArticlePageProperties> {
+export default class ArticleOnUser extends React.Component<ArticlePageProperties> {
     state: ArticlePageState;
 
     constructor(props: Readonly<ArticlePageProperties>){
@@ -91,7 +92,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private getArticleData () {
-        api('api/article/' + this.props.match.params.articleID, 'get', {} )
+        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleID + '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serialNumber, 'get', {} )
         .then ((res: ApiResponse)=> {
             if (res.status === 'error') {
                 this.setArticles(undefined);
@@ -99,7 +100,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                 return;
             }
-
             const data: ApiArticleDto = res.data;
             this.setErrorMessage('')
             this.setArticles(data)

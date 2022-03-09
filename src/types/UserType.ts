@@ -16,8 +16,19 @@ export default class UserType {
         categoryId: number;
         sapNumber: string;
     }[];
-    responsibilityArticles?: {
+    userArticle?: {
         userArticleId: number;
+        responsibilityId: number;
+        debtId: number;
+        destroyId: number;
+        userId: number;
+        articleId: number;
+        status: 'zaduženo' | 'razduženo' | 'otpisano';
+        timestamp: string;
+        serialNumber: string;
+    }[];
+    responsibilityArticles?: {
+        responsibilityId: number;
         value: number;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;

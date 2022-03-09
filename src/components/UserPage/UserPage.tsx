@@ -104,8 +104,9 @@ export default class UserPage extends React.Component {
                     categoryId: userArticles.categoryId,
                     sapNumber: userArticles.sapNumber
                 })),
+                /* FALI USER ARTICLE */
                 responsibilityArticles: user.responsibilityArticles.map(ra =>({
-                    userArticleId: ra.userArticleId,
+                    userArticleId: ra.responsibilityId,
                     value: ra.value,
                     status: ra.status,
                     timestamp: ra.timestamp,

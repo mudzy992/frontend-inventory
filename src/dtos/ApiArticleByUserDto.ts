@@ -1,4 +1,4 @@
-export default interface ArticleByUserDto {
+export default interface ApiArticleByUserDto {
     articleId: number;
     name: string;
     excerpt: string;

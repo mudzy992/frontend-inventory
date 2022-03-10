@@ -7,28 +7,40 @@ export default interface ArticleByUserType {
     concract?: string;
     sapNumber?: string;
     categoryId?: number;
-    category?: {
+    category: {
         name: string;
         imagePath: string;
         parentCategoryId:number;
     };
-    articleFeature?: {
+    articleFeature: {
         articleFeatureId: number;
         featureId: number;
         value: string;
     }[];
-    features?: {
+    features: {
         featureId: number;
         name: string;
     }[];
-    userArticle?:{
+    userArticle:{
         userArticleId: number;
-        value: string;
+        responsibilityId: number;
+        debtId: number;
+        destroyId: number;
+        articleId: number;
+        userId: number;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
     }[];
-    userDetails?:{
+    articlesInStock:{
+        stockId: number;
+        timestamp: string;
+        articleId: number;
+        valueOnConcract: number;
+        valueAvailable: number;
+        sapNumber: string;
+    }[];
+    userDetails:{
         userId: number;
         surname: string;
         forname: string;
@@ -37,7 +49,7 @@ export default interface ArticleByUserType {
         department: string;
         location: string;
     }[];
-    destroyed?:{
+    destroyed:{
         destroyedId:number;
         articleId: number;
         value:number;
@@ -46,7 +58,7 @@ export default interface ArticleByUserType {
         userId: string;
         serialNumber: string;
     }[];
-    debtItems?:{
+    debtItems:{
         debtItemsId:number;
         articleId:number;
         userId:number;
@@ -54,5 +66,14 @@ export default interface ArticleByUserType {
         comment:string;
         serialNumber:string;
         timestamp:string;
+    }[];
+    responsibility:{
+        responsibilityId: number;
+        articleId: number;
+        userId: number;
+        value: string;
+        serialNumber: string;
+        timestamp: string;
+        status: 'razduženo';
     }[];
 }

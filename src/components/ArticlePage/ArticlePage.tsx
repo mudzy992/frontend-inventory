@@ -165,7 +165,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     render(){
         return(
-            <Container  style={{marginTop:15}}>
+            <Container style={{marginTop:15}}>
                 <Card className="text-white bg-dark">
                     <Card.Header >
                         <Card.Title style={{display:"flex", justifyContent:"start", }}>

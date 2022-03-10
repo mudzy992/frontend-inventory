@@ -1,10 +1,10 @@
 import React from "react";
-import {Card, Col, Container, Row, Badge} from 'react-bootstrap';
+import {Card, Col, Container, Row, Badge, ListGroup} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../API/api';
 import { faListCheck } from "@fortawesome/free-solid-svg-icons";
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link} from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List} from "@mui/material";
 import Paper from '@mui/material/Paper';
 import ArticleByUserData from "../../data/ArticleByUserData";
 import ArticleByUserType from "../../types/ArticleByUserType";
@@ -12,6 +12,7 @@ import ApiUserProfileDto from "../../dtos/ApiUserProfileDto";
 import ResponsibilityType from "../../types/ResponsibilityType";
 import DebtType from "../../types/DebtType";
 import DestroyedType from "../../types/DestroyedType";
+import FeaturesType from "../../types/FeaturesType";
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -56,6 +57,11 @@ interface destroyedData {
     }
 }
 
+interface FeatureData {
+    name: string;
+    value: string;
+}
+
 interface UserProfilePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
@@ -65,6 +71,7 @@ interface UserProfilePageState {
     debt: debtData[];
     destroyed: destroyedData[];
     articlesByUser: ArticleByUserData[];
+    features: FeatureData[];
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -79,7 +86,13 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             debt: [],
             destroyed: [],
             articlesByUser: [],
+            features: [],
         }
+    }
+    private setFeaturesData(featuresData: FeaturesType[]) {
+        this.setState(Object.assign(this.state, {
+            features: featuresData
+        }))
     }
 
     private setResponsibility(responsibilityData: ResponsibilityType[]) {
@@ -161,6 +174,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             const data: ApiUserProfileDto = res.data;
             this.setErrorMessage('')
             this.setUsers(data)
+            
             /* Višek koda je za responsibility jer ga imam u UserArticle i tu ga mogu izvući */
             const responsibility : ResponsibilityType[] = [];
             for (const resArticles of data.responsibilityArticles) {
@@ -197,6 +211,24 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         .then((res:ApiResponse) => {
             const articleByUser : ArticleByUserType[] = res.data;
             this.setArticleByUser(articleByUser)
+            const features : FeaturesType[] = [];
+
+            for(const start of articleByUser){
+                for (const articleFeature of start.articleFeature) {
+                    const value = articleFeature.value;
+                    let name = '';
+
+                    for (const feature of start.features) {
+                        if (feature.featureId === articleFeature.featureId) {
+                            name = feature.name;
+                            break;
+                        }
+                    }
+
+                    features.push({ name, value });
+                }
+            }
+            this.setFeaturesData(features);
         })
     }
 
@@ -262,11 +294,9 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     </TableHead>
                     <TableBody>
                     {this.state.responsibility?.map(ura => (
-                            
                             <TableRow hover>
-                                
                                 <TableCell>{ura.articleId}</TableCell>
-                                <TableCell><Link href={`#/article/${ura.serialNumber}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{ura.name}</Link></TableCell>
+                                <TableCell><Link href={`#/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{ura.name}</Link></TableCell>
                                 <TableCell>{ura.value}</TableCell>
                                 <TableCell>{ura.status}</TableCell>
                                 <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -308,7 +338,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         {this.state.debt?.map(debt => (
                             <TableRow hover>
                                 <TableCell>{debt.articleId}</TableCell>
-                                <TableCell><Link href={`#/article/${debt.articleId}`} style={{textDecoration: 'none', fontWeight:'bold'}}>{debt.article.name}</Link></TableCell>
+                                <TableCell><Link href={`#/userArticle/${debt.articleId}/${debt.serialNumber}`} style={{textDecoration: 'none', fontWeight:'bold'}}>{debt.article.name}</Link></TableCell>
                                 <TableCell>{debt.value}</TableCell>
                                 <TableCell>{debt.comment}</TableCell>
                                 <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -350,7 +380,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     {this.state.destroyed?.map(destroyed => (
                         <TableRow hover>
                             <TableCell>{destroyed.articleId}</TableCell>
-                            <TableCell><Link href={`#/article/${destroyed.articleId}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{destroyed.article.name}</Link></TableCell>
+                            <TableCell><Link href={`#/userArticle/${destroyed.articleId}/${destroyed.serialNumber}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{destroyed.article.name}</Link></TableCell>
                             <TableCell>{destroyed.value}</TableCell>
                             <TableCell>{destroyed.comment}</TableCell>
                             <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -412,33 +442,33 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     </Badge>{<div style={{fontSize:11}}>{artikal.name}</div>}
                         <i className={`${artikal.category.imagePath}`} style={{fontSize: 52}}></i>
                         <div className="modal fade" id={`model-${artikal.articleId}`} aria-hidden="true" tabIndex={-1 } style={{color:"black"}}>
-                            <div className="modal-dialog modal-dialog-centered modal-lg" style={{width:"auto", height:"auto"}}>
+                            <div className="modal-dialog modal-dialog-centered modal-md" style={{width:"auto", height:"auto"}}>
                                 <div className="modal-content">
                                     <div className="modal-header">
                                         <h5 className="modal-title">{artikal.name}</h5>
                                         
                                     </div>
                                     <div className="modal-body">
-                                        <TableContainer>
-                                            <Table >
-                                                <TableBody>
+                                        <ListGroup>
+                                        {this.state.features.map(featureNes => (
+                                                            <ListGroup.Item>
+                                                                        {featureNes.name } : {featureNes.value}
+                                                            </ListGroup.Item>
+                                                        ))}
+                                        </ListGroup>
+                                        {/* <TableContainer component={Paper}>
+                                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                                <TableBody >
                                                     <TableCell align="left" >
-                                                            { artikal.features.map(feature => (
-                                                            <TableRow > 
-                                                                    {feature.name }
+                                                        {this.state.features.map(featureNes => (
+                                                            <TableRow hover >
+                                                                        {featureNes.name } : {featureNes.value}
                                                             </TableRow>
-                                                        ), this) } 
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        { artikal.articleFeature.map(feature => (
-                                                            <TableRow >
-                                                                {feature.value}
-                                                            </TableRow>
-                                                        ), this) }
+                                                        ))}
                                                     </TableCell>
                                                 </TableBody>
                                             </Table>
-                                        </TableContainer>
+                                        </TableContainer> */}
                                     </div>
                                 </div>
                             </div>

@@ -3,6 +3,12 @@ import { faStoreAlt } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { HashRouter, Link } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'jquery/dist/jquery.js';
+import 'popper.js/dist/popper.js';
+import 'bootstrap/dist/js/bootstrap.min.js';
+import "bootstrap/js/src/collapse.js";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export class MainMenuItem {
     text: string = "";
@@ -44,13 +50,14 @@ export class MainMenu extends React.Component<MainMenuProperties> {
             bg="dark" 
             variant="dark" 
             sticky="top" 
-            expand="lg" 
-            collapseOnSelect={true}>
+            expand="lg"
+            collapseOnSelect
+            >
                 <Container>
                     <Navbar.Brand href="/"> <FontAwesomeIcon icon = { faStoreAlt } /> Inventory Database</Navbar.Brand>
-                        <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-                            <Navbar.Collapse id="basic-navbar-nav">
-                                <Nav className='ml-auto'>
+                        <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
+                            <Navbar.Collapse id="responsive-navbar-nav">
+                                <Nav className='me-auto' >
                                     <HashRouter>
                                     {this.state.items.map(this.makeNavLink)}
                                     </HashRouter>

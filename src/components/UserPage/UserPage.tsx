@@ -12,22 +12,17 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import { faArrowDownShortWide, faUser, faUsers,  } from "@fortawesome/free-solid-svg-icons";
 import UserArticlePropsType from "../../types/UserArticlePropsType";
+import ApiArticleDto from "../../dtos/ApiArticleDto";
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
-interface UserArticlePropData {
-    name: string;
-    articleId: number;
-    serialNumber: string;
-    sapNumber: string; 
-}
+
 
 interface UserPageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users: UserType[];
     message: string;
-    userArticles: UserArticlePropData[];
 }
 
 const columns = [{  
@@ -83,7 +78,6 @@ export default class UserPage extends React.Component {
         this.state = {
             message: "",
             users: [],
-            userArticles: [],
         }
     }
     
@@ -92,12 +86,6 @@ export default class UserPage extends React.Component {
     private setUsers(userData: ApiUserDto) {
         this.setState(Object.assign(this.state, {
             users: userData
-        }))
-    }
-
-    private setUserArticle(userArticleData: UserArticlePropsType[]) {
-        this.setState(Object.assign(this.state, {
-            userArticle: userArticleData
         }))
     }
 
@@ -148,24 +136,6 @@ export default class UserPage extends React.Component {
            /*  const data : ApiUserDto[] = res.data */
             const data: ApiUserDto = res.data;
             this.setUsers(data)
-
-            const userArticles : UserArticlePropsType[] = [];
-
-            for(const article of data.articles) {
-                let name = article.name;
-                let articleId = article.articleId;
-                let serialNumber = '';
-                let sapNumber = article.sapNumber
-                /* for(const sb of data.userArticle){
-                    if(article.articleId === sb.articleId)
-                    {
-                        serialNumber = sb.serialNumber
-                        break;  
-                    }
-                } */
-              userArticles.push({name, articleId, serialNumber, sapNumber})  
-            }
-            this.setUserArticle(userArticles)
         }) 
     }
     
@@ -202,7 +172,6 @@ export default class UserPage extends React.Component {
                         <TableCell>Naziv</TableCell>
                         <TableCell>Ugovor</TableCell>
                         <TableCell>SAP broj</TableCell>
-                        <TableCell>SAP broj</TableCell> 
                     </TableRow>
                 </TableHead>
                     {this.ExtendedTableContent(row)}
@@ -231,7 +200,7 @@ export default class UserPage extends React.Component {
             </>
      )}
 
-     private ExtendedTableContent (row:UserType) {
+     private ExtendedTableContent (row: UserType) {
          if (row.articles?.length === 0) {
                  return (
                      <TableRow>
@@ -247,10 +216,9 @@ export default class UserPage extends React.Component {
                 <TableBody>
                     <TableRow hover>
                         <TableCell>{article.articleId}</TableCell>
-                        <TableCell><Link style={{textDecoration: 'none', fontWeight:'bold'}} to={`/article/${article.articleId}`}>{article.name} </Link></TableCell>
+                        <TableCell>{article.name} </TableCell>
                         <TableCell>{article.concract}</TableCell>
                         <TableCell>{article.sapNumber}</TableCell>
-                        <TableCell>{this.state.userArticles.map(sb => (sb.articleId))}</TableCell>
                     </TableRow>
                 </TableBody>
                 </>

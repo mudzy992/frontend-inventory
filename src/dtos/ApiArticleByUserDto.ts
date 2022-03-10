@@ -1,4 +1,4 @@
-export default interface ArticleByUserType {
+export default interface ArticleByUserDto {
     articleId: number;
     name: string;
     excerpt: string;
@@ -7,10 +7,9 @@ export default interface ArticleByUserType {
     concract: string;
     sapNumber: string;
     categoryId: number;
-    category: {
+    category?: {
         name: string;
         imagePath: string;
-        parentCategoryId:number;
     };
     articleFeature: {
         articleFeatureId: number;
@@ -21,9 +20,13 @@ export default interface ArticleByUserType {
         featureId: number;
         name: string;
     }[];
-    userArticles:{
+    userArticle:{
         userArticleId: number;
-        value: string;
+        responsibilityId: number;
+        debtId: number;
+        destroyId: number;
+        articleId: number;
+        userId: number;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
@@ -37,22 +40,41 @@ export default interface ArticleByUserType {
         department: string;
         location: string;
     }[];
-    destroyed:{
-        destroyedId:number;
+    articlesInStock:{
+        stockId: number;
+        timestamp: string;
         articleId: number;
-        value:number;
+        valueOnConcract: number;
+        valueAvailable: number;
+        sapNumber: string;
+    }[];
+    destroyed:{
+        destroyedId: number;
+        articleId: number;
+        userId: number;
+        value: string;
         comment: string;
         timestamp: string;
-        userId: string;
         serialNumber: string;
+        status: 'otpisano';
     }[];
     debtItems:{
-        debtItemsId:number;
-        articleId:number;
-        userId:number;
-        value: number;
-        comment:string;
-        serialNumber:string;
-        timestamp:string;
+        debtItemsId: number;
+        articleId: number;
+        userId: number;
+        value: string;
+        comment: string;
+        serialNumber: string;
+        timestamp: string;
+        status: 'razduženo';
+    }[];
+    responsibility:{
+        responsibilityId: number;
+        articleId: number;
+        userId: number;
+        value: string;
+        serialNumber: string;
+        timestamp: string;
+        status: 'razduženo';
     }[];
 }

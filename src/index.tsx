@@ -15,7 +15,7 @@ import HomePage from './components/HomePage/HomePage';
 import ArticlePage from './components/ArticlePage/ArticlePage';
 import UserPage from './components/UserPage/UserPage';
 import UserProfilePage from './components/UserProfilePage/UserProfilePage';
-import ArticleOnUserPage from './components/ArticlePage/ArticleOnUserPage';
+import ArticleOnUserPage from './components/ArticleOnUser/ArticleOnUserPage';
 
 const menuItems = [
   new MainMenuItem("Naslovna", "/"),
@@ -36,7 +36,7 @@ ReactDOM.render(
         <Route path="/userProfile/:userID" component={ UserProfilePage }/>
         <Route path="/category/:categoryID" component={ CategoryPage }/>
         <Route path="/article/:articleID" component={ ArticlePage }/>
-        <Route path="/article/:articleID/:serialNumber" component={ ArticleOnUserPage }/>
+        <Route path="/userArticle/:articleId/:serial" component={ ArticleOnUserPage }/>
       </Switch>
     </HashRouter>
   </React.StrictMode>,

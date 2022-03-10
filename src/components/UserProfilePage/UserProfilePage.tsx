@@ -266,7 +266,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             <TableRow hover>
                                 
                                 <TableCell>{ura.articleId}</TableCell>
-                                <TableCell><Link href={`#/article/${ura.articleId}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{ura.name}</Link></TableCell>
+                                <TableCell><Link href={`#/article/${ura.serialNumber}`} style={{textDecoration: 'none', fontWeight:'bold'}} >{ura.name}</Link></TableCell>
                                 <TableCell>{ura.value}</TableCell>
                                 <TableCell>{ura.status}</TableCell>
                                 <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>

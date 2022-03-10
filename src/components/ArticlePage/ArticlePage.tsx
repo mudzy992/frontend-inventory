@@ -2,7 +2,7 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../API/api';
-import {Badge, Card, Col, Container, ListGroup, Row } from 'react-bootstrap';
+import {Badge, Card, Col, Container, ListGroup, Row, Tab } from 'react-bootstrap';
 import FeaturesType from '../../types/FeaturesType';
 import ApiArticleDto from '../../dtos/ApiArticleDto';
 import Moment from 'moment';
@@ -175,11 +175,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 'Article not found'
                             }
                             {this.badgeStatus()}
-                            {this.state.articles?.userArticle.map(status => (
-                                <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
-                                {status.status}
-                              </Badge>
-                            ))}
                         </Card.Title>
                     </Card.Header>
                 <Card.Body>
@@ -199,32 +194,29 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private badgeStatus(){
-        let status = "";
-
-        this.state.articles?.userArticle.map(stat => (
-            status = stat.status
+        
+        let status = 0;
+        this.state.articles?.articlesInStock.map(stat => (
+            status = stat.valueAvailable
         ))
-        if(status === 'zaduženo') {
-            <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
-                {this.state.articles?.userArticle.map(staRes => (staRes.status))}
-            </Badge>
+        if(status === 0) {
+            return (
+            <Badge pill bg="danger" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
+               nema na stanju
+            </Badge>)
         }
-        if(status === 'razduženo') {
-            <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
-                {this.state.articles?.userArticle.map(staRes => (staRes.status))}
-            </Badge>
+        if(status > 0) {
+            return (
+            <Badge pill bg="success" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
+                dostupno
+            </Badge>)
         }
-        if(status === 'otpisano') {
-            <Badge pill bg="primary" style={{marginLeft:10, alignItems:"center", display:"flex", fontSize:12}}>
-                {this.state.articles?.userArticle.map(staRes => (staRes.status))}
-            </Badge>
-        }
+        
     }
     
 
     renderArticleData(article: ApiArticleDto) {
         return (
-
             <Row>
                 <Col xs="12" lg="8">
                     <Row>
@@ -288,41 +280,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     </Row>
                 </Col>
                 <Col sm="12" xs="12" lg="4" >
-                    <Row>
-                        <Col>
-                        {/* Logika da se Card ne prikazuje u ovom polju ako je artikal razdužen ili otpisan, tj. da se prikaže poruka */}
-                            <Card bg="success" text="white" className="mb-2">
-                                <Card.Header>Detalji korisnika</Card.Header>
-                                <ListGroup variant="flush" >
-                                    {this.state.articles?.userDetails.map(user => (
-                                    <><ListGroup.Item>Ime: {user.surname}</ListGroup.Item>
-                                    <ListGroup.Item>Prezime: {user.forname}</ListGroup.Item>
-                                    <ListGroup.Item>Email: {user.email}</ListGroup.Item>
-                                    <ListGroup.Item>Sektor: {user.department}</ListGroup.Item>
-                                    <ListGroup.Item>Radno mjest: {user.jobTitle}</ListGroup.Item>
-                                    <ListGroup.Item>Lokacija: {user.location}</ListGroup.Item>
-                                    </> 
-                                ), this)}  
-                                </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col>
-                            <Card className="text-dark bg-light mb-2">
-                                <Card.Header>Status</Card.Header>
-                                <ListGroup variant="flush" >
-                                    {this.state.articles?.responsibility.map(userArticles => (
-                                        <><ListGroup.Item>Količina: {userArticles.value}</ListGroup.Item>
-                                        <ListGroup.Item>Status: <b>{userArticles.status}</b></ListGroup.Item>
-                                        <ListGroup.Item>Datum zaduženja: {Moment(userArticles.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                        </> 
-                                    ), this)}  
-                                </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
                     <Row>
                         <Col>
                             <Card className="text-dark bg-light mb-2" >

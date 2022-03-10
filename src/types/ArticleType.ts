@@ -20,6 +20,17 @@ export default class ArticleType {
         featureId: number;
         name: string;
     }[];
+    userArticle?:{
+        userArticleId: number;
+        responsibilityId: number;
+        debtId: number;
+        destroyId: number;
+        userId: number;
+        articleId: number;
+        status:string;
+        timestamp: string;
+        serialNumber: string;
+    }[];
     userDetails?:{
         userId: number;
         surname: string;
@@ -29,9 +40,18 @@ export default class ArticleType {
         department: string;
         location: string;
     }[];
-    userArticles?:{
-        userArticleId: number;
+    articlesInStock?:{
+        stockId: number;
+        timestamp: string;
         articleId: number;
+        valueOnConcract: number;
+        valueAvailable: number;
+        sapNumber: string;
+    }[];
+    responsibility?:{
+        responsibilityId: number;
+        articleId: number;
+        userId: number;
         value: string;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;

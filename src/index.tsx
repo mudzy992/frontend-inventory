@@ -16,6 +16,7 @@ import ArticlePage from './components/ArticlePage/ArticlePage';
 import UserPage from './components/UserPage/UserPage';
 import UserProfilePage from './components/UserProfilePage/UserProfilePage';
 import ArticleOnUserPage from './components/ArticleOnUser/ArticleOnUserPage';
+import UserLoginPage from './components/UserLogin/UserLoginPage';
 
 const menuItems = [
   new MainMenuItem("Naslovna", "/"),
@@ -32,7 +33,8 @@ ReactDOM.render(
     <HashRouter>
       <Switch>
         <Route exact path="/" component={ HomePage }  />
-        <Route path="/user/" component={ UserPage }/>
+        <Route exact path="/user/" component={ UserPage }/> 
+        <Route exact path="/user/login" component={ UserLoginPage } />
         <Route path="/userProfile/:userID" component={ UserProfilePage }/>
         <Route path="/category/:categoryID" component={ CategoryPage }/>
         <Route path="/article/:articleID" component={ ArticlePage }/>

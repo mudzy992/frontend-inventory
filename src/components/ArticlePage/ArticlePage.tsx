@@ -2,11 +2,11 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../API/api';
-import {Badge, Card, Col, Container, ListGroup, Row, Tab } from 'react-bootstrap';
+import {Badge, Card, Col, Container, ListGroup, Row, } from 'react-bootstrap';
 import FeaturesType from '../../types/FeaturesType';
 import ApiArticleDto from '../../dtos/ApiArticleDto';
 import Moment from 'moment';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, TableSortLabel} from "@mui/material";
+import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 import ArticleTimelineType from '../../types/ArticleTimelineType';
 import Paper from '@mui/material/Paper';
 

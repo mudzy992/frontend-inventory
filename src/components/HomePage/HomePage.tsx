@@ -5,6 +5,7 @@ import { Card, Col, Container, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../API/api';
 import CategoryType from '../../types/CategoryType';
+import { Redirect } from 'react-router-dom';
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -12,6 +13,7 @@ import CategoryType from '../../types/CategoryType';
 interface HomePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa */
     categories: CategoryType[];
+    isLoggedIn: boolean;
 }
 
 /* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
@@ -30,17 +32,43 @@ export default class HomePage extends React.Component {
     constructor(props: Readonly<{}>){
         super(props);
         this.state = {
-            categories: []
+            categories: [],
+            isLoggedIn: true,
         }
     }
 
     /* SET FUNKCIJE ĆEMO DEFINISATI PRIJE RENDERA */
-    
+    private setLogginState(isLoggedIn: boolean) {
+        const newState = Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        });
+
+        this.setState(newState);
+    }
+
+    private putCategoriesInState (data: CategoryDto[]){
+        const categories: CategoryType[] = data.map(category => {
+            return {
+                categoryId: category.categoryId,
+                name: category.name,
+                image: category.imagePath,
+            }
+        })
+        const newState = Object.assign(this.state, {
+            categories: categories
+          })
+          this.setState(newState)
+    }
 
     /* KRAJ SET FUNCKIJA */
 
     render() {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
+        if (this.state.isLoggedIn === false) {
+            return (
+                <Redirect to="/user/login" />
+            );
+        }
         /* kraj provjera */
         return(
             /* prikaz klijentu */
@@ -104,23 +132,14 @@ export default class HomePage extends React.Component {
     private getCategories () {
         api('api/category/?filter=parentCategoryId||$isnull', 'get', {})
         .then((res: ApiResponse) => {
+            if (res.status === 'login') {
+                return this.setLogginState(false);
+            }
             /* Nakon što se izvrši ruta, šta onda */
             this.putCategoriesInState(res.data)
         }) 
     }
 
-    private putCategoriesInState (data: CategoryDto[]){
-        const categories: CategoryType[] = data.map(category => {
-            return {
-                categoryId: category.categoryId,
-                name: category.name,
-                image: category.imagePath,
-            }
-        })
-        const newState = Object.assign(this.state, {
-            categories: categories
-          })
-          this.setState(newState)
-    }
+    
 } /* Kraj koda */
     /* KRAJ GET I MOUNT FUNKCIJA */

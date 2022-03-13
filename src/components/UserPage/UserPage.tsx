@@ -5,14 +5,13 @@ import Paper from '@mui/material/Paper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../API/api';
 import UserType from '../../types/UserType';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import ApiUserDto from '../../dtos/ApiUserDto';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import { faArrowDownShortWide, faUser, faUsers,  } from "@fortawesome/free-solid-svg-icons";
-import UserArticlePropsType from "../../types/UserArticlePropsType";
-import ApiArticleDto from "../../dtos/ApiArticleDto";
+
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -23,6 +22,7 @@ interface UserPageState {
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users: UserType[];
     message: string;
+    isLoggedIn: boolean;
 }
 
 const columns = [{  
@@ -78,6 +78,7 @@ export default class UserPage extends React.Component {
         this.state = {
             message: "",
             users: [],
+            isLoggedIn: true,
         }
     }
     
@@ -93,6 +94,14 @@ export default class UserPage extends React.Component {
         this.setState(Object.assign(this.state, {
             message: message,
         }));
+    }
+
+    private setLogginState(isLoggedIn: boolean) {
+        const newState = Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        });
+
+        this.setState(newState);
     }
 
         /* KRAJ SET FUNCKIJA */
@@ -131,6 +140,9 @@ export default class UserPage extends React.Component {
             /* Nakon što se izvrši ruta, šta onda */
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom učitavanja korisnika');
+            }
+            if (res.status === 'login') {
+                return this.setLogginState(false);
             }
             /* this.setUsers(res.data) */
            /*  const data : ApiUserDto[] = res.data */
@@ -229,6 +241,11 @@ export default class UserPage extends React.Component {
     render() {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
+        if (this.state.isLoggedIn === false) {
+            return (
+                <Redirect to="/user/login" />
+            );
+        }
         return (
         <>
             <Container style={{marginTop:10}} fluid="md">

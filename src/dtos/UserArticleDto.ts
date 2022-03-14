@@ -1,4 +1,4 @@
-export default class UserArticleType {
+export default interface UserArticleDto {
     userArticleId?: number;
     responsibilityId?: number | null;
     debtId?: number | null;
@@ -8,6 +8,7 @@ export default class UserArticleType {
     status?: 'zaduženo' | 'razduženo' | 'otpisano';
     timestamp?: string;
     serialNumber?: string;
+    comment?: string;
     debt?:{
         debtItemsId: number;
         userId: number;
@@ -17,7 +18,7 @@ export default class UserArticleType {
         status: 'razduženo'
         timestampe: string;
         serialNumber: string;
-    }[] | null;
+    } | null;
     destroy?:{
         destroyedId: number;
         userId: number;
@@ -27,7 +28,7 @@ export default class UserArticleType {
         status: 'otpisano'
         timestampe: string;
         serialNumber: string;
-    }[] | null;
+    } | null;
     responsibility?:{
         responsibilityId: number;
         userId: number;
@@ -36,7 +37,7 @@ export default class UserArticleType {
         status: 'zaduženo';
         timestamp: string;
         serialNumber: string;
-    }[] | null;
+    } | null;
     user?: {
         userId: number;
         surname: string;
@@ -45,7 +46,7 @@ export default class UserArticleType {
         jobTitle: string;
         department: string;
         location: string;
-    }[];
+    };
     article?: {
         articleId: number;
         name: string;
@@ -55,5 +56,5 @@ export default class UserArticleType {
         concract: string;
         categoryId: number;
         sapNumber: string;
-    }[];
+    };
 }

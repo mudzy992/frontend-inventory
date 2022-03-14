@@ -10,7 +10,7 @@ import ArticleTimelineType from '../../types/ArticleTimelineType';
 import Paper from '@mui/material/Paper';
 import ArticleByUserType from '../../types/ArticleByUserType';
 import { Redirect } from 'react-router-dom';
-import UserArticleType from '../../types/UserArticleType';
+import UserArticleDto from '../../dtos/UserArticleDto';
 
 interface ArticleOnUserPageProperties {
     match: {
@@ -39,7 +39,7 @@ interface ArticleTimelineData {
 }
 
 interface ArticleOnUserPageState {
-    userArticle: UserArticleType[];
+    userArticle: UserArticleDto[];
     message: string;
     article: ArticleByUserType[];
     features: FeatureData[];
@@ -114,7 +114,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }))
     }
 
-    private setUserArticle(userArticleData: UserArticleType[]) {
+    private setUserArticle(userArticleData: UserArticleDto[]) {
         this.setState(Object.assign(this.state, {
             userArticle: userArticleData
         }))
@@ -145,7 +145,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     }
 
     private getArticleData() {
-        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId + '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial, 'get', {})
+        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId + '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial + '&sort=userArticle.timestamp,DESC', 'get', {})
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -177,35 +177,8 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                     }
                 }
                 this.setFeaturesData(features);
-
-                const articleTimeline: ArticleTimelineType[] = [];
-                for (const start of data) {
-                    for (const statusRespon of start.userArticle) {
-                        let sapNumber = start.sapNumber;
-                        let surname = '';
-                        let forname = '';
-                        let comment = '';
-                        let status = '';
-                        let serialNumber = '';
-                        let timestamp = '';
-                        if (statusRespon.articleId === start.articleId) {
-                            status = statusRespon.status;
-                            comment = '';
-                            serialNumber = statusRespon.serialNumber;
-                            timestamp = statusRespon.timestamp;
-                            for (const user of start.userDetails) {
-                                if (statusRespon.userId === user.userId) {
-                                    surname = user.surname;
-                                    forname = user.forname;
-                                }
-                            }
-                        }
-                        articleTimeline.push({ surname, forname, status, comment, serialNumber, sapNumber, timestamp })
-                    }
-                }
-                this.setArticleTimelineData(articleTimeline)
             })
-        api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {})
+        api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {})
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -215,42 +188,22 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 if (res.status === 'login') {
                     return this.setLogginState(false);
                 }
-                const data: UserArticleType[] = res.data;
+                const data: UserArticleDto[] = res.data;
                 this.setUserArticle(data)
 
-                /* const articleTimeline: ArticleTimelineType[] = [];
+                const articleTimeline: ArticleTimelineType[] = [];
                 for (const ua of data) {
                     let status = ua.status;
                     let serialNumber = ua.serialNumber;
-                    let sapNumber = '';
-                    let surname = '';
-                    let forname = '';
-                    let comment = '';
+                    let sapNumber = ua.article?.sapNumber;
+                    let surname = ua.user?.surname;
+                    let forname = ua.user?.forname;
                     let timestamp = ua.timestamp;
-                    for (const debtComment of ua.debt) {
-                        if (ua.articleId === debtComment.articleId) {
-                            comment = debtComment.comment
-                        }
-                        for (const destroyedComment of ua.destroy) {
-                            if (ua.articleId === destroyedComment.articleId) {
-                                comment = destroyedComment.comment
-                            }
-                            for (const user of ua.user) {
-                                if (ua.userId === user.userId) {
-                                    surname = user.surname;
-                                    forname = user.forname;
-                                }
-                                for (const art of ua.article) {
-                                    if (ua.articleId === art.articleId) {
-                                        sapNumber = art.sapNumber
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    let comment = ua.comment;
+
                     articleTimeline.push({ surname, forname, status, comment, serialNumber, sapNumber, timestamp })
                 }
-                this.setArticleTimelineData(articleTimeline) */
+                this.setArticleTimelineData(articleTimeline)
             })
         /* Poseban api za sortiranje po timestampu */
     }
@@ -317,8 +270,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
 
     private badgeStatus(article: ArticleByUserType[]) {
         let stat = ""
-        article.map(ua => (ua.userArticle.map(status => (stat = status.status))))
-
+        article.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
         if (stat === "zaduženo") {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
@@ -342,7 +294,8 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
 
     private DebtButton(article: ArticleByUserType[]) {
         let stat = ""
-        article.map(ua => (ua.userArticle.map(status => (stat = status.status))))
+        article.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
+
         if (stat === "razduženo") {
             return (
                 <Col lg="3" xs="3" sm="3" md="3" style={{
@@ -350,7 +303,38 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                     justifyContent: "flex-end",
                     alignItems: "center"
                 }}>
-                    <Button className="btn btn-success btn-sm">Zaduži</Button>
+                    <a type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#button-razduzi"> Zaduži </a>
+                    <div className="modal fade" id="button-razduzi" role="dialog" aria-hidden="true" tabIndex={-1} style={{ color: "black" }}>
+                        <div className="modal-dialog modal-dialog-centered modal-lg" role="document" style={{ width: "auto", height: "auto" }}>
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Razduženje opreme</h5>
+                                </div>
+                                <div className="modal-body">
+                                    <Form.Text>
+                                        <h6>Da li ste sigurni da želite zadužiti
+                                            <b> {article.map(arti => (arti.name))} </b>sa korisnika
+                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)}
+                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)} ?
+                                        </h6>
+                                    </Form.Text>
+                                    <Form.Group>
+                                        <Form.Label>Komentar</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            placeholder="Razlog razduženja opreme (neobavezno)"
+                                            onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <div className="modal-footer">
+                                    <a type="button" className="btn btn-danger btn-md" data-bs-toggle="modal" data-dismiss="modal"> Zatvori </a>
+                                    <button type="button" className="btn btn-success">Sačuvaj</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </Col>
             )
         }
@@ -380,7 +364,13 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                     <h5 className="modal-title">Razduženje opreme</h5>
                                 </div>
                                 <div className="modal-body">
-                                    <Form.Text><h6>Da li ste sigurni da želite razdužiti <b>{article.map(arti => (arti.name))} </b>sa korisnika {article.map(ud => (ud.userDetails.map(user => (user.surname))))} {article.map(ud => (ud.userDetails.map(user => (user.forname))))} ?</h6></Form.Text>
+                                    <Form.Text>
+                                        <h6>Da li ste sigurni da želite razdužiti
+                                            <b> {article.map(arti => (arti.name))} </b>sa korisnika
+                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)}
+                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)} ?
+                                        </h6>
+                                    </Form.Text>
                                     <Form.Group>
                                         <Form.Label>Komentar</Form.Label>
                                         <Form.Control
@@ -398,8 +388,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                             </div>
                         </div>
                     </div>
-
-
                 </Col>
             )
         }
@@ -408,6 +396,38 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     /* private doChangeStatus (){
         api('api')
     } */
+
+    private userDetails(userDet: ArticleByUserType[]) {
+        let stat = ""
+        userDet.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
+
+        if (stat === 'razduženo') {
+            return (<Alert variant='info'> Nema podataka o korisniku, oprema razdužena</Alert>)
+        }
+        if (stat === 'otpisano') {
+            return (<Alert variant='warning'> Nema podataka o korisniku, oprema razdužena</Alert>)
+        }
+        if (stat === 'zaduženo') {
+            return (
+                <Row>
+                    <Col>
+                        <Card bg="success" text="white" className="mb-2">
+                            <Card.Header>Detalji korisnika</Card.Header>
+                            <ListGroup variant="flush" >
+                                <><ListGroup.Item>Ime: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).surname)}</ListGroup.Item>
+                                    <ListGroup.Item>Prezime: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).forname)}</ListGroup.Item>
+                                    <ListGroup.Item>Email: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).email)}</ListGroup.Item>
+                                    <ListGroup.Item>Sektor: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).department)}</ListGroup.Item>
+                                    <ListGroup.Item>Radno mjesto: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).jobTitle)}</ListGroup.Item>
+                                    <ListGroup.Item>Lokacija: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).location)}</ListGroup.Item>
+                                </>
+                            </ListGroup>
+                        </Card>
+                    </Col>
+                </Row>
+            )
+        }
+    }
 
     renderArticleData(article: ArticleByUserType[]) {
         return (
@@ -474,24 +494,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                     </Row>
                 </Col>
                 <Col sm="12" xs="12" lg="4" >
-                    <Row>
-                        <Col>
-                            <Card bg="success" text="white" className="mb-2">
-                                <Card.Header>Detalji korisnika</Card.Header>
-                                <ListGroup variant="flush" >
-                                    {article.map(propUser => (propUser.userDetails.map(user => (
-                                        <><ListGroup.Item>Ime: {user.surname}</ListGroup.Item>
-                                            <ListGroup.Item>Prezime: {user.forname}</ListGroup.Item>
-                                            <ListGroup.Item>Email: {user.email}</ListGroup.Item>
-                                            <ListGroup.Item>Sektor: {user.department}</ListGroup.Item>
-                                            <ListGroup.Item>Radno mjest: {user.jobTitle}</ListGroup.Item>
-                                            <ListGroup.Item>Lokacija: {user.location}</ListGroup.Item>
-                                        </>
-                                    ))))}
-                                </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
+                    {this.userDetails(article)}
                     <Row>
                         <Col>
                             <Card bg="light" text="dark" className=" mb-2">
@@ -504,12 +507,11 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                    {article.map(uaStat => (uaStat.userArticle.map(stat => (
-                                        <>
-                                            <ListGroup.Item>Status: <b>{stat.status} </b></ListGroup.Item>
-                                            <ListGroup.Item>Datum zaduženja: {Moment(stat.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                        </>
-                                    ))))}
+                                    <>
+                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].status))} </b></ListGroup.Item>
+                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
+                                        {/*   <ListGroup.Item>Datum zaduženja: {Moment(stat.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item> */}
+                                    </>
                                 </ListGroup>
                             </Card>
                         </Col>

@@ -25,54 +25,16 @@ interface UserProfilePageProperties {
     }
 }
 
-interface responsibilityData {
-    articleId: number;
-    name: string;
-    value: number;
-    status: string;
-    timestamp: string;
-    serialNumber: string;
-    categoryId: number;
-}
-
-interface debtData {
-    articleId: number;
-    value: number;
-    comment: string;
-    timestamp: string;
-    serialNumber: string;
-    article: {
-        name: string;
-    }
-}
-
-interface destroyedData {
-    articleId: number;
-    name: string;
-    value: number;
-    comment: string;
-    timestamp: string;
-    serialNumber: string;
-    article: {
-        name: string;
-    }
-}
-
-interface FeatureData {
-    name: string;
-    value: string;
-}
-
 interface UserProfilePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users?: ApiUserProfileDto;
     message: string;
-    responsibility: responsibilityData[];
-    debt: debtData[];
-    destroyed: destroyedData[];
+    responsibility: ResponsibilityType[];
+    debt: DebtType[];
+    destroyed: DestroyedType[];
     articlesByUser: ArticleByUserData[];
-    features: FeatureData[];
+    features: FeaturesType[];
     isLoggedIn: boolean;
 }
 
@@ -188,27 +150,6 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 const data: ApiUserProfileDto = res.data;
                 this.setErrorMessage('')
                 this.setUsers(data)
-
-                /* Višek koda je za responsibility jer ga imam u UserArticle i tu ga mogu izvući */
-                const responsibility: ResponsibilityType[] = [];
-                for (const resArticles of data.responsibilityArticles) {
-                    const articleId = resArticles.articleId;
-                    const value = resArticles.value;
-                    const status = resArticles.status;
-                    const serialNumber = resArticles.serialNumber;
-                    const timestamp = resArticles.timestamp;
-
-                    let name = '';
-
-                    for (const article of data.articles) {
-                        if (article.articleId === resArticles.articleId) {
-                            name = article.name
-                            break;
-                        }
-                    }
-                    responsibility.push({ articleId, name, value, status, timestamp, serialNumber })
-                }
-                this.setResponsibility(responsibility)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
         api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {})
@@ -221,7 +162,15 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/article/?join=userDetails&filter=userDetails.userId||$eq||' + this.props.match.params.userID, 'get', {})
+        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {})
+            .then((res: ApiResponse) => {
+                const responsibility: ResponsibilityType[] = res.data;
+                this.setResponsibility(responsibility)
+            })
+        api('api/article/?join=responsibility&filter=responsibility.userId||$eq||'
+            + this.props.match.params.userID +
+            ''
+            , 'get', {})
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;
                 this.setArticleByUser(articleByUser)
@@ -238,15 +187,13 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                                 break;
                             }
                         }
-
                         features.push({ name, value });
                     }
                 }
                 this.setFeaturesData(features);
-            })
+            }
+            )
     }
-
-
 
     /* KRAJ GET I MOUNT FUNKCIJA */
 
@@ -314,7 +261,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             {this.state.responsibility?.map(ura => (
                                 <TableRow hover>
                                     <TableCell>{ura.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
                                     <TableCell>{ura.value}</TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -356,7 +303,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             {this.state.debt?.map(debt => (
                                 <TableRow hover>
                                     <TableCell>{debt.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/userArticle/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
                                     <TableCell>{debt.value}</TableCell>
                                     <TableCell>{debt.comment}</TableCell>
                                     <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -398,7 +345,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             {this.state.destroyed?.map(destroyed => (
                                 <TableRow hover>
                                     <TableCell>{destroyed.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/userArticle/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
                                     <TableCell>{destroyed.value}</TableCell>
                                     <TableCell>{destroyed.comment}</TableCell>
                                     <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>

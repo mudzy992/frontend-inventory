@@ -3,14 +3,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, Form, ListGroup, Row } from 'react-bootstrap';
-import FeaturesType from '../../types/FeaturesType';
-import Moment from 'moment';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
-import ArticleTimelineType from '../../types/ArticleTimelineType';
-import Paper from '@mui/material/Paper';
-import ArticleByUserType from '../../types/ArticleByUserType';
 import { Redirect } from 'react-router-dom';
+import Paper from '@mui/material/Paper';
+import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
+import Moment from 'moment';
+import FeaturesType from '../../types/FeaturesType';
+import ArticleTimelineType from '../../types/ArticleTimelineType';
+import ArticleByUserType from '../../types/ArticleByUserType';
 import UserArticleDto from '../../dtos/UserArticleDto';
+
 
 interface ArticleOnUserPageProperties {
     match: {
@@ -21,29 +22,12 @@ interface ArticleOnUserPageProperties {
     }
 }
 
-
-interface FeatureData {
-    name: string
-    value: string;
-}
-
-interface ArticleTimelineData {
-    surname: string;
-    forname: string;
-    name: string;
-    status: string;
-    comment: string;
-    serialNumber: string;
-    sapNumber: string;
-    timestamp: string;
-}
-
 interface ArticleOnUserPageState {
     userArticle: UserArticleDto[];
     message: string;
     article: ArticleByUserType[];
-    features: FeatureData[];
-    articleTimeline: ArticleTimelineData[];
+    features: FeaturesType[];
+    articleTimeline: ArticleTimelineType[];
     isLoggedIn: boolean;
     errorMessage: string;
     changeStatus: {
@@ -52,6 +36,7 @@ interface ArticleOnUserPageState {
         value: number | null;
         comment: string;
         serialNumber: string;
+        status: string;
     }
 
 }
@@ -73,7 +58,8 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 articleId: 0,
                 value: null,
                 comment: '',
-                serialNumber: ''
+                serialNumber: '',
+                status: '',
             },
             userArticle: [],
         }
@@ -205,7 +191,22 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 }
                 this.setArticleTimelineData(articleTimeline)
             })
-        /* Poseban api za sortiranje po timestampu */
+    }
+
+    private changeStatu() {
+        api('api/userArticle/add/' + this.state.userArticle.map(ua => (ua.userId)), 'post', {
+            articleId: this.props.match.params.articleId,
+            value: 1,
+            comment: this.state.changeStatus.comment,
+            serialNumber: this.props.match.params.serial,
+            status: this.state.changeStatus.status
+        })
+            .then((res: ApiResponse) => {
+                if (res.status === "login") {
+                    this.setLogginState(false);
+                    return
+                }
+            })
     }
 
     private printOptionalMessage() {
@@ -292,18 +293,18 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
 
     }
 
-    private DebtButton(article: ArticleByUserType[]) {
+    private changeStatusButton(article: ArticleByUserType[]) {
         let stat = ""
         article.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
 
-        if (stat === "razduženo") {
+        if (stat !== "otpisano") {
             return (
                 <Col lg="3" xs="3" sm="3" md="3" style={{
                     display: "flex",
                     justifyContent: "flex-end",
                     alignItems: "center"
                 }}>
-                    <a type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#button-razduzi"> Zaduži </a>
+                    <a type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#button-razduzi"> Promjeni</a>
                     <div className="modal fade" id="button-razduzi" role="dialog" aria-hidden="true" tabIndex={-1} style={{ color: "black" }}>
                         <div className="modal-dialog modal-dialog-centered modal-lg" role="document" style={{ width: "auto", height: "auto" }}>
                             <div className="modal-content">
@@ -312,12 +313,28 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 </div>
                                 <div className="modal-body">
                                     <Form.Text>
-                                        <h6>Da li ste sigurni da želite zadužiti
-                                            <b> {article.map(arti => (arti.name))} </b>sa korisnika
-                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)}
-                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)} ?
+                                        <h6>Da li ste sigurni da želite promjeniti status zaduženja
+                                            <b> {article.map(arti => (arti.name))} </b>sa korisnika {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)} {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)}?
                                         </h6>
                                     </Form.Text>
+                                    <Form.Group>
+                                        <Form.Label>Status</Form.Label>
+                                        <Form.Control id="status" as="select" value={this.state.article.map(userDet => (userDet.userArticle[userDet.userArticle.length - userDet.userArticle.length + 0]).status)}
+                                            onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
+                                            <option value="zaduženo">
+                                                zaduženo
+                                            </option>
+                                            <option value="razduženo">
+                                                razduženo
+                                            </option>
+                                            <option value="otpisano">
+                                                otpisano
+                                            </option>
+                                        </Form.Control>
+                                        <Form.Text>
+                                            <p> Artikal ako je već zadužen, ne može u ovoj trenutku biti ponovo zadužen</p>
+                                        </Form.Text>
+                                    </Form.Group>
                                     <Form.Group>
                                         <Form.Label>Komentar</Form.Label>
                                         <Form.Control
@@ -330,7 +347,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 </div>
                                 <div className="modal-footer">
                                     <a type="button" className="btn btn-danger btn-md" data-bs-toggle="modal" data-dismiss="modal"> Zatvori </a>
-                                    <button type="button" className="btn btn-success">Sačuvaj</button>
+                                    <a type="button" className="btn btn-success btn-md" data-bs-toggle="modal" data-dismiss="modal" onClick={() => this.changeStatu()}> Sačuvaj </a>
                                 </div>
                             </div>
                         </div>
@@ -339,63 +356,16 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             )
         }
 
-        if (stat === "otpisano") {
-            return (
-                <Col lg="3" xs="3" sm="3" md="3" style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center"
-                }}>
-                </Col>
-            )
-        }
-        if (stat === "zaduženo") {
-            return (
-                <Col lg="3" xs="3" sm="3" md="3" style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center"
-                }}>
-                    <a type="button" className="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#button-razduzi"> Razduži </a>
-                    <div className="modal fade" id="button-razduzi" role="dialog" aria-hidden="true" tabIndex={-1} style={{ color: "black" }}>
-                        <div className="modal-dialog modal-dialog-centered modal-lg" role="document" style={{ width: "auto", height: "auto" }}>
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title">Razduženje opreme</h5>
-                                </div>
-                                <div className="modal-body">
-                                    <Form.Text>
-                                        <h6>Da li ste sigurni da želite razdužiti
-                                            <b> {article.map(arti => (arti.name))} </b>sa korisnika
-                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)}
-                                            {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)} ?
-                                        </h6>
-                                    </Form.Text>
-                                    <Form.Group>
-                                        <Form.Label>Komentar</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
-                                            placeholder="Razlog razduženja opreme (neobavezno)"
-                                            onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
-                                        />
-                                    </Form.Group>
-                                </div>
-                                <div className="modal-footer">
-                                    <a type="button" className="btn btn-danger btn-md" data-bs-toggle="modal" data-dismiss="modal"> Zatvori </a>
-                                    <button type="button" className="btn btn-success">Sačuvaj</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Col>
-            )
-        }
+        return (
+            <Col lg="3" xs="3" sm="3" md="3" style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center"
+            }}>
+            </Col>
+        )
+
     }
-
-    /* private doChangeStatus (){
-        api('api')
-    } */
 
     private userDetails(userDet: ArticleByUserType[]) {
         let stat = ""
@@ -405,7 +375,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             return (<Alert variant='info'> Nema podataka o korisniku, oprema razdužena</Alert>)
         }
         if (stat === 'otpisano') {
-            return (<Alert variant='warning'> Nema podataka o korisniku, oprema razdužena</Alert>)
+            return (<Alert variant='warning'> Nema podataka o korisniku, oprema otpisana</Alert>)
         }
         if (stat === 'zaduženo') {
             return (
@@ -503,14 +473,13 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                         <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                                             Status
                                         </Col>
-                                        {this.DebtButton(article)}
+                                        {this.changeStatusButton(article)}
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">
                                     <>
                                         <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].status))} </b></ListGroup.Item>
                                         <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
-                                        {/*   <ListGroup.Item>Datum zaduženja: {Moment(stat.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item> */}
                                     </>
                                 </ListGroup>
                             </Card>

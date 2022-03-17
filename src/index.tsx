@@ -38,7 +38,7 @@ ReactDOM.render(
         <Route path="/userProfile/:userID" component={ UserProfilePage }/>
         <Route path="/category/:categoryID" component={ CategoryPage }/>
         <Route path="/article/:articleID" component={ ArticlePage }/>
-        <Route path="/userArticle/:articleId/:serial" component={ ArticleOnUserPage }/>
+        <Route path="/userArticle/:userID/:articleId/:serial" component={ ArticleOnUserPage }/>
       </Switch>
     </HashRouter>
   </React.StrictMode>,

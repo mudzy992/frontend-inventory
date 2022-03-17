@@ -261,7 +261,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             {this.state.responsibility?.map(ura => (
                                 <TableRow hover>
                                     <TableCell>{ura.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
                                     <TableCell>{ura.value}</TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -303,7 +303,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             {this.state.debt?.map(debt => (
                                 <TableRow hover>
                                     <TableCell>{debt.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
                                     <TableCell>{debt.value}</TableCell>
                                     <TableCell>{debt.comment}</TableCell>
                                     <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -345,7 +345,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             {this.state.destroyed?.map(destroyed => (
                                 <TableRow hover>
                                     <TableCell>{destroyed.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
                                     <TableCell>{destroyed.value}</TableCell>
                                     <TableCell>{destroyed.comment}</TableCell>
                                     <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>

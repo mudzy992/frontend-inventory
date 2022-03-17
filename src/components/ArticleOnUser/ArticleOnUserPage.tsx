@@ -16,6 +16,7 @@ import UserArticleDto from '../../dtos/UserArticleDto';
 interface ArticleOnUserPageProperties {
     match: {
         params: {
+            userID: number;
             articleId: number;
             serial: string;
         }
@@ -131,7 +132,10 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     }
 
     private getArticleData() {
-        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId + '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial + '&sort=userArticle.timestamp,DESC', 'get', {})
+        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId + 
+        '&filter=userDetails.userId||$eq||' + this.props.match.params.userID  +
+        '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial + 
+        '&sort=userArticle.timestamp,DESC', 'get', {})
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);

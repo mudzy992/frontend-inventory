@@ -135,7 +135,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId + 
         '&filter=userDetails.userId||$eq||' + this.props.match.params.userID  +
         '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial + 
-        '&sort=userArticle.timestamp,DESC', 'get', {})
+        '&sort=userArticle.timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -168,7 +168,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 }
                 this.setFeaturesData(features);
             })
-        api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {})
+        api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -204,8 +204,9 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             comment: this.state.changeStatus.comment,
             serialNumber: this.props.match.params.serial,
             status: this.state.changeStatus.status
-        })
+        }, 'administrator')
             .then((res: ApiResponse) => {
+                /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
                 if (res.status === "login") {
                     this.setLogginState(false);
                     return

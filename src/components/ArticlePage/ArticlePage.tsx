@@ -128,7 +128,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private getArticleData() {
-        api('api/article/' + this.props.match.params.articleID, 'get', {})
+        api('api/article/' + this.props.match.params.articleID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setArticles(undefined);
@@ -185,7 +185,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 this.setArticleTimelineData(articleTimeline)
             })
 
-        api('/api/user', 'get', {})
+        api('/api/user', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
             })
@@ -198,8 +198,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             comment: this.state.changeStatus.comment,
             serialNumber: this.state.changeStatus.serialNumber,
             status: this.state.changeStatus.status
-        })
+        }, 'administrator')
             .then((res: ApiResponse) => {
+                /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 if (res.status === "login") {
                     this.setLogginState(false);
                     return

@@ -6,29 +6,29 @@ import { Redirect } from 'react-router-dom';
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../API/api';
 
 
-interface userData {
+interface administratorData {
     id: number;
 }
 
 
-interface UserLoginPageState {
-    email: string;
+interface AdministratorLoginPageState {
+    username: string;
     password: string;
-    userID: userData[];
+    administratorID: administratorData[];
     errorMessage: string;
     isLoggedIn: boolean;
 }
 
-export default class UserLoginPage extends React.Component {
-    state: UserLoginPageState;
+export default class AdministratorLoginPage extends React.Component {
+    state: AdministratorLoginPageState;
 
     constructor(props: Readonly<{}>) {
         super(props);
 
         this.state = {
-            email: '',
+            username: '',
             password: '',
-            userID: [],
+            administratorID: [],
             errorMessage: '',
             isLoggedIn: false,
         }
@@ -49,9 +49,9 @@ export default class UserLoginPage extends React.Component {
         this.setState(newState);
     }
 
-    private setUserID(userID: userData[]) {
+    private setAdministratorID(administratorID: administratorData[]) {
         const newState = Object.assign(this.state, {
-            userID: userID,
+            administratorID: administratorID,
         });
 
         this.setState(newState);
@@ -67,10 +67,10 @@ export default class UserLoginPage extends React.Component {
 
     private doLogin() {
         api(
-            'auth/user/login',
+            'auth/administrator/login',
             'post',
             {
-                email: this.state.email,
+                username: this.state.username,
                 password: this.state.password,
             }
         )
@@ -84,19 +84,19 @@ export default class UserLoginPage extends React.Component {
             if (res.status === 'ok') {
                 if ( res.data.statusCode !== undefined ) {
                     let message = '';
-  
+
                     switch (res.data.statusCode) {
-                        case -3001: message = 'Unkwnon e-mail!'; break;
+                        case -3001: message = 'Unkwnon username!'; break;
                         case -3002: message = 'Bad password!'; break;
                     }
-  
+
                     this.setErrorMessage(message);
-  
+
                     return;
                 }
-                this.setUserID(res.data.id);
-                saveToken('user', res.data.token);
-                saveRefreshToken('user', res.data.refreshToken);
+                this.setAdministratorID(res.data.id);
+                saveToken('administrator', res.data.token);
+                saveRefreshToken('administrator', res.data.refreshToken);
   
                 this.setLogginState(true);
                 
@@ -106,7 +106,7 @@ export default class UserLoginPage extends React.Component {
     render() {
         if (this.state.isLoggedIn === true) {
             return (
-                <Redirect to={`/userProfile/${this.state.userID}`} />
+                <Redirect to="/" />
             );
         }
         return (
@@ -115,13 +115,13 @@ export default class UserLoginPage extends React.Component {
                 <Card style={{marginTop:10}}>
                     <Card.Body>
                         <Card.Title>
-                            <FontAwesomeIcon icon={ faSignInAlt } /> User Login
+                            <FontAwesomeIcon icon={ faSignInAlt } /> Administrator Login
                         </Card.Title>
                         <Form>
                             <Form.Group>
-                                <Form.Label htmlFor="email">E-mail:</Form.Label>
-                                <Form.Control type="email" id="email"
-                                                value={ this.state.email }
+                                <Form.Label htmlFor="username">Korisničko ime:</Form.Label>
+                                <Form.Control type="text" id="username"
+                                                value={ this.state.username }
                                                 onChange={ event => this.formInputChanged(event as any) } />
                             </Form.Group>
                             <Form.Group>
@@ -141,7 +141,7 @@ export default class UserLoginPage extends React.Component {
                         <Alert variant="danger"
                                style={{marginTop:15}}
                                className={ this.state.errorMessage ? '' : 'd-none' }>
-                           <FontAwesomeIcon icon={ faExclamationTriangle } />  { this.state.errorMessage }
+                           {/* <FontAwesomeIcon icon={ faExclamationTriangle } />   */}{ this.state.errorMessage }
                         </Alert>
                     </Card.Body>
                 </Card>

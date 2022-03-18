@@ -17,12 +17,14 @@ import UserPage from './components/UserPage/UserPage';
 import UserProfilePage from './components/UserProfilePage/UserProfilePage';
 import ArticleOnUserPage from './components/ArticleOnUser/ArticleOnUserPage';
 import UserLoginPage from './components/UserLogin/UserLoginPage';
+import AdministratorLoginPage from './components/AdministratorLoginPage/AdministratorLoginPage';
 
 const menuItems = [
   new MainMenuItem("Naslovna", "/"),
   new MainMenuItem("Korisnici", "/user"),
   new MainMenuItem("Contact", "/contact/"),
   new MainMenuItem("Log in", "/user/login/"),
+  new MainMenuItem("Admin", "/admin/login/"),
   new MainMenuItem("Register", "/user/register/"),
 ]
 
@@ -35,6 +37,7 @@ ReactDOM.render(
         <Route exact path="/" component={ HomePage }  />
         <Route exact path="/user/" component={ UserPage }/> 
         <Route exact path="/user/login" component={ UserLoginPage } />
+        <Route exact path="/admin/login" component={ AdministratorLoginPage } />
         <Route path="/userProfile/:userID" component={ UserProfilePage }/>
         <Route path="/category/:categoryID" component={ CategoryPage }/>
         <Route path="/article/:articleID" component={ ArticlePage }/>

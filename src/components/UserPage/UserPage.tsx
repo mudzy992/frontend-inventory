@@ -135,7 +135,7 @@ export default class UserPage extends React.Component {
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
     private getUserData () {
-        api('api/user/', 'get', {} )
+        api('api/user/', 'get', {}, 'administrator')
         .then((res: ApiResponse ) => {
             /* Nakon što se izvrši ruta, šta onda */
             if(res.status === 'error') {

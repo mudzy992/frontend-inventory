@@ -9,7 +9,6 @@ import { Redirect } from 'react-router-dom';
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
-
 interface HomePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa */
     categories: CategoryType[];
@@ -81,6 +80,9 @@ export default class HomePage extends React.Component {
                         </Card.Title>
                     </Card.Header>
                     <Row>
+                        Treba definisati role za homepage
+                    </Row>
+                    <Row>
                             {/* Ako je korisnik ulogovan, prikazati spisak kategorija 
                             to smo uradili tako što smo mapirali jednu funkciju ispod*/}
                             {this.state.categories.map(this.singleCategory)}
@@ -130,7 +132,7 @@ export default class HomePage extends React.Component {
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
     private getCategories () {
-        api('api/category/?filter=parentCategoryId||$isnull', 'get', {})
+        api('api/category/?filter=parentCategoryId||$isnull', 'get', {}, 'administrator' || 'user')
         .then((res: ApiResponse) => {
             if (res.status === 'login') {
                 return this.setLogginState(false);
@@ -139,7 +141,5 @@ export default class HomePage extends React.Component {
             this.putCategoriesInState(res.data)
         }) 
     }
-
-    
 } /* Kraj koda */
     /* KRAJ GET I MOUNT FUNKCIJA */

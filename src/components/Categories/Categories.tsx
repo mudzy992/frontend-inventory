@@ -214,7 +214,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
     private getCategoriesData () {
-        api('api/category/' + this.props.match.params.categoryID, 'get', {} )
+        api('api/category/' + this.props.match.params.categoryID, 'get', {}, 'administrator' || 'user')
         .then ((res: ApiResponse)=> {
             if (res.status === 'error') {
                 return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
@@ -241,7 +241,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             this.setSubcategories(subcategories);
         })
 
-        api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {} )
+        api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator' || 'user')
         .then ((res: ApiResponse)=> {
             if (res.status === 'error') {
                 return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')

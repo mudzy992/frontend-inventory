@@ -135,7 +135,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
     private getUserData() {
-        api('api/user/' + this.props.match.params.userID, 'get', {})
+        api('api/user/' + this.props.match.params.userID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 /* Nakon što se izvrši ruta, šta onda */
                 if (res.status === 'error') {
@@ -152,17 +152,17 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {})
+        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
             })
-        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {})
+        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {})
+        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
@@ -170,7 +170,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         api('api/article/?join=responsibility&filter=responsibility.userId||$eq||'
             + this.props.match.params.userID +
             ''
-            , 'get', {})
+            , 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;
                 this.setArticleByUser(articleByUser)

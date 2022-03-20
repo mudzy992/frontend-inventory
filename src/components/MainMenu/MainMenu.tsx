@@ -14,7 +14,7 @@ export class MainMenuItem {
     text: string = "";
     link: string = "#";
 
-    constructor(text: string, link: string){
+    constructor(text: string, link: string) {
         this.text = text;
         this.link = link;
     }
@@ -29,14 +29,14 @@ interface MainMenuState {
 
 export class MainMenu extends React.Component<MainMenuProperties> {
     state: MainMenuState;
-    constructor(props: MainMenuProperties | Readonly<MainMenuProperties>){
+    constructor(props: MainMenuProperties | Readonly<MainMenuProperties>) {
         super(props)
         this.state = {
             items: props.items,
         }
     }
-/* Kada god dođe do poziva setItems  */
-    setItems(items: MainMenuItem[]){
+    /* Kada god dođe do poziva setItems  */
+    setItems(items: MainMenuItem[]) {
         /* i kada god se setuje novi state tj. novi items */
         /* tog trenutka gdje god se goristi state.items doći do promjene */
         this.setState({
@@ -45,34 +45,34 @@ export class MainMenu extends React.Component<MainMenuProperties> {
     }
 
     render() {
-        return ( 
-            <Navbar 
-            bg="dark" 
-            variant="dark" 
-            sticky="top" 
-            expand="lg"
-            collapseOnSelect
+        return (
+            <Navbar
+                bg="dark"
+                variant="dark"
+                sticky="top"
+                expand="lg"
+                collapseOnSelect
             >
                 <Container>
-                    <Navbar.Brand href="/"> <FontAwesomeIcon icon = { faStoreAlt } /> Inventory Database</Navbar.Brand>
-                        <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
-                            <Navbar.Collapse id="responsive-navbar-nav">
-                                <Nav className='me-auto' >
-                                    <HashRouter>
-                                    {this.state.items.map(this.makeNavLink)}
-                                    </HashRouter>
-                                </Nav>
-                            </Navbar.Collapse>
+                    <Navbar.Brand href="/"> <FontAwesomeIcon icon={faStoreAlt} /> Inventory Database</Navbar.Brand>
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+                    <Navbar.Collapse id="responsive-navbar-nav">
+                        <Nav className='me-auto' >
+                            <HashRouter>
+                                {this.state.items.map(this.makeNavLink)}
+                            </HashRouter>
+                        </Nav>
+                    </Navbar.Collapse>
                 </Container>
             </Navbar>
         );
-    }   
+    }
     /* a može i ova varijanta */
-    private makeNavLink(item: MainMenuItem){
-        return(
-            <Link to={ item.link } 
-            className="nav-link" >{ item.text }</Link>
-        ); 
+    private makeNavLink(item: MainMenuItem) {
+        return (
+            <Link to={item.link}
+                className="nav-link" >{item.text}</Link>
+        );
     }
 }
 

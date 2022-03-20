@@ -4,9 +4,10 @@ import { Alert, Container } from '@mui/material';
 import React from 'react';
 import { Card, Col, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import api, { ApiResponse } from '../../API/api';
-import ArticleType from '../../types/ArticleType';
-import CategoryType from '../../types/CategoryType';
+import api, { ApiResponse } from '../../../API/api';
+import ArticleType from '../../../types/ArticleType';
+import CategoryType from '../../../types/CategoryType';
+import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
@@ -48,7 +49,7 @@ interface ArticleDto {
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
 export default class CategoryPage extends React.Component<CategoryPageProperties> {
     state: CategoryPageState;
-    constructor(props: Readonly<CategoryPageProperties>){
+    constructor(props: Readonly<CategoryPageProperties>) {
         super(props);
         this.state = {
             message: ""
@@ -79,63 +80,64 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             articles: articles
         }))
     }
-    
+
 
     /* KRAJ SET FUNCKIJA */
 
     render() {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
-        return(
+        return (
             /* prikaz klijentu */
             <>
-            <Container style={{marginTop:15}}>
-                <Card className="text-white bg-dark">
-                    <Card.Header>
-                        <Card.Title>
-                            <FontAwesomeIcon icon={faListAlt}/> {this.state.category?.name}
-                        </Card.Title>
-                    </Card.Header>
-                <Card.Body>
-                    <Card.Text>
-                        { this.printErrorMessage () }
-                        { this.showSubcategories() }
-                        { this.showArticles() }
+                <RoledMainMenu role='administrator' />
+                <Container style={{ marginTop: 15 }}>
+                    <Card className="text-white bg-dark">
+                        <Card.Header>
+                            <Card.Title>
+                                <FontAwesomeIcon icon={faListAlt} /> {this.state.category?.name}
+                            </Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <Card.Text>
+                                {this.printErrorMessage()}
+                                {this.showSubcategories()}
+                                {this.showArticles()}
 
-                    </Card.Text>
-                </Card.Body>
-                
-                </Card>
-            </Container>
+                            </Card.Text>
+                        </Card.Body>
+
+                    </Card>
+                </Container>
             </>
         )
     }
 
     private printErrorMessage() {
-        if(this.state.message === "") {
+        if (this.state.message === "") {
             return;
         }
         return (
             <Alert severity="error"
-                    style={{marginTop:15}}
-                    className={ this.state.message ? '' : 'd-none' }>
-                    {/* <i className="bi bi-exclamation-circle-fill"></i>  */}{ this.state.message }
+                style={{ marginTop: 15 }}
+                className={this.state.message ? '' : 'd-none'}>
+                {/* <i className="bi bi-exclamation-circle-fill"></i>  */}{this.state.message}
             </Alert>
         )
-    } 
+    }
     private showSubcategories() {
         if (this.state.subCategory?.length === 0) {
             return;
         }
         return (
             <Row>
-                { this.state.subCategory?.map(this.singleCategory) }
+                {this.state.subCategory?.map(this.singleCategory)}
             </Row>
         );
     }
 
-    private singleCategory(category: CategoryType){
-        return(
+    private singleCategory(category: CategoryType) {
+        return (
             /* Ono kako želimo da prikažemo kategoriju (dizajn) */
             <Col lg="3" md="4" sm="6" xs="12">
                 <Card className="text-dark bg-light mb-3">
@@ -144,13 +146,13 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                             {category.name}
                         </Card.Title>
                     </Card.Header>
-                        <Card.Body>
-                            Ovjde će ići slika zvao se ja mudzy ili ne
+                    <Card.Body>
+                        Ovjde će ići slika zvao se ja mudzy ili ne
                         {/* <Card.Img variant="top" src={ApiConfig.PHOTO_PATH + `${category.image}`} /> */}
-                        </Card.Body>
+                    </Card.Body>
                     <Card.Footer>
                         <small><Link to={`/category/${category.categoryId}`}
-                        className='btn btn-primary btn-block btn-sm'>Prikaži kategoriju</Link></small> 
+                            className='btn btn-primary btn-block btn-sm'>Prikaži kategoriju</Link></small>
                     </Card.Footer>
                 </Card>
             </Col>
@@ -165,43 +167,43 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         }
         return (
             <Row>
-                { this.state.articles?.map(this.singleArticle) }
+                {this.state.articles?.map(this.singleArticle)}
             </Row>
         );
     }
 
-    private singleArticle(article: ArticleType){
-        return(
+    private singleArticle(article: ArticleType) {
+        return (
             /* Ono kako želimo da prikažemo kategoriju (dizajn) */
             <Col lg="4" md="6" sm="6" xs="12">
                 <Card className="text-dark bg-light mb-3">
-                    <Card.Img variant="top" src="" className="w-100"/>
-                        <Card.Body>
-                            <Card.Title>
-                                {article.name}
-                            </Card.Title>
-                            <ListGroup className="list-group-flush">
-                                <ListGroupItem> <strong>Excerpt:</strong> {article.excerpt}</ListGroupItem>
-                            </ListGroup>
-                        </Card.Body>
+                    <Card.Img variant="top" src="" className="w-100" />
+                    <Card.Body>
+                        <Card.Title>
+                            {article.name}
+                        </Card.Title>
+                        <ListGroup className="list-group-flush">
+                            <ListGroupItem> <strong>Excerpt:</strong> {article.excerpt}</ListGroupItem>
+                        </ListGroup>
+                    </Card.Body>
                     <Card.Footer>
-                    <small><Link to={`/article/${article.articleId}`}
-                        className='btn btn-primary btn-block btn-sm'>Više detalja</Link></small> 
-                    </Card.Footer>  
+                        <small><Link to={`/article/${article.articleId}`}
+                            className='btn btn-primary btn-block btn-sm'>Više detalja</Link></small>
+                    </Card.Footer>
                 </Card>
             </Col>
         )
     }
 
     /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
-    componentDidMount(){
+    componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getCategoriesData()
     }
 
-    componentDidUpdate(oldProperties: CategoryPageProperties){
+    componentDidUpdate(oldProperties: CategoryPageProperties) {
         /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if(oldProperties.match.params.categoryID === this.props.match.params.categoryID){
+        if (oldProperties.match.params.categoryID === this.props.match.params.categoryID) {
             return;
         }
         this.getCategoriesData();
@@ -213,53 +215,53 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     1. ruta (provjeriti u backend), 
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
-    private getCategoriesData () {
-        api('api/category/' + this.props.match.params.categoryID, 'get', {}, 'administrator' || 'user')
-        .then ((res: ApiResponse)=> {
-            if (res.status === 'error') {
-                return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-            }
-
-            /* popunjavamo type kategorije iz responsa */
-
-            const categoryData: CategoryType = {
-                categoryId: res.data.categoryId,
-                name: res.data.name,
-                /* Link za sliku */
-            }
-            /* setujemo u funkciju setCategory podatke koje smo izvukli i sada su nam dostupni za koristiti uvijek */
-            this.setCategoryData(categoryData)
-
-            const subcategories: CategoryType[] =
-            res.data.categories.map((category: CategoryDto) => {
-                return {
-                    categoryId: category.categoryId,
-                    name: category.name,
+    private getCategoriesData() {
+        api('api/category/' + this.props.match.params.categoryID, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'error') {
+                    return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                 }
-            });
 
-            this.setSubcategories(subcategories);
-        })
+                /* popunjavamo type kategorije iz responsa */
 
-        api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator' || 'user')
-        .then ((res: ApiResponse)=> {
-            if (res.status === 'error') {
-                return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-            }
-
-            /* popunjavamo type kategorije iz responsa */
-
-            const articleData: ArticleType[] = 
-            res.data.map((article: ArticleDto) => {
-                const object: ArticleType = {
-                    articleId: article.articleId,
-                    name: article.name,
-                    excerpt: article.excerpt,
-                    description: article.description
+                const categoryData: CategoryType = {
+                    categoryId: res.data.categoryId,
+                    name: res.data.name,
+                    /* Link za sliku */
                 }
-                return object
+                /* setujemo u funkciju setCategory podatke koje smo izvukli i sada su nam dostupni za koristiti uvijek */
+                this.setCategoryData(categoryData)
+
+                const subcategories: CategoryType[] =
+                    res.data.categories.map((category: CategoryDto) => {
+                        return {
+                            categoryId: category.categoryId,
+                            name: category.name,
+                        }
+                    });
+
+                this.setSubcategories(subcategories);
             })
-            this.setArticles(articleData)
-        })
+
+        api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'error') {
+                    return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                }
+
+                /* popunjavamo type kategorije iz responsa */
+
+                const articleData: ArticleType[] =
+                    res.data.map((article: ArticleDto) => {
+                        const object: ArticleType = {
+                            articleId: article.articleId,
+                            name: article.name,
+                            excerpt: article.excerpt,
+                            description: article.description
+                        }
+                        return object
+                    })
+                this.setArticles(articleData)
+            })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

@@ -1,16 +1,15 @@
 import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import api, { ApiResponse } from '../../API/api';
-import { Badge, Card, Col, Container, FloatingLabel, Form, ListGroup, Row, } from 'react-bootstrap';
-import FeaturesType from '../../types/FeaturesType';
-import ApiArticleDto from '../../dtos/ApiArticleDto';
+import api, { ApiResponse } from '../../../API/api';
+import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, Row, } from 'react-bootstrap';
+import FeaturesType from '../../../types/FeaturesType';
+import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
-import ArticleTimelineType from '../../types/ArticleTimelineType';
+import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
+import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import Paper from '@mui/material/Paper';
-import ArticleByUserType from '../../types/ArticleByUserType';
-import UserType from '../../types/UserType';
+import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 
 interface ArticlePageProperties {
     match: {
@@ -33,6 +32,7 @@ interface ArticlePageState {
     articleTimeline: ArticleTimelineType[];
     users: userData[];
     changeStatus: {
+        visible: boolean;
         userId: number | null;
         articleId: number | null;
         value: number | null;
@@ -41,7 +41,6 @@ interface ArticlePageState {
         status: string;
     }
 }
-
 
 export default class ArticlePage extends React.Component<ArticlePageProperties> {
     state: ArticlePageState;
@@ -54,6 +53,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             articleTimeline: [],
             users: [],
             changeStatus: {
+                visible: false,
                 userId: 0,
                 articleId: 0,
                 value: null,
@@ -94,6 +94,14 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         }));
     }
 
+    private setModalVisibleState(newState: boolean) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.changeStatus, {
+                visible: newState,
+            })
+        ));
+    }
+
     private setChangeStatusStringFieldState(fieldName: string, newValue: string) {
         this.setState(Object.assign(this.state,
             Object.assign(this.state.changeStatus, {
@@ -128,7 +136,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private getArticleData() {
-        api('api/article/' + this.props.match.params.articleID, 'get', {}, 'user')
+        api('api/article/' + this.props.match.params.articleID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setArticles(undefined);
@@ -161,31 +169,32 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 const articleTimeline: ArticleTimelineType[] = [];
 
                 for (const statusRespon of data.userArticle) {
-                    let sapNumber = data.sapNumber;
+                    let articleId = data.articleId;
                     let surname = '';
                     let forname = '';
-                    let comment = '';
+                    let comment = statusRespon.comment;
                     let status = '';
                     let serialNumber = '';
                     let timestamp = '';
+                    let userId = 0;
                     if (statusRespon.articleId === data.articleId) {
                         status = statusRespon.status;
-                        comment = '';
                         serialNumber = statusRespon.serialNumber;
                         timestamp = statusRespon.timestamp;
                         for (const user of data.userDetails) {
                             if (statusRespon.userId === user.userId) {
+                                userId = user.userId;
                                 surname = user.surname;
                                 forname = user.forname;
                             }
                         }
                     }
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, sapNumber, timestamp })
+                    articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, userId })
                 }
                 this.setArticleTimelineData(articleTimeline)
             })
 
-        api('/api/user', 'get', {}, 'user')
+        api('/api/user', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
             })
@@ -205,7 +214,20 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     this.setLogginState(false);
                     return
                 }
+                this.setModalVisibleState(false)
+                this.getArticleData()
             })
+    }
+
+    private showModal() {
+        this.setModalVisibleState(true)
+        this.setChangeStatusNumberFieldState('userId', 0)
+        this.setChangeStatusNumberFieldState('articleId', 0)
+        this.setChangeStatusNumberFieldState('value', null)
+        this.setChangeStatusStringFieldState('comment', '')
+        this.setChangeStatusStringFieldState('serialNumber', '')
+        this.setChangeStatusStringFieldState('status', '')
+        this.setChangeStatusStringFieldState('message', '')
     }
 
     private printOptionalMessage() {
@@ -222,31 +244,34 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     render() {
         return (
-            <Container style={{ marginTop: 15 }}>
-                <Card className="text-white bg-dark">
-                    <Card.Header >
-                        <Card.Title style={{ display: "flex", justifyContent: "start", }}>
-                            <FontAwesomeIcon style={{ marginRight: 5 }} icon={faListCheck} />{
-                                this.state.articles ?
-                                    this.state.articles?.name :
-                                    'Article not found'
-                            }
-                            {this.badgeStatus()}
-                        </Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <Card.Text>
-                            {this.printOptionalMessage()}
+            <>
+                <RoledMainMenu role='administrator' />
+                <Container style={{ marginTop: 15 }}>
+                    <Card className="text-white bg-dark">
+                        <Card.Header >
+                            <Card.Title style={{ display: "flex", justifyContent: "start", }}>
+                                <FontAwesomeIcon style={{ marginRight: 5 }} icon={faListCheck} />{
+                                    this.state.articles ?
+                                        this.state.articles?.name :
+                                        'Article not found'
+                                }
+                                {this.badgeStatus()}
+                            </Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <Card.Text>
+                                {this.printOptionalMessage()}
 
-                            {
-                                this.state.articles ?
-                                    (this.renderArticleData(this.state.articles)) :
-                                    ''
-                            }
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
-            </Container>
+                                {
+                                    this.state.articles ?
+                                        (this.renderArticleData(this.state.articles)) :
+                                        ''
+                                }
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Container>
+            </>
         )
     }
 
@@ -272,88 +297,84 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private changeStatusButton() {
+
         let status = 0;
         this.state.articles?.articlesInStock.map(stat => (
             status = stat.valueAvailable
         ))
         if (status !== 0) {
+
             return (
                 <Col lg="3" xs="3" sm="3" md="3" style={{
                     display: "flex",
                     justifyContent: "flex-end",
                     alignItems: "center"
                 }}>
-                    <a type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#button-razduzi"> Promjeni</a>
-                    <div className="modal fade" id="button-razduzi" role="dialog" aria-hidden="true" tabIndex={-1} style={{ color: "black" }}>
-                        <div className="modal-dialog modal-dialog-centered modal-lg" role="document" style={{ width: "auto", height: "auto" }}>
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title">Kartica zaduženja</h5>
-                                </div>
-                                <div className="modal-body">
+                    <Button size='sm' onClick={() => this.showModal()} >Izmjeni</Button>
+                    <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Kartica zaduženja</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form.Group className='was-validated'>
+                                <FloatingLabel controlId='value' label="Status" className="mb-3">
+                                    <Form.Select placeholder='izaberi korisnika' id='userId' required
+                                        onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
+                                        <option value=''>izaberi korisnika</option>
+                                        {this.state.users.map(users => (
+                                            <option value={users.userId.toString()}>{users.forname} {users.surname}</option>
+                                        ))}
+                                    </Form.Select>
+                                </FloatingLabel>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>
+                                        Količina
+                                    </Form.Label>
+                                    <Form.Control type='text' readOnly id='value' placeholder='1 KOM' />
+                                    <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
+                                </Form.Group>
 
+                            </Form.Group>
 
-                                    <Form.Group>
-                                        <FloatingLabel controlId='value' label="Status" className="mb-3">
-                                            <Form.Select placeholder='izaberi korisnika' id='userId'
-                                                onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
-                                                <option>izaberi korisnika</option>
-                                                {this.state.users.map(users => (
-                                                    <option value={users.userId.toString()}>{users.forname} {users.surname}</option>
-                                                ))}
-                                            </Form.Select>
-                                        </FloatingLabel>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>
-                                                Količina
-                                            </Form.Label>
-                                            <Form.Control type='text' readOnly id='value' placeholder='1 KOM' />
-                                            <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
-                                        </Form.Group>
-
-                                    </Form.Group>
-
-                                    <Form.Group>
-                                        <FloatingLabel controlId='value' label="Status" className="mb-3">
-                                            <Form.Select id="status"
-                                                onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
-                                                <option>izaberi status</option>
-                                                <option value='zaduženo'>
-                                                    Zaduženo
-                                                </option>
-                                                <option value='razduženo'>
-                                                    Razduženo
-                                                </option>
-                                                <option value='otpisano'>
-                                                    Otpisano
-                                                </option>
-                                            </Form.Select>
-                                        </FloatingLabel>
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <FloatingLabel controlId='value' label="Serijski broj" className="mb-3">
-                                            <Form.Control type='text' id='serialNumber' placeholder='1'
-                                                onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <FloatingLabel controlId='value' label="Komentar" className="mb-3">
-                                            <Form.Control
-                                                id="comment"
-                                                as="textarea"
-                                                rows={3}
-                                                placeholder="(neobavezno)"
-                                                style={{ height: '100px' }}
-                                                onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
-                                            /></FloatingLabel>
-                                    </Form.Group>
-                                </div>
-                                <div className="modal-footer">
-                                    <a type="button" className="btn btn-danger btn-md" data-bs-toggle="modal" data-dismiss="modal"> Zatvori </a>
-                                    <a type="button" className="btn btn-success btn-md" data-bs-toggle="modal" data-dismiss="modal" onClick={() => this.changeStatu()}> Sačuvaj </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            <Form.Group className='was-validated'>
+                                <FloatingLabel controlId='value' label="Status" className="mb-3">
+                                    <Form.Select id="status" required
+                                        onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
+                                        <option value=''> izaberi status</option>
+                                        <option value='zaduženo'>
+                                            Zaduženo
+                                        </option>
+                                        <option value='razduženo'>
+                                            Razduženo
+                                        </option>
+                                        <option value='otpisano'>
+                                            Otpisano
+                                        </option>
+                                    </Form.Select>
+                                </FloatingLabel>
+                            </Form.Group>
+                            <Form.Group className='was-validated'>
+                                <FloatingLabel controlId='value' label="Serijski broj" className="mb-3">
+                                    <Form.Control type='text' id='serialNumber' required
+                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
+                            </Form.Group>
+                            <Form.Group >
+                                <FloatingLabel controlId='value' label="Komentar" className="mb-3">
+                                    <Form.Control
+                                        id="comment"
+                                        as="textarea"
+                                        rows={3}
+                                        placeholder="(neobavezno)"
+                                        style={{ height: '100px' }}
+                                        onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
+                                    /></FloatingLabel>
+                            </Form.Group>
+                            <Modal.Footer>
+                                <Button variant="primary" onClick={() => this.changeStatu()}> Sačuvaj
+                                </Button>
+                            </Modal.Footer>
+                        </Modal.Body>
+                    </Modal>
                 </Col>
             )
         }
@@ -412,18 +433,20 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                 <TableCell>Status</TableCell>
                                                 <TableCell>Komentar</TableCell>
                                                 <TableCell>Serijski broj</TableCell>
-                                                <TableCell>SAP broj</TableCell>
                                                 <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             {this.state.articleTimeline?.map(articleTimeline => (
                                                 <TableRow hover>
-                                                    <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
+                                                    <TableCell><Link href={`#/admin/userProfile/${articleTimeline.userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
+                                                        {articleTimeline.surname} {articleTimeline.forname}</Link>
+                                                    </TableCell>
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
-                                                    <TableCell>{articleTimeline.serialNumber}</TableCell>
-                                                    <TableCell>{articleTimeline.sapNumber}</TableCell>
+                                                    <TableCell><Link href={`#/admin/userArticle/${articleTimeline.userId}/${articleTimeline.articleId}/${articleTimeline.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >
+                                                        {articleTimeline.serialNumber}</Link>
+                                                    </TableCell>
                                                     <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                                 </TableRow>
                                             ))}

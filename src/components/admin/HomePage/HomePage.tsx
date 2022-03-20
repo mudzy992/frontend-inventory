@@ -3,9 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Card, Col, Container, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import api, { ApiResponse } from '../../API/api';
-import CategoryType from '../../types/CategoryType';
+import api, { ApiResponse } from '../../../API/api';
+import CategoryType from '../../../types/CategoryType';
 import { Redirect } from 'react-router-dom';
+import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -71,25 +72,28 @@ export default class HomePage extends React.Component {
         /* kraj provjera */
         return (
             /* prikaz klijentu */
-            <Container style={{ marginTop: 15 }}>
-                <Card className="text-white bg-dark">
-                    <Card.Body>
-                        <Card.Header>
-                            <Card.Title>
-                                <FontAwesomeIcon icon={faListAlt} /> Top level categories
-                            </Card.Title>
-                        </Card.Header>
-                        <Row>
-                            Treba definisati role za homepage
-                        </Row>
-                        <Row>
-                            {/* Ako je korisnik ulogovan, prikazati spisak kategorija 
+            <>
+                <RoledMainMenu role='administrator' />
+                <Container style={{ marginTop: 15 }}>
+                    <Card className="text-white bg-dark">
+                        <Card.Body>
+                            <Card.Header>
+                                <Card.Title>
+                                    <FontAwesomeIcon icon={faListAlt} /> Top level categories
+                                </Card.Title>
+                            </Card.Header>
+                            <Row>
+                                Treba definisati role za homepage
+                            </Row>
+                            <Row>
+                                {/* Ako je korisnik ulogovan, prikazati spisak kategorija 
                             to smo uradili tako što smo mapirali jednu funkciju ispod*/}
-                            {this.state.categories.map(this.singleCategory)}
-                        </Row>
-                    </Card.Body>
-                </Card>
-            </Container>
+                                {this.state.categories.map(this.singleCategory)}
+                            </Row>
+                        </Card.Body>
+                    </Card>
+                </Container>
+            </>
         )
     }
 

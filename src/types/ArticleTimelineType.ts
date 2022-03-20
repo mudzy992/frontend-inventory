@@ -6,4 +6,6 @@ export default class ArticleTimelineType {
     serialNumber?: string;
     sapNumber?: string;
     timestamp?: string;
+    articleId?: number;
+    userId?: number;
 }

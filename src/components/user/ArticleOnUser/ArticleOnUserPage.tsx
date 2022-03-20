@@ -1,16 +1,17 @@
 import { faExclamationTriangle, faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import api, { ApiResponse } from '../../API/api';
-import { Alert, Badge, Button, Card, Col, Container, Form, ListGroup, Row } from 'react-bootstrap';
+import api, { ApiResponse } from '../../../API/api';
+import { Alert, Badge, Card, Col, Container, Form, ListGroup, Row } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 import Moment from 'moment';
-import FeaturesType from '../../types/FeaturesType';
-import ArticleTimelineType from '../../types/ArticleTimelineType';
-import ArticleByUserType from '../../types/ArticleByUserType';
-import UserArticleDto from '../../dtos/UserArticleDto';
+import FeaturesType from '../../../types/FeaturesType';
+import ArticleTimelineType from '../../../types/ArticleTimelineType';
+import ArticleByUserType from '../../../types/ArticleByUserType';
+import UserArticleDto from '../../../dtos/UserArticleDto';
+import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 
 
 interface ArticleOnUserPageProperties {
@@ -66,19 +67,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
     }
 
-    private setChangeStatusStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.changeStatus, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setChangeStatusNumberFieldState(fieldName: number, newValue: number) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.changeStatus, {
-                [fieldName]: newValue,
-            })))
-    }
     private setErrorMessage(message: string) {
         const newState = Object.assign(this.state, {
             errorMessage: message,
@@ -132,10 +120,10 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     }
 
     private getArticleData() {
-        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId + 
-        '&filter=userDetails.userId||$eq||' + this.props.match.params.userID  +
-        '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial + 
-        '&sort=userArticle.timestamp,DESC', 'get', {}, 'user')
+        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
+            '&filter=userDetails.userId||$eq||' + this.props.match.params.userID +
+            '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial +
+            '&sort=userArticle.timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -197,23 +185,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             })
     }
 
-    private changeStatu() {
-        api('api/userArticle/add/' + this.state.userArticle.map(ua => (ua.userId)), 'post', {
-            articleId: this.props.match.params.articleId,
-            value: 1,
-            comment: this.state.changeStatus.comment,
-            serialNumber: this.props.match.params.serial,
-            status: this.state.changeStatus.status
-        }, 'administrator')
-            .then((res: ApiResponse) => {
-                /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
-                if (res.status === "login") {
-                    this.setLogginState(false);
-                    return
-                }
-            })
-    }
-
     private printOptionalMessage() {
         if (this.state.message === '') {
             return;
@@ -233,44 +204,47 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             );
         }
         return (
-            <Container style={{ marginTop: 15 }}>
-                <Card className="text-white bg-dark">
-                    <Card.Header >
-                        <Card.Title >
-                            <Container>
-                                <Row>
-                                    <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
-                                        <FontAwesomeIcon style={{ marginRight: 5 }} icon={faListCheck} />{
-                                            this.state.article ?
-                                                this.state.article.map :
-                                                'Article not found'
-                                        }
-                                        {this.state.article.map(ar => (ar.name))}
-                                        {this.badgeStatus(this.state.article)}
-                                    </Col>
-                                </Row>
-                            </Container>
-                        </Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <Card.Text>
-                            {this.printOptionalMessage()}
+            <>
+                <RoledMainMenu role='administrator' />
+                <Container style={{ marginTop: 15 }}>
+                    <Card className="text-white bg-dark">
+                        <Card.Header >
+                            <Card.Title >
+                                <Container>
+                                    <Row>
+                                        <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
+                                            <FontAwesomeIcon style={{ marginRight: 5 }} icon={faListCheck} />{
+                                                this.state.article ?
+                                                    this.state.article.map :
+                                                    'Article not found'
+                                            }
+                                            {this.state.article.map(ar => (ar.name))}
+                                            {this.badgeStatus(this.state.article)}
+                                        </Col>
+                                    </Row>
+                                </Container>
+                            </Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <Card.Text>
+                                {this.printOptionalMessage()}
 
-                            {
-                                this.state.article ?
-                                    (this.renderArticleData(this.state.article)) :
-                                    ''
-                            }
+                                {
+                                    this.state.article ?
+                                        (this.renderArticleData(this.state.article)) :
+                                        ''
+                                }
 
-                            <Alert variant="danger"
-                                style={{ marginTop: 15 }}
-                                className={this.state.errorMessage ? '' : 'd-none'}>
-                                <FontAwesomeIcon icon={faExclamationTriangle} />  {this.state.errorMessage}
-                            </Alert>
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
-            </Container>
+                                <Alert variant="danger"
+                                    style={{ marginTop: 15 }}
+                                    className={this.state.errorMessage ? '' : 'd-none'}>
+                                    <FontAwesomeIcon icon={faExclamationTriangle} />  {this.state.errorMessage}
+                                </Alert>
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Container>
+            </>
         )
     }
 
@@ -297,81 +271,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
 
     }
-
-    private changeStatusButton(article: ArticleByUserType[]) {
-        let stat = ""
-        article.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
-
-        if (stat !== "otpisano") {
-            return (
-                <Col lg="3" xs="3" sm="3" md="3" style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center"
-                }}>
-                    <a type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#button-razduzi"> Promjeni</a>
-                    <div className="modal fade" id="button-razduzi" role="dialog" aria-hidden="true" tabIndex={-1} style={{ color: "black" }}>
-                        <div className="modal-dialog modal-dialog-centered modal-lg" role="document" style={{ width: "auto", height: "auto" }}>
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title">Razduženje opreme</h5>
-                                </div>
-                                <div className="modal-body">
-                                    <Form.Text>
-                                        <h6>Da li ste sigurni da želite promjeniti status zaduženja
-                                            <b> {article.map(arti => (arti.name))} </b>sa korisnika {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)} {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)}?
-                                        </h6>
-                                    </Form.Text>
-                                    <Form.Group>
-                                        <Form.Label>Status</Form.Label>
-                                        <Form.Control id="status" as="select" value={this.state.article.map(userDet => (userDet.userArticle[userDet.userArticle.length - userDet.userArticle.length + 0]).status)}
-                                            onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
-                                            <option value="zaduženo">
-                                                zaduženo
-                                            </option>
-                                            <option value="razduženo">
-                                                razduženo
-                                            </option>
-                                            <option value="otpisano">
-                                                otpisano
-                                            </option>
-                                        </Form.Control>
-                                        <Form.Text>
-                                            <p> Artikal ako je već zadužen, ne može u ovoj trenutku biti ponovo zadužen</p>
-                                        </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Form.Label>Komentar</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
-                                            placeholder="Razlog razduženja opreme (neobavezno)"
-                                            onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
-                                        />
-                                    </Form.Group>
-                                </div>
-                                <div className="modal-footer">
-                                    <a type="button" className="btn btn-danger btn-md" data-bs-toggle="modal" data-dismiss="modal"> Zatvori </a>
-                                    <a type="button" className="btn btn-success btn-md" data-bs-toggle="modal" data-dismiss="modal" onClick={() => this.changeStatu()}> Sačuvaj </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Col>
-            )
-        }
-
-        return (
-            <Col lg="3" xs="3" sm="3" md="3" style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center"
-            }}>
-            </Col>
-        )
-
-    }
-
     private userDetails(userDet: ArticleByUserType[]) {
         let stat = ""
         userDet.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
@@ -478,7 +377,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                         <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                                             Status
                                         </Col>
-                                        {this.changeStatusButton(article)}
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">

@@ -1,23 +1,33 @@
-import React from "react";
-import { Card, Col, Container, Row, Badge, ListGroup } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Card, Col, Container, Row, Badge, ListGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import api, { ApiResponse } from '../../API/api';
+import api, { ApiResponse } from '../../../API/api';
 import { faListCheck } from "@fortawesome/free-solid-svg-icons";
 import Moment from 'moment';
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
 import Paper from '@mui/material/Paper';
-import ArticleByUserData from "../../data/ArticleByUserData";
-import ArticleByUserType from "../../types/ArticleByUserType";
-import ApiUserProfileDto from "../../dtos/ApiUserProfileDto";
-import ResponsibilityType from "../../types/ResponsibilityType";
-import DebtType from "../../types/DebtType";
-import DestroyedType from "../../types/DestroyedType";
-import FeaturesType from "../../types/FeaturesType";
+import ArticleByUserData from "../../../data/ArticleByUserData";
+import ArticleByUserType from "../../../types/ArticleByUserType";
+import ApiUserProfileDto from "../../../dtos/ApiUserProfileDto";
+import ResponsibilityType from "../../../types/ResponsibilityType";
+import DebtType from "../../../types/DebtType";
+import DestroyedType from "../../../types/DestroyedType";
+import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
+import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import Docxtemplater from "docxtemplater";
+import PizZip from "pizzip";
+import { saveAs } from 'file-saver';
+import { ApiConfig } from '../../../config/api.config';
 
+
+const PizZipUtils = require('pizzip/utils/index.js');
+function loadFile(url: any, callback: any) {
+    PizZipUtils.getBinaryContent(url, callback);
+}
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
-interface UserProfilePageProperties {
+interface AdminUserProfilePageProperties {
     match: {
         params: {
             userID: number;
@@ -25,7 +35,7 @@ interface UserProfilePageProperties {
     }
 }
 
-interface UserProfilePageState {
+interface AdminUserProfilePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users?: ApiUserProfileDto;
@@ -39,10 +49,10 @@ interface UserProfilePageState {
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
-export default class UserProfilePage extends React.Component<UserProfilePageProperties> {
-    state: UserProfilePageState;
+export default class AdminUserProfilePage extends React.Component<AdminUserProfilePageProperties> {
+    state: AdminUserProfilePageState;
 
-    constructor(props: Readonly<UserProfilePageProperties>) {
+    constructor(props: Readonly<AdminUserProfilePageProperties>) {
         super(props);
         this.state = {
             message: "",
@@ -135,7 +145,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
     private getUserData() {
-        api('api/user/' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/user/' + this.props.match.params.userID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 /* Nakon što se izvrši ruta, šta onda */
                 if (res.status === 'error') {
@@ -152,25 +162,24 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
             })
-        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
         api('api/article/?join=responsibility&filter=responsibility.userId||$eq||'
-            + this.props.match.params.userID +
-            ''
-            , 'get', {}, 'user')
+            + this.props.match.params.userID
+            , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;
                 this.setArticleByUser(articleByUser)
@@ -198,6 +207,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     /* KRAJ GET I MOUNT FUNKCIJA */
 
     render() {
+
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
         if (this.state.isLoggedIn === false) {
@@ -206,30 +216,32 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             );
         }
         return (
-
-            <Container style={{ marginTop: 20 }}>
-                <Card className="text-white bg-dark">
-                    <Card.Header>
-                        <Card.Title>
-                            <FontAwesomeIcon icon={faListCheck} /> {
-                                this.state.users ?
-                                    this.state.users?.surname + ' ' + this.state.users?.forname :
-                                    'Article not found'
-                            }
-                        </Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <Card.Text>
-                            {this.printOptionalMessage()}
-                            {
-                                this.state.users ?
-                                    (this.renderArticleData(this.state.users)) :
-                                    ''
-                            }
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
-            </Container>
+            <>
+                <RoledMainMenu role='administrator' />
+                <Container style={{ marginTop: 20 }}>
+                    <Card className="text-white bg-dark">
+                        <Card.Header>
+                            <Card.Title>
+                                <FontAwesomeIcon icon={faListCheck} /> {
+                                    this.state.users ?
+                                        this.state.users?.surname + ' ' + this.state.users?.forname :
+                                        'Article not found'
+                                }
+                            </Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <Card.Text>
+                                {this.printOptionalMessage()}
+                                {
+                                    this.state.users ?
+                                        (this.renderArticleData(this.state.users)) :
+                                        ''
+                                }
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Container>
+            </>
         )
     }
 
@@ -249,7 +261,6 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>#</TableCell>
                                 <TableCell>Naziv</TableCell>
                                 <TableCell>Količina</TableCell>
                                 <TableCell>Status</TableCell>
@@ -260,8 +271,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         <TableBody>
                             {this.state.responsibility?.map(ura => (
                                 <TableRow hover>
-                                    <TableCell>{ura.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/admin/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
                                     <TableCell>{ura.value}</TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -291,19 +301,17 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     <Table sx={{ minWidth: 700 }} aria-label="customized table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>#</TableCell>
                                 <TableCell>Naziv</TableCell>
                                 <TableCell>Količina</TableCell>
                                 <TableCell>Komentar</TableCell>
-                                <TableCell>Datum razdužena</TableCell>
+                                <TableCell>Datum razduženja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {this.state.debt?.map(debt => (
                                 <TableRow hover>
-                                    <TableCell>{debt.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
                                     <TableCell>{debt.value}</TableCell>
                                     <TableCell>{debt.comment}</TableCell>
                                     <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -333,7 +341,6 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     <Table sx={{ minWidth: 700 }} aria-label="custumuzed table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>#</TableCell>
                                 <TableCell>Naziv</TableCell>
                                 <TableCell>Količina</TableCell>
                                 <TableCell>Komentar</TableCell>
@@ -344,8 +351,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         <TableBody>
                             {this.state.destroyed?.map(destroyed => (
                                 <TableRow hover>
-                                    <TableCell>{destroyed.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
                                     <TableCell>{destroyed.value}</TableCell>
                                     <TableCell>{destroyed.comment}</TableCell>
                                     <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -360,6 +366,36 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     }
 
     private renderArticleData(user: ApiUserProfileDto) {
+        const prenosnica = ApiConfig.TEMPLATE_PATH + "prenosnica.docx"
+        const generateDocument = () => {
+            loadFile(
+                prenosnica,
+                function (error: any, content: PizZip.LoadData) {
+                    if (error) {
+                        throw error;
+                    }
+                    const zip = new PizZip(content);
+                    const doc = new Docxtemplater(zip, {
+                        paragraphLoop: true,
+                        linebreaks: true,
+                    });
+
+                    // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
+                    doc.render({
+                        last_name: "ceric",
+                        first_name: "muzdahid",
+                        phone: 232323,
+                        description: "neka desckripcija",
+                    });
+                    const out = doc.getZip().generate({
+                        type: "blob",
+                        mimeType:
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    }); //Output the document using Data-URI
+                    saveAs(out, "output.docx");
+                }
+            );
+        }
         return (
             <Row>
                 <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
@@ -378,6 +414,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 <Col xs="12" lg="9" >
                     <Row style={{ padding: 5 }}>
                         {this.articlesByUser()}
+                        {<Button onClick={generateDocument}>editWord</Button>}
                     </Row>
                     <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
@@ -393,7 +430,12 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         );
     }
 
+    private editWord() {
+
+    }
+
     private articlesByUser() {
+
         return (
 
             this.state.articlesByUser.map(artikal => (
@@ -411,7 +453,6 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                                             <div className="modal-content">
                                                 <div className="modal-header">
                                                     <h5 className="modal-title">{artikal.name}</h5>
-
                                                 </div>
                                                 <div className="modal-body">
                                                     <ListGroup>

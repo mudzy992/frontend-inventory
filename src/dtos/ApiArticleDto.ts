@@ -30,6 +30,7 @@ export default interface ApiArticleDto {
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
+        comment: string;
     }[];
     userDetails:{
         userId: number;

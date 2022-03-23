@@ -12,7 +12,16 @@ import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import ArticleByUserType from '../../../types/ArticleByUserType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import Docxtemplater from "docxtemplater";
+import PizZip from "pizzip";
+import { saveAs } from 'file-saver';
+import { ApiConfig } from '../../../config/api.config';
 
+
+const PizZipUtils = require('pizzip/utils/index.js');
+function loadFile(url: any, callback: any) {
+    PizZipUtils.getBinaryContent(url, callback);
+}
 
 interface AdminArticleOnUserPageProperties {
     match: {
@@ -138,8 +147,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private getArticleData() {
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
             '&filter=userDetails.userId||$eq||' + this.props.match.params.userID +
-            '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial +
-            '&sort=userArticle.timestamp,DESC', 'get', {}, 'administrator')
+            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
+            '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -289,7 +298,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private badgeStatus(article: ArticleByUserType[]) {
         let stat = ""
-        article.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
+        article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
         if (stat === "zaduženo") {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
@@ -311,9 +320,42 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     }
 
+    private editWord(br_prenosnice: number, predao: string, preuzeo: string, inv_broj: string, naziv: string, komentar: string) {
+        const prenosnica = ApiConfig.TEMPLATE_PATH + "prenosnica.docx"
+        loadFile(
+            prenosnica,
+            function (error: any, content: PizZip.LoadData) {
+                if (error) {
+                    throw error;
+                }
+                const zip = new PizZip(content);
+                const doc = new Docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true,
+                });
+
+                // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
+                doc.render({
+                    broj_prenosnice: br_prenosnice,
+                    predao_korisnik: predao,
+                    preuzeo_korisnik: preuzeo,
+                    inv_broj: inv_broj,
+                    naziv: naziv,
+                    komentar: komentar
+                });
+                const out = doc.getZip().generate({
+                    type: "blob",
+                    mimeType:
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                }); //Output the document using Data-URI
+                saveAs(out, "output.docx");
+            }
+        );
+    }
+
     private changeStatusButton(article: ArticleByUserType[]) {
         let stat = ""
-        article.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
+        article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
         if (stat !== "otpisano") {
             return (
@@ -335,7 +377,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             </Form.Text>
                             <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='value' label="Status" className="mb-3">
-                                    <Form.Select id="status" value={this.state.article.map(userDet => (userDet.userArticle[userDet.userArticle.length - userDet.userArticle.length + 0]).status)}
+                                    <Form.Select id="status" value={this.state.article.map(userDet => (userDet.userArticles[userDet.userArticles.length - userDet.userArticles.length + 0]).status)}
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)} required>
                                         <option value=""></option>
                                         <option value="zaduženo">
@@ -368,6 +410,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </FloatingLabel>
                             </Form.Group>
                             <Modal.Footer>
+                                <Button variant='warning' onClick={() => this.editWord(1, "mudzahid", "goran", "ZG0685254", "Računar", "zamjena opreme")}>Prenosnica</Button>
                                 <Button variant='success' onClick={() => this.changeStatu()}>Sačuvaj</Button>
                             </Modal.Footer>
                         </Modal.Body>
@@ -389,7 +432,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private userDetails(userDet: ArticleByUserType[]) {
         let stat = ""
-        userDet.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
+        userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
         if (stat === 'razduženo') {
             return (<Alert variant='info'> Nema podataka o korisniku, oprema razdužena</Alert>)
@@ -498,8 +541,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </Card.Header>
                                 <ListGroup variant="flush">
                                     <>
-                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].status))} </b></ListGroup.Item>
-                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
+                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].status))} </b></ListGroup.Item>
+                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
                                     </>
                                 </ListGroup>
                             </Card>

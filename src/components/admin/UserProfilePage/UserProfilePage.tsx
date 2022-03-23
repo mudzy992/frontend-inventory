@@ -15,16 +15,6 @@ import DestroyedType from "../../../types/DestroyedType";
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import Docxtemplater from "docxtemplater";
-import PizZip from "pizzip";
-import { saveAs } from 'file-saver';
-import { ApiConfig } from '../../../config/api.config';
-
-
-const PizZipUtils = require('pizzip/utils/index.js');
-function loadFile(url: any, callback: any) {
-    PizZipUtils.getBinaryContent(url, callback);
-}
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -177,7 +167,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
-        api('api/article/?join=responsibility&filter=responsibility.userId||$eq||'
+        api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -366,36 +356,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private renderArticleData(user: ApiUserProfileDto) {
-        const prenosnica = ApiConfig.TEMPLATE_PATH + "prenosnica.docx"
-        const generateDocument = () => {
-            loadFile(
-                prenosnica,
-                function (error: any, content: PizZip.LoadData) {
-                    if (error) {
-                        throw error;
-                    }
-                    const zip = new PizZip(content);
-                    const doc = new Docxtemplater(zip, {
-                        paragraphLoop: true,
-                        linebreaks: true,
-                    });
 
-                    // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
-                    doc.render({
-                        last_name: "ceric",
-                        first_name: "muzdahid",
-                        phone: 232323,
-                        description: "neka desckripcija",
-                    });
-                    const out = doc.getZip().generate({
-                        type: "blob",
-                        mimeType:
-                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    }); //Output the document using Data-URI
-                    saveAs(out, "output.docx");
-                }
-            );
-        }
         return (
             <Row>
                 <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
@@ -414,7 +375,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 <Col xs="12" lg="9" >
                     <Row style={{ padding: 5 }}>
                         {this.articlesByUser()}
-                        {<Button onClick={generateDocument}>editWord</Button>}
+
                     </Row>
                     <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
@@ -430,12 +391,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         );
     }
 
-    private editWord() {
-
-    }
-
     private articlesByUser() {
-
         return (
 
             this.state.articlesByUser.map(artikal => (

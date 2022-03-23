@@ -122,8 +122,8 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     private getArticleData() {
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
             '&filter=userDetails.userId||$eq||' + this.props.match.params.userID +
-            '&join=userArticle&filter=userArticle.serialNumber||$eq||' + this.props.match.params.serial +
-            '&sort=userArticle.timestamp,DESC', 'get', {}, 'user')
+            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
+            '&sort=userArticles.timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -250,7 +250,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
 
     private badgeStatus(article: ArticleByUserType[]) {
         let stat = ""
-        article.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
+        article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
         if (stat === "zaduženo") {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
@@ -273,7 +273,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     }
     private userDetails(userDet: ArticleByUserType[]) {
         let stat = ""
-        userDet.map(ua => stat = (ua.userArticle[ua.userArticle.length - ua.userArticle.length + 0]).status)
+        userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
         if (stat === 'razduženo') {
             return (<Alert variant='info'> Nema podataka o korisniku, oprema razdužena</Alert>)
@@ -381,8 +381,8 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 </Card.Header>
                                 <ListGroup variant="flush">
                                     <>
-                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].status))} </b></ListGroup.Item>
-                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticle[nesto.userArticle.length - nesto.userArticle.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
+                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].status))} </b></ListGroup.Item>
+                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
                                     </>
                                 </ListGroup>
                             </Card>

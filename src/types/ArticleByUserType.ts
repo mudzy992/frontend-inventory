@@ -21,7 +21,7 @@ export default interface ArticleByUserType {
         featureId: number;
         name: string;
     }[];
-    userArticle:{
+    userArticles:{
         userArticleId: number;
         responsibilityId: number;
         debtId: number;
@@ -49,7 +49,7 @@ export default interface ArticleByUserType {
         department: string;
         location: string;
     }[];
-    destroyed:{
+    destroyeds:{
         destroyedId:number;
         articleId: number;
         value:number;
@@ -67,7 +67,7 @@ export default interface ArticleByUserType {
         serialNumber:string;
         timestamp:string;
     }[];
-    responsibility:{
+    responsibilities:{
         responsibilityId: number;
         articleId: number;
         userId: number;

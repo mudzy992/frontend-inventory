@@ -2,7 +2,7 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, Row, } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, Row, } from 'react-bootstrap';
 import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
@@ -168,7 +168,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
                 const articleTimeline: ArticleTimelineType[] = [];
 
-                for (const statusRespon of data.userArticle) {
+                for (const statusRespon of data.userArticles) {
                     let articleId = data.articleId;
                     let surname = '';
                     let forname = '';

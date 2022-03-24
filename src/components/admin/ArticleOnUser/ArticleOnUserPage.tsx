@@ -1,6 +1,6 @@
 import { faExclamationTriangle, faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, Row } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
@@ -64,7 +64,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             isLoggedIn: true,
             errorMessage: '',
             changeStatus: {
-                userId: 0,
+                userId: this.props.match.params.userID,
                 articleId: 0,
                 value: null,
                 comment: '',
@@ -135,7 +135,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             articleTimeline: articleTimelineData
         }))
     }
-    
+
     private setUsers(usersData: userData[]) {
         this.setState(Object.assign(this.state, {
             users: usersData
@@ -148,15 +148,15 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
         /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if (oldProperties.match.params.articleId === this.props.match.params.articleId) {
+        if (oldProperties.match.params.userID === this.props.match.params.userID) {
             return;
         }
         this.getArticleData();
     }
-
+    /* '&filter=userDetails.userId||$eq||' + this.props.match.params.userID + */
     private getArticleData() {
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
-            '&filter=userDetails.userId||$eq||' + this.props.match.params.userID +
+            '&filter=userDetails.userId||$eq||' + this.state.changeStatus.userId +
             '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
             '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -191,13 +191,13 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 }
                 this.setFeaturesData(features);
             }
-        )
+            )
 
         api('/api/user/', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            this.setUsers(res.data)
+            .then((res: ApiResponse) => {
+                this.setUsers(res.data)
             }
-        )
+            )
 
         api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -247,8 +247,11 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             })
     }
 
-    private showModal() {
+    private showModal(artTime: ArticleTimelineType[]) {
+        const serijskic: any = artTime.map(SB => [(SB.serialNumber)]);
+        const sb: any = serijskic.shift();
         this.setVisibleState(true)
+        this.setChangeStatusStringFieldState('serialNumber', sb)
     }
 
     private printOptionalMessage() {
@@ -269,6 +272,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 <Redirect to="/user/login/" />
             );
         }
+
         return (
             <>
                 <RoledMainMenu role='administrator' />
@@ -339,6 +343,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     private changeStatusButton(article: ArticleByUserType[]) {
+
         let stat = ""
         article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
@@ -349,7 +354,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     justifyContent: "flex-end",
                     alignItems: "center"
                 }}>
-                    <Button variant='success' size='sm' onClick={() => this.showModal()}>Izmjeni</Button>
+                    <Button variant='success' size='sm' onClick={() => this.showModal(this.state.articleTimeline)}>Izmjeni</Button>
                     <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setVisibleState(false)}>
                         <Modal.Header closeButton>
                             Promjeni status opreme
@@ -361,7 +366,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
-                            <FloatingLabel controlId='userId' label="Izaberi korisnika" className="mb-3">
+                                <FloatingLabel controlId='userId' label="Izaberi korisnika" className="mb-3">
                                     <Form.Select placeholder='izaberi korisnika' id='userId' required
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>izaberi korisnika</option>
@@ -370,19 +375,19 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>
-                                </Form.Group>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>
-                                        Količina
-                                    </Form.Label>
-                                    <Form.Control type='text' readOnly placeholder='1 KOM' />
-                                    <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
-                                </Form.Group>
-                                <Form.Group className='was-validated'>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>
+                                    Količina
+                                </Form.Label>
+                                <Form.Control type='text' readOnly placeholder='1 KOM' />
+                                <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
+                            </Form.Group>
+                            <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='status' label="Status" className="mb-3">
-                                    <Form.Select id="status" 
+                                    <Form.Select id="status"
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)} required>
-                                        <option value=""></option>
+                                        <option value="">izaberi status</option>
                                         <option value="zaduženo">
                                             zaduženo
                                         </option>
@@ -397,13 +402,13 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         <p> Ako je artikal već zadužen, ne može u ovom trenutku biti ponovo zadužen</p>
                                     </Form.Text>
                                 </FloatingLabel>
-                                </Form.Group>
-                                <Form.Group className='was-validated'>
+                            </Form.Group>
+                            <Form.Group>
                                 <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
-                                    <Form.Control type='text' id='serialNumber' required
+                                    <Form.Control type='text' id='serialNumber' value={this.state.changeStatus.serialNumber} readOnly isValid required
                                         onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
-                                </Form.Group>
-                            
+                            </Form.Group>
+
                             <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
                                     <Form.Control
@@ -455,7 +460,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Card bg="success" text="white" className="mb-2">
                             <Card.Header>Detalji korisnika</Card.Header>
                             <ListGroup variant="flush" >
-                                <><ListGroup.Item>Ime: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).surname)}</ListGroup.Item>
+                                <>  <ListGroup.Item>Ime: {userDet.map(usr => (usr.userDetails.map(sur => ([sur.surname]))).shift())}</ListGroup.Item>
                                     <ListGroup.Item>Prezime: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).forname)}</ListGroup.Item>
                                     <ListGroup.Item>Email: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).email)}</ListGroup.Item>
                                     <ListGroup.Item>Sektor: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).department)}</ListGroup.Item>
@@ -549,7 +554,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </Card.Header>
                                 <ListGroup variant="flush">
                                     <>
-                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].status))} </b></ListGroup.Item>
+                                        <ListGroup.Item>Status: <b>{article.map(artStat => (artStat.userArticles.map(status => ([status.status])).shift()))} </b></ListGroup.Item>
                                         <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
                                     </>
                                 </ListGroup>

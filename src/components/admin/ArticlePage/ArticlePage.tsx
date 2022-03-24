@@ -53,13 +53,13 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             articleTimeline: [],
             users: [],
             changeStatus: {
-                visible: false,
                 userId: 0,
                 articleId: 0,
                 value: null,
                 comment: '',
                 serialNumber: '',
                 status: '',
+                visible: false,
             },
         }
     }
@@ -192,12 +192,13 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, userId })
                 }
                 this.setArticleTimelineData(articleTimeline)
-            })
-
-        api('/api/user', 'get', {}, 'administrator')
+            }
+        )
+        api('/api/user/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
-            })
+            }
+        )
     }
 
     private changeStatu() {
@@ -221,13 +222,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private showModal() {
         this.setModalVisibleState(true)
-        this.setChangeStatusNumberFieldState('userId', 0)
-        this.setChangeStatusNumberFieldState('articleId', 0)
-        this.setChangeStatusNumberFieldState('value', null)
-        this.setChangeStatusStringFieldState('comment', '')
-        this.setChangeStatusStringFieldState('serialNumber', '')
-        this.setChangeStatusStringFieldState('status', '')
-        this.setChangeStatusStringFieldState('message', '')
     }
 
     private printOptionalMessage() {
@@ -297,7 +291,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private changeStatusButton() {
-
         let status = 0;
         this.state.articles?.articlesInStock.map(stat => (
             status = stat.valueAvailable
@@ -317,7 +310,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         </Modal.Header>
                         <Modal.Body>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='value' label="Status" className="mb-3">
+                            <FloatingLabel controlId='userId' label="Izaberi korisnika" className="mb-3">
                                     <Form.Select placeholder='izaberi korisnika' id='userId' required
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>izaberi korisnika</option>
@@ -326,6 +319,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>
+                                </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label>
                                         Količina
@@ -333,11 +327,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                     <Form.Control type='text' readOnly id='value' placeholder='1 KOM' />
                                     <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
                                 </Form.Group>
-
-                            </Form.Group>
-
+                        
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='value' label="Status" className="mb-3">
+                                <FloatingLabel controlId='status' label="Status" className="mb-3">
                                     <Form.Select id="status" required
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
                                         <option value=''> izaberi status</option>
@@ -354,12 +346,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 </FloatingLabel>
                             </Form.Group>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='value' label="Serijski broj" className="mb-3">
+                                <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
                                     <Form.Control type='text' id='serialNumber' required
                                         onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
                             </Form.Group>
                             <Form.Group >
-                                <FloatingLabel controlId='value' label="Komentar" className="mb-3">
+                                <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
                                     <Form.Control
                                         id="comment"
                                         as="textarea"

@@ -12,16 +12,6 @@ import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import ArticleByUserType from '../../../types/ArticleByUserType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import Docxtemplater from "docxtemplater";
-import PizZip from "pizzip";
-import { saveAs } from 'file-saver';
-import { ApiConfig } from '../../../config/api.config';
-
-
-const PizZipUtils = require('pizzip/utils/index.js');
-function loadFile(url: any, callback: any) {
-    PizZipUtils.getBinaryContent(url, callback);
-}
 
 interface AdminArticleOnUserPageProperties {
     match: {
@@ -33,22 +23,29 @@ interface AdminArticleOnUserPageProperties {
     }
 }
 
+interface userData {
+    userId: number;
+    surname: string;
+    forname: string;
+}
+
 interface AdminArticleOnUserPageState {
     userArticle: UserArticleDto[];
     message: string;
     article: ArticleByUserType[];
     features: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
+    users: userData[];
     isLoggedIn: boolean;
     errorMessage: string;
     changeStatus: {
-        userId: number;
-        articleId: number;
+        visible: boolean;
+        userId: number | null;
+        articleId: number | null;
         value: number | null;
         comment: string;
         serialNumber: string;
         status: string;
-        visible: boolean;
     }
 
 }
@@ -62,6 +59,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             message: "",
             features: [],
             articleTimeline: [],
+            users: [],
             article: [],
             isLoggedIn: true,
             errorMessage: '',
@@ -82,6 +80,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         this.setState(Object.assign(this.state,
             Object.assign(this.state.changeStatus, {
                 [fieldName]: newValue,
+            })))
+    }
+    private setChangeStatusNumberFieldState(fieldName: string, newValue: any) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.changeStatus, {
+                [fieldName]: (newValue === 'null') ? null : Number(newValue),
             })))
     }
 
@@ -129,6 +133,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private setArticleTimelineData(articleTimelineData: ArticleTimelineType[]) {
         this.setState(Object.assign(this.state, {
             articleTimeline: articleTimelineData
+        }))
+    }
+    
+    private setUsers(usersData: userData[]) {
+        this.setState(Object.assign(this.state, {
+            users: usersData
         }))
     }
 
@@ -180,7 +190,15 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     }
                 }
                 this.setFeaturesData(features);
-            })
+            }
+        )
+
+        api('/api/user/', 'get', {}, 'administrator')
+        .then((res: ApiResponse) => {
+            this.setUsers(res.data)
+            }
+        )
+
         api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
@@ -211,11 +229,11 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     private changeStatu() {
-        api('api/userArticle/add/' + this.state.userArticle.map(ua => (ua.userId)), 'post', {
+        api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
             articleId: this.props.match.params.articleId,
             value: 1,
             comment: this.state.changeStatus.comment,
-            serialNumber: this.props.match.params.serial,
+            serialNumber: this.state.changeStatus.serialNumber,
             status: this.state.changeStatus.status
         }, 'administrator')
             .then((res: ApiResponse) => {
@@ -248,7 +266,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     render() {
         if (this.state.isLoggedIn === false) {
             return (
-                <Redirect to="/user/login" />
+                <Redirect to="/user/login/" />
             );
         }
         return (
@@ -320,39 +338,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     }
 
-    private editWord(br_prenosnice: number, predao: string, preuzeo: string, inv_broj: string, naziv: string, komentar: string) {
-        const prenosnica = ApiConfig.TEMPLATE_PATH + "prenosnica.docx"
-        loadFile(
-            prenosnica,
-            function (error: any, content: PizZip.LoadData) {
-                if (error) {
-                    throw error;
-                }
-                const zip = new PizZip(content);
-                const doc = new Docxtemplater(zip, {
-                    paragraphLoop: true,
-                    linebreaks: true,
-                });
-
-                // render the document (replace all occurences of {first_name} by John, {last_name} by Doe, ...)
-                doc.render({
-                    broj_prenosnice: br_prenosnice,
-                    predao_korisnik: predao,
-                    preuzeo_korisnik: preuzeo,
-                    inv_broj: inv_broj,
-                    naziv: naziv,
-                    komentar: komentar
-                });
-                const out = doc.getZip().generate({
-                    type: "blob",
-                    mimeType:
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                }); //Output the document using Data-URI
-                saveAs(out, "output.docx");
-            }
-        );
-    }
-
     private changeStatusButton(article: ArticleByUserType[]) {
         let stat = ""
         article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
@@ -376,8 +361,26 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='value' label="Status" className="mb-3">
-                                    <Form.Select id="status" value={this.state.article.map(userDet => (userDet.userArticles[userDet.userArticles.length - userDet.userArticles.length + 0]).status)}
+                            <FloatingLabel controlId='userId' label="Izaberi korisnika" className="mb-3">
+                                    <Form.Select placeholder='izaberi korisnika' id='userId' required
+                                        onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
+                                        <option value=''>izaberi korisnika</option>
+                                        {this.state.users.map(users => (
+                                            <option value={Number(users.userId)}>{users.forname} {users.surname}</option>
+                                        ))}
+                                    </Form.Select>
+                                </FloatingLabel>
+                                </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>
+                                        Količina
+                                    </Form.Label>
+                                    <Form.Control type='text' readOnly placeholder='1 KOM' />
+                                    <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
+                                </Form.Group>
+                                <Form.Group className='was-validated'>
+                                <FloatingLabel controlId='status' label="Status" className="mb-3">
+                                    <Form.Select id="status" 
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)} required>
                                         <option value=""></option>
                                         <option value="zaduženo">
@@ -394,7 +397,13 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         <p> Ako je artikal već zadužen, ne može u ovom trenutku biti ponovo zadužen</p>
                                     </Form.Text>
                                 </FloatingLabel>
-                            </Form.Group>
+                                </Form.Group>
+                                <Form.Group className='was-validated'>
+                                <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
+                                    <Form.Control type='text' id='serialNumber' required
+                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
+                                </Form.Group>
+                            
                             <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
                                     <Form.Control
@@ -410,7 +419,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </FloatingLabel>
                             </Form.Group>
                             <Modal.Footer>
-                                <Button variant='warning' onClick={() => this.editWord(1, "mudzahid", "goran", "ZG0685254", "Računar", "zamjena opreme")}>Prenosnica</Button>
                                 <Button variant='success' onClick={() => this.changeStatu()}>Sačuvaj</Button>
                             </Modal.Footer>
                         </Modal.Body>

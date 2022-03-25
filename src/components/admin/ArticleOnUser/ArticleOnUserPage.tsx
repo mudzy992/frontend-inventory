@@ -248,7 +248,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     private showModal(artTime: ArticleTimelineType[]) {
-        const serijskic: any = artTime.map(SB => [(SB.serialNumber)]);
+        const serijskic: any = artTime.map(SB => (SB.serialNumber));
         const sb: any = serijskic.shift();
         this.setVisibleState(true)
         this.setChangeStatusStringFieldState('serialNumber', sb)

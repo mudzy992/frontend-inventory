@@ -1,15 +1,14 @@
 export default interface UserArticleDto {
     userArticleId?: number;
-    responsibilityId?: number | null;
-    debtId?: number | null;
-    destroyId?: number | null;
-    userId?: number;
     articleId?: number;
+    documentId?: number;
+    userId?: number;
     status?: 'zaduženo' | 'razduženo' | 'otpisano';
     timestamp?: string;
     serialNumber?: string;
     comment?: string;
-    debt?:{
+    invBroj: string;
+    debtItems?:{
         debtItemsId: number;
         userId: number;
         articleId: number;
@@ -18,8 +17,9 @@ export default interface UserArticleDto {
         status: 'razduženo'
         timestampe: string;
         serialNumber: string;
+        invBroj: string;
     } | null;
-    destroy?:{
+    destroyeds?:{
         destroyedId: number;
         userId: number;
         articleId: number;
@@ -28,15 +28,18 @@ export default interface UserArticleDto {
         status: 'otpisano'
         timestampe: string;
         serialNumber: string;
+        invBroj: string;
     } | null;
-    responsibility?:{
+    responsibilities?:{
         responsibilityId: number;
+        userArticleId: number;
         userId: number;
         articleId: number;
         value: number;
         status: 'zaduženo';
         timestamp: string;
         serialNumber: string;
+        invBroj: string;
     } | null;
     user?: {
         userId: number;
@@ -57,4 +60,9 @@ export default interface UserArticleDto {
         categoryId: number;
         sapNumber: string;
     };
+    document?: {
+        documentsId: number;
+        path: string;
+        documentNumber: number;
+    }
 }

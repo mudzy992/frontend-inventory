@@ -13,6 +13,7 @@ export default interface ArticleByUserType {
         parentCategoryId:number;
     };
     articleFeature: {
+        articleId: number;
         articleFeatureId: number;
         featureId: number;
         value: string;

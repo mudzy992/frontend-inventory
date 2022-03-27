@@ -75,6 +75,7 @@
     "@types/react-bootstrap-table2-paginator": "^2.1.2",
     "@types/react-bootstrap-table2-toolkit": "^2.1.6",
     "@types/react-loading-overlay": "^1.0.1",
-    "file-saver": "^2.0.5"
+    "file-saver": "^2.0.5",
+    "html-webpack-plugin": "^5.5.0"
   }
 }

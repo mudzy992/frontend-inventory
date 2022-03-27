@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, Row } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 import Moment from 'moment';
@@ -12,6 +12,7 @@ import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import ArticleByUserType from '../../../types/ArticleByUserType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import { ApiConfig } from '../../../config/api.config';
 
 interface AdminArticleOnUserPageProperties {
     match: {
@@ -45,6 +46,7 @@ interface AdminArticleOnUserPageState {
         value: number | null;
         comment: string;
         serialNumber: string;
+        invBroj: string;
         status: string;
     }
 
@@ -69,6 +71,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 value: null,
                 comment: '',
                 serialNumber: '',
+                invBroj: '',
                 status: '',
                 visible: false,
             },
@@ -216,13 +219,15 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 for (const ua of data) {
                     let status = ua.status;
                     let serialNumber = ua.serialNumber;
+                    let invBroj = ua.invBroj;
                     let sapNumber = ua.article?.sapNumber;
                     let surname = ua.user?.surname;
                     let forname = ua.user?.forname;
                     let timestamp = ua.timestamp;
                     let comment = ua.comment;
+                    let documentPath = ua.document?.path 
 
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, sapNumber, timestamp })
+                    articleTimeline.push({ surname, forname, status, comment, serialNumber, invBroj, sapNumber, timestamp, documentPath })
                 }
                 this.setArticleTimelineData(articleTimeline)
             })
@@ -234,6 +239,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             value: 1,
             comment: this.state.changeStatus.comment,
             serialNumber: this.state.changeStatus.serialNumber,
+            invBroj: this.state.changeStatus.invBroj,
             status: this.state.changeStatus.status
         }, 'administrator')
             .then((res: ApiResponse) => {
@@ -248,10 +254,15 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     private showModal(artTime: ArticleTimelineType[]) {
-        const serijskic: any = artTime.map(SB => (SB.serialNumber));
-        const sb: any = serijskic.shift();
+        const sb: any = artTime.map(SB => (SB.serialNumber)).shift();
+        const inv : any = artTime.map(inv => (inv.invBroj)).shift();
+        /* const sb: any = serijskic.shift(); */
         this.setVisibleState(true)
         this.setChangeStatusStringFieldState('serialNumber', sb)
+        if (inv === null) {
+            this.setChangeStatusStringFieldState('invBroj', 'ne ladi1')
+        }
+        this.setChangeStatusStringFieldState('invBroj', inv)
     }
 
     private printOptionalMessage() {
@@ -360,6 +371,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             Promjeni status opreme
                         </Modal.Header>
                         <Modal.Body>
+                            <Form>
                             <Form.Text>
                                 <h6>Da li ste sigurni da želite promjeniti status zaduženja
                                     <b> {article.map(arti => (arti.name))} </b>sa korisnika {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)} {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)}?
@@ -407,6 +419,10 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
                                     <Form.Control type='text' id='serialNumber' value={this.state.changeStatus.serialNumber} readOnly isValid required
                                         onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
+
+                                        <FloatingLabel controlId='invBroj' label="Inventurni broj" className="mb-3">
+                                    <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required
+                                        onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} /></FloatingLabel>
                             </Form.Group>
 
                             <Form.Group className='was-validated'>
@@ -423,6 +439,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                     />
                                 </FloatingLabel>
                             </Form.Group>
+                            </Form>
                             <Modal.Footer>
                                 <Button variant='success' onClick={() => this.changeStatu()}>Sačuvaj</Button>
                             </Modal.Footer>
@@ -517,7 +534,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                 <TableCell>Status</TableCell>
                                                 <TableCell>Komentar</TableCell>
                                                 <TableCell>Serijski broj</TableCell>
-                                                <TableCell>SAP broj</TableCell>
                                                 <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -528,8 +544,9 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{articleTimeline.serialNumber}</TableCell>
-                                                    <TableCell>{articleTimeline.sapNumber}</TableCell>
                                                     <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    <TableCell><a href={`#/assets${articleTimeline.documentPath}`} /* to={'assets' + articleTimeline.documentPath} */ target='_blank' download> 
+                                                    <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></a></TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

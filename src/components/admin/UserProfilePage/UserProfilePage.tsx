@@ -178,6 +178,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 for (const start of articleByUser) {
                     for (const articleFeature of start.articleFeature) {
                         const value = articleFeature.value;
+                        const articleId = articleFeature.articleId;
                         let name = '';
 
                         for (const feature of start.features) {
@@ -186,7 +187,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 break;
                             }
                         }
-                        features.push({ name, value });
+                        features.push({ articleId, name, value });
                     }
                 }
                 this.setFeaturesData(features);
@@ -392,39 +393,20 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private articlesByUser() {
+        
         return (
 
             this.state.articlesByUser.map(artikal => (
                 <>
                     <Col xs="6" md="4" lg="3" sm="4">
-                        <a data-bs-toggle="modal" data-bs-target={`#model-${artikal.articleId}`}>
                             <Card bg="light" text="dark" className="mb-2" >
                                 <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                     <Badge pill bg="primary">
                                         {artikal.category.name}
                                     </Badge>{<div style={{ fontSize: 11 }}>{artikal.name}</div>}
-                                    <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52 }}></i>
-                                    <div className="modal fade" id={`model-${artikal.articleId}`} aria-hidden="true" tabIndex={-1} style={{ color: "black" }}>
-                                        <div className="modal-dialog modal-dialog-centered modal-md" style={{ width: "auto", height: "auto" }}>
-                                            <div className="modal-content">
-                                                <div className="modal-header">
-                                                    <h5 className="modal-title">{artikal.name}</h5>
-                                                </div>
-                                                <div className="modal-body">
-                                                    <ListGroup>
-                                                        {this.state.features.map(featureNes => (
-                                                            <ListGroup.Item>
-                                                                {featureNes.name} : {featureNes.value}
-                                                            </ListGroup.Item>
-                                                        ))}
-                                                    </ListGroup>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52 }}/>
                                 </Card.Body>
                             </Card>
-                        </a>
                     </Col>
                 </>
             )))

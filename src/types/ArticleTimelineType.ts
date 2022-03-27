@@ -4,8 +4,10 @@ export default class ArticleTimelineType {
     status?: string;
     comment?: string;
     serialNumber?: string;
+    invBroj?: string;
     sapNumber?: string;
     timestamp?: string;
     articleId?: number;
     userId?: number;
+    documentPath?: string;
 }

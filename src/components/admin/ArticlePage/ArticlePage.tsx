@@ -2,14 +2,16 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, Row, } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip, } from 'react-bootstrap';
 import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
+import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, } from "@mui/material";
 import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import saveAs from 'file-saver';
+import { ApiConfig } from '../../../config/api.config';
 
 interface ArticlePageProperties {
     match: {
@@ -38,6 +40,7 @@ interface ArticlePageState {
         value: number | null;
         comment: string;
         serialNumber: string;
+        invBroj: string;
         status: string;
     }
 }
@@ -59,6 +62,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 comment: '',
                 serialNumber: '',
                 status: '',
+                invBroj: '',
                 visible: false,
             },
         }
@@ -177,6 +181,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     let serialNumber = '';
                     let timestamp = '';
                     let userId = 0;
+                    let documentPath = '';
                     if (statusRespon.articleId === data.articleId) {
                         status = statusRespon.status;
                         serialNumber = statusRespon.serialNumber;
@@ -185,13 +190,19 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             if (statusRespon.userId === user.userId) {
                                 userId = user.userId;
                                 surname = user.surname;
-                                forname = user.forname;
+                                forname = user.forname;    
                             }
                         }
                     }
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, userId })
+                    for (const doc of data.documents) {
+                        if (doc.documentsId === statusRespon.documentId) {
+                            documentPath = doc.path;
+                        }
+                    }
+                    articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, documentPath, userId })
                 }
                 this.setArticleTimelineData(articleTimeline)
+                console.log(articleTimeline)
             }
         )
         api('/api/user/', 'get', {}, 'administrator')
@@ -207,7 +218,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             value: 1,
             comment: this.state.changeStatus.comment,
             serialNumber: this.state.changeStatus.serialNumber,
-            status: this.state.changeStatus.status
+            status: this.state.changeStatus.status,
+            invBroj: this.state.changeStatus.invBroj,
         }, 'administrator')
             .then((res: ApiResponse) => {
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
@@ -247,7 +259,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 <FontAwesomeIcon style={{ marginRight: 5 }} icon={faListCheck} />{
                                     this.state.articles ?
                                         this.state.articles?.name :
-                                        'Article not found'
+                                        'Oprema nije pronađena'
                                 }
                                 {this.badgeStatus()}
                             </Card.Title>
@@ -279,13 +291,15 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             return (
                 <Badge pill bg="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     nema na stanju
-                </Badge>)
+                </Badge>
+                )
         }
         if (status > 0) {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     dostupno
-                </Badge>)
+                </Badge>
+                )
         }
 
     }
@@ -295,14 +309,22 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         this.state.articles?.articlesInStock.map(stat => (
             status = stat.valueAvailable
         ))
+        if (status === 0) {
+            return (
+                <Badge pill bg="danger" >
+                    nema na stanju
+                </Badge>
+            )
+        }
         if (status !== 0) {
-
+            
             return (
                 <Col lg="3" xs="3" sm="3" md="3" style={{
                     display: "flex",
                     justifyContent: "flex-end",
                     alignItems: "center"
                 }}>
+                    
                     <Button size='sm' onClick={() => this.showModal()} >Izmjeni</Button>
                     <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
                         <Modal.Header closeButton>
@@ -310,7 +332,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         </Modal.Header>
                         <Modal.Body>
                             <Form.Group className='was-validated'>
-                            <FloatingLabel controlId='userId' label="Izaberi korisnika" className="mb-3">
+                            <FloatingLabel controlId='userId' label="Novo zaduženje na korisnika" className="mb-3">
                                     <Form.Select placeholder='izaberi korisnika' id='userId' required
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>izaberi korisnika</option>
@@ -321,12 +343,16 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 </FloatingLabel>
                                 </Form.Group>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>
-                                        Količina
-                                    </Form.Label>
-                                    <Form.Control type='text' readOnly id='value' placeholder='1 KOM' />
-                                    <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
-                                </Form.Group>
+                                <FloatingLabel controlId='kolicina' label="Kolicina" className="mb-3">
+                                <OverlayTrigger 
+                                placement="top"
+                                delay={{ show: 250, hide: 400 }}
+                                overlay={
+                                <Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>
+                                }>
+                                <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
+                                <Form.Text></Form.Text>
+                            </Form.Group>
                         
                             <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='status' label="Status" className="mb-3">
@@ -334,23 +360,42 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
                                         <option value=''> izaberi status</option>
                                         <option value='zaduženo'>
-                                            Zaduženo
+                                            zaduženo
                                         </option>
                                         <option value='razduženo'>
-                                            Razduženo
+                                            razduženo
                                         </option>
                                         <option value='otpisano'>
-                                            Otpisano
+                                            otpisano
                                         </option>
                                     </Form.Select>
                                 </FloatingLabel>
                             </Form.Group>
                             <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
+                                    <OverlayTrigger 
+                                        placement="top"
+                                        delay={{ show: 250, hide: 400 }}
+                                        overlay={
+                                        <Tooltip id="tooltip-kolicina">U ovom koraku se dodjeljuje korisniku oprema po serijskom broju. Serijski broj se kasnije ne može mjenjati.</Tooltip>
+                                        }>
                                     <Form.Control type='text' id='serialNumber' required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
+                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
+                                    </OverlayTrigger>
+                                </FloatingLabel>
+                                <FloatingLabel controlId='invBroj' label="Inventurni broj" className="mb-3">
+                                    <OverlayTrigger 
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={
+                                    <Tooltip id="tooltip-kolicina">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>
+                                    }>
+                                    <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required
+                                        onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} />
+                                    </OverlayTrigger>
+                                </FloatingLabel>
                             </Form.Group>
-                            <Form.Group >
+                            <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
                                     <Form.Control
                                         id="comment"
@@ -359,6 +404,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                         placeholder="(neobavezno)"
                                         style={{ height: '100px' }}
                                         onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
+                                        required
+                                        isValid
                                     /></FloatingLabel>
                             </Form.Group>
                             <Modal.Footer>
@@ -384,6 +431,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
 
     renderArticleData(article: ApiArticleDto) {
+        const saveFile = (path: any) => {
+            saveAs(
+                ApiConfig.TEMPLATE_PATH + path,
+                path
+            );
+          };
         return (
             <Row>
                 <Col xs="12" lg="8">
@@ -426,6 +479,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                 <TableCell>Komentar</TableCell>
                                                 <TableCell>Serijski broj</TableCell>
                                                 <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
+                                                <TableCell>#</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -440,6 +494,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                         {articleTimeline.serialNumber}</Link>
                                                     </TableCell>
                                                     <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    <TableCell><Button size='sm' variant='info' onClick={() => saveFile(articleTimeline.documentPath)}>
+                                                        <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button></TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -457,7 +513,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                     <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                                         U skladištu
                                     </Col>
-                                    {this.changeStatusButton()}
+                                    <Col lg="3" xs="3" sm="3" md="3" style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                                        {this.changeStatusButton()}
+                                        </Col>
+                                    
                                 </Row></Card.Header>
                                 <ListGroup variant="flush" >
                                     {this.state.articles?.articlesInStock.map(arStock => (

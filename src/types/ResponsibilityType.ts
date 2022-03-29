@@ -35,5 +35,8 @@ export default class ResponsibilityType {
         articleId: number;
         featureId: number;
         value: string;
-    }[]
+    }[];
+    document?:{
+        path: string;
+    }
 }

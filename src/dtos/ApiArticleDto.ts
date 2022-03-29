@@ -76,4 +76,10 @@ export default interface ApiArticleDto {
         timestamp: string;
         status: 'razduženo';
     }[];
+    documents:{
+        documentsId: number;
+        articleId: number;
+        path: string;
+        documentNumber: number;
+    }[];
 }

@@ -7,5 +7,8 @@ export default class DestroyedType {
     serialNumber?: string;
     article?:{
         name: string;
+    };
+    document?:{
+        path: string;
     }
 }

@@ -15,6 +15,8 @@ import DestroyedType from "../../../types/DestroyedType";
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import saveAs from "file-saver";
+import { ApiConfig } from "../../../config/api.config";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -216,7 +218,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 <FontAwesomeIcon icon={faListCheck} /> {
                                     this.state.users ?
                                         this.state.users?.surname + ' ' + this.state.users?.forname :
-                                        'Article not found'
+                                        'Kartica korisnika nije pronadjena'
                                 }
                             </Card.Title>
                         </Card.Header>
@@ -235,6 +237,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             </>
         )
     }
+
+    private saveFile = (path: any) => {
+        saveAs(
+            ApiConfig.TEMPLATE_PATH + path,
+            path
+        );
+      };
 
     private responsibilityArticlesOnUser() {
         if (this.state.responsibility.length === 0) {
@@ -257,6 +266,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 <TableCell>Status</TableCell>
                                 <TableCell>Datum zaduženja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
+                                <TableCell>#</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -267,6 +277,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{ura.serialNumber}</TableCell>
+                                    <TableCell>
+                                        <Button size='sm' variant='info' onClick={() => this.saveFile(ura.document?.path)}>
+                                              <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/>
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -297,6 +312,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 <TableCell>Komentar</TableCell>
                                 <TableCell>Datum razduženja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
+                                <TableCell>#</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -307,6 +323,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     <TableCell>{debt.comment}</TableCell>
                                     <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{debt.serialNumber}</TableCell>
+                                    <TableCell>
+                                        <Button size='sm' variant='info' onClick={() => this.saveFile(debt.document?.path)}>
+                                              <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/>
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -337,6 +358,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 <TableCell>Komentar</TableCell>
                                 <TableCell>Datum uništenja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
+                                <TableCell>#</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -347,6 +369,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     <TableCell>{destroyed.comment}</TableCell>
                                     <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{destroyed.serialNumber}</TableCell>
+                                    <TableCell>
+                                        <Button size='sm' variant='info' onClick={() => this.saveFile(destroyed.document?.path)}>
+                                              <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/>
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

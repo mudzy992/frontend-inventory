@@ -1,9 +1,9 @@
 import { faExclamationTriangle, faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, Row } from 'react-bootstrap';
-import { Link, Redirect } from 'react-router-dom';
+import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 import Moment from 'moment';
@@ -13,6 +13,7 @@ import ArticleByUserType from '../../../types/ArticleByUserType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { ApiConfig } from '../../../config/api.config';
+import saveAs from 'file-saver';
 
 interface AdminArticleOnUserPageProperties {
     match: {
@@ -378,7 +379,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='userId' label="Izaberi korisnika" className="mb-3">
+                                <FloatingLabel controlId='userId' label="Novo zaduženje na korisnika" className="mb-3">
                                     <Form.Select placeholder='izaberi korisnika' id='userId' required
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>izaberi korisnika</option>
@@ -388,12 +389,16 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                     </Form.Select>
                                 </FloatingLabel>
                             </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>
-                                    Količina
-                                </Form.Label>
-                                <Form.Control type='text' readOnly placeholder='1 KOM' />
-                                <Form.Text>Artikal se zadužuje po serijskom broju, tako da je količina predefinisana 1 KOM</Form.Text>
+                            <Form.Group className="mb-3">             
+                                <FloatingLabel controlId='kolicina' label="Kolicina" className="mb-3">
+                                <OverlayTrigger 
+                                placement="top"
+                                delay={{ show: 250, hide: 400 }}
+                                overlay={
+                                <Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>
+                                }>
+                                <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
+                                <Form.Text></Form.Text> 
                             </Form.Group>
                             <Form.Group className='was-validated'>
                                 <FloatingLabel controlId='status' label="Status" className="mb-3">
@@ -410,19 +415,31 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                             otpisano
                                         </option>
                                     </Form.Select>
-                                    <Form.Text>
-                                        <p> Ako je artikal već zadužen, ne može u ovom trenutku biti ponovo zadužen</p>
-                                    </Form.Text>
                                 </FloatingLabel>
                             </Form.Group>
                             <Form.Group>
                                 <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
+                                    <OverlayTrigger 
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={
+                                    <Tooltip id="tooltip-kolicina">Serijski broj dodjeljen prilikom prvog zaduživanja opreme, te je u ovom koraku nemoguće promjeniti ga.</Tooltip>
+                                    }>
                                     <Form.Control type='text' id='serialNumber' value={this.state.changeStatus.serialNumber} readOnly isValid required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} /></FloatingLabel>
-
-                                        <FloatingLabel controlId='invBroj' label="Inventurni broj" className="mb-3">
-                                    <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} /></FloatingLabel>
+                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
+                                    </OverlayTrigger>
+                                </FloatingLabel>
+                                <FloatingLabel controlId='invBroj' label="Inventurni broj" className="mb-3">
+                                    <OverlayTrigger 
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={
+                                    <Tooltip id="tooltip-kolicina">Inventurni broj dodjeljen prilikom prvog zaduživanja opreme, te je u ovom koraku nemoguće promjeniti ga.</Tooltip>
+                                    }>
+                                    <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required readOnly
+                                        onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} />
+                                    </OverlayTrigger>
+                                </FloatingLabel>
                             </Form.Group>
 
                             <Form.Group className='was-validated'>
@@ -493,6 +510,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     renderArticleData(article: ArticleByUserType[]) {
+        const saveFile = (path: any) => {
+            saveAs(
+                ApiConfig.TEMPLATE_PATH + path,
+                path
+            );
+          };
         return (
             <Row>
                 <Col xs="12" lg="8">
@@ -518,7 +541,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header>Detaljan opis</Card.Header>
-                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.map(desc => (desc.description))}</Card.Body>
+                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>
+                                    {article.map(desc => (desc.description))}</Card.Body>
                             </Card>
                         </Col>
                     </Row>
@@ -534,7 +558,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                 <TableCell>Status</TableCell>
                                                 <TableCell>Komentar</TableCell>
                                                 <TableCell>Serijski broj</TableCell>
-                                                <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
+                                                <TableCell>Datum i vrijeme akcije</TableCell>
+                                                <TableCell>#</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -544,9 +569,9 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{articleTimeline.serialNumber}</TableCell>
-                                                    <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell><a href={ApiConfig.TEMPLATE_PATH + articleTimeline.documentPath} /* to={'assets' + articleTimeline.documentPath} */ target='_blank' download> 
-                                                    <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></a></TableCell>
+                                                    <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    <TableCell><Button size='sm' variant='info' onClick={() => saveFile(articleTimeline.documentPath)}>
+                                                        <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button></TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

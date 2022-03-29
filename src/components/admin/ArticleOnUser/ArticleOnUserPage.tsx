@@ -545,7 +545,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{articleTimeline.serialNumber}</TableCell>
                                                     <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell><a href={`#/assets${articleTimeline.documentPath}`} /* to={'assets' + articleTimeline.documentPath} */ target='_blank' download> 
+                                                    <TableCell><a href={ApiConfig.TEMPLATE_PATH + articleTimeline.documentPath} /* to={'assets' + articleTimeline.documentPath} */ target='_blank' download> 
                                                     <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></a></TableCell>
                                                 </TableRow>
                                             ))}

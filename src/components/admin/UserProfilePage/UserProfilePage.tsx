@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Card, Col, Container, Row, Badge, ListGroup, Button } from 'react-bootstrap';
+import React from "react";
+import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../../API/api';
 import { faListCheck } from "@fortawesome/free-solid-svg-icons";
@@ -238,12 +238,31 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         )
     }
 
-    private saveFile = (path: any) => {
-        saveAs(
-            ApiConfig.TEMPLATE_PATH + path,
-            path
-        );
-      };
+    private saveFile (docPath: any) {
+        if(!docPath) {
+            return (<>
+            <Button size='sm' variant='danger'>
+                <OverlayTrigger 
+                placement="top"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
+                }><i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></OverlayTrigger>
+                </Button></> )
+        }
+        if (docPath) {
+            const savedFile = (docPath:any) => {
+                saveAs(
+                    ApiConfig.TEMPLATE_PATH + docPath,
+                    docPath
+                );
+            }
+            return (
+                <Button size='sm' variant='info' onClick={() => savedFile(docPath)}>
+                <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button>
+            )
+    }
+}
 
     private responsibilityArticlesOnUser() {
         if (this.state.responsibility.length === 0) {
@@ -277,11 +296,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{ura.serialNumber}</TableCell>
-                                    <TableCell>
-                                        <Button size='sm' variant='info' onClick={() => this.saveFile(ura.document?.path)}>
-                                              <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/>
-                                        </Button>
-                                    </TableCell>
+                                    <TableCell>{this.saveFile(ura.document?.path)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

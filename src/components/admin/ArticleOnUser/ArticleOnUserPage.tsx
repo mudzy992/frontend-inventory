@@ -509,13 +509,33 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         }
     }
 
+    private saveFile (docPath: any) {
+        if(!docPath) {
+            return (<>
+            <Button size='sm' variant='danger'>
+                <OverlayTrigger 
+                placement="top"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
+                }><i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></OverlayTrigger>
+                </Button></> )
+        }
+        if (docPath) {
+            const savedFile = (docPath:any) => {
+                saveAs(
+                    ApiConfig.TEMPLATE_PATH + docPath,
+                    docPath
+                );
+            }
+            return (
+                <Button size='sm' variant='info' onClick={() => savedFile(docPath)}>
+                <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button>
+            )
+    }
+}
+
     renderArticleData(article: ArticleByUserType[]) {
-        const saveFile = (path: any) => {
-            saveAs(
-                ApiConfig.TEMPLATE_PATH + path,
-                path
-            );
-          };
         return (
             <Row>
                 <Col xs="12" lg="8">
@@ -570,8 +590,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{articleTimeline.serialNumber}</TableCell>
                                                     <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell><Button size='sm' variant='info' onClick={() => saveFile(articleTimeline.documentPath)}>
-                                                        <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button></TableCell>
+                                                    <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

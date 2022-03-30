@@ -202,7 +202,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, documentPath, userId })
                 }
                 this.setArticleTimelineData(articleTimeline)
-                console.log(articleTimeline)
             }
         )
         api('/api/user/', 'get', {}, 'administrator')
@@ -377,7 +376,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                         placement="top"
                                         delay={{ show: 250, hide: 400 }}
                                         overlay={
-                                        <Tooltip id="tooltip-kolicina">U ovom koraku se dodjeljuje korisniku oprema po serijskom broju. Serijski broj se kasnije ne može mjenjati.</Tooltip>
+                                        <Tooltip id="tooltip-serialNumber">U ovom koraku se dodjeljuje korisniku oprema po serijskom broju. Serijski broj se kasnije ne može mjenjati.</Tooltip>
                                         }>
                                     <Form.Control type='text' id='serialNumber' required
                                         onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
@@ -388,7 +387,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
                                     overlay={
-                                    <Tooltip id="tooltip-kolicina">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>
+                                    <Tooltip id="tooltip-invBroj">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>
                                     }>
                                     <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required
                                         onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} />
@@ -429,14 +428,34 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     }
 
+    private saveFile (docPath: any) {
+            if(!docPath) {
+                return (<>
+                <Button size='sm' variant='danger'>
+                    <OverlayTrigger 
+                    placement="top"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={
+                    <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
+                    }><i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></OverlayTrigger>
+                    </Button></> )
+            }
+            if (docPath) {
+                const savedFile = (docPath:any) => {
+                    saveAs(
+                        ApiConfig.TEMPLATE_PATH + docPath,
+                        docPath
+                    );
+                }
+                return (
+                    <Button size='sm' variant='info' onClick={() => savedFile(docPath)}>
+                    <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button>
+                )
+        }
+    }
 
     renderArticleData(article: ApiArticleDto) {
-        const saveFile = (path: any) => {
-            saveAs(
-                ApiConfig.TEMPLATE_PATH + path,
-                path
-            );
-          };
+        
         return (
             <Row>
                 <Col xs="12" lg="8">
@@ -494,8 +513,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                         {articleTimeline.serialNumber}</Link>
                                                     </TableCell>
                                                     <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell><Button size='sm' variant='info' onClick={() => saveFile(articleTimeline.documentPath)}>
-                                                        <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button></TableCell>
+                                                    <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

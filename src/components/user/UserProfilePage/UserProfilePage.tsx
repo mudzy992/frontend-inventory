@@ -168,7 +168,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
-        api('api/article/?join=responsibility&filter=responsibility.userId||$eq||'
+        api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
             + this.props.match.params.userID +
             ''
             , 'get', {}, 'user')
@@ -208,7 +208,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         }
         return (
             <>
-                <RoledMainMenu role='administrator' />
+                <RoledMainMenu role='user' />
                 <Container style={{ marginTop: 20 }}>
                     <Card className="text-white bg-dark">
                         <Card.Header>

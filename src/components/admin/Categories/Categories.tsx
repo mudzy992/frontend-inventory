@@ -1,13 +1,14 @@
-import { faListAlt } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Container } from '@mui/material';
+import { Alert, Container, Paper } from '@mui/material';
 import React from 'react';
-import { Card, Col, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
+import { Card, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import ArticleType from '../../../types/ArticleType';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import BootstrapTable from 'react-bootstrap-table-next';
+import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
+import paginationFactory from 'react-bootstrap-table2-paginator';
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
@@ -28,7 +29,7 @@ interface CategoryPageState {
     category?: CategoryType; /* Ovdje kažemo da je kategorija primjerak CategoryType */
     subCategory?: CategoryType[]; /* A ovdje kažemo da je pod kategorija lista primjerka CategoryType*/
     message: string;
-    articles?: ArticleType[];
+    articles: ArticleType[];
 }
 
 /* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
@@ -37,6 +38,7 @@ gdje ćemo definisati da je neka veza primjerak tog DTO-a*/
 interface CategoryDto {
     categoryId: number;
     name: string;
+    imagePath: string;
 }
 
 interface ArticleDto {
@@ -52,6 +54,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     constructor(props: Readonly<CategoryPageProperties>) {
         super(props);
         this.state = {
+            articles: [],
             message: ""
         }
     }
@@ -92,21 +95,22 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             <>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
-                    <Card className="text-white bg-dark">
+                    <Card className="mb-3 text-white bg-dark">
                         <Card.Header>
                             <Card.Title>
-                                <FontAwesomeIcon icon={faListAlt} /> {this.state.category?.name}
+                            <i className="bi bi-list"/>{this.state.category?.name}
                             </Card.Title>
                         </Card.Header>
                         <Card.Body>
-                            <Card.Text>
+
                                 {this.printErrorMessage()}
-                                {this.showSubcategories()}
                                 {this.showArticles()}
-
-                            </Card.Text>
+                                
                         </Card.Body>
-
+                    </Card>
+                    <Card className="mb-3 text-white bg-dark">
+                        <Card.Header> <i className="bi bi-list-nested"/> Podkategorije</Card.Header>
+                        <Card.Body>{this.showSubcategories()}</Card.Body>
                     </Card>
                 </Container>
             </>
@@ -146,9 +150,8 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                             {category.name}
                         </Card.Title>
                     </Card.Header>
-                    <Card.Body>
-                        Ovjde će ići slika zvao se ja mudzy ili ne
-                        {/* <Card.Img variant="top" src={ApiConfig.PHOTO_PATH + `${category.image}`} /> */}
+                    <Card.Body style={{display:'flex', justifyContent: 'center'}}>
+                        <i className={category.imagePath} style={{ fontSize: 100 }}></i>
                     </Card.Body>
                     <Card.Footer>
                         <small><Link to={`/category/${category.categoryId}`}
@@ -162,36 +165,69 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     private showArticles() {
         if (this.state.articles?.length === 0) {
             return (
-                <div>There are now articles in this category.</div>
+                <div>Nema opreme definisane za ovu kategoriju.</div>
             )
         }
         return (
             <Row>
-                {this.state.articles?.map(this.singleArticle)}
+                {this.TableContent()}
             </Row>
         );
     }
 
-    private singleArticle(article: ArticleType) {
+    private TableContent() {
+        const columns = [
+        {
+            dataField: 'name',
+            text: 'Naziv ',
+            sort: true,
+            filter: textFilter(),
+        },
+        {
+            dataField: 'articleId',
+            text: '',
+            formatter: (row: any) => (
+                <div style={{ justifyContent: 'center', display: 'flex' }}>
+                    <a href={`#/article/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <i className="bi bi-three-dots"></i> Detalji</a>
+                </div>
+            )
+        },
+        ];
+        const options = {
+            page: 0, /* Koja je prva stranica prikaza na učitavanju */
+            sizePerPageList: [{
+                text: '5', value: 5
+            }, {
+                text: '10', value: 10
+            }, {
+                text: 'Sve', value: this.state.articles.length
+            }],
+            sizePerPage: 5, /* Koliko će elemenata biti prikazano */
+            pageStartIndex: 0,
+            paginationSize: 3,
+            prePage: 'Prethodna',
+            nextPage: 'Sljedeća',
+            firstPage: 'Prva',
+            lastPage: 'Zadnja',
+            paginationPosition: 'top'
+        };
         return (
-            /* Ono kako želimo da prikažemo kategoriju (dizajn) */
-            <Col lg="4" md="6" sm="6" xs="12">
-                <Card className="text-dark bg-light mb-3">
-                    <Card.Img variant="top" src="" className="w-100" />
-                    <Card.Body>
-                        <Card.Title>
-                            {article.name}
-                        </Card.Title>
-                        <ListGroup className="list-group-flush">
-                            <ListGroupItem> <strong>Excerpt:</strong> {article.excerpt}</ListGroupItem>
-                        </ListGroup>
-                    </Card.Body>
-                    <Card.Footer>
-                        <small><Link to={`/article/${article.articleId}`}
-                            className='btn btn-primary btn-block btn-sm'>Više detalja</Link></small>
-                    </Card.Footer>
-                </Card>
-            </Col>
+            <>
+            <Paper>
+                <BootstrapTable
+                    keyField="userId"
+                    data={this.state.articles}
+                    columns={columns}
+                    wrapperClasses='table-responsive'
+                    classes="react-bootstrap-table"
+                    bordered={false}
+                    striped
+                    hover
+                    filter={filterFactory()}
+                    pagination={paginationFactory(options)}
+                />
+                </Paper>
+            </>
         )
     }
 
@@ -227,6 +263,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 const categoryData: CategoryType = {
                     categoryId: res.data.categoryId,
                     name: res.data.name,
+                    imagePath: res.data.imagePath,
                     /* Link za sliku */
                 }
                 /* setujemo u funkciju setCategory podatke koje smo izvukli i sada su nam dostupni za koristiti uvijek */
@@ -237,6 +274,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                         return {
                             categoryId: category.categoryId,
                             name: category.name,
+                            imagePath: category.imagePath
                         }
                     });
 

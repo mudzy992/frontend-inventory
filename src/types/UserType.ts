@@ -16,36 +16,50 @@ export default class UserType {
         categoryId: number;
         sapNumber: string;
     }[];
-    userArticle?: {
+    userArticles?: {
         userArticleId: number;
-        responsibilityId: number;
-        debtId: number;
-        destroyId: number;
-        userId: number;
         articleId: number;
+        documentId: number;
+        userId: number;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
+        invBroj: string;
     }[];
-    responsibilityArticles?: {
+    responsibilities?: {
         responsibilityId: number;
+        userArticleId: number;
+        userId: number;
+        articleId: number;
+        documentId: number;
         value: number;
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
+        invBroj: string;
     }[];
     debtItems?:{
         debtItemsId: number;
+        userArticleId: number;
+        userId: number;
+        articleId: number;
+        documentId: number;
         value: number;
-        comment: string;
+        status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
+        invBroj: string;
     }[];
     destroyeds?: {
         destroyedId: number;
+        userArticleId: number;
+        userId: number;
+        articleId: number;
+        documentId: number;
         value: number;
-        comment: string;
-        timestamp: string
+        status: 'zaduženo' | 'razduženo' | 'otpisano';
+        timestamp: string;
         serialNumber: string;
+        invBroj: string;
     }[];
 }

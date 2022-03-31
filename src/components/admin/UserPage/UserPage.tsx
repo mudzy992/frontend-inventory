@@ -4,7 +4,7 @@ import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell
 import Paper from '@mui/material/Paper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../../API/api';
-import UserType from '../../../types/UserType';
+import UserArticleExtendedTableType from '../../../types/UserArticleExtendedTableType';
 import { Redirect } from 'react-router-dom';
 import ApiUserDto from '../../../dtos/ApiUserDto';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -12,59 +12,19 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import { faArrowDownShortWide, faUser, faUsers, } from "@fortawesome/free-solid-svg-icons";
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
+import UserType from "../../../types/UserType";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
+
+
 interface UserPageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users: UserType[];
     message: string;
     isLoggedIn: boolean;
+    articleExtender: UserArticleExtendedTableType[];
 }
-
-const columns = [{
-    dataField: 'userId',
-    text: '#',
-    formatter: (row: any) => (
-        <div style={{ justifyContent: 'center', display: 'flex' }}>
-            <a href={`#/admin/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <FontAwesomeIcon icon={faUser} /> Profil</a>
-        </div>
-    )
-},
-{
-    dataField: 'surname',
-    text: 'Ime ',
-    sort: true,
-    filter: textFilter(),
-    formatter: (row: any) => (
-        <div>
-            <FontAwesomeIcon icon={faArrowDownShortWide} /> {`${row}`}
-        </div>
-    )
-
-},
-{
-    dataField: 'forname',
-    text: 'Prezime',
-    sort: true,
-
-},
-{
-    dataField: 'jobTitle',
-    text: 'Radno mjesto',
-    sort: true
-},
-{
-    dataField: 'department',
-    text: 'Sektor',
-    sort: true
-},
-{
-    dataField: 'location',
-    text: 'Lokacija',
-    sort: true
-},
-];
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
 export default class UserPage extends React.Component {
@@ -73,15 +33,16 @@ export default class UserPage extends React.Component {
     constructor(props: Readonly<{}>) {
         super(props);
         this.state = {
-            message: "",
             users: [],
+            message: "",
             isLoggedIn: true,
+            articleExtender: [],
         }
     }
 
     /* SET FUNKCIJE ĆEMO DEFINISATI PRIJE RENDERA */
 
-    private setUsers(userData: ApiUserDto) {
+    private setUsers(userData: UserType[] | undefined) {
         this.setState(Object.assign(this.state, {
             users: userData
         }))
@@ -101,17 +62,18 @@ export default class UserPage extends React.Component {
         this.setState(newState);
     }
 
+    private setArticleExtender(extenderData : UserArticleExtendedTableType[]){
+        this.setState(Object.assign(this.state, {
+            articleExtender: extenderData
+        }))
+    }
+
     /* KRAJ SET FUNCKIJA */
 
     /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
-    }
-
-    componentDidUpdate() {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-
     }
 
     private printOptionalMessage() {
@@ -143,14 +105,82 @@ export default class UserPage extends React.Component {
                 }
                 /* this.setUsers(res.data) */
                 /*  const data : ApiUserDto[] = res.data */
-                const data: ApiUserDto = res.data;
+                const data: UserType[] = res.data;
                 this.setUsers(data)
+
+                const articleExtend : UserArticleExtendedTableType[] = [];
+                for (const start of res.data) {
+                    let serialNumber = '';
+                    let invBroj = '';
+                    let articleId = 0;
+                    let name = '';
+                    let sapNumber = '';
+                    for (const res of start.responsibilities) {
+                        if (start.userId === res.userId) {
+                            sapNumber = res.sapNumber;
+                            invBroj = res.invBroj;
+                            serialNumber = res.serialNumber;
+                            for (const article of start.articles) {
+                                if (res.articleId === article.articleId) {
+                                    articleId = article.articleId;
+                                    name = article.name;
+                                }
+                            }
+                        }
+                        articleExtend.push({articleId, name, sapNumber, serialNumber, invBroj})
+                    }
+                    this.setArticleExtender(articleExtend)
+                    console.log(articleExtend)
+                }
             })
     }
 
     /* KRAJ GET I MOUNT FUNKCIJA */
 
     private TableContent() {
+        const columns = [{
+            dataField: 'userId',
+            text: '#',
+            formatter: (row: any) => (
+                <div style={{ justifyContent: 'center', display: 'flex' }}>
+                    <a href={`#/admin/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <FontAwesomeIcon icon={faUser} /> Profil</a>
+                </div>
+            )
+        },
+        {
+            dataField: 'surname',
+            text: 'Ime ',
+            sort: true,
+            filter: textFilter(),
+            formatter: (row: any) => (
+                <div>
+                    <FontAwesomeIcon icon={faArrowDownShortWide} /> {`${row}`}
+                </div>
+            )
+        
+        },
+        {
+            dataField: 'forname',
+            text: 'Prezime',
+            sort: true,
+        
+        },
+        {
+            dataField: 'jobTitle',
+            text: 'Radno mjesto',
+            sort: true
+        },
+        {
+            dataField: 'department',
+            text: 'Sektor',
+            sort: true
+        },
+        {
+            dataField: 'location',
+            text: 'Lokacija',
+            sort: true
+        },
+        ];
         const options = {
             page: 0, /* Koja je prva stranica prikaza na učitavanju */
             sizePerPageList: [{
@@ -158,7 +188,7 @@ export default class UserPage extends React.Component {
             }, {
                 text: '10', value: 10
             }, {
-                text: 'Sve', value: this.state.users.length
+                text: 'Sve', value: this.state.users?.length
             }],
             sizePerPage: 5, /* Koliko će elemenata biti prikazano */
             pageStartIndex: 0,
@@ -171,7 +201,7 @@ export default class UserPage extends React.Component {
         };
 
         const expandRow = {
-            renderer: (row: UserType) => (
+            renderer: (row: ApiUserDto) => (
                 <>
                     <TableContainer component={Paper}>
                         <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -210,8 +240,8 @@ export default class UserPage extends React.Component {
         )
     }
 
-    private ExtendedTableContent(row: UserType) {
-        if (row.articles?.length === 0) {
+    private ExtendedTableContent(row: ApiUserDto) {
+        if (row.responsibilities?.length === 0) {
             return (
                 <TableRow>
                     <TableCell colSpan={4}>
@@ -221,13 +251,13 @@ export default class UserPage extends React.Component {
             )
         }
         return (
-            row.articles?.map(article => (
+            this.state.articleExtender.map(article => (
                 <>
                     <TableBody>
                         <TableRow hover>
                             <TableCell>{article.articleId}</TableCell>
                             <TableCell>{article.name} </TableCell>
-                            <TableCell>{article.concract}</TableCell>
+                            <TableCell>{article.serialNumber}</TableCell>
                             <TableCell>{article.sapNumber}</TableCell>
                         </TableRow>
                     </TableBody>
@@ -246,7 +276,6 @@ export default class UserPage extends React.Component {
         }
         return (
             <>
-                <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 10 }} fluid="md">
                     <Col>
                         <Card className="text-dark bg-light">

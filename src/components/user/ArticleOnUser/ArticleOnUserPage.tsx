@@ -205,7 +205,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
         return (
             <>
-                <RoledMainMenu role='administrator' />
+                <RoledMainMenu role='user' />
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
                         <Card.Header >
@@ -388,25 +388,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                             </Card>
                         </Col>
                     </Row>
-                    <Row>
-                        <Col>
-                            <Card className="text-dark bg-light mb-2" >
-                                <Card.Header>U skladištu</Card.Header>
-                                <ListGroup variant="flush" >
-                                    {article.map(artStock => (
-                                        artStock.articlesInStock.map(arStock => (
-                                            <><ListGroup.Item>Stanje po ugovoru: {arStock.valueOnConcract}</ListGroup.Item>
-                                                <ListGroup.Item>Trenutno stanje: {arStock.valueAvailable}</ListGroup.Item>
-                                                <ListGroup.Item>SAP broj: {arStock.sapNumber}</ListGroup.Item>
-                                                <ListGroup.Item>Stanje na: {Moment(arStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                            </>
-                                        ))
-                                    ))
-                                    }
-                                </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
+                    
                 </Col>
             </Row>
         );

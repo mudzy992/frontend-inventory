@@ -10,7 +10,7 @@ export default class ArticleType {
     category?: {
         name: string;
         imagePath: string;
-    }
+    };
     articleFeature?: {
         articleFeatureId: number;
         featureId: number;
@@ -20,16 +20,15 @@ export default class ArticleType {
         featureId: number;
         name: string;
     }[];
-    userArticle?:{
+    userArticles?:{
         userArticleId: number;
-        responsibilityId: number;
-        debtId: number;
-        destroyId: number;
-        userId: number;
         articleId: number;
-        status:string;
+        documentId: number;
+        userId: number;
+        status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
+        comment: string;
     }[];
     userDetails?:{
         userId: number;
@@ -48,18 +47,10 @@ export default class ArticleType {
         valueAvailable: number;
         sapNumber: string;
     }[];
-    responsibility?:{
-        responsibilityId: number;
-        articleId: number;
-        userId: number;
-        value: string;
-        status: 'zaduženo' | 'razduženo' | 'otpisano';
-        timestamp: string;
-        serialNumber: string;
-    }[];
-    destroyed?:{
+    destroyeds?:{
         destroyedId: number;
         articleId: number;
+        userId: number;
         value: string;
         comment: string;
         timestamp: string;
@@ -69,10 +60,26 @@ export default class ArticleType {
     debtItems?:{
         debtItemsId: number;
         articleId: number;
+        userId: number;
         value: string;
         comment: string;
         serialNumber: string;
         timestamp: string;
         status: 'razduženo';
+    }[];
+    responsibilities?:{
+        responsibilityId: number;
+        articleId: number;
+        userId: number;
+        value: string;
+        serialNumber: string;
+        timestamp: string;
+        status: 'razduženo';
+    }[];
+    documents?:{
+        documentsId: number;
+        articleId: number;
+        path: string;
+        documentNumber: number;
     }[];
 }

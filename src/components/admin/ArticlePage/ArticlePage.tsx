@@ -156,7 +156,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 const features: FeaturesType[] = [];
 
                 for (const articleFeature of data.articleFeature) {
-                    const value = articleFeature.value;
+                    let value = articleFeature.value;
                     let name = '';
 
                     for (const feature of data.features) {
@@ -190,13 +190,14 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             if (statusRespon.userId === user.userId) {
                                 userId = user.userId;
                                 surname = user.surname;
-                                forname = user.forname;    
+                                forname = user.forname;
                             }
                         }
                     }
                     for (const doc of data.documents) {
                         if (doc.documentsId === statusRespon.documentId) {
                             documentPath = doc.path;
+                            break;
                         }
                     }
                     articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, documentPath, userId })

@@ -19,6 +19,8 @@ import UserLoginPage from './components/user/UserLogin/UserLoginPage';
 import AdministratorLoginPage from './components/admin/AdministratorLoginPage/AdministratorLoginPage';
 import AdminArticleOnUserPage from './components/admin/ArticleOnUser/ArticleOnUserPage';
 import AdminUserProfilePage from './components/admin/UserProfilePage/UserProfilePage';
+import AddArticlePage from './components/admin/AddArticle/AddArticlePage';
+import AddUserPage from './components/admin/AddUser/AddUserPage';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -36,6 +38,8 @@ ReactDOM.render(
         <Route exact path="/" component={HomePage} />
         <Route path="/category/:categoryID" component={CategoryPage} />
         <Route path="/article/:articleID" component={ArticlePage} />
+        <Route path="/admin/article/" component={ AddArticlePage } />
+        <Route path="/admin/user/" component={ AddUserPage } />
       </Switch>
     </HashRouter>
   </React.StrictMode>,

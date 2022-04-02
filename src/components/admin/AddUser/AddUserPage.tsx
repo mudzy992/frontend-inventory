@@ -123,7 +123,7 @@ export default class AddUserPage extends React.Component<{}>{
                             </Link>
                             <Link to="/admin/user/" style={{textDecoration: 'none'}}>
                                 <ListItemButton>
-                                    <ListItemIcon><i className="bi bi-people-fill"/></ListItemIcon>
+                                    <ListItemIcon><i className="bi bi-person-plus-fill"/></ListItemIcon>
                                     <ListItemText primary="Korisnici"/>
                                 </ListItemButton>
                             </Link>
@@ -149,7 +149,7 @@ export default class AddUserPage extends React.Component<{}>{
         return (
             <>
             <Card className="mb-3">
-                <Card.Header>Informacije o korisniku</Card.Header>
+                <Card.Header><i className="bi bi-person-lines-fill"/> Informacije o korisniku</Card.Header>
                 <Card.Body>
                     <Form>
                         
@@ -271,7 +271,7 @@ export default class AddUserPage extends React.Component<{}>{
                 </Card.Body>
                 <Card.Footer>
                     <Row style={{ alignItems: 'end' }}>
-                        <Button onClick={() => this.doAddUser()} variant="success">Dodaj opremu</Button>
+                        <Button onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/> Dodaj korisnika</Button>
                     </Row>
                 </Card.Footer>
             </Card>    

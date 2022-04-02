@@ -281,7 +281,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         <TableHead>
                             <TableRow>
                                 <TableCell>Naziv</TableCell>
-                                <TableCell>Količina</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell>Datum zaduženja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
@@ -292,7 +291,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             {this.state.responsibility?.map(ura => (
                                 <TableRow hover>
                                     <TableCell><Link href={`#/admin/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
-                                    <TableCell>{ura.value}</TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{ura.serialNumber}</TableCell>
@@ -323,7 +321,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         <TableHead>
                             <TableRow>
                                 <TableCell>Naziv</TableCell>
-                                <TableCell>Količina</TableCell>
                                 <TableCell>Komentar</TableCell>
                                 <TableCell>Datum razduženja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
@@ -334,15 +331,10 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             {this.state.debt?.map(debt => (
                                 <TableRow hover>
                                     <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
-                                    <TableCell>{debt.value}</TableCell>
                                     <TableCell>{debt.comment}</TableCell>
                                     <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{debt.serialNumber}</TableCell>
-                                    <TableCell>
-                                        <Button size='sm' variant='info' onClick={() => this.saveFile(debt.document?.path)}>
-                                              <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/>
-                                        </Button>
-                                    </TableCell>
+                                    <TableCell>{this.saveFile(debt.document?.path)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -369,7 +361,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         <TableHead>
                             <TableRow>
                                 <TableCell>Naziv</TableCell>
-                                <TableCell>Količina</TableCell>
                                 <TableCell>Komentar</TableCell>
                                 <TableCell>Datum uništenja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
@@ -380,15 +371,10 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             {this.state.destroyed?.map(destroyed => (
                                 <TableRow hover>
                                     <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
-                                    <TableCell>{destroyed.value}</TableCell>
                                     <TableCell>{destroyed.comment}</TableCell>
                                     <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{destroyed.serialNumber}</TableCell>
-                                    <TableCell>
-                                        <Button size='sm' variant='info' onClick={() => this.saveFile(destroyed.document?.path)}>
-                                              <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/>
-                                        </Button>
-                                    </TableCell>
+                                    <TableCell>{this.saveFile(destroyed.document?.path)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

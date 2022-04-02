@@ -426,7 +426,7 @@ export default class AddArticlePage extends React.Component<{}>{
                 </Card.Body>
                 <Card.Footer>
                     <Row style={{ alignItems: 'end' }}>
-                        <Button onClick={() => this.doAddArticle()} variant="success">Dodaj opremu</Button>
+                        <Button onClick={() => this.doAddArticle()} variant="success"><i className="bi bi-plus-circle"/> Dodaj opremu</Button>
                     </Row>
                 </Card.Footer>
             </Card>
@@ -453,7 +453,7 @@ export default class AddArticlePage extends React.Component<{}>{
                             </Link>
                             <Link to="/admin/user/" style={{textDecoration: 'none'}}>
                                 <ListItemButton>
-                                    <ListItemIcon><i className="bi bi-people-fill"/></ListItemIcon>
+                                    <ListItemIcon><i className="bi bi-person-plus-fill"/></ListItemIcon>
                                     <ListItemText primary="Korisnici"/>
                                 </ListItemButton>
                             </Link>

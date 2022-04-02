@@ -20,7 +20,6 @@ export default class RoledMainMenu extends React.Component<RoledMainMenuProperti
         return [
         ]
     }
-
     getAdministratorItems(): MainMenuItem[] {
         return [
             new MainMenuItem("Naslovna", "/"),

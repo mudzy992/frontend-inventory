@@ -7,6 +7,7 @@ import { List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Paper 
 import { Link } from 'react-router-dom';
 import CategoryType from '../../../types/CategoryType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
+import AdminMenu from '../AdminMenu/AdminMenu';
 
 interface AddArticlePageState{
     articles: ArticleType[];
@@ -52,7 +53,7 @@ export default class AddArticlePage extends React.Component<{}>{
             message: '',
             addArticle: {
                 name: '',
-                categoryId: 1,
+                categoryId: 0,
                 excerpt: '',
                 description: '',
                 concract: '',
@@ -174,7 +175,7 @@ export default class AddArticlePage extends React.Component<{}>{
     }
 
     private getCategories() {
-        api('api/category/', 'get', {}, 'administrator')
+        api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === "error" || res.status === "login") {
                 return;
@@ -277,15 +278,7 @@ export default class AddArticlePage extends React.Component<{}>{
                 })),
         }, 'administrator')
         .then(async (res: ApiResponse) => {
-/*             if (res.status === "login") {
-                this.setLogginState(false);
-                return;
-            }
 
-            if (res.status === "error") {
-                this.setAddModalStringFieldState('message', JSON.stringify(res.data));
-                return;
-            } */
         });
     }
     /* Kraj dodatnih funkcija */
@@ -417,7 +410,7 @@ export default class AddArticlePage extends React.Component<{}>{
                     </Form>
                 </Card.Body>
             </Card>
-            <Card className="mb-3">
+            <Card className={this.state.addArticle.categoryId ? '' : 'd-none mb-3'}>
                 <Card.Header>Detalji opreme</Card.Header>
                 <Card.Body>
                     <Form>
@@ -441,31 +434,7 @@ export default class AddArticlePage extends React.Component<{}>{
             <Row>
             <Col xs ="12" lg="12">
                 <Row>
-                    <Col xs="12" lg="3" sm="12">
-                    <Paper>
-                        <List>
-                            <ListSubheader>Admin menu</ListSubheader>
-                            <Link to="/admin/article/" style={{textDecoration: 'none'}}>
-                                <ListItemButton>
-                                    <ListItemIcon><i className="bi bi-stack"/></ListItemIcon>
-                                    <ListItemText primary="Dodaj opremu"/>
-                                </ListItemButton>
-                            </Link>
-                            <Link to="/admin/user/" style={{textDecoration: 'none'}}>
-                                <ListItemButton>
-                                    <ListItemIcon><i className="bi bi-person-plus-fill"/></ListItemIcon>
-                                    <ListItemText primary="Korisnici"/>
-                                </ListItemButton>
-                            </Link>
-                            <Link to="" style={{textDecoration: 'none'}}>
-                                <ListItemButton >
-                                    <ListItemIcon><i className="bi bi-journal-text"/></ListItemIcon>
-                                    <ListItemText primary="Dokumenti"/>
-                                </ListItemButton>
-                            </Link>
-                        </List>
-                    </Paper> 
-                    </Col>
+                    <AdminMenu />
                     <Col style={{marginTop:5}} xs="12" lg="9" sm="12">
                             {this.addForm()}
                     </Col>

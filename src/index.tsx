@@ -21,6 +21,8 @@ import AdminArticleOnUserPage from './components/admin/ArticleOnUser/ArticleOnUs
 import AdminUserProfilePage from './components/admin/UserProfilePage/UserProfilePage';
 import AddArticlePage from './components/admin/AddArticle/AddArticlePage';
 import AddUserPage from './components/admin/AddUser/AddUserPage';
+import AddFeaturePage from './components/admin/AddFeature/AddFeaturePage';
+import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -40,6 +42,8 @@ ReactDOM.render(
         <Route path="/article/:articleID" component={ArticlePage} />
         <Route path="/admin/article/" component={ AddArticlePage } />
         <Route path="/admin/user/" component={ AddUserPage } />
+        <Route path="/admin/feature/" component={ AddFeaturePage } />
+        <Route path="/admin/category/" component={ AddNewCategoryPage } />
       </Switch>
     </HashRouter>
   </React.StrictMode>,

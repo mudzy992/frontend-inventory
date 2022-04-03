@@ -101,7 +101,7 @@ export default class UserPage extends React.Component {
             text: '#',
             formatter: (row: any) => (
                 <div style={{ justifyContent: 'center', display: 'flex' }}>
-                    <a href={`#/admin/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <i className="bi bi-person-fill"/> Profil</a>
+                    <a href={`#/admin/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <i className="bi bi-person-fill" style={{fontSize:17}}/> Profil</a>
                 </div>
             )
         },
@@ -179,24 +179,16 @@ export default class UserPage extends React.Component {
         }
         return (
             <>
-                <Container style={{ marginTop: 10 }} fluid="md">
-                    <Col>
-                        <Card className="text-dark bg-light">
-                            <Card.Body>
-                                <Card.Header>
-                                    <Card.Title>
-                                    <i className="bi bi-people-fill"/> Spisak korisnika
-                                    </Card.Title>
-                                </Card.Header>
-                                <Row>
-                                    <Card.Text>
-                                        {this.TableContent()}
-                                    </Card.Text>
-                                </Row>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Container>
+                <Card className="mb-3 text-dark bg-light">
+                    <Card.Header>
+                        <Card.Title>
+                        <i className="bi bi-people-fill"/> Spisak korisnika
+                        </Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        {this.TableContent()}
+                    </Card.Body>
+                </Card>
             </>
         )
     }

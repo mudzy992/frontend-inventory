@@ -284,7 +284,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 <Redirect to="/user/login/" />
             );
         }
-
         return (
             <>
                 <RoledMainMenu role='administrator' />
@@ -295,7 +294,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 <Container>
                                     <Row>
                                         <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
-                                            <FontAwesomeIcon style={{ marginRight: 5 }} icon={faListCheck} />{
+                                            
+                                            <i className={this.state.article.map(arti => (arti.category.imagePath)).toLocaleString()} style={{fontSize:20, marginRight:5}}/> {
                                                 this.state.article ?
                                                     this.state.article.map :
                                                     'Article not found'
@@ -320,7 +320,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 <Alert variant="danger"
                                     style={{ marginTop: 15 }}
                                     className={this.state.errorMessage ? '' : 'd-none'}>
-                                    <FontAwesomeIcon icon={faExclamationTriangle} />  {this.state.errorMessage}
+                                        <i className="bi bi-exclamation-circle-fill"></i> {this.state.errorMessage}
                                 </Alert>
                             </Card.Text>
                         </Card.Body>

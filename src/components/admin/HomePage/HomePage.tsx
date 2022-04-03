@@ -1,7 +1,5 @@
-import { faListAlt } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { Card, Col, Container, Row } from 'react-bootstrap';
+import { Card, CardGroup, Col, Container, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import CategoryType from '../../../types/CategoryType';
@@ -74,25 +72,25 @@ export default class HomePage extends React.Component {
         return (
             /* prikaz klijentu */
             <>
-                <RoledMainMenu role='administrator' />
-                <Container style={{ marginTop: 15 }}>
-                    <Card className="mb-3 text-white bg-dark">
-                        <Card.Body>
+                <RoledMainMenu role='administrator'/>
+                    <Container style={{marginTop: 15 }}>
+                            <Card className="mb-3 text-white bg-dark">
                             <Card.Header>
                                 <Card.Title>
-                                    <FontAwesomeIcon icon={faListAlt} /> Top level kategorije
+                                <i className="bi bi-card-list" style={{fontSize:22}}/> Top level kategorije
                                 </Card.Title>
                             </Card.Header>
+                            <Card.Body>
                             <Row>
                                 {/* Ako je korisnik ulogovan, prikazati spisak kategorija 
                             to smo uradili tako što smo mapirali jednu funkciju ispod*/}
                                 {this.state.categories.map(this.singleCategory)}
                                 
                             </Row>
-                        </Card.Body>
-                    </Card>
-                </Container>
-                <UserPage />
+                            </Card.Body>
+                            </Card>
+                            <UserPage />
+                    </Container>
             </>
         )
     }
@@ -100,6 +98,7 @@ export default class HomePage extends React.Component {
     private singleCategory(category: CategoryType) {
         return (
             <Col lg="3" md="4" sm="6" xs="12">
+                <CardGroup>
                 <Card className="text-dark bg-light mb-3">
                     <Card.Header>
                         <Card.Title>
@@ -115,6 +114,7 @@ export default class HomePage extends React.Component {
                             className='btn btn-primary btn-block btn-sm'>Prikaži kategoriju</Link></small>
                     </Card.Footer>
                 </Card>
+                </CardGroup>
             </Col>
         )
     }

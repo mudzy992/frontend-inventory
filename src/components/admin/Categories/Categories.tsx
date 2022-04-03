@@ -95,23 +95,28 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             <>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
-                    <Card className="mb-3 text-white bg-dark">
-                        <Card.Header>
-                            <Card.Title>
-                            <i className="bi bi-list"/>{this.state.category?.name}
-                            </Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-
-                                {this.printErrorMessage()}
-                                {this.showArticles()}
-                                
-                        </Card.Body>
-                    </Card>
-                    <Card className="mb-3 text-white bg-dark">
-                        <Card.Header> <i className="bi bi-list-nested"/> Podkategorije</Card.Header>
-                        <Card.Body>{this.showSubcategories()}</Card.Body>
-                    </Card>
+                        <Card className={this.state.articles.length > 0 ? '' : 'd-none'} style={{ marginBottom: 10}} text='white' bg='dark'>
+                            <Card.Header>
+                                <Card.Title>
+                                <i className="bi bi-list"/>{this.state.category?.name}
+                                </Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <Row>
+                                    {this.printErrorMessage()}
+                                 </Row>      
+                                    {this.showArticles()}
+                                 
+                            </Card.Body>
+                        </Card>  
+                        <Card className="mb-3 text-white bg-dark">
+                            <Card.Header>
+                                <i className="bi bi-list-nested"/> Podkategorije
+                            </Card.Header>
+                            <Card.Body>
+                                {this.showSubcategories()}
+                            </Card.Body>
+                        </Card>
                 </Container>
             </>
         )
@@ -125,7 +130,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             <Alert severity="error"
                 style={{ marginTop: 15 }}
                 className={this.state.message ? '' : 'd-none'}>
-                {/* <i className="bi bi-exclamation-circle-fill"></i>  */}{this.state.message}
+                <i className="bi bi-exclamation-circle-fill"></i>  {this.state.message}
             </Alert>
         )
     }

@@ -4,6 +4,7 @@ import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Paper } from '@mui/material';
 import { Link } from 'react-router-dom';
+import AdminMenu from '../AdminMenu/AdminMenu';
 
 
 interface AddUserPageState{
@@ -111,31 +112,7 @@ export default class AddUserPage extends React.Component<{}>{
             <Row>
             <Col xs ="12" lg="12">
                 <Row>
-                <Col xs="12" lg="3" sm="12">
-                       <Paper>
-                        <List>
-                            <ListSubheader>Admin menu</ListSubheader>
-                            <Link to="/admin/article/" style={{textDecoration: 'none'}}>
-                                <ListItemButton>
-                                    <ListItemIcon><i className="bi bi-stack"/></ListItemIcon>
-                                    <ListItemText primary="Dodaj opremu"/>
-                                </ListItemButton>
-                            </Link>
-                            <Link to="/admin/user/" style={{textDecoration: 'none'}}>
-                                <ListItemButton>
-                                    <ListItemIcon><i className="bi bi-person-plus-fill"/></ListItemIcon>
-                                    <ListItemText primary="Korisnici"/>
-                                </ListItemButton>
-                            </Link>
-                            <Link to="#" style={{textDecoration: 'none'}}>
-                                <ListItemButton >
-                                    <ListItemIcon><i className="bi bi-journal-text"/></ListItemIcon>
-                                    <ListItemText primary="Dokumenti"/>
-                                </ListItemButton>
-                            </Link>
-                        </List>
-                    </Paper> 
-                    </Col>
+                <AdminMenu />
                     <Col style={{marginTop:5}} xs="12" lg="9" sm="12">
                             {this.addForm()}
                     </Col>

@@ -164,9 +164,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private setEditModalFeatureValue(featureId: number, value: string) {
-        const editFeature: { featureId: number; value: string; }[] = [...this.state.editFeatureModal.features];
+        const editFeatures: { featureId: number; value: string; }[] = [...this.state.editFeatureModal.features];
 
-        for (const feature of editFeature) {
+        for (const feature of editFeatures) {
             if (feature.featureId === featureId) {
                 feature.value = value;
                 break;
@@ -175,7 +175,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
         this.setState(Object.assign(this.state,
             Object.assign(this.state.editFeatureModal, {
-                features: editFeature,
+                features: editFeatures,
             }),
         ));
     }

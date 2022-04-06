@@ -1,5 +1,3 @@
-import { faListCheck } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip, } from 'react-bootstrap';
@@ -12,8 +10,8 @@ import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';
-import ApiFeatureDto from '../../../dtos/ApiFeatureDto';
 import CategoryType from '../../../types/CategoryType';
+import ArticleType from '../../../types/ArticleType';
 
 interface ArticlePageProperties {
     match: {
@@ -32,6 +30,7 @@ interface userData {
 interface ArticlePageState {
     message: string;
     articles?: ApiArticleDto;
+    articlesType: ArticleType;
     features: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
     users: userData[];
@@ -45,15 +44,25 @@ interface ArticlePageState {
         invBroj: string;
         status: string;
     };
-    editFeatureModal: {
+    editArticleModal: {
         visible: boolean;
+        message: string;
+        name: string;
+        categoryId: number;
+        excerpt: string;
+        description: string;
+        concract: string;
+        comment: string;
+        sapNumber: string;
+        valueOnConcract: number;
+        valueAvailable: number;
         features: {
             use: number;
             featureId: number;
             name: string;
-            value: string;  
-        }[] 
-    }
+            value: string;
+        }[]
+    };
 }
 interface FeatureBaseType {
     featureId: number;
@@ -75,6 +84,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         this.state = {
             message: "",
             features: [],
+            articlesType: {},
             articleTimeline: [],
             users: [],
             changeStatus: {
@@ -87,10 +97,20 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 invBroj: '',
                 visible: false,
             },
-            editFeatureModal: {
-                visible: false,
-                features:[]
-            }
+            editArticleModal: {
+                visible: false, 
+                message: '',
+                name: '',
+                categoryId: 0,
+                excerpt: '',
+                description: '',
+                concract: '',
+                comment: '',
+                sapNumber: '',
+                valueOnConcract: 0,
+                valueAvailable: 0,
+                features: [],
+            },
         }
     }
 
@@ -147,7 +167,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private setEditModalFeatureUse(featureId: number, use: boolean) {
-        const editFeatures: { featureId: number; use: number; }[] = [...this.state.editFeatureModal.features];
+        const editFeatures: { featureId: number; use: number; }[] = [...this.state.editArticleModal.features];
 
         for (const feature of editFeatures) {
             if (feature.featureId === featureId) {
@@ -157,16 +177,16 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         }
 
         this.setState(Object.assign(this.state,
-            Object.assign(this.state.editFeatureModal, {
+            Object.assign(this.state.editArticleModal, {
                 features: editFeatures,
             }),
         ));
     }
 
     private setEditModalFeatureValue(featureId: number, value: string) {
-        const editFeatures: { featureId: number; value: string; }[] = [...this.state.editFeatureModal.features];
+        const editFeature: { featureId: number; value: string; }[] = [...this.state.editArticleModal.features];
 
-        for (const feature of editFeatures) {
+        for (const feature of editFeature) {
             if (feature.featureId === featureId) {
                 feature.value = value;
                 break;
@@ -174,16 +194,32 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         }
 
         this.setState(Object.assign(this.state,
-            Object.assign(this.state.editFeatureModal, {
-                features: editFeatures,
+            Object.assign(this.state.editArticleModal, {
+                features: editFeature,
             }),
         ));
     }
 
     private setEditModalVisibleState(newState: boolean) {
         this.setState(Object.assign(this.state,
-            Object.assign(this.state.editFeatureModal, {
+            Object.assign(this.state.editArticleModal, {
                 visible: newState,
+            })
+        ));
+    }
+
+    private setEditModalStringFieldState(fieldName: string, newValue: string) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.editArticleModal, {
+                [ fieldName ]: newValue,
+            })
+        ));
+    }
+    
+    private setEditModalNumberFieldState(fieldName: string, newValue: any) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.editArticleModal, {
+                [ fieldName ]: (newValue === 'null') ? null : Number(newValue),
             })
         ));
     }
@@ -251,6 +287,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 const data: ApiArticleDto = res.data;
                 this.setErrorMessage('')
                 this.setArticles(data)
+                this.setArticlesInArticleType(res.data)
 
                 const features: FeaturesType[] = [];
 
@@ -311,6 +348,25 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         )
     }
 
+    private setArticlesInArticleType(data?: ApiArticleDto[]) {
+        const articles: ArticleType[] | undefined = data?.map(article => {
+            return {
+                articleId: article.articleId,
+                name: article.name,
+                excerpt: article.excerpt,
+                description: article.description,
+                articleFeature: article.articleFeature,
+                features: article.features,
+                category: article.category,
+                categoryId: article.categoryId,
+            };
+        });
+
+        this.setState(Object.assign(this.state, {
+            articlesType: articles,
+        }));
+    }
+
     private changeStatu() {
         api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
             articleId: this.props.match.params.articleID,
@@ -327,7 +383,47 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             })
     }
 
-    private showModal() {
+    private async showModal(article: ArticleType) {
+        this.setEditModalStringFieldState('message', '');
+        this.setEditModalNumberFieldState('articleId', article.articleId);
+        this.setEditModalStringFieldState('name', String(article.name));
+        this.setEditModalStringFieldState('excerpt', String(article.excerpt));
+        this.setEditModalStringFieldState('description', String(article.description));
+        this.setEditModalStringFieldState('concract', String(article.concract));
+        this.setEditModalStringFieldState('comment', String(article.comment));
+        this.setEditModalStringFieldState('message', '');
+        this.setEditModalNumberFieldState('categoryId', article.categoryId);
+
+        if (!article.categoryId) {
+            return;
+        }
+
+        const categoryId: number = article.categoryId;
+
+        const allFeatures: any[] = await this.getFeaturesByCategoryId(categoryId);
+
+        for (const apiFeature of allFeatures) {
+            apiFeature.use   = 0;
+            apiFeature.value = '';
+
+            if (!article.articleFeature) {
+                continue;
+            }
+
+            for (const articleFeature of article.articleFeature) {
+                if (articleFeature.featureId === apiFeature.featureId) {
+                    apiFeature.use = 1;
+                    apiFeature.value = articleFeature.value;
+                }
+            }
+        }
+
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.editArticleModal, {
+                features: allFeatures,
+            }),
+        ));
+
         this.setModalVisibleState(true)
     }
 
@@ -353,7 +449,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             }
         }
         this.setState(Object.assign(this.state,
-            Object.assign(this.state.editFeatureModal, {
+            Object.assign(this.state.editArticleModal, {
                 features: allFeatures,
             }),
         ));
@@ -363,7 +459,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private doEditFeatureModal(){
         api('api/article/' + this.props.match.params.articleID, 'patch', {
-            features: this.state.editFeatureModal.features
+            features: this.state.editArticleModal.features
                 .filter(feature => feature.use === 1)
                 .map(feature => ({
                     featureId: feature.featureId,
@@ -486,7 +582,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     alignItems: "center"
                 }}>
                     
-                    <Button size='sm' onClick={() => this.showModal()} >Izmjeni</Button>
+                    <Button size='sm' onClick={() => this.showModal(this.state.articlesType)} >Izmjeni</Button>
                     <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
                         <Modal.Header closeButton>
                             <Modal.Title>Kartica zaduženja</Modal.Title>
@@ -648,21 +744,76 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         </Col>
                     </Row>
 
-                    <Modal size="lg" centered show={ this.state.editFeatureModal.visible }
+                    <Modal size="lg" centered show={ this.state.editArticleModal.visible }
                        onHide={ () => this.setEditModalVisibleState(false) }>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit article</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
+                        <Form>
+                    <Form.Group className="mb-3 was-validated">
+                        <FloatingLabel controlId='name' label="Naziv opreme" className="mb-3">
+                            <Form.Control 
+                            id="name" 
+                            type="text" 
+                            placeholder="Naziv"
+                            value={ this.state.editArticleModal.name }
+                            onChange={ (e) => this.setEditModalStringFieldState('name', e.target.value) }
+                            required />
+                        </FloatingLabel>
+                        <FloatingLabel controlId='excerpt' label="Kratki opis" className="mb-3">
+                            <Form.Control 
+                            id="excerpt" 
+                            as="textarea" 
+                            rows={3} 
+                            style={{ height: '100px' }}
+                            placeholder="Kratki opis"
+                            value={ this.state.editArticleModal.excerpt }
+                            onChange={ (e) => this.setEditModalStringFieldState('excerpt', e.target.value) }
+                            required />
+                        </FloatingLabel>
+                        <FloatingLabel controlId='description' label="Detaljan opis" className="mb-3">
+                            <Form.Control 
+                            id="description" 
+                            as="textarea" 
+                            rows={5} 
+                            style={{ height: '100px' }}
+                            placeholder="Detaljan opis"
+                            value={ this.state.editArticleModal.description }
+                            onChange={ (e) => this.setEditModalStringFieldState('description', e.target.value) }
+                            required />
+                        </FloatingLabel>
+                        <FloatingLabel controlId='sapNumber' label="SAP broj" className="mb-3">
+                            <Form.Control 
+                            id="sapNumber" 
+                            type="text" 
+                            placeholder="SAP Broj"
+                            value={ this.state.editArticleModal.sapNumber }
+                            onChange={ (e) => this.setEditModalStringFieldState('sapNumber', e.target.value) }
+                            required />
+                        </FloatingLabel>
+                        <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
+                            <Form.Control
+                            id="comment"
+                            as="textarea"
+                            rows={3}
+                            style={{ height: '100px' }}
+                            value={ this.state.editArticleModal.comment }
+                            onChange={ (e) => this.setEditModalStringFieldState('comment', e.target.value) }
+                            required
+                            isValid
+                            />
+                        </FloatingLabel>
                         <div>
-                            { this.state.editFeatureModal.features.map(this.printEditModalFeatureInput, this) }
+                            { this.state.editArticleModal.features.map(this.printEditModalFeatureInput, this) }
                         </div>
-
+                        </Form.Group>
                         <Form.Group>
                             <Button variant="primary" onClick={ () => this.doEditFeatureModal() }>
                                  Edit article
                             </Button>
                         </Form.Group>
+                        </Form>
                     </Modal.Body>
                 </Modal>
 

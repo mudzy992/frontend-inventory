@@ -10,8 +10,6 @@ import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';
-import CategoryType from '../../../types/CategoryType';
-import ArticleType from '../../../types/ArticleType';
 
 interface ArticlePageProperties {
     match: {
@@ -30,8 +28,7 @@ interface userData {
 interface ArticlePageState {
     message: string;
     articles?: ApiArticleDto;
-    articlesType: ArticleType;
-    features: FeaturesType[];
+    feature: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
     users: userData[];
     changeStatus: {
@@ -44,36 +41,6 @@ interface ArticlePageState {
         invBroj: string;
         status: string;
     };
-    editArticleModal: {
-        visible: boolean;
-        message: string;
-        name: string;
-        categoryId: number;
-        excerpt: string;
-        description: string;
-        concract: string;
-        comment: string;
-        sapNumber: string;
-        valueOnConcract: number;
-        valueAvailable: number;
-        features: {
-            use: number;
-            featureId: number;
-            name: string;
-            value: string;
-        }[]
-    };
-}
-interface FeatureBaseType {
-    featureId: number;
-    name: string;
-}
-
-interface CategoryDto {
-    categoryId: number,
-    name: string,
-    imagePath: string,
-    parentCategoryId: number,
 }
 
 export default class ArticlePage extends React.Component<ArticlePageProperties> {
@@ -83,8 +50,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         super(props);
         this.state = {
             message: "",
-            features: [],
-            articlesType: {},
+            feature: [],
             articleTimeline: [],
             users: [],
             changeStatus: {
@@ -97,20 +63,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 invBroj: '',
                 visible: false,
             },
-            editArticleModal: {
-                visible: false, 
-                message: '',
-                name: '',
-                categoryId: 0,
-                excerpt: '',
-                description: '',
-                concract: '',
-                comment: '',
-                sapNumber: '',
-                valueOnConcract: 0,
-                valueAvailable: 0,
-                features: [],
-            },
         }
     }
 
@@ -122,7 +74,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
-            features: featuresData
+            feature: featuresData
         }))
     }
 
@@ -166,82 +118,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             })))
     }
 
-    private setEditModalFeatureUse(featureId: number, use: boolean) {
-        const editFeatures: { featureId: number; use: number; }[] = [...this.state.editArticleModal.features];
-
-        for (const feature of editFeatures) {
-            if (feature.featureId === featureId) {
-                feature.use = use ? 1 : 0;
-                break;
-            }
-        }
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editArticleModal, {
-                features: editFeatures,
-            }),
-        ));
-    }
-
-    private setEditModalFeatureValue(featureId: number, value: string) {
-        const editFeature: { featureId: number; value: string; }[] = [...this.state.editArticleModal.features];
-
-        for (const feature of editFeature) {
-            if (feature.featureId === featureId) {
-                feature.value = value;
-                break;
-            }
-        }
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editArticleModal, {
-                features: editFeature,
-            }),
-        ));
-    }
-
-    private setEditModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editArticleModal, {
-                visible: newState,
-            })
-        ));
-    }
-
-    private setEditModalStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editArticleModal, {
-                [ fieldName ]: newValue,
-            })
-        ));
-    }
-    
-    private setEditModalNumberFieldState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editArticleModal, {
-                [ fieldName ]: (newValue === 'null') ? null : Number(newValue),
-            })
-        ));
-    }
-
-    private setCategoriesInState(data?: CategoryDto[]) {
-        const categories: CategoryType[] | undefined = data?.map(category => {
-            return {
-                categoryId: category.categoryId,
-                name: category.name,
-                imagePath: category.imagePath,
-                parentCategoryId: category.parentCategoryId,
-            };
-        });
-
-        this.setState(Object.assign(this.state, {
-            categories: categories,
-        }));
-    }
-
     componentDidMount() {
         this.getArticleData()
-        this.getCategories()
     }
 
     componentDidUpdate(oldProperties: ArticlePageProperties) {
@@ -250,28 +128,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             return;
         }
         this.getArticleData();
-    }
-
-    private async getFeaturesByCategoryId(categoryId: number): Promise<FeatureBaseType[]> {
-        return new Promise(resolve => {
-            api('/api/feature/?filter=categoryId||$eq||' + categoryId + '/', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-    
-                const features: FeatureBaseType[] = res.data.map((item: any) => ({
-                    featureId: item.featureId,
-                    name: item.name,
-                }));
-
-                resolve(features);
-            })
-        })
-    }
-
-    private getCategories() {
-        api('/api/category/', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            this.setCategoriesInState(res.data);
-        });
     }
 
     private getArticleData() {
@@ -287,7 +143,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 const data: ApiArticleDto = res.data;
                 this.setErrorMessage('')
                 this.setArticles(data)
-                this.setArticlesInArticleType(res.data)
 
                 const features: FeaturesType[] = [];
 
@@ -348,25 +203,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         )
     }
 
-    private setArticlesInArticleType(data?: ApiArticleDto[]) {
-        const articles: ArticleType[] | undefined = data?.map(article => {
-            return {
-                articleId: article.articleId,
-                name: article.name,
-                excerpt: article.excerpt,
-                description: article.description,
-                articleFeature: article.articleFeature,
-                features: article.features,
-                category: article.category,
-                categoryId: article.categoryId,
-            };
-        });
-
-        this.setState(Object.assign(this.state, {
-            articlesType: articles,
-        }));
-    }
-
     private changeStatu() {
         api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
             articleId: this.props.match.params.articleID,
@@ -383,113 +219,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             })
     }
 
-    private async showModal(article: ArticleType) {
-        this.setEditModalStringFieldState('message', '');
-        this.setEditModalNumberFieldState('articleId', article.articleId);
-        this.setEditModalStringFieldState('name', String(article.name));
-        this.setEditModalStringFieldState('excerpt', String(article.excerpt));
-        this.setEditModalStringFieldState('description', String(article.description));
-        this.setEditModalStringFieldState('concract', String(article.concract));
-        this.setEditModalStringFieldState('comment', String(article.comment));
-        this.setEditModalStringFieldState('message', '');
-        this.setEditModalNumberFieldState('categoryId', article.categoryId);
-
-        if (!article.categoryId) {
-            return;
-        }
-
-        const categoryId: number = article.categoryId;
-
-        const allFeatures: any[] = await this.getFeaturesByCategoryId(categoryId);
-
-        for (const apiFeature of allFeatures) {
-            apiFeature.use   = 0;
-            apiFeature.value = '';
-
-            if (!article.articleFeature) {
-                continue;
-            }
-
-            for (const articleFeature of article.articleFeature) {
-                if (articleFeature.featureId === apiFeature.featureId) {
-                    apiFeature.use = 1;
-                    apiFeature.value = articleFeature.value;
-                }
-            }
-        }
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editArticleModal, {
-                features: allFeatures,
-            }),
-        ));
-
+    private async showModal() {
         this.setModalVisibleState(true)
-    }
-
-    private async showEditModal(article: ApiArticleDto) {
-        const catId: number = article.categoryId;
-        if(!catId) {
-            return
-        }
-
-        const allFeatures: any[] = await this.getFeaturesByCategoryId (catId);
-
-        for(const apiFeature of allFeatures) {
-            apiFeature.use = 0;
-            apiFeature.value = '';
-
-            if(!article.articleFeature) {
-                continue;
-            }
-
-            for (const articleFeature of article.articleFeature) {
-                apiFeature.use = 1;
-                apiFeature.value = articleFeature.value
-            }
-        }
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editArticleModal, {
-                features: allFeatures,
-            }),
-        ));
-
-        this.setEditModalVisibleState(true);
-    }
-
-    private doEditFeatureModal(){
-        api('api/article/' + this.props.match.params.articleID, 'patch', {
-            features: this.state.editArticleModal.features
-                .filter(feature => feature.use === 1)
-                .map(feature => ({
-                    featureId: feature.featureId,
-                    value: feature.value
-                })),
-        }, 'administrator')
-        .then((res: ApiResponse) => {
-            this.setEditModalVisibleState(false);
-            this.getArticleData();
-        })
-    }
-
-    private printEditModalFeatureInput(feature: any) {
-        return (
-            <Form.Group>
-                <Row>
-                    <Col xs="4" sm="1" className="text-center">
-                        <input type="checkbox" value="1" checked={ feature.use === 1 }
-                               onChange={ (e) => this.setEditModalFeatureUse(feature.featureId, e.target.checked) } />
-                    </Col>
-                    <Col xs="8" sm="3">
-                        { feature.name }
-                    </Col>
-                    <Col xs="12" sm="8">
-                        <Form.Control type="text" value={ feature.value }
-                                    onChange={ (e) => this.setEditModalFeatureValue(feature.featureId, e.target.value) } />
-                    </Col>
-                </Row>
-            </Form.Group>
-        );
     }
 
     private printOptionalMessage() {
@@ -541,9 +272,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     private badgeStatus() {
 
         let status = 0;
-        this.state.articles?.articlesInStock.map(stat => (
-            status = stat.valueAvailable
+        this.state.articles?.articlesInStock.map(stock => (
+            status = stock.valueAvailable
         ))
+
         if (status === 0) {
             return (
                 <Badge pill bg="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
@@ -563,9 +295,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private changeStatusButton() {
         let status = 0;
-        this.state.articles?.articlesInStock.map(stat => (
-            status = stat.valueAvailable
+        this.state.articles?.articlesInStock.map(stock => (
+            status = stock.valueAvailable
         ))
+
         if (status === 0) {
             return (
                 <Badge pill bg="danger" >
@@ -582,7 +315,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     alignItems: "center"
                 }}>
                     
-                    <Button size='sm' onClick={() => this.showModal(this.state.articlesType)} >Izmjeni</Button>
+                    <Button size='sm' onClick={() => this.showModal()} >Izmjeni</Button>
                     <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
                         <Modal.Header closeButton>
                             <Modal.Title>Kartica zaduženja</Modal.Title>
@@ -729,12 +462,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                         Detalji opreme
                                         </Col>
                                         <Col>
-                                        <Button size='sm' onClick={() => this.showEditModal(article)} >Izmjeni</Button>
+                                         <Button size='sm' >Izmjeni</Button>
                                         </Col>
                                     </Row>
                                     </Card.Header>
                                 <ListGroup variant="flush" >
-                                    {this.state.features.map(feature => (
+                                    {this.state.feature.map(feature => (
                                         <ListGroup.Item>
                                             <b>{feature.name}:</b> {feature.value}
                                         </ListGroup.Item>
@@ -743,80 +476,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </Card>
                         </Col>
                     </Row>
-
-                    <Modal size="lg" centered show={ this.state.editArticleModal.visible }
-                       onHide={ () => this.setEditModalVisibleState(false) }>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Edit article</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form>
-                    <Form.Group className="mb-3 was-validated">
-                        <FloatingLabel controlId='name' label="Naziv opreme" className="mb-3">
-                            <Form.Control 
-                            id="name" 
-                            type="text" 
-                            placeholder="Naziv"
-                            value={ this.state.editArticleModal.name }
-                            onChange={ (e) => this.setEditModalStringFieldState('name', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel controlId='excerpt' label="Kratki opis" className="mb-3">
-                            <Form.Control 
-                            id="excerpt" 
-                            as="textarea" 
-                            rows={3} 
-                            style={{ height: '100px' }}
-                            placeholder="Kratki opis"
-                            value={ this.state.editArticleModal.excerpt }
-                            onChange={ (e) => this.setEditModalStringFieldState('excerpt', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel controlId='description' label="Detaljan opis" className="mb-3">
-                            <Form.Control 
-                            id="description" 
-                            as="textarea" 
-                            rows={5} 
-                            style={{ height: '100px' }}
-                            placeholder="Detaljan opis"
-                            value={ this.state.editArticleModal.description }
-                            onChange={ (e) => this.setEditModalStringFieldState('description', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel controlId='sapNumber' label="SAP broj" className="mb-3">
-                            <Form.Control 
-                            id="sapNumber" 
-                            type="text" 
-                            placeholder="SAP Broj"
-                            value={ this.state.editArticleModal.sapNumber }
-                            onChange={ (e) => this.setEditModalStringFieldState('sapNumber', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
-                            <Form.Control
-                            id="comment"
-                            as="textarea"
-                            rows={3}
-                            style={{ height: '100px' }}
-                            value={ this.state.editArticleModal.comment }
-                            onChange={ (e) => this.setEditModalStringFieldState('comment', e.target.value) }
-                            required
-                            isValid
-                            />
-                        </FloatingLabel>
-                        <div>
-                            { this.state.editArticleModal.features.map(this.printEditModalFeatureInput, this) }
-                        </div>
-                        </Form.Group>
-                        <Form.Group>
-                            <Button variant="primary" onClick={ () => this.doEditFeatureModal() }>
-                                 Edit article
-                            </Button>
-                        </Form.Group>
-                        </Form>
-                    </Modal.Body>
-                </Modal>
-
                     <Row>
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
@@ -877,6 +536,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                     
                                 </Row></Card.Header>
                                 <ListGroup variant="flush" >
+
                                     {this.state.articles?.articlesInStock.map(arStock => (
                                         <><ListGroup.Item>Stanje po ugovoru: {arStock.valueOnConcract}</ListGroup.Item>
                                             <ListGroup.Item>Trenutno stanje: {arStock.valueAvailable}</ListGroup.Item>

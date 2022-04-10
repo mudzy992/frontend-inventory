@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Col, Container, Row } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import { Redirect } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -75,7 +75,8 @@ export default class UserPage extends React.Component {
     api('1', '2', '3'){} 
     1. ruta (provjeriti u backend), 
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
-    3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
+    3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body})
+    4. administrator ili user rola */
     private getUserData() {
         api('api/user/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {

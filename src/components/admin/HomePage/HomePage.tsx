@@ -13,6 +13,7 @@ interface HomePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa */
     categories: CategoryType[];
     isLoggedIn: boolean;
+    message: string;
 }
 
 /* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
@@ -33,6 +34,7 @@ export default class HomePage extends React.Component {
         this.state = {
             categories: [],
             isLoggedIn: true,
+            message:'',
         }
     }
 
@@ -40,6 +42,14 @@ export default class HomePage extends React.Component {
     private setLogginState(isLoggedIn: boolean) {
         const newState = Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
+        });
+
+        this.setState(newState);
+    }
+
+    private setMessageState(message: string) {
+        const newState = Object.assign(this.state, {
+            message: message,
         });
 
         this.setState(newState);
@@ -85,7 +95,7 @@ export default class HomePage extends React.Component {
                                 {/* Ako je korisnik ulogovan, prikazati spisak kategorija 
                             to smo uradili tako što smo mapirali jednu funkciju ispod*/}
                                 {this.state.categories.map(this.singleCategory)}
-                                
+                                <p>{this.state.message}</p>
                             </Row>
                             </Card.Body>
                             </Card>

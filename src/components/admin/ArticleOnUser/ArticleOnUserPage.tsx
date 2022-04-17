@@ -29,6 +29,13 @@ interface userData {
     forname: string;
 }
 
+interface upgradeFeaturesType {
+    name: string;
+    value: string;
+    serialNumber: string;
+    comment: string;
+}
+
 interface AdminArticleOnUserPageState {
     userArticle: UserArticleDto[];
     message: string;
@@ -47,6 +54,14 @@ interface AdminArticleOnUserPageState {
         serialNumber: string;
         invBroj: string;
         status: string;
+    },
+    upgradeFeature: upgradeFeaturesType[],
+    upgradeFeatureAdd: {
+        visible: boolean;
+        name: string;
+        value: string;
+        comment: string;
+        serialNumber: string;
     }
 
 }
@@ -74,6 +89,14 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 status: '',
                 visible: false,
             },
+            upgradeFeature: [],
+            upgradeFeatureAdd: {
+                visible: false,
+                name: "",
+                value: "",
+                comment: "",
+                serialNumber: "",
+            },
             userArticle: [],
         }
     }
@@ -91,11 +114,31 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             })))
     }
 
-    private setVisibleState(newState: boolean) {
+    private setChangeStatusVisibleState(newState: boolean) {
         this.setState(Object.assign(this.state,
             Object.assign(this.state.changeStatus, {
                 visible: newState,
             })))
+    }
+
+    private setUpgradeFeatureStringFieldState(fieldName: string, newValue: string) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.upgradeFeatureAdd, {
+                [fieldName]: newValue,
+            })))
+    }
+
+    private setUpgradeModalVisibleState(newState: boolean) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.upgradeFeatureAdd, {
+                visible: newState,
+            })))
+    }
+
+    private setUpgradeFeature(upgradeFeatureData: upgradeFeaturesType[]) {
+        this.setState(Object.assign(this.state, {
+            upgradeFeature: upgradeFeatureData
+        }))
     }
 
     private setErrorMessage(message: string) {
@@ -146,6 +189,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     componentDidMount() {
         this.getArticleData()
+        this.getUpgradeFeatureBySerialNumber()
     }
 
     componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
@@ -232,37 +276,81 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             })
     }
 
-    private changeStatu() {
-        api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
-            articleId: this.props.match.params.articleId,
-            value: 1,
-            comment: this.state.changeStatus.comment,
-            serialNumber: this.state.changeStatus.serialNumber,
-            invBroj: this.state.changeStatus.invBroj,
-            status: this.state.changeStatus.status
-        }, 'administrator')
-            .then((res: ApiResponse) => {
-                /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
-                if (res.status === "login") {
-                    this.setLogginState(false);
-                    return
-                }
-                this.setVisibleState(false)
-                this.getArticleData()
-            })
+    private getUpgradeFeatureBySerialNumber () {
+        api('api/upgradeFeature/get/' + this.props.match.params.serial, 'get', {}, 'administrator')
+        .then((res: ApiResponse) => {
+            this.setUpgradeFeature(res.data)
+        })
     }
 
-    private showModal(artTime: ArticleTimelineType[]) {
-        const sb: any = artTime.map(SB => (SB.serialNumber)).shift();
-        const inv : any = artTime.map(inv => (inv.invBroj)).shift();
-        /* const sb: any = serijskic.shift(); */
-        this.setVisibleState(true)
-        this.setChangeStatusStringFieldState('serialNumber', sb)
-        if (inv === null) {
-            this.setChangeStatusStringFieldState('invBroj', 'ne ladi1')
-        }
-        this.setChangeStatusStringFieldState('invBroj', inv)
+    private addNewUpgradeFeature () {
+        api('api/upgradeFeature/add/' + this.props.match.params.serial, 'post', {
+            name: this.state.upgradeFeatureAdd.name,
+            value: this.state.upgradeFeatureAdd.value,
+            comment: this.state.upgradeFeatureAdd.comment,
+        }, 'administrator')
+        .then((res: ApiResponse) => {
+            this.setUpgradeModalVisibleState(false)
+            this.getArticleData()
+        })
     }
+
+    private showAddUpgradeFeatureModal () {
+        this.setUpgradeModalVisibleState(true)
+    }
+
+    private addNewUpgradeFeatureButton () {
+        return (
+        <><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>Izmjeni</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
+                <Modal.Header closeButton>
+                    Nadogradnja opreme
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Text>
+                            <h6>Poruka kako nadogradnja funkcioniše
+                            </h6>
+                        </Form.Text>
+                        <Form.Group>
+                            <FloatingLabel controlId='name' label="Naziv" className="mb-3">
+                                <OverlayTrigger
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={<Tooltip id="tooltip-name">Naziv</Tooltip>}>
+                                    <Form.Control type='text' id='name' value={this.state.upgradeFeatureAdd.name} required
+                                        onChange={(e) => this.setUpgradeFeatureStringFieldState('name', e.target.value)} />
+                                </OverlayTrigger>
+                            </FloatingLabel>
+                            <FloatingLabel controlId='value' label="Vrijednost" className="mb-3">
+                                <OverlayTrigger
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={<Tooltip id="tooltip-value">Vrijednost</Tooltip>}>
+                                    <Form.Control type='text' id='value' value={this.state.upgradeFeatureAdd.value} required
+                                        onChange={(e) => this.setUpgradeFeatureStringFieldState('value', e.target.value)} />
+                                </OverlayTrigger>
+                            </FloatingLabel>
+                            <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
+                                <Form.Control
+                                    required
+                                    defaultValue=""
+                                    id="comment"
+                                    as="textarea"
+                                    rows={3}
+                                    placeholder="Razlog razduženja opreme (neobavezno)"
+                                    style={{ height: '100px' }}
+                                    onChange={(e) => this.setUpgradeFeatureStringFieldState('comment', e.target.value)} />
+                            </FloatingLabel>
+                        </Form.Group>
+                    </Form>
+                    <Modal.Footer>
+                        <Button variant='success' onClick={() => this.addNewUpgradeFeature()}>Sačuvaj</Button>
+                    </Modal.Footer>
+                </Modal.Body>
+            </Modal></>
+        )
+    }
+    
 
     private printOptionalMessage() {
         if (this.state.message === '') {
@@ -352,8 +440,39 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     }
 
-    private changeStatusButton(article: ArticleByUserType[]) {
+    private changeStatus() {
+        api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
+            articleId: this.props.match.params.articleId,
+            value: 1,
+            comment: this.state.changeStatus.comment,
+            serialNumber: this.state.changeStatus.serialNumber,
+            invBroj: this.state.changeStatus.invBroj,
+            status: this.state.changeStatus.status
+        }, 'administrator')
+            .then((res: ApiResponse) => {
+                /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
+                if (res.status === "login") {
+                    this.setLogginState(false);
+                    return
+                }
+                this.setChangeStatusVisibleState(false)
+                this.getArticleData()
+            })
+    }
 
+    private showChangeStatusModal(artTime: ArticleTimelineType[]) {
+        const sb: any = artTime.map(SB => (SB.serialNumber)).shift();
+        const inv : any = artTime.map(inv => (inv.invBroj)).shift();
+        /* const sb: any = serijskic.shift(); */
+        this.setChangeStatusVisibleState(true)
+        this.setChangeStatusStringFieldState('serialNumber', sb)
+        if (inv === null) {
+            this.setChangeStatusStringFieldState('invBroj', 'ne ladi1')
+        }
+        this.setChangeStatusStringFieldState('invBroj', inv)
+    }
+
+    private changeStatusButton(article: ArticleByUserType[]) {
         let stat = ""
         article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
@@ -364,8 +483,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     justifyContent: "flex-end",
                     alignItems: "center"
                 }}>
-                    <Button variant='success' size='sm' onClick={() => this.showModal(this.state.articleTimeline)}>Izmjeni</Button>
-                    <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setVisibleState(false)}>
+                    <Button variant='success' size='sm' onClick={() => this.showChangeStatusModal(this.state.articleTimeline)}>Izmjeni</Button>
+                    <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setChangeStatusVisibleState(false)}>
                         <Modal.Header closeButton>
                             Promjeni status opreme
                         </Modal.Header>
@@ -456,23 +575,13 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             </Form.Group>
                             </Form>
                             <Modal.Footer>
-                                <Button variant='success' onClick={() => this.changeStatu()}>Sačuvaj</Button>
+                                <Button variant='success' onClick={() => this.changeStatus()}>Sačuvaj</Button>
                             </Modal.Footer>
                         </Modal.Body>
                     </Modal>
                 </Col>
             )
         }
-
-        return (
-            <Col lg="3" xs="3" sm="3" md="3" style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center"
-            }}>
-            </Col>
-        )
-
     }
 
     private userDetails(userDet: ArticleByUserType[]) {
@@ -543,7 +652,15 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         </Col>
                         <Col xs="12" lg="8" sm="8">
                             <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header>Detalji opreme</Card.Header>
+                                <Card.Header>
+                                    <Row>
+                                    <Col>
+                                    Detalji opreme
+                                    </Col>
+                                    <Col style={{ display: "flex", justifyContent: "flex-end"}}>
+                                    {this.addNewUpgradeFeatureButton()}
+                                    </Col></Row>
+                                    </Card.Header>
                                 <ListGroup variant="flush" >
                                     {this.state.features.map(feature => (
                                         <ListGroup.Item>

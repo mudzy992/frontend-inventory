@@ -46,7 +46,7 @@ export default interface ApiArticleDto {
         valueOnConcract: number;
         valueAvailable: number;
         sapNumber: string;
-    }[];
+    };
     destroyeds:{
         destroyedId: number;
         articleId: number;

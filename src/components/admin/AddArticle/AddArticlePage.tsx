@@ -300,7 +300,7 @@ export default class AddArticlePage extends React.Component<{}>{
         return (
             <>
             <Card className="mb-3">
-                <Card.Header>Osnovne osobine</Card.Header>
+                <Card.Header>Detalji opreme</Card.Header>
                 <Card.Body>
                     <Form>
                         <Form.Group className="mb-3 was-validated">
@@ -369,8 +369,7 @@ export default class AddArticlePage extends React.Component<{}>{
                             isValid
                             />
                         </FloatingLabel>
-                        
-                    </Form.Group>
+                        </Form.Group>
                     </Form>
                 </Card.Body>
             </Card>

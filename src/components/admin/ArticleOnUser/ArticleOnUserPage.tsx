@@ -1,5 +1,3 @@
-import { faExclamationTriangle, faListCheck } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
@@ -626,15 +624,15 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Col>
                             <Card className="text-dark bg-light mb-2" >
                                 <Card.Header>U skladištu</Card.Header>
-                                <ListGroup variant="flush" >
+                                 <ListGroup variant="flush" >
                                     {article.map(artStock => (
-                                        artStock.articlesInStock.map(arStock => (
-                                            <><ListGroup.Item>Stanje po ugovoru: {arStock.valueOnConcract}</ListGroup.Item>
-                                                <ListGroup.Item>Trenutno stanje: {arStock.valueAvailable}</ListGroup.Item>
-                                                <ListGroup.Item>SAP broj: {arStock.sapNumber}</ListGroup.Item>
-                                                <ListGroup.Item>Stanje na: {Moment(arStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+
+                                            <><ListGroup.Item>Stanje po ugovoru: {artStock.articlesInStock.valueOnConcract}</ListGroup.Item>
+                                                <ListGroup.Item>Trenutno stanje: {artStock.articlesInStock.valueAvailable}</ListGroup.Item>
+                                                <ListGroup.Item>SAP broj: {artStock.articlesInStock.sapNumber}</ListGroup.Item>
+                                                <ListGroup.Item>Stanje na: {Moment(artStock.articlesInStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
                                             </>
-                                        ))
+                                        
                                     ))
                                     }
                                 </ListGroup>

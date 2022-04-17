@@ -40,7 +40,7 @@ export default interface ArticleByUserType {
         valueOnConcract: number;
         valueAvailable: number;
         sapNumber: string;
-    }[];
+    };
     userDetails:{
         userId: number;
         surname: string;

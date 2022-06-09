@@ -1,6 +1,6 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip, } from 'react-bootstrap';
+import {Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip, } from 'react-bootstrap';
 import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
@@ -374,7 +374,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 }
 
                 const data: ApiArticleDto = res.data;
-                console.log(res.data)
                 this.setErrorMessage('')
                 this.setArticles(data)
 
@@ -688,14 +687,14 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     private saveFile (docPath: any) {
             if(!docPath) {
                 return (<>
-                <Button size='sm' variant='danger'>
+                <Link >
                     <OverlayTrigger 
                     placement="top"
                     delay={{ show: 250, hide: 400 }}
                     overlay={
                     <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                    }><i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></OverlayTrigger>
-                    </Button></> )
+                    }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
+                    </Link></> )
             }
             if (docPath) {
                 const savedFile = (docPath:any) => {
@@ -705,8 +704,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     );
                 }
                 return (
-                    <Button size='sm' variant='info' onClick={() => savedFile(docPath)}>
-                    <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button>
+                    <Link onClick={() => savedFile(docPath)}>
+                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02" }} />
+                    </Link>
                 )
         }
     }
@@ -722,7 +722,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         </Col>
                         <Col xs="12" lg="8" sm="8">
                             <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header>
+                                <Card.Header style={{backgroundColor:"#263238"}}>
                                         Detalji opreme
                                         <Modal size="lg" centered show={this.state.editFeature.visible} onHide={() => this.setEditFeatureModalVisibleState(false)}>
                                             <Modal.Header closeButton>
@@ -836,7 +836,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     <Row>
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header>Detaljan opis</Card.Header>
+                                <Card.Header style={{backgroundColor:"#263238"}}>Detaljan opis</Card.Header>
                                 <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.description}</Card.Body>
                             </Card>
                         </Col>
@@ -853,7 +853,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                 <TableCell>Status</TableCell>
                                                 <TableCell>Komentar</TableCell>
                                                 <TableCell>Serijski broj</TableCell>
-                                                <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
+                                                <TableCell>Datum i vrijeme akcije</TableCell>
                                                 <TableCell>#</TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -868,8 +868,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     <TableCell><Link href={`#/admin/userArticle/${articleTimeline.userId}/${articleTimeline.articleId}/${articleTimeline.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >
                                                         {articleTimeline.serialNumber}</Link>
                                                     </TableCell>
-                                                    <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell>
+                                                    <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    <TableCell style={{ justifyContent: 'center'}}>{this.saveFile(articleTimeline.documentPath)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

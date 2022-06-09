@@ -1,7 +1,7 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 import Moment from 'moment';
@@ -34,6 +34,7 @@ interface upgradeFeaturesType {
     value: string;
     serialNumber: string;
     comment: string;
+    timestamp: string;
 }
 
 interface AdminArticleOnUserPageState {
@@ -89,7 +90,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 status: '',
                 visible: false,
             },
-            upgradeFeature: [],
+            upgradeFeature: [], 
             upgradeFeatureAdd: {
                 visible: false,
                 name: "",
@@ -277,7 +278,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     private getUpgradeFeatureBySerialNumber () {
-        api('api/upgradeFeature/get/' + this.props.match.params.serial, 'get', {}, 'administrator')
+        api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             this.setUpgradeFeature(res.data)
         })
@@ -288,9 +289,11 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             name: this.state.upgradeFeatureAdd.name,
             value: this.state.upgradeFeatureAdd.value,
             comment: this.state.upgradeFeatureAdd.comment,
+            articleId: this.props.match.params.articleId,
         }, 'administrator')
         .then((res: ApiResponse) => {
             this.setUpgradeModalVisibleState(false)
+            this.getUpgradeFeatureBySerialNumber()
             this.getArticleData()
         })
     }
@@ -301,7 +304,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private addNewUpgradeFeatureButton () {
         return (
-        <><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>Izmjeni</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
+        <><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>Nadogradi</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
                 <Modal.Header closeButton>
                     Nadogradnja opreme
                 </Modal.Header>
@@ -601,12 +604,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Card bg="success" text="white" className="mb-2">
                             <Card.Header>Detalji korisnika</Card.Header>
                             <ListGroup variant="flush" >
-                                <>  <ListGroup.Item>Ime: {userDet.map(usr => (usr.userDetails.map(sur => ([sur.surname]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>Prezime: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).forname)}</ListGroup.Item>
-                                    <ListGroup.Item>Email: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).email)}</ListGroup.Item>
-                                    <ListGroup.Item>Sektor: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).department)}</ListGroup.Item>
-                                    <ListGroup.Item>Radno mjesto: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).jobTitle)}</ListGroup.Item>
-                                    <ListGroup.Item>Lokacija: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).location)}</ListGroup.Item>
+                                <>  <ListGroup.Item>Ime: {userDet.map(user => (user.userDetails.map(usr => ([usr.surname]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>Prezime: {userDet.map(user => (user.userDetails.map(usr => ([usr.forname]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>Email: {userDet.map(user => (user.userDetails.map(usr => ([usr.email]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>Sektor: {userDet.map(user => (user.userDetails.map(usr => ([usr.department]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>Radno mjesto: {userDet.map(user => (user.userDetails.map(usr => ([usr.jobTitle]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>Lokacija: {userDet.map(user => (user.userDetails.map(usr => ([usr.location]))).shift())}</ListGroup.Item>
                                 </>
                             </ListGroup>
                         </Card>
@@ -619,14 +622,14 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private saveFile (docPath: any) {
         if(!docPath) {
             return (<>
-            <Button size='sm' variant='danger'>
+            <Link to={undefined}>
                 <OverlayTrigger 
                 placement="top"
                 delay={{ show: 250, hide: 400 }}
                 overlay={
                 <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                }><i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></OverlayTrigger>
-                </Button></> )
+                }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
+                </Link></> )
         }
         if (docPath) {
             const savedFile = (docPath:any) => {
@@ -636,9 +639,65 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 );
             }
             return (
-                <Button size='sm' variant='info' onClick={() => savedFile(docPath)}>
-                <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button>
+                <Link onClick={() => savedFile(docPath)} to={undefined}>
+                <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02" }}/></Link>
             )
+    }
+}
+
+private upgradeFeature() {
+    if (this.state.upgradeFeature.length === 0) {
+        return (
+            <Row>
+                <Col>
+                    <Card bg="dark" text="light" className="mb-3">
+                        <Card.Header style={{backgroundColor:"#00695C", borderBottomLeftRadius:"0.25rem", borderBottomRightRadius:"0.25rem"}}>
+                            <Row style={{display: "flex", alignItems: "center"}} >
+                            <Col>
+                            Nadogradnja
+                            </Col>
+                            <Col style={{  display: "flex", justifyContent: "flex-end" }}>
+                            {this.addNewUpgradeFeatureButton()}
+                            </Col></Row>
+                            </Card.Header>
+                    </Card>
+                </Col>
+            </Row>
+        )
+    }
+    if (this.state.upgradeFeature.length > 0) {
+        return (
+            <Row>
+                <Col>
+                    <Card bg="dark" text="light" className="mb-3">
+                        <Card.Header style={{backgroundColor:"#00695C"}}>
+                            <Row style={{display: "flex", alignItems: "center"}}>
+                                <Col>
+                                    Nadogradnja
+                                </Col>
+                            <Col style={{ display: "flex", justifyContent: "flex-end"}}>
+                            {this.addNewUpgradeFeatureButton()}
+                            </Col></Row>
+                            </Card.Header>
+                        <ListGroup variant="flush" >
+                        {this.state.upgradeFeature.map(uf => (
+                                <ListGroup.Item style={{ display: "flex", alignItems: "center"}}>
+                                    <b>{uf.name}: </b> {uf.value}
+                                    <OverlayTrigger 
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={
+                                    <Tooltip id="tooltip-kolicina">{uf.comment} <b>Datum:</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}</Tooltip>
+                                    }>
+                                    <Badge bg='success' pill style={{marginLeft:"5px", fontSize:"11px"}}>?</Badge></OverlayTrigger>
+                                </ListGroup.Item>
+                            ), this)}
+                        </ListGroup>
+                    </Card>
+                </Col>
+            </Row>
+        
+        )
     }
 }
 
@@ -651,31 +710,32 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             <i className={`${article.map(cat => (cat.category.imagePath))}`} style={{ fontSize: 150 }}></i>
                         </Col>
                         <Col xs="12" lg="8" sm="8">
-                            <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header>
-                                    <Row>
-                                    <Col>
-                                    Detalji opreme
-                                    </Col>
-                                    <Col style={{ display: "flex", justifyContent: "flex-end"}}>
-                                    {this.addNewUpgradeFeatureButton()}
-                                    </Col></Row>
-                                    </Card.Header>
-                                <ListGroup variant="flush" >
-                                    {this.state.features.map(feature => (
-                                        <ListGroup.Item>
-                                            <b>{feature.name}:</b> {feature.value}
-                                        </ListGroup.Item>
-                                    ), this)}
-                                </ListGroup>
-                            </Card>
+                            <Row>
+                                <Col>
+                                    <Card bg="dark" text="light" className="mb-3">
+                                        <Card.Header style={{backgroundColor:"#263238"}}>
+                                            Detalji opreme
+                                            </Card.Header>
+                                        <ListGroup variant="flush" >
+                                            {this.state.features.map(feature => (
+                                                <ListGroup.Item>
+                                                    <b>{feature.name}:</b> {feature.value}
+                                                </ListGroup.Item>
+                                            ), this)}
+                                            <ListGroup.Item>
+                                            <b>Serijski broj: </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}</ListGroup.Item> 
+                                        </ListGroup>
+                                    </Card>
+                                </Col>
+                            </Row>
+                            {this.upgradeFeature()}
                         </Col>
                     </Row>
 
                     <Row>
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header>Detaljan opis</Card.Header>
+                                <Card.Header style={{backgroundColor:"#263238"}}>Detaljan opis</Card.Header>
                                 <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>
                                     {article.map(desc => (desc.description))}</Card.Body>
                             </Card>
@@ -692,7 +752,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                 <TableCell>Korisnik</TableCell>
                                                 <TableCell>Status</TableCell>
                                                 <TableCell>Komentar</TableCell>
-                                                <TableCell>Serijski broj</TableCell>
                                                 <TableCell>Datum i vrijeme akcije</TableCell>
                                                 <TableCell>#</TableCell>
                                             </TableRow>
@@ -703,7 +762,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                                     <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
-                                                    <TableCell>{articleTimeline.serialNumber}</TableCell>
                                                     <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                                     <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell>
                                                 </TableRow>

@@ -54,7 +54,7 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                 collapseOnSelect
             >
                 <Container>
-                    <Navbar.Brand href="/"> <FontAwesomeIcon icon={faStoreAlt} /> Inventory Database</Navbar.Brand>
+                    <Navbar.Brand href="#"> <FontAwesomeIcon icon={faStoreAlt} /> Inventory Database</Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className='me-auto' >

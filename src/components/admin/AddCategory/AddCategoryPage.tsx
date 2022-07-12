@@ -84,9 +84,9 @@ export default class AddNewCategoryPage extends React.Component<{}> {
         }
 
         return (
-            <Card.Text>
+            <>
                 {this.state.message}
-            </Card.Text>
+            </>
         );
     }
 
@@ -128,7 +128,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewCategoryStringState('imagePath', e.target.value)}
                                      />
                                     <Form.Text>
-                                        Ikonu kategorije pronaći <Link to='https://icons.getbootstrap.com/'>ovjde</Link> te kopirati class Primjer "bi bi-align-center"
+                                        Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"}>ovjde</a> te kopirati class. Primjer <i style={{color:"red"}}>"bi bi-align-center"</i>
                                     </Form.Text>
                             </FloatingLabel>
                             <FloatingLabel controlId='parentCategoryId' label="Kategorija" className="mb-3">
@@ -145,7 +145,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                                 <Form.Text>U slučaju da se odabere kategorije, kreira se podkategorije</Form.Text>
                             </FloatingLabel>
 
-                                <Alert variant="danger"
+                                <Alert variant="info"
                                     style={{ marginTop: 15 }}
                                     className={this.state.message ? '' : 'd-none'}>
                                      <i className="bi bi-exclamation-square" /> {this.printOptionalMessage()}

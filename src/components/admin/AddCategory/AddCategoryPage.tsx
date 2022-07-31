@@ -128,7 +128,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewCategoryStringState('imagePath', e.target.value)}
                                      />
                                     <Form.Text>
-                                        Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"}>ovjde</a> te kopirati class. Primjer <i style={{color:"red"}}>"bi bi-align-center"</i>
+                                        Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"}>ovjde</a> te kopirati class. Primjer 2 <i style={{color:"red"}}>"bi bi-align-center"</i>
                                     </Form.Text>
                             </FloatingLabel>
                             <FloatingLabel controlId='parentCategoryId' label="Kategorija" className="mb-3">

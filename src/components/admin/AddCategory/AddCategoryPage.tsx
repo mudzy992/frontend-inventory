@@ -3,9 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { List, ListItemButton, ListItemText, ListSubheader, Paper } from '@mui/material';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import { Link } from 'react-router-dom';
 
 interface AddCategoryPageState {
     categories: CategoryType[];
@@ -128,7 +126,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewCategoryStringState('imagePath', e.target.value)}
                                      />
                                     <Form.Text>
-                                        Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"}>ovjde</a> te kopirati class. Primjer <i style={{color:"red"}}>"bi bi-align-center"</i>
+                                        Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"} rel={"noreferrer"}>ovjde</a> te kopirati class. Primjer <i style={{color:"red"}}>"bi bi-align-center"</i>
                                     </Form.Text>
                             </FloatingLabel>
                             <FloatingLabel controlId='parentCategoryId' label="Kategorija" className="mb-3">

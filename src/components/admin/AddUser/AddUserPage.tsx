@@ -1,10 +1,10 @@
 import React from 'react';
-import { Container, Card, Row, Col, Form, FloatingLabel, Button,} from 'react-bootstrap';
+import { Container, Card, Row, Col, Form, FloatingLabel, Button, Alert,} from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Paper } from '@mui/material';
-import { Link } from 'react-router-dom';
 import AdminMenu from '../AdminMenu/AdminMenu';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignInAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 
 interface AddUserPageState{
@@ -17,7 +17,8 @@ interface AddUserPageState{
         department: string;
         location: string;
         password: string;
-    }
+    };
+    errorMessage: string;
 }
 
 export default class AddUserPage extends React.Component<{}>{
@@ -34,7 +35,8 @@ export default class AddUserPage extends React.Component<{}>{
                 department: '',
                 location: '',
                 password: '',
-            }
+            },
+            errorMessage: '',
         }
     }
     
@@ -43,9 +45,10 @@ export default class AddUserPage extends React.Component<{}>{
     }
     /* SET */
     private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            message: message,
-        }));
+        const newState = Object.assign(this.state, {
+            errorMessage: message,
+        });
+        this.setState(newState);
     }
 
     private setAddUserStringFieldState(fieldName: string, newValue: string) {
@@ -83,6 +86,14 @@ export default class AddUserPage extends React.Component<{}>{
             
         }, 'administrator')
         .then(async (res: ApiResponse) => {
+            if(res.data.statusCode === 201) {
+                this.setErrorMessage('Korisnik dodan')
+            }
+            
+            if(res.status === 'ok') {
+                
+            }
+
 /*             if (res.status === "login") {
                 this.setLogginState(false);
                 return;
@@ -249,6 +260,13 @@ export default class AddUserPage extends React.Component<{}>{
                 <Card.Footer>
                     <Row style={{ alignItems: 'end' }}>
                         <Button onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/> Dodaj korisnika</Button>
+                    </Row>
+                    <Row>
+                    <Alert variant="danger"
+                        style={{ marginTop: 15 }}
+                        className={this.state.errorMessage ? '' : 'd-none'}>
+                        <FontAwesomeIcon icon={faExclamationTriangle} />  {this.state.errorMessage}
+                    </Alert>
                     </Row>
                 </Card.Footer>
             </Card>    

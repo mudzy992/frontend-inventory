@@ -12,6 +12,7 @@ import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
+import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
 
 interface AdminArticleOnUserPageProperties {
     match: {
@@ -240,7 +241,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             }
             )
 
-        api('/api/user/', 'get', {}, 'administrator')
+        api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
             }
@@ -250,7 +251,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
-                    this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                    this.setErrorMessage(LangBa.ARTICLE_ON_USER.ERR_READ_CATEGORY)
                     return;
                 }
                 if (res.status === 'login') {
@@ -304,14 +305,14 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private addNewUpgradeFeatureButton () {
         return (
-        <><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>Nadogradi</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
+        <><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>{LangBa.ARTICLE_ON_USER.BTN_UPGRADE}</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
                 <Modal.Header closeButton>
-                    Nadogradnja opreme
+              {LangBa.ARTICLE_ON_USER.MODAL_HEADER_TEXT}
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Text>
-                            <h6>Poruka kako nadogradnja funkcioniše
+                            <h6>{LangBa.ARTICLE_ON_USER.MODAL_FORM_DESCRIPTION}
                             </h6>
                         </Form.Text>
                         <Form.Group>
@@ -319,16 +320,16 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-name">Naziv</Tooltip>}>
+                                    overlay={<Tooltip id="tooltip-name">{LangBa.ARTICLE_ON_USER.TOOLTIP_NAME}</Tooltip>}>
                                     <Form.Control type='text' id='name' value={this.state.upgradeFeatureAdd.name} required
                                         onChange={(e) => this.setUpgradeFeatureStringFieldState('name', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
-                            <FloatingLabel controlId='value' label="Vrijednost" className="mb-3">
+                            <FloatingLabel controlId='value' label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-value">Vrijednost</Tooltip>}>
+                                    overlay={<Tooltip id="tooltip-value">{LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE}</Tooltip>}>
                                     <Form.Control type='text' id='value' value={this.state.upgradeFeatureAdd.value} required
                                         onChange={(e) => this.setUpgradeFeatureStringFieldState('value', e.target.value)} />
                                 </OverlayTrigger>
@@ -340,14 +341,14 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                     id="comment"
                                     as="textarea"
                                     rows={3}
-                                    placeholder="Razlog razduženja opreme (neobavezno)"
+                                    placeholder={LangBa.ARTICLE_ON_USER.FORM_COMMENT_PLACEHOLDER}
                                     style={{ height: '100px' }}
                                     onChange={(e) => this.setUpgradeFeatureStringFieldState('comment', e.target.value)} />
                             </FloatingLabel>
                         </Form.Group>
                     </Form>
                     <Modal.Footer>
-                        <Button variant='success' onClick={() => this.addNewUpgradeFeature()}>Sačuvaj</Button>
+                        <Button variant='success' onClick={() => this.addNewUpgradeFeature()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
                     </Modal.Footer>
                 </Modal.Body>
             </Modal></>
@@ -387,7 +388,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                             <i className={this.state.article.map(arti => (arti.category.imagePath)).toLocaleString()} style={{fontSize:20, marginRight:5}}/> {
                                                 this.state.article ?
                                                     this.state.article.map :
-                                                    'Article not found'
+                                                    LangBa.ARTICLE_ON_USER.ERR_CONTAINER_ARTICLE_NOT_FOUND
                                             }
                                             {this.state.article.map(ar => (ar.name))}
                                             {this.badgeStatus(this.state.article)}
@@ -422,19 +423,19 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private badgeStatus(article: ArticleByUserType[]) {
         let stat = ""
         article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
-        if (stat === "zaduženo") {
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     {stat}
                 </Badge>)
         }
-        if (stat === "razduženo") {
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
             return (
                 <Badge pill bg="warning" text="dark" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     {stat}
                 </Badge>)
         }
-        if (stat === "otpisano") {
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
                 <Badge pill bg="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     {stat}
@@ -479,30 +480,32 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         let stat = ""
         article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
-        if (stat !== "otpisano") {
+        const artiName: string = article.map(arti => (arti.name)).toString();
+        const userFullName: string = article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname) + ' ' + 
+                             article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname);
+
+        if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
                 <Col lg="3" xs="3" sm="3" md="3" style={{
                     display: "flex",
                     justifyContent: "flex-end",
                     alignItems: "center"
                 }}>
-                    <Button variant='success' size='sm' onClick={() => this.showChangeStatusModal(this.state.articleTimeline)}>Izmjeni</Button>
+                    <Button variant='success' size='sm' onClick={() => this.showChangeStatusModal(this.state.articleTimeline)}>{LangBa.ARTICLE_ON_USER.BTN_EDIT}</Button>
                     <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setChangeStatusVisibleState(false)}>
                         <Modal.Header closeButton>
-                            Promjeni status opreme
+                            {LangBa.ARTICLE_ON_USER.MODAL_HEADER_CHANGE_STATUS}
                         </Modal.Header>
                         <Modal.Body>
                             <Form>
                             <Form.Text>
-                                <h6>Da li ste sigurni da želite promjeniti status zaduženja
-                                    <b> {article.map(arti => (arti.name))} </b>sa korisnika {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname)} {article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname)}?
-                                </h6>
+                                <h6>{ModalMessageArticleOnUser(artiName, userFullName)}</h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='userId' label="Novo zaduženje na korisnika" className="mb-3">
-                                    <Form.Select placeholder='izaberi korisnika' id='userId' required
+                                <FloatingLabel controlId='userId' label={LangBa.ARTICLE_ON_USER.NEW_OBLIGATE_LABEL} className="mb-3">
+                                    <Form.Select placeholder={LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER} id='userId' required
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
-                                        <option value=''>izaberi korisnika</option>
+                                        <option value=''>{LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER}</option>
                                         {this.state.users.map(users => (
                                             <option value={Number(users.userId)}>{users.forname} {users.surname}</option>
                                         ))}
@@ -510,12 +513,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </FloatingLabel>
                             </Form.Group>
                             <Form.Group className="mb-3">             
-                                <FloatingLabel controlId='kolicina' label="Kolicina" className="mb-3">
+                                <FloatingLabel controlId='kolicina' label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
                                 <OverlayTrigger 
                                 placement="top"
                                 delay={{ show: 250, hide: 400 }}
                                 overlay={
-                                <Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>
+                                <Tooltip id="tooltip-kolicina">{LangBa.ARTICLE_ON_USER.TOOLTIP_DEFAULT_VALUE}</Tooltip>
                                 }>
                                 <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
                                 <Form.Text></Form.Text> 
@@ -525,36 +528,36 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                     <Form.Select id="status"
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)} required>
                                         <option value="">izaberi status</option>
-                                        <option value="zaduženo">
-                                            zaduženo
+                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}>
+                                        {LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}
                                         </option>
-                                        <option value="razduženo">
-                                            razduženo
+                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_DEBT}>
+                                        {LangBa.ARTICLE_ON_USER.STATUS_DEBT}
                                         </option>
-                                        <option value="otpisano">
-                                            otpisano
+                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_DESTROY}>
+                                        {LangBa.ARTICLE_ON_USER.STATUS_DESTROY}
                                         </option>
                                     </Form.Select>
                                 </FloatingLabel>
                             </Form.Group>
                             <Form.Group>
-                                <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
+                                <FloatingLabel controlId='serialNumber' label={LangBa.ARTICLE_ON_USER.FORM_LABEL_SERIALNUMBER} className="mb-3">
                                     <OverlayTrigger 
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
                                     overlay={
-                                    <Tooltip id="tooltip-kolicina">Serijski broj dodjeljen prilikom prvog zaduživanja opreme, te je u ovom koraku nemoguće promjeniti ga.</Tooltip>
+                                    <Tooltip id="tooltip-msg-serialnumber">{LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_SERIALNUMBER}</Tooltip>
                                     }>
                                     <Form.Control type='text' id='serialNumber' value={this.state.changeStatus.serialNumber} readOnly isValid required
                                         onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
                                     </OverlayTrigger>
                                 </FloatingLabel>
-                                <FloatingLabel controlId='invBroj' label="Inventurni broj" className="mb-3">
+                                <FloatingLabel controlId='invBroj' label={LangBa.ARTICLE_ON_USER.FORM_LABEL_INV_NUMBER} className="mb-3">
                                     <OverlayTrigger 
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
                                     overlay={
-                                    <Tooltip id="tooltip-kolicina">Inventurni broj dodjeljen prilikom prvog zaduživanja opreme, te je u ovom koraku nemoguće promjeniti ga.</Tooltip>
+                                    <Tooltip id="tooltip-msg-invnumber">{LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}</Tooltip>
                                     }>
                                     <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required readOnly
                                         onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} />
@@ -563,14 +566,14 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             </Form.Group>
 
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
+                                <FloatingLabel controlId='comment' label={LangBa.ARTICLE_ON_USER.FORM_LABEL_COMMENT} className="mb-3">
                                     <Form.Control
                                         required
                                         defaultValue=""
                                         id="comment"
                                         as="textarea"
                                         rows={3}
-                                        placeholder="Razlog razduženja opreme (neobavezno)"
+                                        placeholder={LangBa.ARTICLE_ON_USER.FORM_COMMENT_PLACEHOLDER}
                                         style={{ height: '100px' }}
                                         onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
                                     />
@@ -578,7 +581,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             </Form.Group>
                             </Form>
                             <Modal.Footer>
-                                <Button variant='success' onClick={() => this.changeStatus()}>Sačuvaj</Button>
+                                <Button variant='success' onClick={() => this.changeStatus()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
                             </Modal.Footer>
                         </Modal.Body>
                     </Modal>
@@ -591,25 +594,25 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         let stat = ""
         userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
-        if (stat === 'razduženo') {
-            return (<Alert variant='info'> Nema podataka o korisniku, oprema razdužena</Alert>)
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
+            return (<Alert variant='info'> {LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}</Alert>)
         }
-        if (stat === 'otpisano') {
-            return (<Alert variant='warning'> Nema podataka o korisniku, oprema otpisana</Alert>)
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
+            return (<Alert variant='warning'> {LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}</Alert>)
         }
-        if (stat === 'zaduženo') {
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
                 <Row>
                     <Col>
                         <Card bg="success" text="white" className="mb-2">
-                            <Card.Header>Detalji korisnika</Card.Header>
+                            <Card.Header>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</Card.Header>
                             <ListGroup variant="flush" >
-                                <>  <ListGroup.Item>Ime: {userDet.map(user => (user.userDetails.map(usr => ([usr.surname]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>Prezime: {userDet.map(user => (user.userDetails.map(usr => ([usr.forname]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>Email: {userDet.map(user => (user.userDetails.map(usr => ([usr.email]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>Sektor: {userDet.map(user => (user.userDetails.map(usr => ([usr.department]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>Radno mjesto: {userDet.map(user => (user.userDetails.map(usr => ([usr.jobTitle]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>Lokacija: {userDet.map(user => (user.userDetails.map(usr => ([usr.location]))).shift())}</ListGroup.Item>
+                                <>  <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.map(user => (user.userDetails.map(usr => ([usr.surname]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.map(user => (user.userDetails.map(usr => ([usr.forname]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.map(user => (user.userDetails.map(usr => ([usr.email]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.map(user => (user.userDetails.map(usr => ([usr.department]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.map(user => (user.userDetails.map(usr => ([usr.jobTitle]))).shift())}</ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LOCATION + userDet.map(user => (user.userDetails.map(usr => ([usr.location]))).shift())}</ListGroup.Item>
                                 </>
                             </ListGroup>
                         </Card>
@@ -627,7 +630,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 placement="top"
                 delay={{ show: 250, hide: 400 }}
                 overlay={
-                <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
+                <Tooltip id="tooltip-prenosnica">{LangBa.ARTICLE_ON_USER.DOCUMENT.ERR_DOCUMENT_TOOLTIO}</Tooltip>
                 }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
                 </Link></> )
         }
@@ -654,7 +657,7 @@ private upgradeFeature() {
                         <Card.Header style={{backgroundColor:"#00695C", borderBottomLeftRadius:"0.25rem", borderBottomRightRadius:"0.25rem"}}>
                             <Row style={{display: "flex", alignItems: "center"}} >
                             <Col>
-                            Nadogradnja
+                            {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
                             </Col>
                             <Col style={{  display: "flex", justifyContent: "flex-end" }}>
                             {this.addNewUpgradeFeatureButton()}
@@ -673,7 +676,7 @@ private upgradeFeature() {
                         <Card.Header style={{backgroundColor:"#00695C"}}>
                             <Row style={{display: "flex", alignItems: "center"}}>
                                 <Col>
-                                    Nadogradnja
+                                    {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
                                 </Col>
                             <Col style={{ display: "flex", justifyContent: "flex-end"}}>
                             {this.addNewUpgradeFeatureButton()}
@@ -687,7 +690,7 @@ private upgradeFeature() {
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
                                     overlay={
-                                    <Tooltip id="tooltip-kolicina">{uf.comment} <b>Datum:</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}</Tooltip>
+                                    <Tooltip id="tooltip-kolicina">{uf.comment} <b>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE}</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}</Tooltip>
                                     }>
                                     <Badge bg='success' pill style={{marginLeft:"5px", fontSize:"11px"}}>?</Badge></OverlayTrigger>
                                 </ListGroup.Item>
@@ -714,7 +717,7 @@ private upgradeFeature() {
                                 <Col>
                                     <Card bg="dark" text="light" className="mb-3">
                                         <Card.Header style={{backgroundColor:"#263238"}}>
-                                            Detalji opreme
+                                            {LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.CARD_HEADER}
                                             </Card.Header>
                                         <ListGroup variant="flush" >
                                             {this.state.features.map(feature => (
@@ -723,7 +726,7 @@ private upgradeFeature() {
                                                 </ListGroup.Item>
                                             ), this)}
                                             <ListGroup.Item>
-                                            <b>Serijski broj: </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}</ListGroup.Item> 
+                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}</ListGroup.Item> 
                                         </ListGroup>
                                     </Card>
                                 </Col>
@@ -735,7 +738,7 @@ private upgradeFeature() {
                     <Row>
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header style={{backgroundColor:"#263238"}}>Detaljan opis</Card.Header>
+                                <Card.Header style={{backgroundColor:"#263238"}}>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</Card.Header>
                                 <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>
                                     {article.map(desc => (desc.description))}</Card.Body>
                             </Card>
@@ -749,10 +752,10 @@ private upgradeFeature() {
                                     <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>Korisnik</TableCell>
-                                                <TableCell>Status</TableCell>
-                                                <TableCell>Komentar</TableCell>
-                                                <TableCell>Datum i vrijeme akcije</TableCell>
+                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableCell>
+                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableCell>
+                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableCell>
+                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableCell>
                                                 <TableCell>#</TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -781,7 +784,7 @@ private upgradeFeature() {
                                 <Card.Header>
                                     <Row>
                                         <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                                            Status
+                                        {LangBa.ARTICLE_ON_USER.STATUS.STATUS}
                                         </Col>
                                         {this.changeStatusButton(article)}
                                     </Row>
@@ -802,10 +805,10 @@ private upgradeFeature() {
                                  <ListGroup variant="flush" >
                                     {article.map(artStock => (
 
-                                            <><ListGroup.Item>Stanje po ugovoru: {artStock.articlesInStock.valueOnConcract}</ListGroup.Item>
-                                                <ListGroup.Item>Trenutno stanje: {artStock.articlesInStock.valueAvailable}</ListGroup.Item>
-                                                <ListGroup.Item>SAP broj: {artStock.articlesInStock.sapNumber}</ListGroup.Item>
-                                                <ListGroup.Item>Stanje na: {Moment(artStock.articlesInStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                            <><ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + artStock.articlesInStock.valueOnConcract}</ListGroup.Item>
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + artStock.articlesInStock.valueAvailable}</ListGroup.Item>
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + artStock.articlesInStock.sapNumber}</ListGroup.Item>
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(artStock.articlesInStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
                                             </>
                                         
                                     ))

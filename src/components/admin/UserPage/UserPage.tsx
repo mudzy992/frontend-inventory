@@ -6,12 +6,14 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import UserType from "../../../types/UserType";
+import DepartmentJobLocationType from "../../../types/Department.Job.Location.Type";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface UserPageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users: UserType[];
+    departmentJobLocation: DepartmentJobLocationType[];
     message: string;
     isLoggedIn: boolean;
 }
@@ -24,6 +26,7 @@ export default class UserPage extends React.Component {
         super(props);
         this.state = {
             users: [],
+            departmentJobLocation: [],
             message: "",
             isLoggedIn: true,
         }
@@ -34,6 +37,12 @@ export default class UserPage extends React.Component {
     private setUsers(userData: UserType[] | undefined) {
         this.setState(Object.assign(this.state, {
             users: userData
+        }))
+    }
+
+    private setDepartmentJobLocation(departmentJobLocationData: DepartmentJobLocationType[] | undefined) {
+        this.setState(Object.assign(this.state, {
+            departmentJobLocation: departmentJobLocationData
         }))
     }
 
@@ -57,6 +66,7 @@ export default class UserPage extends React.Component {
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
+        this.getDepartmentJobLocation()
     }
 
     private printOptionalMessage() {
@@ -94,6 +104,23 @@ export default class UserPage extends React.Component {
             })
     }
 
+    private getDepartmentJobLocation() {
+        api('api/departmentJob/', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                /* Nakon što se izvrši ruta, šta onda */
+                if (res.status === 'error') {
+                    this.setErrorMessage('Greška prilikom učitavanja korisnika');
+                }
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
+                /* this.setUsers(res.data) */
+                /*  const data : ApiUserDto[] = res.data */
+                const data: DepartmentJobLocationType[] = res.data;
+                this.setDepartmentJobLocation(data)
+            })
+    }
+
     /* KRAJ GET I MOUNT FUNKCIJA */
 
     private TableContent() {
@@ -107,15 +134,10 @@ export default class UserPage extends React.Component {
             )
         },
         {
-            dataField: 'surname',
-            text: 'Ime ',
+            dataField: 'fullname',
+            text: 'Ime i prezime: ',
             sort: true,
             filter: textFilter(),        
-        },
-        {
-            dataField: 'forname',
-            text: 'Prezime',
-            sort: true,
         },
         {
             dataField: 'jobTitle',

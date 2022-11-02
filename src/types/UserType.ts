@@ -2,6 +2,7 @@ export default class UserType {
     userId?: number;
     surname?: string;
     forname?: string;
+    fullName?: string;
     email?: string;
     jobTitle?: string;
     department?: string;

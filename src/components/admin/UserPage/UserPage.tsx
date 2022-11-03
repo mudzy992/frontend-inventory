@@ -7,6 +7,9 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import UserType from "../../../types/UserType";
 import DepartmentJobLocationType from "../../../types/Department.Job.Location.Type";
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import Box from '@mui/material/Box';
+import {DataTable} from 'react-data-table-component';
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface UserPageState {
@@ -16,6 +19,38 @@ interface UserPageState {
     departmentJobLocation: DepartmentJobLocationType[];
     message: string;
     isLoggedIn: boolean;
+}
+
+function TestTable(data:any){
+    const columns = [
+    {
+        name: "ID",
+        selector: (row) = row.userId
+    },
+    {
+        name: "FullName",
+        selector: (row) = row.fullname
+    }];
+}
+
+    
+function DataGridDemo(row:any){
+    const kolone: GridColDef[] = [
+        {field: 'departmentJobId', headerName: 'ID', width: 190},
+        {field: `${(col: { forname: any; }) => col.forname}`, headerName: 'Name', width: 190},
+        ];
+    return(
+        <Box sx={{ height: 400, width: '100%' }}>
+            <DataGrid
+                rows={row}
+                getRowId={(row) => row.departmentJobId}
+                columns={kolone}
+                pageSize={5}
+                disableSelectionOnClick
+                rowsPerPageOptions={[5]}
+            />
+        </Box>
+    )
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -134,11 +169,11 @@ export default class UserPage extends React.Component {
             )
         },
         {
-            dataField: 'fullname',
+            dataField: 'fullname', 
             text: 'Ime i prezime: ',
             sort: true,
             filter: textFilter(),        
-        },
+        }/* ,
         {
             dataField: 'jobTitle',
             text: 'Radno mjesto',
@@ -153,7 +188,7 @@ export default class UserPage extends React.Component {
             dataField: 'location',
             text: 'Lokacija',
             sort: true
-        },
+        }, */
         ];
         const options = {
             page: 0, /* Koja je prva stranica prikaza na učitavanju */
@@ -162,7 +197,7 @@ export default class UserPage extends React.Component {
             }, {
                 text: '10', value: 10
             }, {
-                text: 'Sve', value: this.state.users?.length
+                text: 'Sve', value: this.state.departmentJobLocation?.length
             }],
             sizePerPage: 5, /* Koliko će elemenata biti prikazano */
             pageStartIndex: 0,
@@ -176,6 +211,7 @@ export default class UserPage extends React.Component {
 
         return (
             <>
+            {DataGridDemo(this.state.departmentJobLocation)}
                  <BootstrapTable
                     keyField="userId"
                     data={this.state.users}

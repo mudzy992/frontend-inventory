@@ -6,10 +6,12 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import UserType from "../../../types/UserType";
-import DepartmentJobLocationType from "../../../types/Department.Job.Location.Type";
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
-import {DataTable} from 'react-data-table-component';
+import DepartmentJobLocationType from "../../../types/Department.Job.Location.Type";
+import DepartmentJobLocationDto from "../../../dtos/Department.Job.Location.Dto";
+import { Button } from "@mui/material";
+
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface UserPageState {
@@ -21,23 +23,33 @@ interface UserPageState {
     isLoggedIn: boolean;
 }
 
-function TestTable(data:any){
-    const columns = [
-    {
-        name: "ID",
-        selector: (row) = row.userId
-    },
-    {
-        name: "FullName",
-        selector: (row) = row.fullname
-    }];
-}
-
     
-function DataGridDemo(row:any){
+function UserTable(row:DepartmentJobLocationType[]){
     const kolone: GridColDef[] = [
-        {field: 'departmentJobId', headerName: 'ID', width: 190},
-        {field: `${(col: { forname: any; }) => col.forname}`, headerName: 'Name', width: 190},
+        {
+        field: 'userId', 
+        headerName: 'Profil',
+        sortable: false,
+        disableColumnMenu: true,
+        headerAlign: 'center',
+        renderCell: (params: GridRenderCellParams<String>) => (
+              <Button
+                size="small"
+                style={{ marginLeft: 5 }}
+                href={`#/admin/userProfile/${params.row.userId}`} 
+                tabIndex={params.hasFocus ? 0 : -1}
+              >
+                <i className="bi bi-person-fill" style={{fontSize:25}}/>
+              </Button>
+          ),
+    },
+        {field: 'userFullname', headerName: 'Ime i prezime', width: 200},
+        {field: 'departmentTitle', headerName: 'Sektor/Odjeljenje', width: 200},
+        {field: 'jobTitle', headerName: 'Radno mjesto', width: 200},
+        {field: 'locationName', headerName: 'Lokacija', width: 150},
+        {field: 'userEmail', headerName: 'Email', width: 200},
+        {field: 'userLocalnumber', headerName: 'Lokal'},
+        {field: 'userTelephone', headerName: 'Tel'},
         ];
     return(
         <Box sx={{ height: 400, width: '100%' }}>
@@ -46,7 +58,6 @@ function DataGridDemo(row:any){
                 getRowId={(row) => row.departmentJobId}
                 columns={kolone}
                 pageSize={5}
-                disableSelectionOnClick
                 rowsPerPageOptions={[5]}
             />
         </Box>
@@ -75,11 +86,7 @@ export default class UserPage extends React.Component {
         }))
     }
 
-    private setDepartmentJobLocation(departmentJobLocationData: DepartmentJobLocationType[] | undefined) {
-        this.setState(Object.assign(this.state, {
-            departmentJobLocation: departmentJobLocationData
-        }))
-    }
+    
 
     private setErrorMessage(message: string) {
         this.setState(Object.assign(this.state, {
@@ -125,15 +132,12 @@ export default class UserPage extends React.Component {
     private getUserData() {
         api('api/user/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
-                /* Nakon što se izvrši ruta, šta onda */
                 if (res.status === 'error') {
                     this.setErrorMessage('Greška prilikom učitavanja korisnika');
                 }
                 if (res.status === 'login') {
                     return this.setLogginState(false);
                 }
-                /* this.setUsers(res.data) */
-                /*  const data : ApiUserDto[] = res.data */
                 const data: UserType[] = res.data;
                 this.setUsers(data)
             })
@@ -142,92 +146,46 @@ export default class UserPage extends React.Component {
     private getDepartmentJobLocation() {
         api('api/departmentJob/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
-                /* Nakon što se izvrši ruta, šta onda */
-                if (res.status === 'error') {
+                if (res.status === 'error' || res.status === "login") {
                     this.setErrorMessage('Greška prilikom učitavanja korisnika');
+                    this.setLogginState(false)
+                    return
                 }
-                if (res.status === 'login') {
-                    return this.setLogginState(false);
-                }
-                /* this.setUsers(res.data) */
-                /*  const data : ApiUserDto[] = res.data */
-                const data: DepartmentJobLocationType[] = res.data;
-                this.setDepartmentJobLocation(data)
+                this.setDepartmentJobLocation(res.data)
             })
     }
 
-    /* KRAJ GET I MOUNT FUNKCIJA */
-
-    private TableContent() {
-        const columns = [{
-            dataField: 'userId',
-            text: '#',
-            formatter: (row: any) => (
-                <div style={{ justifyContent: 'center', display: 'flex' }}>
-                    <a href={`#/admin/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <i className="bi bi-person-fill" style={{fontSize:17}}/> Profil</a>
-                </div>
-            )
-        },
-        {
-            dataField: 'fullname', 
-            text: 'Ime i prezime: ',
-            sort: true,
-            filter: textFilter(),        
-        }/* ,
-        {
-            dataField: 'jobTitle',
-            text: 'Radno mjesto',
-            sort: true
-        },
-        {
-            dataField: 'department',
-            text: 'Sektor',
-            sort: true
-        },
-        {
-            dataField: 'location',
-            text: 'Lokacija',
-            sort: true
-        }, */
-        ];
-        const options = {
-            page: 0, /* Koja je prva stranica prikaza na učitavanju */
-            sizePerPageList: [{
-                text: '5', value: 5
-            }, {
-                text: '10', value: 10
-            }, {
-                text: 'Sve', value: this.state.departmentJobLocation?.length
-            }],
-            sizePerPage: 5, /* Koliko će elemenata biti prikazano */
-            pageStartIndex: 0,
-            paginationSize: 3,
-            prePage: 'Prethodna',
-            nextPage: 'Sljedeća',
-            firstPage: 'Prva',
-            lastPage: 'Zadnja',
-            paginationPosition: 'top'
-        };
-
-        return (
-            <>
-            {DataGridDemo(this.state.departmentJobLocation)}
-                 <BootstrapTable
-                    keyField="userId"
-                    data={this.state.users}
-                    columns={columns}
-                    wrapperClasses='table-responsive'
-                    classes="react-bootstrap-table"
-                    bordered={false}
-                    striped
-                    hover
-                    filter={filterFactory()}
-                    pagination={paginationFactory(options)}
-                /> 
-                {this.printOptionalMessage()}
-            </>
-        )
+    private setDepartmentJobLocation(data: DepartmentJobLocationDto[]) {
+        const info: DepartmentJobLocationType[] = data.map(details => {
+            return {
+                departmentJobId: details.departmentJobId,
+                departmentId: details.departmentId,
+                jobId: details.jobId,
+                locationId: details.locationId,
+                departmentTitle: details.department.title,
+                depatmentDescription: details.department.description,
+                departmentCode: details.department.departmendCode,
+                jobTitle: details.job.title,
+                jobDescription: details.job.description,
+                jobCode: details.job.jobCode,
+                locationName: details.location.name,
+                locationCode: details.location.code,
+                userFullname: details.users.map(user => user.fullname).toString(),
+                userSurname: details.users.map(sur => sur.surname).toString(),
+                userForname: details.users.map(frName => frName.forname).toString(),
+                userLocalnumber: details.users.map(ln => ln.localNumber).toString(),
+                userTelephone: details.users.map(tel => tel.telephone).toString(),
+                userEmail: details.users.map(em => em.email).toString(),
+                userId: Number(details.users.map(uID => uID.userId))
+                
+            }
+        })
+        this.setState(Object.assign(this.state, {
+            departmentJobLocation: info,
+        }))
     }
+
+    /* KRAJ GET I MOUNT FUNKCIJA */
     render() {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
@@ -245,7 +203,7 @@ export default class UserPage extends React.Component {
                         </Card.Title>
                     </Card.Header>
                     <Card.Body>
-                        {this.TableContent()}
+                        {UserTable(this.state.departmentJobLocation)}
                     </Card.Body>
                 </Card>
             </>

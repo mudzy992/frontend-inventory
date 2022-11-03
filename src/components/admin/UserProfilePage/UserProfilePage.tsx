@@ -17,6 +17,7 @@ import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
+import DepartmentByIdType from "../../../types/DepartmentByIdType";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -38,6 +39,7 @@ interface AdminUserProfilePageState {
     articlesByUser: ArticleByUserData[];
     features: FeaturesType[];
     isLoggedIn: boolean;
+    departmentJobs: DepartmentByIdType[];
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -54,6 +56,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             articlesByUser: [],
             features: [],
             isLoggedIn: true,
+            departmentJobs: [],
         }
     }
     private setFeaturesData(featuresData: FeaturesType[]) {
@@ -104,6 +107,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         });
 
         this.setState(newState);
+    }
+
+    private setDepartmentJobs(departmentJobsData: DepartmentByIdType[]) {
+        this.setState(Object.assign(this.state, {
+            departmentJobs: departmentJobsData
+        }))
     }
 
     /* KRAJ SET FUNCKIJA */
@@ -169,6 +178,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
+        api('api/departmentJob/?filter=users.userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                const departmentJobs: DepartmentByIdType[] = res.data;
+                this.setDepartmentJobs(departmentJobs)
+            })
         api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
@@ -217,7 +231,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             <Card.Title>
                                 <FontAwesomeIcon icon={faListCheck} /> {
                                     this.state.users ?
-                                        this.state.users?.surname + ' ' + this.state.users?.forname :
+                                        this.state.departmentJobs.map(use => use.users?.map(usr => usr.fullname)) :
                                         'Kartica korisnika nije pronadjena'
                                 }
                             </Card.Title>
@@ -227,7 +241,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 {this.printOptionalMessage()}
                                 {
                                     this.state.users ?
-                                        (this.renderArticleData(this.state.users)) :
+                                        (this.renderArticleData(this.state.departmentJobs)) :
                                         ''
                                 }
                             </Card.Text>
@@ -384,7 +398,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         )
     }
 
-    private renderArticleData(user: ApiUserProfileDto) {
+    private renderArticleData(user: DepartmentByIdType[]) {
 
         return (
             <Row>
@@ -392,12 +406,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <ul className="list-group">
                         <>
                             <li className="list-group-item active"><b>Detalji korisnika</b></li>
-                            <li className="list-group-item">Ime: {user.surname}</li>
-                            <li className="list-group-item">Prezime: {user.forname}</li>
-                            <li className="list-group-item">Email: {user.email}</li>
-                            <li className="list-group-item">Sektor: {user.department}</li>
-                            <li className="list-group-item">Radno mjest: {user.jobTitle}</li>
-                            <li className="list-group-item">Lokacija: {user.location}</li>
+                            <li className="list-group-item">Ime: {user.map(usr => usr.users?.map(srn => srn.surname))}</li>
+                            <li className="list-group-item">Prezime: {user.map(usr => usr.users?.map(frn => frn.forname))}</li>
+                            <li className="list-group-item">Email: {user.map(usr => usr.users?.map(eml => eml.email))}</li>
+                            <li className="list-group-item">Sektor: {user.map(usr => usr.department?.title)}</li>
+                            <li className="list-group-item">Radno mjesto: {user.map(usr => usr.job?.title)}</li>
+                            <li className="list-group-item">Lokacija: {user.map(usr => usr.location?.name)}</li>
                         </>
                     </ul>
                 </Col>

@@ -6,6 +6,7 @@ export default interface ApiUserProfileDto {
     jobTitle: string;
     department: string;
     location: string;
+    departmentJobId: number;
     articles: {
         articleId: number;
         name: string;

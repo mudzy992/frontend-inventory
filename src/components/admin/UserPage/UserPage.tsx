@@ -2,15 +2,11 @@ import React from "react";
 import { Card } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import { Redirect } from 'react-router-dom';
-import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
-import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import UserType from "../../../types/UserType";
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
-import DepartmentJobLocationType from "../../../types/Department.Job.Location.Type";
-import DepartmentJobLocationDto from "../../../dtos/Department.Job.Location.Dto";
 import { Button } from "@mui/material";
+import ApiUserDto from "../../../dtos/ApiUserDto";
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -18,13 +14,12 @@ interface UserPageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users: UserType[];
-    departmentJobLocation: DepartmentJobLocationType[];
     message: string;
     isLoggedIn: boolean;
 }
 
     
-function UserTable(row:DepartmentJobLocationType[]){
+function UserTable(row:UserType[]){
     const kolone: GridColDef[] = [
         {
         field: 'userId', 
@@ -43,19 +38,19 @@ function UserTable(row:DepartmentJobLocationType[]){
               </Button>
           ),
     },
-        {field: 'userFullname', headerName: 'Ime i prezime', width: 200},
+        {field: 'fullname', headerName: 'Ime i prezime', width: 200},
         {field: 'departmentTitle', headerName: 'Sektor/Odjeljenje', width: 200},
         {field: 'jobTitle', headerName: 'Radno mjesto', width: 200},
         {field: 'locationName', headerName: 'Lokacija', width: 150},
-        {field: 'userEmail', headerName: 'Email', width: 200},
-        {field: 'userLocalnumber', headerName: 'Lokal'},
-        {field: 'userTelephone', headerName: 'Tel'},
+        {field: 'email', headerName: 'Email', width: 200},
+        {field: 'localNumber', headerName: 'Lokal'},
+        {field: 'telephone', headerName: 'Tel'},
         ];
     return(
         <Box sx={{ height: 400, width: '100%' }}>
             <DataGrid
                 rows={row}
-                getRowId={(row) => row.departmentJobId}
+                getRowId={(row) => row.userId}
                 columns={kolone}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
@@ -72,22 +67,12 @@ export default class UserPage extends React.Component {
         super(props);
         this.state = {
             users: [],
-            departmentJobLocation: [],
             message: "",
             isLoggedIn: true,
         }
     }
 
     /* SET FUNKCIJE ĆEMO DEFINISATI PRIJE RENDERA */
-
-    private setUsers(userData: UserType[] | undefined) {
-        this.setState(Object.assign(this.state, {
-            users: userData
-        }))
-    }
-
-    
-
     private setErrorMessage(message: string) {
         this.setState(Object.assign(this.state, {
             message: message,
@@ -108,7 +93,7 @@ export default class UserPage extends React.Component {
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
-        this.getDepartmentJobLocation()
+        console.log(this.state.users)
     }
 
     private printOptionalMessage() {
@@ -138,50 +123,35 @@ export default class UserPage extends React.Component {
                 if (res.status === 'login') {
                     return this.setLogginState(false);
                 }
-                const data: UserType[] = res.data;
-                this.setUsers(data)
+                this.setUsers(res.data)
             })
     }
 
-    private getDepartmentJobLocation() {
-        api('api/departmentJob/', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'error' || res.status === "login") {
-                    this.setErrorMessage('Greška prilikom učitavanja korisnika');
-                    this.setLogginState(false)
-                    return
-                }
-                this.setDepartmentJobLocation(res.data)
-            })
-    }
-
-    private setDepartmentJobLocation(data: DepartmentJobLocationDto[]) {
-        const info: DepartmentJobLocationType[] = data.map(details => {
+    private setUsers(data: ApiUserDto[]) {
+        const info: UserType[] = data.map(user => {
             return {
-                departmentJobId: details.departmentJobId,
-                departmentId: details.departmentId,
-                jobId: details.jobId,
-                locationId: details.locationId,
-                departmentTitle: details.department.title,
-                depatmentDescription: details.department.description,
-                departmentCode: details.department.departmendCode,
-                jobTitle: details.job.title,
-                jobDescription: details.job.description,
-                jobCode: details.job.jobCode,
-                locationName: details.location.name,
-                locationCode: details.location.code,
-                userFullname: details.users.map(user => user.fullname).toString(),
-                userSurname: details.users.map(sur => sur.surname).toString(),
-                userForname: details.users.map(frName => frName.forname).toString(),
-                userLocalnumber: details.users.map(ln => ln.localNumber).toString(),
-                userTelephone: details.users.map(tel => tel.telephone).toString(),
-                userEmail: details.users.map(em => em.email).toString(),
-                userId: Number(details.users.map(uID => uID.userId))
-                
+                departmentId: user.departmentId,
+                jobId: user.jobId,
+                locationId: user.locationId,
+                departmentTitle: user.department.title,
+                depatmentDescription: user.department.description,
+                departmentCode: user.department.departmentCode,
+                jobTitle: user.job.title,
+                jobDescription: user.job.description,
+                jobCode: user.job.jobCode,
+                locationName: user.location.name,
+                locationCode: user.location.locationCode,
+                fullname: user.fullname,
+                surname: user.surname,
+                forname: user.forname,
+                localNumber: user.localNumber,
+                telephone: user.telephone,
+                email: user.email,
+                userId: user.userId,
             }
         })
         this.setState(Object.assign(this.state, {
-            departmentJobLocation: info,
+            users: info,
         }))
     }
 
@@ -203,7 +173,7 @@ export default class UserPage extends React.Component {
                         </Card.Title>
                     </Card.Header>
                     <Card.Body>
-                        {UserTable(this.state.departmentJobLocation)}
+                        {UserTable(this.state.users)}
                     </Card.Body>
                 </Card>
             </>

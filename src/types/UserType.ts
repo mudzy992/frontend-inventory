@@ -2,11 +2,29 @@ export default class UserType {
     userId?: number;
     surname?: string;
     forname?: string;
-    fullName?: string;
+    fullname?: string;
+    localNumber?: string;
+    telephone?: string;
     email?: string;
-    jobTitle?: string;
-    department?: string;
-    location?: string;
+    jobId?: number;
+    departmentId?: number;
+    locationId?: number;
+    department?: {
+        title: string;
+        description: string;
+        departmentCode: string;
+        parentDepartmentId: number;
+    };
+    job?: {
+        title: string;
+        description: string;
+        jobCode: string;
+    };
+    location?: {
+        name: string;
+        locationCode: string;
+        parentLocationId: number;
+    };
     articles?: {
         articleId: number;
         name: string;

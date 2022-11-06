@@ -23,6 +23,7 @@ import AddArticlePage from './components/admin/AddArticle/AddArticlePage';
 import AddUserPage from './components/admin/AddUser/AddUserPage';
 import AddFeaturePage from './components/admin/AddFeature/AddFeaturePage';
 import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
+import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepartmetAndJob';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -44,6 +45,7 @@ ReactDOM.render(
         <Route path="/admin/user/" component={ AddUserPage } />
         <Route path="/admin/feature/" component={ AddFeaturePage } />
         <Route path="/admin/category/" component={ AddNewCategoryPage } />
+        <Route path="/admin/department/" component={ AddDepartmentAndJob } />
       </Switch>
     </HashRouter>
   </React.StrictMode>,

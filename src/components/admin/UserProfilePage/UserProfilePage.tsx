@@ -8,7 +8,7 @@ import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell
 import Paper from '@mui/material/Paper';
 import ArticleByUserData from "../../../data/ArticleByUserData";
 import ArticleByUserType from "../../../types/ArticleByUserType";
-import ApiUserProfileDto from "../../../dtos/ApiUserProfileDto";
+import ApiUserDto from "../../../dtos/ApiUserDto";
 import ResponsibilityType from "../../../types/ResponsibilityType";
 import DebtType from "../../../types/DebtType";
 import DestroyedType from "../../../types/DestroyedType";
@@ -31,7 +31,7 @@ interface AdminUserProfilePageProperties {
 interface AdminUserProfilePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
-    users?: ApiUserProfileDto;
+    users?: ApiUserDto;
     message: string;
     responsibility: ResponsibilityType[];
     debt: DebtType[];
@@ -83,7 +83,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         }))
     }
 
-    private setUsers(userProfileDate: ApiUserProfileDto | undefined) {
+    private setUsers(userProfileDate: ApiUserDto | undefined) {
         this.setState(Object.assign(this.state, {
             users: userProfileDate
         }))
@@ -158,7 +158,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     return this.setLogginState(false);
                 }
 
-                const data: ApiUserProfileDto = res.data;
+                const data: ApiUserDto = res.data;
                 this.setErrorMessage('')
                 this.setUsers(data)
             })
@@ -178,11 +178,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
-        api('api/departmentJob/?filter=users.userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
+        /* api('api/departmentJob/?filter=users.userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const departmentJobs: DepartmentByIdType[] = res.data;
                 this.setDepartmentJobs(departmentJobs)
-            })
+            }) */
         api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
@@ -231,7 +231,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             <Card.Title>
                                 <FontAwesomeIcon icon={faListCheck} /> {
                                     this.state.users ?
-                                        this.state.departmentJobs.map(use => use.users?.map(usr => usr.fullname)) :
+                                        this.state.users.fullname :
                                         'Kartica korisnika nije pronadjena'
                                 }
                             </Card.Title>
@@ -241,7 +241,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 {this.printOptionalMessage()}
                                 {
                                     this.state.users ?
-                                        (this.renderArticleData(this.state.departmentJobs)) :
+                                        (this.renderArticleData(this.state.users)) :
                                         ''
                                 }
                             </Card.Text>
@@ -398,7 +398,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         )
     }
 
-    private renderArticleData(user: DepartmentByIdType[]) {
+    private renderArticleData(user: ApiUserDto) {
 
         return (
             <Row>
@@ -406,12 +406,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <ul className="list-group">
                         <>
                             <li className="list-group-item active"><b>Detalji korisnika</b></li>
-                            <li className="list-group-item">Ime: {user.map(usr => usr.users?.map(srn => srn.surname))}</li>
-                            <li className="list-group-item">Prezime: {user.map(usr => usr.users?.map(frn => frn.forname))}</li>
-                            <li className="list-group-item">Email: {user.map(usr => usr.users?.map(eml => eml.email))}</li>
-                            <li className="list-group-item">Sektor: {user.map(usr => usr.department?.title)}</li>
-                            <li className="list-group-item">Radno mjesto: {user.map(usr => usr.job?.title)}</li>
-                            <li className="list-group-item">Lokacija: {user.map(usr => usr.location?.name)}</li>
+                            <li className="list-group-item">Ime: {user.surname}</li>
+                            <li className="list-group-item">Prezime: {user.forname}</li>
+                            <li className="list-group-item">Email: {user.email}</li>
+                            <li className="list-group-item">Sektor: {user.department?.title}</li>
+                            <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
+                            <li className="list-group-item">Lokacija: {user.location?.name}</li>
                         </>
                     </ul>
                 </Col>

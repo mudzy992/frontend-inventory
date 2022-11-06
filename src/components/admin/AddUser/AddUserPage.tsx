@@ -4,20 +4,42 @@ import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import AdminMenu from '../AdminMenu/AdminMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { Redirect } from 'react-router-dom';
+import LocationType from '../../../types/LocationType';
+import DepartmentType from '../../../types/DepartmentType';
+import JobType from '../../../types/JobType';
 
 
+interface LocationDto {
+    locationId: number;
+    name: string;
+    code: string;
+    parentLocationId: number;
+}
+
+interface JobBaseType {
+    jobId: number;
+    title: string;
+    jobCode: string;
+}
 interface AddUserPageState{
     message: string;
+    isLoggedIn: boolean;
     addUser: {
         surename: string;
         forname: string;
         email: string;
-        job: string;
-        department: string;
-        location: string;
+        localNumber: string;
+        telephone: string;
+        jobId: number;
+        departmentId: number;
+        locationId: number;
         password: string;
     };
+    location: LocationType[];
+    department: DepartmentType[];
+    job: JobType[];
     errorMessage: string;
 }
 
@@ -27,21 +49,27 @@ export default class AddUserPage extends React.Component<{}>{
         super(props);
         this.state = {
             message: '',
+            isLoggedIn: true,
             addUser: {
                 surename: '',
                 forname: '',
                 email: '',
-                job: '',
-                department: '',
-                location: '',
+                localNumber: '',
+                telephone: '',
+                jobId: Number(),
+                departmentId: Number(),
+                locationId: Number(),
                 password: '',
             },
+            location: [],
+            department: [],
+            job: [],
             errorMessage: '',
         }
     }
     
     componentDidMount() {
-
+        this.getData()
     }
     /* SET */
     private setErrorMessage(message: string) {
@@ -57,8 +85,97 @@ export default class AddUserPage extends React.Component<{}>{
                 [fieldName]: newValue,
             })))
     }
+    private setAddUserNumberFieldState(fieldName: string, newValue: any) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.addUser, {
+                [fieldName]: (newValue === 'null') ? null : Number(newValue),
+            })))
+    }
+
+    private setLocation(location: LocationDto[]) {
+        const locData: LocationType[] = location.map(details => {
+            return {
+                locationId: details.locationId,
+                code: details.code,
+                name: details.name,
+                parentLocationId: details.parentLocationId,
+            }
+        })
+        this.setState(Object.assign(this.state, {
+            location: locData,
+        }))
+    }
+
+    private setDepartment(department: DepartmentType) {
+        this.setState(Object.assign(this.state, {
+            department: department,
+        }))
+    }
+
+    private async addJobDepartmentChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        this.setAddUserNumberFieldState('departmentId', event.target.value);
+
+        const jobs = await this.getJobsByDepartmentId(this.state.addUser.departmentId);
+        const stateJobs = jobs.map(job => ({
+            jobId: job.jobId,
+            title: job.title,
+            jobCode: job.jobCode
+        }));
+
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state, {
+                job: stateJobs,
+            }),
+        ));
+    }
+
+    private setLogginState(isLoggedIn: boolean) {
+        const newState = Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        });
+
+        this.setState(newState);
+    }
     /* Kraj SET */
     /* GET */
+    private getData(){
+        api('api/location/', 'get', {}, 'administrator')
+        .then(async (res: ApiResponse) => {
+            if(res.status === 'error') {
+                this.setErrorMessage('Greška prilikom hvatanja lokacija')
+            }
+            if(res.status === 'login') {
+                return this.setLogginState(false)
+            }
+            this.setLocation(res.data)
+        })
+
+        api('api/department/', 'get', {}, 'administrator')
+        .then(async (res: ApiResponse) => {
+            if(res.status === 'error') {
+                this.setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
+            }
+            this.setDepartment(res.data)
+        })
+    }
+
+    private async getJobsByDepartmentId(departmentId: number): Promise<JobBaseType[]> {
+        return new Promise(resolve => {
+            api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/', 'get', {}, 'administrator')
+            .then((res : ApiResponse) => {
+            if(res.status === 'error') {
+                this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+            }
+
+            const jobs: JobBaseType[] = res.data.map((item: any) => ({
+                jobId: item.jobId,
+                title: item.title,
+                jobCode: item.jobCode
+            }))
+            resolve(jobs)
+        })
+    })      
+    }
 
     /* Kraj GET */
     /* Dodatne funkcije */
@@ -80,9 +197,11 @@ export default class AddUserPage extends React.Component<{}>{
             forname: this.state.addUser.forname,
             password: this.state.addUser.password,
             email: this.state.addUser.email,
-            job: this.state.addUser.job,
-            department: this.state.addUser.department,
-            location: this.state.addUser.location,
+            localNumber: this.state.addUser.localNumber,
+            telephone: this.state.addUser.telephone,
+            jobId: this.state.addUser.jobId,
+            departmentId: this.state.addUser.departmentId,
+            locationId: this.state.addUser.locationId,
             
         }, 'administrator')
         .then(async (res: ApiResponse) => {
@@ -107,6 +226,11 @@ export default class AddUserPage extends React.Component<{}>{
     }
     /* Kraj dodatnih funkcija */
     render() {
+        /* if (this.state.isLoggedIn === false) {
+            return (
+                <Redirect to="/admin/login" />
+            );
+        } */
         return(
             <>
             <RoledMainMenu role='administrator'/>
@@ -144,7 +268,7 @@ export default class AddUserPage extends React.Component<{}>{
                         <Form.Group className="mb-3 was-validated">
                         <Row>
                             <Col lg="6" xs="12">
-                                <FloatingLabel controlId='surename' label="Ime" className="mb-3">
+                                <FloatingLabel label="Ime" className="mb-3">
                                 <Form.Control 
                                     id="surename" 
                                     type="text" 
@@ -155,7 +279,7 @@ export default class AddUserPage extends React.Component<{}>{
                                 </FloatingLabel>
                             </Col>
                             <Col lg="6" xs="12">
-                                <FloatingLabel controlId='forname' label="Prezime" className="mb-3">
+                                <FloatingLabel label="Prezime" className="mb-3">
                                 <Form.Control 
                                     id="forname" 
                                     type="text" 
@@ -169,7 +293,7 @@ export default class AddUserPage extends React.Component<{}>{
 
                         <Row>
                             <Col lg="6" xs="12">
-                                <FloatingLabel controlId='email' label="Email" className="mb-3">
+                                <FloatingLabel label="Email" className="mb-3">
                                 <Form.Control 
                                 id="email" 
                                 type="email" 
@@ -180,7 +304,7 @@ export default class AddUserPage extends React.Component<{}>{
                             </FloatingLabel>
                             </Col>
                             <Col lg="6" xs="12">
-                                <FloatingLabel controlId='password' label="Lozinka" className="mb-3">
+                                <FloatingLabel label="Lozinka" className="mb-3">
                                 <Form.Control 
                                 id="password" 
                                 type="password" 
@@ -191,68 +315,73 @@ export default class AddUserPage extends React.Component<{}>{
                             </FloatingLabel>
                             </Col>
                         </Row>
+
                         <Row>
                             <Col lg="6" xs="12">
-                                <FloatingLabel controlId='job' label="Radno mjesto" className="mb-3">
+                                <FloatingLabel label="Telefon" className="mb-3">
                                 <Form.Control 
-                                id="job" 
-                                type="text" 
-                                placeholder="Radno mjesto"
-                                value={ this.state.addUser.job }
-                                onChange={ (e) => this.setAddUserStringFieldState('job', e.target.value) }
+                                id="telephone" 
+                                placeholder="Telefon"
+                                value={ this.state.addUser.telephone}
+                                onChange={ (e) => this.setAddUserStringFieldState('telephone', e.target.value) }
                                 required />
                             </FloatingLabel>
                             </Col>
                             <Col lg="6" xs="12">
-                                <FloatingLabel controlId='name' label="Sektor" className="mb-3">
+                                <FloatingLabel label="Lokalni broj telefona" className="mb-3">
                                 <Form.Control 
-                                id="department" 
-                                type="text" 
-                                placeholder="Sektor"
-                                value={ this.state.addUser.department }
-                                onChange={ (e) => this.setAddUserStringFieldState('department', e.target.value) }
+                                id="local" 
+                                placeholder="Lokal"
+                                value={ this.state.addUser.localNumber }
+                                onChange={ (e) => this.setAddUserStringFieldState('localNumber', e.target.value) }
                                 required />
                             </FloatingLabel>
                             </Col>
                         </Row>
-                        <FloatingLabel controlId='location' label="Lokacija" className="mb-3">
-                            <Form.Select id="location" required
-                                onChange={(e) => this.setAddUserStringFieldState('location', e.target.value)}>
-                                <option value=''> izaberi lokaciju</option>
-                                <option value='Direkcija Zenica'>
-                                    Direkcija Zenica
-                                </option>
-                                <option value='PJ Zenica - Radakovo'>
-                                    PJ Zenica - Radakovo
-                                </option>
-                                <option value='PJ Visoko'>
-                                    PJ Visoko
-                                </option>
-                                <option value='PJ Breza'>
-                                    PJ Breza
-                                </option>
-                                <option value='PJ Vareš'>
-                                    PJ Vareš
-                                </option>
-                                <option value='PJ Olovo'>
-                                    PJ Olovo
-                                </option>
-                                <option value='PJ Tešanj'>
-                                    PJ Tešanj
-                                </option>
-                                <option value='PJ Matuzići'>
-                                    PJ Matuzići
-                                </option>
-                                <option value='PJ Zavidovići'>
-                                    PJ Zavidovići
-                                </option>
-                                <option value='PJ Maglaj'>
-                                    PJ Maglaj
-                                </option>
-                                <option value='PJ Žepće'>
-                                    PJ Žepće
-                                </option>
-                            </Form.Select>
+
+                        <Row>
+                            <Col lg="6" xs="12">
+                            <FloatingLabel label="Sektor" className="mb-3">
+                                <Form.Select
+                                    id='departmentId'
+                                    value={this.state.addUser.departmentId.toString()}
+                                    onChange={e => {this.setAddUserNumberFieldState('departmentId', e.target.value); this.addJobDepartmentChange(e as any)}}
+                                    required >
+                                    <option value=''>izaberi sektor</option>
+                                    {this.state.department.map(dep => (
+                                        <option value={dep.departmentId?.toString()}>{dep.departmendCode} - {dep.title} </option>
+                                    ))}
+                                </Form.Select>
+                            </FloatingLabel> 
+                            </Col>
+                            <Col lg="6" xs="12">
+
+                            <FloatingLabel label="Radno mjesto" className="mb-3">
+                                <Form.Select
+                                    id='jobId'
+                                    value={this.state.addUser.jobId.toString()}
+                                    onChange={(e) => this.setAddUserNumberFieldState('jobId', e.target.value)}
+                                    required >
+                                    <option value=''>izaberi radno mjesto</option>
+                                    {this.state.job.map(jo => (
+                                        <option value={jo.jobId?.toString()}>{jo.jobCode} - {jo.title} </option>
+                                    ))}
+                                </Form.Select>
+                            </FloatingLabel> 
+                            </Col>
+                        </Row>
+
+                        <FloatingLabel label="Lokacija" className="mb-3">
+                                <Form.Select
+                                    id='locationId'
+                                    value={this.state.addUser.locationId.toString()}
+                                    onChange={(e) => this.setAddUserNumberFieldState('locationId', e.target.value)}
+                                    required >
+                                    <option value=''>izaberi lokaciju</option>
+                                    {this.state.location.map(loc => (
+                                        <option value={loc.locationId?.toString()}>{loc.code} - {loc.name} </option>
+                                    ))}
+                                </Form.Select>
                         </FloatingLabel>
                     </Form.Group>
                     </Form>

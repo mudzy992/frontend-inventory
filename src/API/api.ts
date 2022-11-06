@@ -78,21 +78,21 @@ export default function api(
     }
 
     function getToken(role: 'user' | 'administrator'): string {
-        const token = localStorage.getItem('api_token' + role);
+        const token = localStorage.getItem('api_token_' + role);
         return 'Berer ' + token;
     }
     
     export function saveToken(role: 'user' | 'administrator', token: string) {
-        localStorage.setItem('api_token' + role, token);
+        localStorage.setItem('api_token_' + role, token);
     }
     
     function getRefreshToken(role: 'user' | 'administrator'): string {
-        const token = localStorage.getItem('api_refresh_token' + role);
+        const token = localStorage.getItem('api_refresh_token_' + role);
         return token + '';
     }
     
     export function saveRefreshToken(role: 'user' | 'administrator', token: string) {
-        localStorage.setItem('api_refresh_token' + role, token);
+        localStorage.setItem('api_refresh_token_' + role, token);
     }
     
     async function refreshToken(role: 'user' | 'administrator'): Promise<string | null> {

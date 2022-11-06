@@ -43,6 +43,12 @@ export default class AddFeaturePage extends React.Component<{}> {
                                 <ListItemText primary="Novi dokument"/>
                             </ListItemButton>
                         </Link>
+                        <Link to="/admin/department/" style={{textDecoration: 'none'}}>
+                            <ListItemButton >
+                                <ListItemIcon style={{fontSize:20}}><i className="bi bi-journal-text"/></ListItemIcon>
+                                <ListItemText primary="Novi sektor/služba/odljenje"/>
+                            </ListItemButton>
+                        </Link>
                     </List>
                 </Paper> 
             </Col>

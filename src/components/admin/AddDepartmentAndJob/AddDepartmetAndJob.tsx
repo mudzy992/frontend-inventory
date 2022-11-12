@@ -1,10 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
 import MuiAlert from '@mui/material/Alert';
 
+interface DepartmentType {
+    departmentId: number;
+    title: string;
+    description: string;
+    departmentCode: string;
+    parentDepartmentId: number;
+}
+
+interface JobType {
+    jobId: number;
+    title: string;
+    description: string;
+    jobCode: string;
+}
+
+interface LocationType {
+    locationId: number;
+    name: string;
+    code: string;
+    parentLocationId: number;
+}
 interface AddDepartmentAndJobState {
     message?: string;
     departmentBase: DepartmentType[];
@@ -33,28 +54,6 @@ interface AddDepartmentAndJobState {
             locationId: number;
         }
     }
-}
-
-interface DepartmentType {
-    departmentId: number;
-    title: string;
-    description: string;
-    departmentCode: string;
-    parentDepartmentId: number;
-}
-
-interface JobType {
-    jobId: number;
-    title: string;
-    description: string;
-    jobCode: string;
-}
-
-interface LocationType {
-    locationId: number;
-    name: string;
-    code: string;
-    parentLocationId: number;
 }
 
 export default class AddDepartmentAndJob extends React.Component<{}> {
@@ -271,7 +270,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
                             <FloatingLabel label="Šifra organizacione jedinice" className="mb-3">
                                 <Form.Control
                                     id="departmentCode"
-                                    type="text"
+                                    type="number"
                                     placeholder="Šifra organizacione jedinice"
                                     value={this.state.add.department.departmentCode}
                                     onChange={(e) => this.setAddNewDepartmentStringState('departmentCode', e.target.value)}

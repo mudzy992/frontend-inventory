@@ -526,7 +526,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                             {this.badgeStatus()}
                                         </Col>
                                         <Col style={{ display: "flex", justifyContent: "flex-end"}}>
-                                            <Button size='sm' onClick={() => this.showEditFeatureModal()} ><i className="bi bi-pencil-square"/> Izmjeni</Button> 
+                                            <Button className="btn" size='sm' onClick={() => this.showEditFeatureModal()} ><i className="bi bi-pencil-square"/> Izmjeni</Button> 
                                         </Col>
                                 </Row>
                                 
@@ -589,7 +589,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             return (
                 
                     
-                    <><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
+                    <><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Kartica zaduženja</Modal.Title>
                     </Modal.Header>

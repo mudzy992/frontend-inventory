@@ -60,6 +60,7 @@ export const LangBa = {
                 CARD_HEADER: 'Detalji opreme',
                 SERIALNUMBER: 'Serijski broj: ',
                 DESCRIPTION: 'Detaljan opis',
+                INV_NUMBER: 'Inventurni broj:'
 
             },
             TABLE: {
@@ -83,6 +84,6 @@ export const LangBa = {
 
 export function ModalMessageArticleOnUser(article: string, user: string) {
     return (
-        'Da li ste sigurni da želite promjeniti status opreme ' + article + 'sa korisnika ' + user + '?'
+        'Da li ste sigurni da želite promjeniti status opreme ' + article + ' sa korisnika ' + user + '?'
     )
 }

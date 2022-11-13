@@ -1,8 +1,6 @@
-import { faExclamationTriangle, faListCheck } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Badge, Card, Col, Container, ListGroup, Row } from 'react-bootstrap';
+import { Alert, Badge, Card, Col, Container, ListGroup, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
@@ -12,6 +10,8 @@ import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import ArticleByUserType from '../../../types/ArticleByUserType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import UserType from '../../../types/UserType';
+import { LangBa } from '../../../config/lang.ba';
 
 
 interface ArticleOnUserPageProperties {
@@ -24,12 +24,22 @@ interface ArticleOnUserPageProperties {
     }
 }
 
+interface upgradeFeaturesType {
+    name: string;
+    value: string;
+    serialNumber: string;
+    comment: string;
+    timestamp: string;
+}
+
 interface ArticleOnUserPageState {
+    user: UserType[];
     userArticle: UserArticleDto[];
     message: string;
     article: ArticleByUserType[];
     features: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
+    upgradeFeature: upgradeFeaturesType[],
     isLoggedIn: boolean;
     errorMessage: string;
     changeStatus: {
@@ -50,8 +60,10 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         super(props);
         this.state = {
             message: "",
+            user: [],
             features: [],
             articleTimeline: [],
+            upgradeFeature: [],
             article: [],
             isLoggedIn: true,
             errorMessage: '',
@@ -68,19 +80,15 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     }
 
     private setErrorMessage(message: string) {
-        const newState = Object.assign(this.state, {
-            errorMessage: message,
-        });
-
-        this.setState(newState);
+        this.setState(Object.assign(this.state, {
+            message: message,
+        }));
     }
 
     private setLogginState(isLoggedIn: boolean) {
-        const newState = Object.assign(this.state, {
+        this.setState(Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
-        });
-
-        this.setState(newState);
+        }));
     }
 
     private setArticle(articleData: ArticleByUserType[]) {
@@ -94,6 +102,12 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             userArticle: userArticleData
         }))
     }
+    
+    private setUser(userData: UserType[]) {
+        this.setState(Object.assign(this.state, {
+            user: userData,
+        }));
+    }
 
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
@@ -104,6 +118,12 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     private setArticleTimelineData(articleTimelineData: ArticleTimelineType[]) {
         this.setState(Object.assign(this.state, {
             articleTimeline: articleTimelineData
+        }))
+    }
+
+    private setUpgradeFeature(upgradeFeatureData: upgradeFeaturesType[]) {
+        this.setState(Object.assign(this.state, {
+            upgradeFeature: upgradeFeatureData
         }))
     }
 
@@ -183,6 +203,24 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 }
                 this.setArticleTimelineData(articleTimeline)
             })
+
+        api('api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
+        .then((res: ApiResponse) => {
+            if (res.status === 'error') {
+                this.setFeaturesData([]);
+                this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                return;
+            }
+            if (res.status === 'login') {
+                return this.setLogginState(false);
+            }
+            this.setUser(res.data)
+        })
+
+        api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'user')
+        .then((res: ApiResponse) => {
+            this.setUpgradeFeature(res.data)
+        })
     }
 
     private printOptionalMessage() {
@@ -271,9 +309,10 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
 
     }
-    private userDetails(userDet: ArticleByUserType[]) {
+
+    private userDetails(userDet: UserType[]) {
         let stat = ""
-        userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
+        /* userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status) */
 
         if (stat === 'razduženo') {
             return (<Alert variant='info'> Nema podataka o korisniku, oprema razdužena</Alert>)
@@ -288,17 +327,61 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                         <Card bg="success" text="white" className="mb-2">
                             <Card.Header>Detalji korisnika</Card.Header>
                             <ListGroup variant="flush" >
-                                <><ListGroup.Item>Ime: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).surname)}</ListGroup.Item>
-                                    <ListGroup.Item>Prezime: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).forname)}</ListGroup.Item>
-                                    <ListGroup.Item>Email: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).email)}</ListGroup.Item>
-                                    <ListGroup.Item>Sektor: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).department)}</ListGroup.Item>
-                                    <ListGroup.Item>Radno mjesto: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).jobTitle)}</ListGroup.Item>
-                                    <ListGroup.Item>Lokacija: {userDet.map(usr => (usr.userDetails[usr.userDetails.length - usr.userDetails.length + 0]).location)}</ListGroup.Item>
+                            <><ListGroup.Item>Ime: {userDet.map(usr => (usr.surname))}</ListGroup.Item>
+                                    <ListGroup.Item>Prezime: {userDet.map(usr => (usr.forname))}</ListGroup.Item>
+                                    <ListGroup.Item>Email: {userDet.map(usr => (usr.email))}</ListGroup.Item>
+                                    <ListGroup.Item>Sektor: {userDet.map(usr => (usr.department?.title))}</ListGroup.Item>
+                                    <ListGroup.Item>Radno mjesto: {userDet.map(usr => (usr.job?.title))}</ListGroup.Item>
+                                    <ListGroup.Item>Lokacija: {userDet.map(usr => (usr.location?.name))}</ListGroup.Item>
                                 </>
                             </ListGroup>
                         </Card>
                     </Col>
                 </Row>
+            )
+        }
+    }
+
+    private upgradeFeature() {
+        if (this.state.upgradeFeature.length === 0) {
+            return (
+                <Row>
+                    <Col>
+                        <Card bg="dark" text="light" className="mb-3">
+                            <Card.Header style={{backgroundColor:"#00695C", borderBottomLeftRadius:"0.25rem", borderBottomRightRadius:"0.25rem"}}>
+                                {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
+                            </Card.Header>
+                        </Card>
+                    </Col>
+                </Row>
+            )
+        }
+        if (this.state.upgradeFeature.length !== 0) {
+            return (
+                <Row>
+                    <Col>
+                        <Card bg="dark" text="light" className="mb-3">
+                            <Card.Header style={{backgroundColor:"#00695C"}}>
+                                {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
+                            </Card.Header>
+                            <ListGroup variant="flush" >
+                            {this.state.upgradeFeature.map(uf => (
+                                    <ListGroup.Item style={{ display: "flex", alignItems: "center"}}>
+                                        <b>{uf.name}: </b> {uf.value}
+                                        <OverlayTrigger 
+                                        placement="top"
+                                        delay={{ show: 250, hide: 400 }}
+                                        overlay={
+                                        <Tooltip id="tooltip-kolicina">{uf.comment} <b>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE}</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}</Tooltip>
+                                        }>
+                                        <Badge bg='success' pill style={{marginLeft:"5px", fontSize:"11px"}}>?</Badge></OverlayTrigger>
+                                    </ListGroup.Item>
+                                ), this)}
+                            </ListGroup>
+                        </Card>
+                    </Col>
+                </Row>
+            
             )
         }
     }
@@ -320,11 +403,14 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                             <b>{feature.name}:</b> {feature.value}
                                         </ListGroup.Item>
                                     ), this)}
+                                    <ListGroup.Item>
+                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}</ListGroup.Item> 
                                 </ListGroup>
                             </Card>
+                            {this.upgradeFeature()}
                         </Col>
                     </Row>
-
+                    
                     <Row>
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
@@ -368,7 +454,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                     </Row>
                 </Col>
                 <Col sm="12" xs="12" lg="4" >
-                    {this.userDetails(article)}
+                    {this.userDetails(this.state.user)}
                     <Row>
                         <Col>
                             <Card bg="light" text="dark" className=" mb-2">

@@ -129,7 +129,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                     <Row className={this.state.articles.length > 0 ? '' : 'd-none'}>
                         <h5 style={{marginLeft:10, marginBottom:8, color:"white"}}><i className="bi bi-list"/>{this.state.category?.name}</h5>
                         <div> 
-                            {this.printErrorMessage()}
                             {this.showArticles()}
                         </div>
                     </Row>
@@ -163,6 +162,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         }
         return (
             <Row>
+                {this.printErrorMessage()}
                 {this.state.subCategory?.map(this.singleCategory)}
             </Row>
         );
@@ -171,7 +171,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     private singleCategory(category: CategoryType) {
         return (
             /* Ono kako želimo da prikažemo kategoriju (dizajn) */
-            <Col lg="3" md="4" sm="6" xs="6">
+            <Col lg="2" md="4" sm="6" xs="6">
                 <Card className="bg-dark text-white mb-3">
                     <Card.Header>
                         <Card.Title>
@@ -179,10 +179,10 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                         </Card.Title>
                     </Card.Header>
                     <Card.Body style={{display:'flex', justifyContent: 'center'}}>
-                        <i className={category.imagePath} style={{ fontSize: 100 }}></i>
+                        <i className={category.imagePath} style={{ fontSize: 60 }}></i>
                     </Card.Body>
-                    <Card.Footer>
-                        <small><Link style={{backgroundColor:"#40798C"}} to={`/category/${category.categoryId}`}
+                    <Card.Footer style={{display:"flex", justifyContent:'center'}}>
+                        <small><Link to={`/category/${category.categoryId}`}
                             className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
                     </Card.Footer>
                 </Card>
@@ -205,7 +205,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getCategoriesData()
-        console.log(this.state.articles)
     }
 
     componentDidUpdate(oldProperties: CategoryPageProperties) {
@@ -248,7 +247,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                             imagePath: category.imagePath
                         }
                     });
-
                 this.setSubcategories(subcategories);
             })
 

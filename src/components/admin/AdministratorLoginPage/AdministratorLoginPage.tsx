@@ -1,20 +1,23 @@
 import React from 'react'
+import './style.css'
 import { Container, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
-
+import MuiAlert from '@mui/material/Alert';
+import { Snackbar, Stack } from '@mui/material';
 
 interface administratorData {
     id: number;
 }
-
-
 interface AdministratorLoginPageState {
     username: string;
     password: string;
     administratorID: administratorData[];
-    errorMessage: string;
     isLoggedIn: boolean;
+    error: {
+        message?: string;
+        visible: boolean;
+    };
 }
 
 export default class AdministratorLoginPage extends React.Component {
@@ -27,40 +30,44 @@ export default class AdministratorLoginPage extends React.Component {
             username: '',
             password: '',
             administratorID: [],
-            errorMessage: '',
             isLoggedIn: false,
+            error: {
+                visible: false,
+            },
         }
     }
     private formInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
-        const newState = Object.assign(this.state, {
+        this.setState(Object.assign(this.state, {
             [event.target.id]: event.target.value,
-        });
-
-        this.setState(newState);
+        }));
     }
 
     private setLogginState(isLoggedIn: boolean) {
-        const newState = Object.assign(this.state, {
+        this.setState(Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
-        });
-
-        this.setState(newState);
+        }));
     }
 
     private setAdministratorID(administratorID: administratorData[]) {
-        const newState = Object.assign(this.state, {
+        this.setState(Object.assign(this.state, {
             administratorID: administratorID,
-        });
-
-        this.setState(newState);
+        }));
     }
 
     private setErrorMessage(message: string) {
-        const newState = Object.assign(this.state, {
-            errorMessage: message,
-        });
+       this.setState(Object.assign(this.state.error, {
+            message: message,
+        }));
+    }
 
-        this.setState(newState);
+    private async showErrorMessage() {
+        this.setErrorMessageVisible(true)
+    }
+
+    private setErrorMessageVisible(newState: boolean) {
+        this.setState(Object.assign(this.state.error, {
+            visible: newState,
+        }));
     }
 
     private doLogin() {
@@ -84,12 +91,12 @@ export default class AdministratorLoginPage extends React.Component {
                         let message = '';
 
                         switch (res.data.statusCode) {
-                            case -3001: message = 'Unkwnon username!'; break;
-                            case -3002: message = 'Bad password!'; break;
+                            case -3001: message = 'Neispravni korisnički podaci!'; break;
+                            case -3002: message = 'Neispravni korisnički podaci!'; break;
                         }
 
                         this.setErrorMessage(message);
-
+                        this.showErrorMessage()
                         return;
                     }
                     this.setAdministratorID(res.data.id);
@@ -97,7 +104,7 @@ export default class AdministratorLoginPage extends React.Component {
                     saveRefreshToken('administrator', res.data.refreshToken);
 
                     this.setLogginState(true);
-
+                    
                 }
             });
     }
@@ -109,38 +116,43 @@ export default class AdministratorLoginPage extends React.Component {
         }
         return (
             <Container>
-                <Col md={{ span: 6, offset: 3 }}>
-                    <Card style={{ marginTop: 10 }}>
+                <Col md={{ span: 4, offset: 4 }}>
+                    <Card style={{ marginTop: '50%' }}>
                         <Card.Body>
                             <Card.Title>
                                 <i className="bi bi-box-arrow-in-right" /> Administrator Login
                             </Card.Title>
                             <Form>
                                 <Form.Group>
-                                    <Form.Label htmlFor="username">Korisničko ime:</Form.Label>
-                                    <Form.Control type="text" id="username"
+                                    <Form.Label className='login-form-label' htmlFor="username">Korisničko ime:</Form.Label>
+                                    <Form.Control className='login-form-control' type="text" id="username"
                                         value={this.state.username}
                                         onChange={event => this.formInputChanged(event as any)} />
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Label htmlFor="password">Password:</Form.Label>
-                                    <Form.Control type="password" id="password"
+                                    <Form.Label className='login-form-label' htmlFor="password">Password:</Form.Label>
+                                    <Form.Control className='login-form-control' type="password" id="password"
                                         value={this.state.password}
                                         onChange={event => this.formInputChanged(event as any)} />
                                 </Form.Group>
                                 <Form.Group>
-                                    <Button variant="primary"
-                                        style={{ marginTop: 15 }}
+                                <div className='block'>
+                                    <Button 
+                                        variant="success" 
+                                        className='btn-style'
                                         onClick={() => this.doLogin()}>
-                                        Log in
+                                        Prijava
                                     </Button>
+                                </div>
                                 </Form.Group>
                             </Form>
-                            <Alert variant="danger"
-                                style={{ marginTop: 15 }}
-                                className={this.state.errorMessage ? '' : 'd-none'}>
-                                {this.state.errorMessage}
-                            </Alert>
+                            <Stack spacing={2} sx={{ width: '100%' }}>
+                                <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
+                                    <MuiAlert severity="error" sx={{ width: '100%' }}>
+                                        {this.state.error.message}
+                                    </MuiAlert>
+                                </Snackbar>
+                            </Stack>
                         </Card.Body>
                     </Card>
                 </Col>

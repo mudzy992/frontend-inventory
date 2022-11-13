@@ -3,7 +3,6 @@ export default interface ArticleByUserType {
     name?: string;
     excerpt?: string;
     description?: string;
-    comment?: string;
     concract?: string;
     sapNumber?: string;
     categoryId?: number;
@@ -45,7 +44,13 @@ export default interface ArticleByUserType {
         userId: number;
         surname: string;
         forname: string;
+        fullname: string;
+        localNumber: string;
+        telephone: string;
         email: string;
+        jobId: number;
+        departmentId: number;
+        locationId: number;
         jobTitle: string;
         department: string;
         location: string;

@@ -217,7 +217,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         /* kraj provjera */
         if (this.state.isLoggedIn === false) {
             return (
-                <Redirect to="/user/login" />
+                <Redirect to="/admin/login" />
             );
         }
         return (
@@ -253,13 +253,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     private saveFile (docPath: any) {
         if(!docPath) {
             return (<>
-            <Button size='sm' variant='danger'>
+            <Button size='sm' style={{backgroundColor:"#9D5353"}}>
                 <OverlayTrigger 
                 placement="top"
                 delay={{ show: 250, hide: 400 }}
                 overlay={
                 <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                }><i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></OverlayTrigger>
+                }><i className="bi bi-file-earmark-text" style={{ fontSize: 20, color:"white" }}/></OverlayTrigger>
                 </Button></> )
         }
         if (docPath) {
@@ -270,8 +270,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 );
             }
             return (
-                <Button size='sm' variant='info' onClick={() => savedFile(docPath)}>
-                <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }}/></Button>
+                <Button size='sm' style={{backgroundColor:"#3A6351"}} onClick={() => savedFile(docPath)}>
+                <i className="bi bi-file-earmark-text" style={{ fontSize: 20, color:"white" }}/></Button>
             )
     }
 }
@@ -414,9 +414,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     </ul>
                 </Col>
                 <Col xs="12" lg="9" >
-                    <Row style={{ padding: 5 }}>
+                    <Row>
                         {this.articlesByUser()}
-
                     </Row>
                     <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
@@ -435,18 +434,17 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     private articlesByUser() {
         
         return (
-
             this.state.articlesByUser.map(artikal => (
                 <>
-                    <Col xs="6" md="4" lg="3" sm="4">
-                            <Card bg="light" text="dark" className="mb-2" >
-                                <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                    <Badge pill bg="primary">
-                                        {artikal.category.name}
-                                    </Badge>{<div style={{ fontSize: 11 }}>{artikal.name}</div>}
-                                    <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52 }}/>
-                                </Card.Body>
-                            </Card>
+                <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
+                    <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
+                        <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <Badge pill bg="primary">
+                                {artikal.category.name}
+                            </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
+                            <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
+                        </Card.Body>
+                    </Card>
                     </Col>
                 </>
             )))

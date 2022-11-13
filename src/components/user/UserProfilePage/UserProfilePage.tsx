@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Col, Container, Row, Badge, ListGroup } from 'react-bootstrap';
+import { Card, Col, Container, Row, Badge } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
@@ -370,14 +370,14 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             <li className="list-group-item">Ime: {user.surname}</li>
                             <li className="list-group-item">Prezime: {user.forname}</li>
                             <li className="list-group-item">Email: {user.email}</li>
-                            <li className="list-group-item">Sektor: {user.department}</li>
-                            <li className="list-group-item">Radno mjest: {user.jobTitle}</li>
-                            <li className="list-group-item">Lokacija: {user.location}</li>
+                            <li className="list-group-item">Sektor: {user.department.title}</li>
+                            <li className="list-group-item">Radno mjest: {user.job.title}</li>
+                            <li className="list-group-item">Lokacija: {user.location.name}</li>
                         </>
                     </ul>
                 </Col>
                 <Col xs="12" lg="9" >
-                    <Row style={{ padding: 5 }}>
+                    <Row>
                         {this.articlesByUser()}
                     </Row>
                     <Row style={{ padding: 5 }}>
@@ -399,36 +399,15 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
 
             this.state.articlesByUser.map(artikal => (
                 <>
-                    <Col xs="6" md="4" lg="3" sm="4">
-                        <a data-bs-toggle="modal" data-bs-target={`#model-${artikal.articleId}`}>
+                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
                             <Card bg="light" text="dark" className="mb-2" >
                                 <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                     <Badge pill bg="primary">
                                         {artikal.category.name}
                                     </Badge>{<div style={{ fontSize: 11 }}>{artikal.name}</div>}
                                     <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52 }}></i>
-                                    <div className="modal fade" id={`model-${artikal.articleId}`} aria-hidden="true" tabIndex={-1} style={{ color: "black" }}>
-                                        <div className="modal-dialog modal-dialog-centered modal-md" style={{ width: "auto", height: "auto" }}>
-                                            <div className="modal-content">
-                                                <div className="modal-header">
-                                                    <h5 className="modal-title">{artikal.name}</h5>
-
-                                                </div>
-                                                <div className="modal-body">
-                                                    <ListGroup>
-                                                        {this.state.features.map(featureNes => (
-                                                            <ListGroup.Item>
-                                                                {featureNes.name} : {featureNes.value}
-                                                            </ListGroup.Item>
-                                                        ))}
-                                                    </ListGroup>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </Card.Body>
                             </Card>
-                        </a>
                     </Col>
                 </>
             )))

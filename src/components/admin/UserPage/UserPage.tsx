@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from 'react-bootstrap';
+import { Card, Row } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import { Redirect } from 'react-router-dom';
 import UserType from "../../../types/UserType";
@@ -44,16 +44,17 @@ function UserTable(row:UserType[]){
         {field: 'locationName', headerName: 'Lokacija', width: 150},
         {field: 'email', headerName: 'Email', width: 200},
         {field: 'localNumber', headerName: 'Lokal'},
-        {field: 'telephone', headerName: 'Tel'},
+        {field: 'telephone', headerName: 'Tel', width: 120},
         ];
     return(
-        <Box sx={{ height: 400, width: '100%' }}>
+        <Box sx={{ height: 600, width: '100%', }}>
             <DataGrid
                 rows={row}
                 getRowId={(row) => row.userId}
                 columns={kolone}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
+                pageSize={10}
+                rowsPerPageOptions={[10,15,20,50,100]}
+                style={{backgroundColor:"white"}}
             />
         </Box>
     )
@@ -161,21 +162,17 @@ export default class UserPage extends React.Component {
         /* kraj provjera */
         if (this.state.isLoggedIn === false) {
             return (
-                <Redirect to="/user/login" />
+                <Redirect to="/admin/login" />
             );
         }
         return (
             <>
-                <Card className="mb-3 text-dark bg-light">
-                    <Card.Header>
-                        <Card.Title>
-                        <i className="bi bi-people-fill"/> Korisnici
-                        </Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        {UserTable(this.state.users)}
-                    </Card.Body>
-                </Card>
+                <Row>
+                    <h5 style={{marginLeft:10, color:"white"}}> 
+                    <i className="bi bi-people-fill"/> Korisnici</h5>
+                    {UserTable(this.state.users)}
+                        <p>{this.state.message}</p>
+                </Row>
             </>
         )
     }

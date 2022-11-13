@@ -77,11 +77,9 @@ export default class AddDepartment extends React.Component<{}> {
     }
 
     private setErrorMessageVisible(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.error, {
-                visible: newState,
-            })
-        ));
+        this.setState(Object.assign(this.state.error,{
+            visible: newState,
+        }));
     }
 
     /* GET */

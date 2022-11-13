@@ -35,6 +35,7 @@ export default interface UserArticleDto {
         userArticleId: number;
         userId: number;
         articleId: number;
+        documentId: number;
         value: number;
         status: 'zaduženo';
         timestamp: string;
@@ -45,17 +46,19 @@ export default interface UserArticleDto {
         userId: number;
         surname: string;
         forname: string;
+        fullname: string;
+        localNumber: string;
+        telephone: string;
         email: string;
-        jobTitle: string;
-        department: string;
-        location: string;
+        jobId: string;
+        departmentId: string;
+        locationId: string;
     };
     article?: {
         articleId: number;
         name: string;
         excerpt: string;
         descripion: string;
-        comment: string;
         concract: string;
         categoryId: number;
         sapNumber: string;

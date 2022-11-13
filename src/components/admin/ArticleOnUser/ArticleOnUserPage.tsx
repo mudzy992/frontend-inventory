@@ -13,6 +13,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
 import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
+import UserType from '../../../types/UserType';
 
 interface AdminArticleOnUserPageProperties {
     match: {
@@ -38,6 +39,7 @@ interface upgradeFeaturesType {
     timestamp: string;
 }
 
+
 interface AdminArticleOnUserPageState {
     userArticle: UserArticleDto[];
     message: string;
@@ -45,6 +47,7 @@ interface AdminArticleOnUserPageState {
     features: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
     users: userData[];
+    user: UserType[];
     isLoggedIn: boolean;
     errorMessage: string;
     changeStatus: {
@@ -78,6 +81,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             features: [],
             articleTimeline: [],
             users: [],
+            user:[],
             article: [],
             isLoggedIn: true,
             errorMessage: '',
@@ -109,6 +113,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 [fieldName]: newValue,
             })))
     }
+
     private setChangeStatusNumberFieldState(fieldName: string, newValue: any) {
         this.setState(Object.assign(this.state,
             Object.assign(this.state.changeStatus, {
@@ -144,19 +149,15 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     private setErrorMessage(message: string) {
-        const newState = Object.assign(this.state, {
+        this.setState(Object.assign(this.state, {
             errorMessage: message,
-        });
-
-        this.setState(newState);
+        }));
     }
 
     private setLogginState(isLoggedIn: boolean) {
-        const newState = Object.assign(this.state, {
+        this.setState(Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
-        });
-
-        this.setState(newState);
+        }));
     }
 
     private setArticle(articleData: ArticleByUserType[]) {
@@ -186,6 +187,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private setUsers(usersData: userData[]) {
         this.setState(Object.assign(this.state, {
             users: usersData
+        }))
+    }
+
+    private setUser(userData: UserType[]) {
+        this.setState(Object.assign(this.state, {
+            user: userData
         }))
     }
 
@@ -245,7 +252,13 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
             }
-            )
+        )
+
+        api('/api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                this.setUser(res.data)
+            }
+        )
 
         api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -371,7 +384,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     render() {
         if (this.state.isLoggedIn === false) {
             return (
-                <Redirect to="/user/login/" />
+                <Redirect to="/admin/login/" />
             );
         }
         return (
@@ -478,11 +491,11 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private changeStatusButton(article: ArticleByUserType[]) {
         let stat = ""
+        const userDetails: UserType[] = this.state.user;
         article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
 
         const artiName: string = article.map(arti => (arti.name)).toString();
-        const userFullName: string = article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).surname) + ' ' + 
-                             article.map(user => (user.userDetails[user.userDetails.length - user.userDetails.length + 0]).forname);
+        const userFullName: string = userDetails.map(user => (user.fullname)).toString();
 
         if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
@@ -593,7 +606,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private userDetails(userDet: ArticleByUserType[]) {
         let stat = ""
         userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
-
+        const userDetails: UserType[] = this.state.user;
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
             return (<Alert variant='info'> {LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}</Alert>)
         }
@@ -607,12 +620,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Card bg="success" text="white" className="mb-2">
                             <Card.Header>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</Card.Header>
                             <ListGroup variant="flush" >
-                                <>  <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.map(user => (user.userDetails.map(usr => ([usr.surname]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.map(user => (user.userDetails.map(usr => ([usr.forname]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.map(user => (user.userDetails.map(usr => ([usr.email]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.map(user => (user.userDetails.map(usr => ([usr.department]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.map(user => (user.userDetails.map(usr => ([usr.jobTitle]))).shift())}</ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LOCATION + userDet.map(user => (user.userDetails.map(usr => ([usr.location]))).shift())}</ListGroup.Item>
+                                <>  <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDetails.map(user => (user.surname))} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDetails.map(user => (user.forname))} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDetails.map(user => (user.email))} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDetails.map(user => (user.department?.title))} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDetails.map(user => (user.job?.title))} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LOCATION + userDetails.map(user => (user.location?.name))} </ListGroup.Item>
                                 </>
                             </ListGroup>
                         </Card>
@@ -668,7 +681,7 @@ private upgradeFeature() {
             </Row>
         )
     }
-    if (this.state.upgradeFeature.length > 0) {
+    if (this.state.upgradeFeature.length !== 0) {
         return (
             <Row>
                 <Col>
@@ -727,6 +740,8 @@ private upgradeFeature() {
                                             ), this)}
                                             <ListGroup.Item>
                                             <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}</ListGroup.Item> 
+                                            <ListGroup.Item>
+                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.articleTimeline.map(art => ([art.invBroj])).shift()}</ListGroup.Item> 
                                         </ListGroup>
                                     </Card>
                                 </Col>

@@ -76,7 +76,7 @@ export default class HomePage extends React.Component {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         if (this.state.isLoggedIn === false) {
             return (
-                <Redirect to="/user/login" />
+                <Redirect to="/admin/login" />
             );
         }
         /* kraj provjera */
@@ -85,22 +85,13 @@ export default class HomePage extends React.Component {
             <>
                 <RoledMainMenu role='administrator'/>
                     <Container style={{marginTop: 15 }}>
-                            <Card className="mb-3 text-white bg-dark">
-                            <Card.Header>
-                                <Card.Title>
-                                <i className="bi bi-card-list" style={{fontSize:22}}/> Top level kategorije
-                                </Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                            <Row>
-                                {/* Ako je korisnik ulogovan, prikazati spisak kategorija 
-                            to smo uradili tako što smo mapirali jednu funkciju ispod*/}
-                                {this.state.categories.map(this.singleCategory)}
-                                <p>{this.state.message}</p>
+                        <UserPage />
+                            <Row >
+                                <h5 style={{marginLeft:10, color:"white"}}> 
+                                <i className="bi bi-card-list"/> Top level kategorije</h5>
+                                    {this.state.categories.map(this.singleCategory)}
+                                    <p>{this.state.message}</p>
                             </Row>
-                            </Card.Body>
-                            </Card>
-                            <UserPage />
                             <AdminMenu />
                     </Container>
             </>
@@ -109,9 +100,9 @@ export default class HomePage extends React.Component {
 
     private singleCategory(category: CategoryType) {
         return (
-            <Col lg="3" md="4" sm="6" xs="6">
+            <Col lg="2" md="4" sm="6" xs="6">
                 <CardGroup>
-                <Card className="text-dark bg-light mb-3">
+                <Card className="text-white bg-dark mb-3">
                     <Card.Header>
                         <Card.Title>
                             {category.name}
@@ -120,9 +111,9 @@ export default class HomePage extends React.Component {
                     <Card.Body>
                         <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
                     </Card.Body>
-                    <Card.Footer>
+                    <Card.Footer style={{display:"flex", justifyContent:'center'}}>
                         <small><Link to={`/category/${category.categoryId}`}
-                            className='btn btn-primary btn-block btn-sm'>Prikaži kategoriju</Link></small>
+                            className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
                     </Card.Footer>
                 </Card>
                 </CardGroup>

@@ -3,9 +3,6 @@ import { Container, Card, Row, Col, Form, FloatingLabel, Button, Alert, Modal,} 
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-import { Link, Redirect } from 'react-router-dom';
 import LocationType from '../../../types/LocationType';
 import DepartmentType from '../../../types/DepartmentType';
 import JobType from '../../../types/JobType';
@@ -13,6 +10,7 @@ import AddDepartment from '../AddDepartmentAndJob/AddDepartment';
 import AddJob from '../AddDepartmentAndJob/AddJob';
 import AddLocation from '../AddDepartmentAndJob/AddLocation';
 import AddDepartmentJobLocation from '../AddDepartmentAndJob/AddDepartmentJobLocation';
+import { Redirect } from 'react-router-dom';
 
 
 interface LocationDto {
@@ -164,6 +162,7 @@ export default class AddUserPage extends React.Component<{}>{
 
     private async showDepartmentModal() {
         this.setDepartmentModalVisibleState(true)
+        console.log(this.state.modal.department.visible)
     }
 
     private setDepartmentModalVisibleState(newState: boolean) {
@@ -311,40 +310,27 @@ export default class AddUserPage extends React.Component<{}>{
     }
     /* Kraj dodatnih funkcija */
     render() {
-        /* if (this.state.isLoggedIn === false) {
+         if (this.state.isLoggedIn === false) {
             return (
                 <Redirect to="/admin/login" />
             );
-        } */
+        } 
         return(
             <>
             <RoledMainMenu role='administrator'/>
-            <Container style={{ marginTop:15}}> 
+            
+            <Container style={{ marginTop:15}}>
                 {this.printOptionalMessage()}
-                {this.renderArticleData()}
+                {this.addForm()}
+                <AdminMenu />
             </Container>
             </>
         )
     }
 
-    renderArticleData() {
-        return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                <AdminMenu />
-                    <Col style={{marginTop:5}} xs="12" lg="9" sm="12">
-                            {this.addForm()}
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
-
     private addForm() {
         return (
-            <>
+            <> 
             <Card className="mb-3">
                 <Card.Header><i className="bi bi-person-lines-fill"/> Informacije o korisniku</Card.Header>
                 <Card.Body>
@@ -406,6 +392,7 @@ export default class AddUserPage extends React.Component<{}>{
                                 <FloatingLabel label="Telefon" className="mb-3">
                                 <Form.Control 
                                 id="telephone" 
+                                type='telephone'
                                 placeholder="Telefon"
                                 value={ this.state.addUser.telephone}
                                 onChange={ (e) => this.setAddUserStringFieldState('telephone', e.target.value) }
@@ -415,17 +402,18 @@ export default class AddUserPage extends React.Component<{}>{
                             <Col lg="6" xs="12">
                                 <FloatingLabel label="Lokalni broj telefona" className="mb-3">
                                 <Form.Control 
-                                id="local" 
-                                placeholder="Lokal"
-                                value={ this.state.addUser.localNumber }
-                                onChange={ (e) => this.setAddUserStringFieldState('localNumber', e.target.value) }
-                                required />
+                                    id="local"
+                                    type='number'
+                                    placeholder="Lokal"
+                                    value={ this.state.addUser.localNumber }
+                                    onChange={ (e) => this.setAddUserStringFieldState('localNumber', e.target.value) }
+                                    required />
                             </FloatingLabel>
                             </Col>
                         </Row>
                         
                         <Row>
-                            <Col lg="11" xs="11">
+                        <Col lg="11" xs="11" style={{marginRight:-12}}>
                             <FloatingLabel label="Sektor" className="mb-3">
                                 <Form.Select
                                     id='departmentId'
@@ -439,14 +427,14 @@ export default class AddUserPage extends React.Component<{}>{
                                 </Form.Select>
                             </FloatingLabel>
                             </Col>
-                            <Col lg="1" xs="1" style={{marginLeft:-20, marginTop:10, position:'static'}}>
+                            <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
                                 <Button size='sm' style={{background:"none", color:"#70A9A1", border:0, fontSize:20}} onClick={() => this.showDepartmentModal()}><i className="bi bi-plus-circle-fill" /></Button>
                                 <Modal size="lg" centered show={this.state.modal.department.visible} onHide={() => this.setDepartmentModalVisibleState(false)}>
                                     <AddDepartment />
                                 </Modal>
                             </Col>
                             
-                            <Col lg="11" xs="11">
+                            <Col lg="11" xs="11" style={{marginRight:-12}}>
                                 <FloatingLabel label="Radno mjesto" className="mb-3">
                                     <Form.Select
                                         id='jobId'
@@ -459,15 +447,8 @@ export default class AddUserPage extends React.Component<{}>{
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>
-                                <p>
-                                    Ukoliko je lista radnih mjesta prazna ili radno mjesto ne postoji u istoj, potrebno je izvršiti povezivanje radnog mjesta sa lokacijom i sektorom. To možete učiniti klikom
-                                    <Button style={{background:"none", color:"#40798C", border:0, fontSize:15, marginBottom:3, paddingLeft:3}} onClick={() => this.showDepartmentJobLocationModal()}> <b>ovdje.</b></Button>
-                                    <Modal size="lg" centered show={this.state.modal.departmentJobLocation.visible} onHide={() => this.setDepartmentJobLocationModalVisibleState(false)}>
-                                        <AddDepartmentJobLocation />
-                                    </Modal>
-                                </p>
                             </Col>
-                            <Col lg="1" xs="1" style={{marginLeft:-20, marginTop:10, position:'static'}}>
+                            <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
                             <Button size='sm' style={{background:"none", color:"#70A9A1", border:0, fontSize:20}} onClick={() => this.showJobModal()}><i className="bi bi-plus-circle-fill" /></Button>
                             <Modal size="lg" centered show={this.state.modal.job.visible} onHide={() => this.setJobModalVisibleState(false)}>
                                 <AddJob />
@@ -476,24 +457,35 @@ export default class AddUserPage extends React.Component<{}>{
                         </Row>
                         <Row>
                         <Col lg="11" xs="11">
-                            <FloatingLabel label="Lokacija" className="mb-3">
-                                <Form.Select
-                                    id='locationId'
-                                    value={this.state.addUser.locationId.toString()}
-                                    onChange={(e) => this.setAddUserNumberFieldState('locationId', e.target.value)}
-                                    required >
-                                    <option value=''>izaberi lokaciju</option>
-                                    {this.state.location.map(loc => (
-                                        <option value={loc.locationId?.toString()}>{loc.code} - {loc.name} </option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
+                        <Form.Text>
+                            Ukoliko je lista radnih mjesta prazna ili radno mjesto ne postoji u istoj, potrebno je izvršiti povezivanje radnog mjesta sa lokacijom i sektorom. To možete učiniti klikom
+                            <Button style={{background:"none", color:"#40798C", border:0, fontSize:15, marginBottom:4, paddingLeft:3}} onClick={() => this.showDepartmentJobLocationModal()}> <b>ovdje.</b></Button>
+                            <Modal size="lg" centered show={this.state.modal.departmentJobLocation.visible} onHide={() => this.setDepartmentJobLocationModalVisibleState(false)}>
+                                <AddDepartmentJobLocation />
+                            </Modal>
+                        </Form.Text>
+                        </Col>
+                        </Row>
+                        <Row>
+                            <Col lg="11" xs="11" style={{marginRight:-12}}>
+                                <FloatingLabel label="Lokacija" className="mb-3">
+                                    <Form.Select
+                                        id='locationId'
+                                        value={this.state.addUser.locationId.toString()}
+                                        onChange={(e) => this.setAddUserNumberFieldState('locationId', e.target.value)}
+                                        required >
+                                        <option value=''>izaberi lokaciju</option>
+                                        {this.state.location.map(loc => (
+                                            <option value={loc.locationId?.toString()}>{loc.code} - {loc.name} </option>
+                                        ))}
+                                    </Form.Select>
+                                </FloatingLabel>
                             </Col>
-                            <Col lg="1" xs="1" style={{marginLeft:-20, marginTop:10, position:'static'}}>
-                            <Button size='sm' style={{background:"none", color:"#70A9A1", border:0, fontSize:20}} onClick={() => this.showLocationModal()}><i className="bi bi-plus-circle-fill" /></Button>
-                                <Modal size="lg" centered show={this.state.modal.location.visible} onHide={() => this.setLocationModalVisibleState(false)}>
-                                    <AddLocation />
-                                </Modal>
+                            <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
+                                <Button size='sm' style={{background:"none", color:"#70A9A1", border:0, fontSize:20}} onClick={() => this.showLocationModal()}><i className="bi bi-plus-circle-fill" /></Button>
+                                    <Modal size="lg" centered show={this.state.modal.location.visible} onHide={() => this.setLocationModalVisibleState(false)}>
+                                        <AddLocation />
+                                    </Modal>
                             </Col>
                         </Row>
                     </Form.Group>
@@ -507,7 +499,7 @@ export default class AddUserPage extends React.Component<{}>{
                     <Alert variant="danger"
                         style={{ marginTop: 15 }}
                         className={this.state.errorMessage ? '' : 'd-none'}>
-                        <FontAwesomeIcon icon={faExclamationTriangle} />  {this.state.errorMessage}
+                        <i className="bi bi-exclamation-triangle" />  {this.state.errorMessage}
                     </Alert>
                     </Row>
                 </Card.Footer>

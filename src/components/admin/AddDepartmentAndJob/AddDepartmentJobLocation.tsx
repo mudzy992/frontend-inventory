@@ -2,6 +2,7 @@ import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
 import MuiAlert from '@mui/material/Alert';
+import { Snackbar, Stack } from '@mui/material';
 
 interface DepartmentType {
     departmentId: number;
@@ -25,7 +26,10 @@ interface LocationType {
     parentLocationId: number;
 }
 interface AddDepartmentJobLocationState {
-    message?: string;
+    error: {
+        message?: string;
+        visible: boolean;
+    };
     departmentBase: DepartmentType[];
     jobBase: JobType[];
     locationBase: LocationType[];
@@ -43,6 +47,9 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
     constructor(props: Readonly<{}>) {
         super(props);
         this.state = {
+            error: {
+                visible: false,
+            },
             departmentBase:[],
             jobBase: [],
             locationBase: [],
@@ -70,7 +77,7 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
     }
 
     private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
+        this.setState(Object.assign(this.state.error, {
             message: message,
         }));
     }
@@ -91,6 +98,18 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
         this.setState(Object.assign(this.state, {
             locationBase: locationData,
         }));
+    }
+
+    private async showErrorMessage() {
+        this.setErrorMessageVisible(true)
+    }
+
+    private setErrorMessageVisible(newState: boolean) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.error, {
+                visible: newState,
+            })
+        ));
     }
 
     /* GET */
@@ -126,13 +145,13 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
 
     /* DODATNE FUNCKIJE */
     private printOptionalMessage() {
-        if (this.state.message === '') {
+        if (this.state.error.message === '') {
             return;
         }
 
         return (
             <>
-                {this.state.message}
+                {this.state.error.message}
             </>
         );
     }
@@ -144,6 +163,7 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                 return;
             }
             this.setErrorMessage('Uspješno dodan sektor/služba/odjeljenje, pripadajuće radno mjesto te lokacija');
+            this.showErrorMessage()
             this.getData();
         })
     }
@@ -194,16 +214,21 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
-                            <MuiAlert elevation={6} variant="filled" severity="success" className={this.state.message ? '' : 'd-none'}>
-                                {this.printOptionalMessage()}
-                            </MuiAlert>
+                            <Stack spacing={2} sx={{ width: '100%' }}>
+                                <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
+                                    <MuiAlert severity="success" sx={{ width: '100%' }}>
+                                        {this.printOptionalMessage()}
+                                    </MuiAlert>
+                                </Snackbar>
+                            </Stack>
                         </Form.Group>
                     </Form>
                     <Modal.Footer className={this.state.add.departmentJobLocation?.locationId ? '' : 'd-none'}>
                     <Row style={{ alignItems: 'end' }}>
                             <Button onClick={() => this.doAddDepartmentJobLocation()} 
-                                    variant="success">
-                            <i className="bi bi-plus-circle" /> Poveži </Button>
+                                    variant="success"
+                                    style={{background:"#70A9A1", color:"#1F363D", border:0, fontSize:18}}>
+                            <i className="bi bi-node-plus" /> Poveži </Button>
                         </Row>
                 </Modal.Footer>
                 </Modal.Body>
@@ -217,14 +242,14 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
         return (
             <>
             <Container style={{ marginTop:15}}>
-                {this.renderCategoryData()}
+                {this.renderData()}
                 
             </Container>
             </>
         )
     }
 
-    renderCategoryData() {
+    renderData() {
         return(
             <Row>
             <Col xs ="12" lg="12">

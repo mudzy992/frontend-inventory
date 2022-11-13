@@ -1,14 +1,14 @@
-import { Alert, Container, Paper } from '@mui/material';
+import { Alert } from '@mui/material';
 import React from 'react';
-import { Card, Col, Row } from 'react-bootstrap';
+import { Card, Col, Row, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import ArticleType from '../../../types/ArticleType';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import BootstrapTable from 'react-bootstrap-table-next';
-import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
-import paginationFactory from 'react-bootstrap-table2-paginator';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import Box from '@mui/material/Box';
+import { Button } from "@mui/material";
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
@@ -41,11 +41,42 @@ interface CategoryDto {
     imagePath: string;
 }
 
-interface ArticleDto {
-    articleId: number;
-    name: string;
-    excerpt?: string;
-    description?: string;
+function CategoryTable(row:ArticleType[]){
+    const kolone: GridColDef[] = [
+        {
+        field: 'articleId', 
+        headerName: 'Profil',
+        sortable: false,
+        disableColumnMenu: true,
+        headerAlign: 'center',
+        renderCell: (params: GridRenderCellParams<String>) => (
+              <Button
+                size="small"
+                style={{ marginLeft: 5 }}
+                href={`#/article/${params.row.articleId}`} 
+                tabIndex={params.hasFocus ? 0 : -1}
+              >
+                <i className="bi bi-three-dots" style={{fontSize:25}}/>
+              </Button>
+          ),
+    },
+        {field: 'name', headerName: 'Naziv', width: 340},
+        {field: 'excerpt', headerName: 'Kratak opis', width: 320},
+        {field: 'sapNumber', headerName: 'SAP broj', width: 200},
+        {field: 'concract', headerName: 'Ugovor', width: 150},
+        ];
+    return(
+        <Box sx={{height: 400, width: '100%' }}>
+            <DataGrid
+                rows={row}
+                getRowId={(row) => row.articleId}
+                columns={kolone}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+                sx={{backgroundColor:"white"}}
+            />
+        </Box>
+    )
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -95,28 +126,20 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             <>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
-                        <Card className={this.state.articles.length > 0 ? '' : 'd-none'} style={{ marginBottom: 10}} text='white' bg='dark'>
-                            <Card.Header>
-                                <Card.Title>
-                                <i className="bi bi-list"/>{this.state.category?.name}
-                                </Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                <Row>
-                                    {this.printErrorMessage()}
-                                 </Row>      
-                                    {this.showArticles()}
-                                 
-                            </Card.Body>
-                        </Card>  
-                        <Card className="mb-3 text-white bg-dark">
-                            <Card.Header>
-                                <i className="bi bi-list-nested"/> Podkategorije
-                            </Card.Header>
-                            <Card.Body>
-                                {this.showSubcategories()}
-                            </Card.Body>
-                        </Card>
+                    <Row className={this.state.articles.length > 0 ? '' : 'd-none'}>
+                        <h5 style={{marginLeft:10, marginBottom:8, color:"white"}}><i className="bi bi-list"/>{this.state.category?.name}</h5>
+                        <div> 
+                            {this.printErrorMessage()}
+                            {this.showArticles()}
+                        </div>
+                    </Row>
+
+                    <Row style={{marginTop:25}}>
+                    <h5 style={{marginLeft:10, marginBottom:8, color:"white"}}> <i className="bi bi-list-nested"/> Podkategorije</h5>
+                        <div>
+                            {this.showSubcategories()}
+                        </div>
+                    </Row>
                 </Container>
             </>
         )
@@ -148,8 +171,8 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     private singleCategory(category: CategoryType) {
         return (
             /* Ono kako želimo da prikažemo kategoriju (dizajn) */
-            <Col lg="3" md="4" sm="6" xs="12">
-                <Card className="text-dark bg-light mb-3">
+            <Col lg="3" md="4" sm="6" xs="6">
+                <Card className="bg-dark text-white mb-3">
                     <Card.Header>
                         <Card.Title>
                             {category.name}
@@ -159,8 +182,8 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                         <i className={category.imagePath} style={{ fontSize: 100 }}></i>
                     </Card.Body>
                     <Card.Footer>
-                        <small><Link to={`/category/${category.categoryId}`}
-                            className='btn btn-primary btn-block btn-sm'>Prikaži kategoriju</Link></small>
+                        <small><Link style={{backgroundColor:"#40798C"}} to={`/category/${category.categoryId}`}
+                            className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
                     </Card.Footer>
                 </Card>
             </Col>
@@ -174,72 +197,15 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             )
         }
         return (
-            <Row>
-                {this.TableContent()}
-            </Row>
+                CategoryTable(this.state.articles)
         );
-    }
-
-    private TableContent() {
-        const columns = [
-        {
-            dataField: 'name',
-            text: 'Naziv ',
-            sort: true,
-            filter: textFilter(),
-        },
-        {
-            dataField: 'articleId',
-            text: '',
-            formatter: (row: any) => (
-                <div style={{ justifyContent: 'center', display: 'flex' }}>
-                    <a href={`#/article/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <i className="bi bi-three-dots"></i> Detalji</a>
-                </div>
-            )
-        },
-        ];
-        const options = {
-            page: 0, /* Koja je prva stranica prikaza na učitavanju */
-            sizePerPageList: [{
-                text: '5', value: 5
-            }, {
-                text: '10', value: 10
-            }, {
-                text: 'Sve', value: this.state.articles.length
-            }],
-            sizePerPage: 5, /* Koliko će elemenata biti prikazano */
-            pageStartIndex: 0,
-            paginationSize: 3,
-            prePage: 'Prethodna',
-            nextPage: 'Sljedeća',
-            firstPage: 'Prva',
-            lastPage: 'Zadnja',
-            paginationPosition: 'top'
-        };
-        return (
-            <>
-            <Paper>
-                <BootstrapTable
-                    keyField="userId"
-                    data={this.state.articles}
-                    columns={columns}
-                    wrapperClasses='table-responsive'
-                    classes="react-bootstrap-table"
-                    bordered={false}
-                    striped
-                    hover
-                    filter={filterFactory()}
-                    pagination={paginationFactory(options)}
-                />
-                </Paper>
-            </>
-        )
     }
 
     /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getCategoriesData()
+        console.log(this.state.articles)
     }
 
     componentDidUpdate(oldProperties: CategoryPageProperties) {
@@ -294,17 +260,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
 
                 /* popunjavamo type kategorije iz responsa */
 
-                const articleData: ArticleType[] =
-                    res.data.map((article: ArticleDto) => {
-                        const object: ArticleType = {
-                            articleId: article.articleId,
-                            name: article.name,
-                            excerpt: article.excerpt,
-                            description: article.description
-                        }
-                        return object
-                    })
-                this.setArticles(articleData)
+                this.setArticles(res.data)
             })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

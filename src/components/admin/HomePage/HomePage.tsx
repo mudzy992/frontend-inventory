@@ -6,6 +6,7 @@ import CategoryType from '../../../types/CategoryType';
 import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
 import UserPage from '../UserPage/UserPage';
+import AdminMenu from '../AdminMenu/AdminMenu';
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -60,7 +61,7 @@ export default class HomePage extends React.Component {
             return {
                 categoryId: category.categoryId,
                 name: category.name,
-                image: category.imagePath,
+                imagePath: category.imagePath,
             }
         })
         const newState = Object.assign(this.state, {
@@ -100,6 +101,7 @@ export default class HomePage extends React.Component {
                             </Card.Body>
                             </Card>
                             <UserPage />
+                            <AdminMenu />
                     </Container>
             </>
         )
@@ -107,7 +109,7 @@ export default class HomePage extends React.Component {
 
     private singleCategory(category: CategoryType) {
         return (
-            <Col lg="3" md="4" sm="6" xs="12">
+            <Col lg="3" md="4" sm="6" xs="6">
                 <CardGroup>
                 <Card className="text-dark bg-light mb-3">
                     <Card.Header>
@@ -116,8 +118,7 @@ export default class HomePage extends React.Component {
                         </Card.Title>
                     </Card.Header>
                     <Card.Body>
-                        Ovjde će ići slika zvao se ja mudzy ili ne
-                        {/* <Card.Img variant="top" src={ApiConfig.PHOTO_PATH + `${category.image}`} /> */}
+                        <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
                     </Card.Body>
                     <Card.Footer>
                         <small><Link to={`/category/${category.categoryId}`}
@@ -132,7 +133,7 @@ export default class HomePage extends React.Component {
     /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
-        this.getCategories()
+        this.getData()
     }
 
     componentDidUpdate() {
@@ -145,7 +146,7 @@ export default class HomePage extends React.Component {
     1. ruta (provjeriti u backend), 
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
-    private getCategories() {
+    private getData() {
         api('api/category/?filter=parentCategoryId||$isnull', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {

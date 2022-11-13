@@ -1,8 +1,6 @@
 import React from "react";
 import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api, { ApiResponse } from '../../../API/api';
-import { faListCheck } from "@fortawesome/free-solid-svg-icons";
 import Moment from 'moment';
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
 import Paper from '@mui/material/Paper';
@@ -229,7 +227,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <Card className="text-white bg-dark">
                         <Card.Header>
                             <Card.Title>
-                                <FontAwesomeIcon icon={faListCheck} /> {
+                                <i className="bi bi-card-checklist" /> {
                                     this.state.users ?
                                         this.state.users.fullname :
                                         'Kartica korisnika nije pronadjena'

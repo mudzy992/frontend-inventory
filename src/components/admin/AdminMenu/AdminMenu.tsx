@@ -1,57 +1,46 @@
-import React from 'react';
-import { Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Paper } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React from 'react'
+import SpeedDial from '@mui/material/SpeedDial';
+import { Backdrop, SpeedDialAction} from '@mui/material'; 
 
-export default class AddFeaturePage extends React.Component<{}> {
-    constructor(props: Readonly<{}>) {
-        super(props);
-    }
-
-    render() {
-        return(
-            <Col xs="12" lg="3" sm="12">
-                <Paper>
-                    <List>
-                        <ListSubheader><i className="bi bi-star-fill" /> Admin menu</ListSubheader>                        <Link to="/admin/article/" style={{textDecoration: 'none'}}>
-                            <ListItemButton>
-                                <ListItemIcon style={{fontSize:20}}><i className="bi bi-stack"/></ListItemIcon>
-                                <ListItemText primary="Nova oprema"/>
-                            </ListItemButton>
-                        </Link>
-                        <Link to="/admin/feature/" style={{textDecoration: 'none'}}>
-                            <ListItemButton >
-                                <ListItemIcon style={{fontSize:20}}><i className="bi bi-list-stars"/></ListItemIcon>
-                                <ListItemText primary="Nova osobina kategorije"/>
-                            </ListItemButton>
-                        </Link>
-                        <Link to="/admin/category/" style={{textDecoration: 'none'}}>
-                            <ListItemButton>
-                                <ListItemIcon style={{fontSize:20}}><i className="bi bi-card-checklist"/></ListItemIcon>
-                                <ListItemText primary="Nova kategorija"/>
-                            </ListItemButton>
-                        </Link>
-                        <Link to="/admin/user/" style={{textDecoration: 'none'}}>
-                            <ListItemButton>
-                                <ListItemIcon style={{fontSize:20}}><i className="bi bi-person-plus-fill"/></ListItemIcon>
-                                <ListItemText primary="Novi korisnik"/>
-                            </ListItemButton>
-                        </Link>
-                        <Link to="/admin/document/" style={{textDecoration: 'none'}}>
-                            <ListItemButton >
-                                <ListItemIcon style={{fontSize:20}}><i className="bi bi-journal-text"/></ListItemIcon>
-                                <ListItemText primary="Novi dokument"/>
-                            </ListItemButton>
-                        </Link>
-                        <Link to="/admin/department/" style={{textDecoration: 'none'}}>
-                            <ListItemButton >
-                                <ListItemIcon style={{fontSize:20}}><i className="bi bi-journal-text"/></ListItemIcon>
-                                <ListItemText primary="Novi sektor/služba/odljenje"/>
-                            </ListItemButton>
-                        </Link>
-                    </List>
-                </Paper> 
-            </Col>
-        )
-    }
-}
+export default function AdminMenu() {
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => {
+        setOpen(true);
+    };
+  
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const actions = [
+        {icon: <i className='bi bi-stack' style={{fontSize:'21px'}}/>, name: 'Dashboard', link: "/"},
+        {icon: <i className='bi bi-database-add' style={{fontSize:'21px'}}/>, name: 'Artikli', link: "/admin/article"},
+        {icon: <i className='bi bi-list-stars' style={{fontSize:'21px'}}/>, name: 'Osobine', link: "/admin/feature"},
+        {icon: <i className='bi bi-card-checklist' style={{fontSize:'21px'}}/> , name: 'Kategorije', link: "/admin/category"},
+        {icon: <i className='bi bi-person-plus-fill' style={{fontSize:'21px'}}/>, name: 'Korisnici', link: "/admin/user/"},
+        {icon: <i className='bi bi-journal-text' style={{fontSize:'21px'}}/>, name: 'Dokumenti', link: "/admin/document/"},
+        {icon: <i className='bi bi-building-add' style={{fontSize:'21px'}}/> , name: 'Sektor/služba/odljenje', link: "/admin/department/"},
+      ]
+    return (
+        <>
+        <Backdrop open={open} />
+        <SpeedDial
+            ariaLabel="Administrator dashboard"
+            hidden={false}
+            onClose={handleClose}
+            onOpen={handleOpen}
+            open={open}
+            sx={{ position: 'fixed', bottom: 20, right: 20, margin: 0 }}
+            icon={<i className="bi bi-menu-up" style={{fontSize:'22px'}}/>}
+        >
+            {actions.map((action) => (
+          
+                <SpeedDialAction 
+                    key={action.name}
+                    icon={action.icon}
+                    tooltipTitle={action.name}
+                    tooltipOpen
+                    onClick={()=> window.open('#' + action.link, '_self', 'noopener,noreferrer')} />
+            ))}
+        </SpeedDial></>
+    );
+  }

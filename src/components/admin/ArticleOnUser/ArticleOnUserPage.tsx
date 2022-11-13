@@ -625,7 +625,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private saveFile (docPath: any) {
         if(!docPath) {
             return (<>
-            <Link to={undefined}>
+            <Link to="">
                 <OverlayTrigger 
                 placement="top"
                 delay={{ show: 250, hide: 400 }}
@@ -642,7 +642,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 );
             }
             return (
-                <Link onClick={() => savedFile(docPath)} to={undefined}>
+                <Link onClick={() => savedFile(docPath)} to="">
                 <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02" }}/></Link>
             )
     }

@@ -3,7 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { List, ListItemButton, ListItemText, ListSubheader, Paper } from '@mui/material';
+import { List, ListItemButton, ListItemText, ListSubheader } from '@mui/material';
 import AdminMenu from '../AdminMenu/AdminMenu';
 
 interface AddFeatureState {
@@ -227,6 +227,7 @@ export default class AddFeaturePage extends React.Component<{}> {
             <RoledMainMenu role="administrator" />
             <Container style={{ marginTop:15}}>
                 {this.renderFeatureData()}
+                <AdminMenu />
             </Container>
             </>
         )
@@ -237,8 +238,8 @@ export default class AddFeaturePage extends React.Component<{}> {
             <Row>
             <Col xs ="12" lg="12">
                 <Row>
-                    <AdminMenu />
-                    <Col style={{marginTop:5}} xs="12" lg="9" sm="12">
+                    
+                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
                             {this.addForm()}
                     </Col>
                 </Row>

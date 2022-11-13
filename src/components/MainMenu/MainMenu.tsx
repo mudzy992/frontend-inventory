@@ -1,5 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStoreAlt } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { HashRouter, Link } from "react-router-dom";
@@ -9,6 +7,7 @@ import 'popper.js/dist/popper.js';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import "bootstrap/js/src/collapse.js";
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import './style.css'
 
 export class MainMenuItem {
     text: string = "";
@@ -54,7 +53,7 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                 collapseOnSelect
             >
                 <Container>
-                    <Navbar.Brand href="#"> <FontAwesomeIcon icon={faStoreAlt} /> Inventory Database</Navbar.Brand>
+                    <Navbar.Brand href="#"> <i className="bi bi-shop" /> Inventory Database</Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className='me-auto' >

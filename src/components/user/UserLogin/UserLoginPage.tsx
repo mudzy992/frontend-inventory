@@ -1,5 +1,3 @@
-import { faSignInAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react'
 import { Container, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
@@ -116,7 +114,7 @@ export default class UserLoginPage extends React.Component {
                         <Card style={{ marginTop: 10 }}>
                             <Card.Body>
                                 <Card.Title>
-                                    <FontAwesomeIcon icon={faSignInAlt} /> User Login
+                                    <i className="bi bi-box-arrow-in-right" /> Prijava korisnika
                                 </Card.Title>
                                 <Form>
                                     <Form.Group>
@@ -142,7 +140,7 @@ export default class UserLoginPage extends React.Component {
                                 <Alert variant="danger"
                                     style={{ marginTop: 15 }}
                                     className={this.state.errorMessage ? '' : 'd-none'}>
-                                    <FontAwesomeIcon icon={faExclamationTriangle} />  {this.state.errorMessage}
+                                    <i className="bi bi-exclamation-triangle" />  {this.state.errorMessage}
                                 </Alert>
                             </Card.Body>
                         </Card>

@@ -2,6 +2,7 @@ import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
 import MuiAlert from '@mui/material/Alert';
+import { Snackbar, Stack } from '@mui/material';
 
 
 interface LocationType {
@@ -11,7 +12,10 @@ interface LocationType {
     parentLocationId: number;
 }
 interface AddLocationState {
-    message?: string;
+    error: {
+        message?: string;
+        visible: boolean;
+    };
     locationBase: LocationType[];
     add: {
         location: {
@@ -27,6 +31,9 @@ export default class AddLocation extends React.Component<{}> {
     constructor(props: Readonly<{}>) {
         super(props);
         this.state = {
+            error: {
+                visible: false,
+            },
             locationBase: [],
             add: {
                 location: {
@@ -52,7 +59,7 @@ export default class AddLocation extends React.Component<{}> {
     }
 
     private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
+        this.setState(Object.assign(this.state.error, {
             message: message,
         }));
     }
@@ -61,6 +68,18 @@ export default class AddLocation extends React.Component<{}> {
         this.setState(Object.assign(this.state, {
             locationBase: locationData,
         }));
+    }
+
+    private async showErrorMessage() {
+        this.setErrorMessageVisible(true)
+    }
+
+    private setErrorMessageVisible(newState: boolean) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.error, {
+                visible: newState,
+            })
+        ));
     }
 
     /* GET */
@@ -78,13 +97,13 @@ export default class AddLocation extends React.Component<{}> {
 
     /* DODATNE FUNCKIJE */
     private printOptionalMessage() {
-        if (this.state.message === '') {
+        if (this.state.error.message === '') {
             return;
         }
 
         return (
             <>
-                {this.state.message}
+                {this.state.error.message}
             </>
         );
     }
@@ -97,6 +116,7 @@ export default class AddLocation extends React.Component<{}> {
                 return;
             }
             this.setErrorMessage('Uspješno dodana lokacija');
+            this.showErrorMessage()
             this.getLocations();
         })
     }
@@ -143,9 +163,13 @@ export default class AddLocation extends React.Component<{}> {
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
-                            <MuiAlert elevation={6} variant="filled" severity="success" className={this.state.message ? '' : 'd-none'}>
-                                {this.printOptionalMessage()}
-                            </MuiAlert>
+                            <Stack spacing={2} sx={{ width: '100%' }}>
+                                <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
+                                    <MuiAlert severity="success" sx={{ width: '100%' }}>
+                                        {this.printOptionalMessage()}
+                                    </MuiAlert>
+                                </Snackbar>
+                            </Stack>
                         </Form.Group>
                     </Form>
                     <Modal.Footer className={this.state.add.location.name ? '' : 'd-none'}>

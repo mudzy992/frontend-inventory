@@ -2,7 +2,7 @@ import { faExclamationTriangle, faListCheck } from '@fortawesome/free-solid-svg-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Badge, Card, Col, Container, Form, ListGroup, Row } from 'react-bootstrap';
+import { Alert, Badge, Card, Col, Container, ListGroup, Row } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
@@ -213,7 +213,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 <Container>
                                     <Row>
                                         <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
-                                            <FontAwesomeIcon style={{ marginRight: 5 }} icon={faListCheck} />{
+                                        <i className="bi bi-card-checklist" style={{ marginRight: 5 }}/>{
                                                 this.state.article ?
                                                     this.state.article.map :
                                                     'Article not found'
@@ -238,7 +238,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 <Alert variant="danger"
                                     style={{ marginTop: 15 }}
                                     className={this.state.errorMessage ? '' : 'd-none'}>
-                                    <FontAwesomeIcon icon={faExclamationTriangle} />  {this.state.errorMessage}
+                                    <i className="bi bi-exclamation-circle-fill"></i>  {this.state.errorMessage}
                                 </Alert>
                             </Card.Text>
                         </Card.Body>

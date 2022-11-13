@@ -431,9 +431,10 @@ export default class AddArticlePage extends React.Component<{}>{
             <Row>
             <Col xs ="12" lg="12">
                 <Row>
-                    <AdminMenu />
-                    <Col style={{marginTop:5}} xs="12" lg="9" sm="12">
+                    
+                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
                             {this.addForm()}
+                            <AdminMenu />
                     </Col>
                 </Row>
             </Col>

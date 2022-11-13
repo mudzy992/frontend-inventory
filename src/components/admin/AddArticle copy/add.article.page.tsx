@@ -6,8 +6,6 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { faArrowDownShortWide, faUser, faUsers, } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Paper } from '@mui/material';
 import { Link } from 'react-router-dom';
 
@@ -105,7 +103,7 @@ export default class AddArticlePage extends React.Component<{}>{
             text: '#',
             formatter: (row: any) => (
                 <div style={{ justifyContent: 'center', display: 'flex' }}>
-                    <a href={`#/admin/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <FontAwesomeIcon icon={faUser} /> Profil</a>
+                    <a href={`#/admin/userProfile/${row}`} className="btn btn-primary btn-sm" role="button" aria-pressed="true"> <i className="bi bi-person-fill"/> Profil</a>
                 </div>
             )
         },
@@ -116,7 +114,7 @@ export default class AddArticlePage extends React.Component<{}>{
             filter: textFilter(),
             formatter: (row: any) => (
                 <div>
-                    <FontAwesomeIcon icon={faArrowDownShortWide} /> {`${row}`}
+                    <i className="bi bi-arrow-down"/> {`${row}`}
                 </div>
             )
         

@@ -169,7 +169,7 @@ export default class UserPage extends React.Component {
                 <Card className="mb-3 text-dark bg-light">
                     <Card.Header>
                         <Card.Title>
-                        <i className="bi bi-people-fill"/> Spisak korisnika
+                        <i className="bi bi-people-fill"/> Korisnici
                         </Card.Title>
                     </Card.Header>
                     <Card.Body>

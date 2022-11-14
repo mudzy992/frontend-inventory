@@ -6,8 +6,11 @@ import api, { ApiResponse } from '../../../API/api';
 import ArticleType from '../../../types/ArticleType';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { TABELE } from "../../../config/lang.ba";
 import Box from '@mui/material/Box';
+import { hrHR } from '@mui/material/locale';
 import { Button } from "@mui/material";
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
@@ -41,7 +44,11 @@ interface CategoryDto {
     imagePath: string;
 }
 
+
 function CategoryTable(row:ArticleType[]){
+    const theme = createTheme(
+        hrHR,
+    )
     const kolone: GridColDef[] = [
         {
         field: 'articleId', 
@@ -66,16 +73,29 @@ function CategoryTable(row:ArticleType[]){
         {field: 'concract', headerName: 'Ugovor', width: 150},
         ];
     return(
-        <Box sx={{height: 400, width: '100%' }}>
-            <DataGrid
-                rows={row}
-                getRowId={(row) => row.articleId}
-                columns={kolone}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                sx={{backgroundColor:"white"}}
-            />
-        </Box>
+        <ThemeProvider theme={theme}>
+            <Box sx={{height: 400, width: '100%' }}>
+                <DataGrid
+                    rows={row}
+                    getRowId={(row) => row.articleId}
+                    columns={kolone}
+                    localeText={
+                        {...TABELE}}
+                    pageSize={10}
+                    rowsPerPageOptions={[10,15,20,50,100]}
+                    style={{backgroundColor:"white"}}
+                    disableColumnFilter
+                    disableColumnMenu
+                    components={{ Toolbar: GridToolbar }}
+                    componentsProps={{
+                        toolbar: {
+                            showQuickFilter: true,
+                            quickFilterProps: { debounceMs: 500 },
+                        }
+                    }}
+                />
+            </Box>
+        </ThemeProvider>
     )
 }
 

@@ -3,11 +3,13 @@ import { Card, Row } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import { Redirect } from 'react-router-dom';
 import UserType from "../../../types/UserType";
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { TABELE } from "../../../config/lang.ba";
+import { hrHR } from '@mui/material/locale';
 import Box from '@mui/material/Box';
 import { Button } from "@mui/material";
 import ApiUserDto from "../../../dtos/ApiUserDto";
-
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface UserPageState {
@@ -20,6 +22,9 @@ interface UserPageState {
 
     
 function UserTable(row:UserType[]){
+    const theme = createTheme(
+        hrHR,
+    )
     const kolone: GridColDef[] = [
         {
         field: 'userId', 
@@ -47,16 +52,31 @@ function UserTable(row:UserType[]){
         {field: 'telephone', headerName: 'Tel', width: 120},
         ];
     return(
+        <ThemeProvider theme={theme}>
         <Box sx={{ height: 600, width: '100%', }}>
             <DataGrid
-                rows={row}
                 getRowId={(row) => row.userId}
                 columns={kolone}
+                rows={row}
+                localeText={
+                    {...TABELE}}
                 pageSize={10}
                 rowsPerPageOptions={[10,15,20,50,100]}
                 style={{backgroundColor:"white"}}
+                disableColumnFilter
+                disableColumnMenu
+                components={{ 
+                    Toolbar: GridToolbar,
+                 }}
+                componentsProps={{
+                    toolbar: {
+                        showQuickFilter: true,
+                        quickFilterProps: { debounceMs: 500 },
+                    }
+                }}
             />
         </Box>
+    </ThemeProvider>
     )
 }
 

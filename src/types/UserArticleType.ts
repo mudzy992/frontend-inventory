@@ -56,7 +56,7 @@ export default class UserArticleType {
     article?: {
         articleId: number;
         name: string;
-        export: string;
+        excerpt: string;
         description: string;
         concract: string;
         categoryId: number;

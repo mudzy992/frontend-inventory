@@ -1,6 +1,6 @@
 import { Alert } from '@mui/material';
 import React from 'react';
-import { Card, Col, Row, Container } from 'react-bootstrap';
+import { Card, Col, Row, Container, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import ArticleType from '../../../types/ArticleType';
@@ -27,17 +27,17 @@ interface CategoryPageProperties {
     }
 }
 
-interface UserArticleBaseDto {
-    articleId: number;
-    name: string;
-    excerpt: string;
-    sapNumber: string;
-    articles: {
-        invBroj: string;
-        serialNumber: string;
-        status: string;
-        timestamp: string;
-        userId: number;
+interface UserArticleBaseType {
+    articleId?: number;
+    name?: string;
+    excerpt?: string;
+    sapNumber?: string;
+    articles?: {
+        invBroj?: string;
+        serialNumber?: string;
+        status?: string;
+        timestamp?: string;
+        userId?: number;
     }[]
 }
 
@@ -49,7 +49,7 @@ interface CategoryPageState {
     subCategory?: CategoryType[]; /* A ovdje kažemo da je pod kategorija lista primjerka CategoryType*/
     message: string;
     articles: ArticleType[];
-    userArticle?: UserArticleType[];
+    userArticle: UserArticleBaseType[];
 }
 
 /* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
@@ -152,24 +152,30 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             articles: articles
         }))
     }
-
-    private setUserArticle(data: UserArticleBaseDto[]) {
-        const articles: UserArticleBaseDto[] = data.map(ar => {
+ 
+    private setUserArticle(data: UserArticleType[]) {
+        const articles: UserArticleBaseType[] = data.map(ar => {
             return {
                 articleId: ar.articleId,
-                name: ar.name,
-                excerpt: ar.excerpt,
-                sapNumber: ar.sapNumber,
-                articles: {
-                    invBroj: ar.,
-                    serialNumber: string,
-                    status: string,
-                    timestamp: string,
-                    userId: number,
+                name: ar.article?.name,
+                excerpt: ar.article?.excerpt,
+                sapNumber: ar.article?.sapNumber,
+                articles: 
+                    [
+                        {
+                    invBroj: ar.invBroj,
+                    serialNumber: ar.serialNumber,
+                    status: ar.status,
+                    timestamp: ar.timestamp,
+                    userId: ar.userId,
                 }
+                ]
             }
             }
         )
+        this.setState(Object.assign(this.state, {
+            userArticle: articles
+        }))
     }
 
 
@@ -188,6 +194,18 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                         <div> 
                             {this.showArticles()}
                         </div>
+                    </Row>
+
+                    <Row>
+                        <Table>
+                            {this.state.userArticle?.map(arti => (
+                                <tr>
+                                    {arti.articles?.map(details => (
+                                        <><td>{details.serialNumber}</td><td>{details.status}</td><td>{details.invBroj}</td></>
+                                    ))}
+                                </tr>
+                            ))}                            
+                        </Table>
                     </Row>
 
                     <Row style={{marginTop:25}}>
@@ -323,6 +341,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 }
                 /* popunjavamo type kategorije iz responsa */
                 this.setUserArticle(res.data)
+                console.log(this.state.userArticle)
         })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

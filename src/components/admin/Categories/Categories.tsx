@@ -13,6 +13,8 @@ import Box from '@mui/material/Box';
 import { hrHR } from '@mui/material/locale';
 import { Button } from "@mui/material";
 
+import UserArticleType from '../../../types/UserArticleType';
+
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
 onda koristimo interface koji uzima paramtera koji smo definisali u ruti (u komponenti gdje kreiramo rute)
@@ -25,6 +27,20 @@ interface CategoryPageProperties {
     }
 }
 
+interface UserArticleBaseDto {
+    articleId: number;
+    name: string;
+    excerpt: string;
+    sapNumber: string;
+    articles: {
+        invBroj: string;
+        serialNumber: string;
+        status: string;
+        timestamp: string;
+        userId: number;
+    }[]
+}
+
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 
 interface CategoryPageState {
@@ -33,6 +49,7 @@ interface CategoryPageState {
     subCategory?: CategoryType[]; /* A ovdje kažemo da je pod kategorija lista primjerka CategoryType*/
     message: string;
     articles: ArticleType[];
+    userArticle?: UserArticleType[];
 }
 
 /* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
@@ -105,6 +122,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     constructor(props: Readonly<CategoryPageProperties>) {
         super(props);
         this.state = {
+            userArticle: [],
             articles: [],
             message: ""
         }
@@ -133,6 +151,25 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         this.setState(Object.assign(this.state, {
             articles: articles
         }))
+    }
+
+    private setUserArticle(data: UserArticleBaseDto[]) {
+        const articles: UserArticleBaseDto[] = data.map(ar => {
+            return {
+                articleId: ar.articleId,
+                name: ar.name,
+                excerpt: ar.excerpt,
+                sapNumber: ar.sapNumber,
+                articles: {
+                    invBroj: ar.,
+                    serialNumber: string,
+                    status: string,
+                    timestamp: string,
+                    userId: number,
+                }
+            }
+            }
+        )
     }
 
 
@@ -275,10 +312,17 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 if (res.status === 'error') {
                     return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                 }
-
                 /* popunjavamo type kategorije iz responsa */
-
                 this.setArticles(res.data)
-            })
+        })
+
+        api('api/userArticle/?filter=article.categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'error') {
+                    return this.setErrorMessage('Greška prilikom učitavanja user Article apija. Osvježite ili pokušajte ponovo kasnije')
+                }
+                /* popunjavamo type kategorije iz responsa */
+                this.setUserArticle(res.data)
+        })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

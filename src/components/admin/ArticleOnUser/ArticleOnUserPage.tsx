@@ -14,7 +14,6 @@ import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
 import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
-
 interface AdminArticleOnUserPageProperties {
     match: {
         params: {
@@ -251,6 +250,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
+            }
+        )
+
+        api('/api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                this.setUser(res.data)
             }
         )
 

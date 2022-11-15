@@ -1,4 +1,4 @@
-export default interface UserArticleDto {
+export default class UserArticleType {
     userArticleId?: number;
     articleId?: number;
     documentId?: number;

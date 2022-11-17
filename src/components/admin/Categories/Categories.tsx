@@ -1,5 +1,5 @@
-import { Alert } from '@mui/material';
-import React from 'react';
+import { Alert, Typography } from '@mui/material';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Col, Row, Container, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
@@ -14,6 +14,8 @@ import { hrHR } from '@mui/material/locale';
 import { Button } from "@mui/material";
 
 import UserArticleType from '../../../types/UserArticleType';
+
+import MaterialReactTable, { MRT_ColumnDef } from 'material-react-table';
 import TableFunction from './TableFunction';
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
@@ -112,6 +114,7 @@ function CategoryTable(row:ArticleType[]){
                         }
                     }}
                 />
+                
             </Box>
         </ThemeProvider>
     )
@@ -123,8 +126,8 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     constructor(props: Readonly<CategoryPageProperties>) {
         super(props);
         this.state = {
-            userArticle: [],
-            articles: [],
+            userArticle:[],
+            articles:[],
             message: ""
         }
     }
@@ -186,7 +189,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     render() {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
-        const data: UserArticleBaseType[] = this.state.userArticle
         return (
             /* prikaz klijentu */
             <>
@@ -200,26 +202,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                     </Row>
 
                     <Row>
-                       
-                        {TableFunction(data)}
-                        <Table>
-                            <tr> 
-                            {this.state.userArticle.map(main => (
-                                <>
-                                <td>
-                                        {main.name}
-                                        {main.sapNumber}
-                                        {main.excerpt}
-                                        {main.articles?.map(expand => (
-                                            <td>
-                                                {expand.serialNumber}
-                                            </td>
-                                        ))}
-                                </td>
-                                </>
-                            ))}
-                            </tr>
-                        </Table>
+                        <TableFunction data={this.state.userArticle} />
                     </Row>
 
                     <Row style={{marginTop:25}}>
@@ -293,9 +276,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
-        this.getCategoriesData()
-        const data: UserArticleBaseType[] = this.state.userArticle
-        console.log(data)
+        this.getCategoriesData() 
     }
 
     componentDidUpdate(oldProperties: CategoryPageProperties) {
@@ -304,7 +285,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             return;
         }
         this.getCategoriesData();
-        
     }
 
     /* Funkcija za dopremanje podataka, veza sa api-jem  

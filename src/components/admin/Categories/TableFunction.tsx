@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect, FC } from 'react';
+import { useMemo, useRef, useState, useEffect, FC} from 'react';
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Box, Typography } from "@mui/material";
 
@@ -19,24 +19,8 @@ interface UserArticleBaseType {
 
 
 
-export default function TableFunction(dataUser:UserArticleBaseType[]) {
-  const data: UserArticleBaseType[] = dataUser;
-  /* const data:UserArticleBaseType[] = [
-    {
-    articleId: 2,
-    name: "Naziv2",
-    excerpt: "Opis",
-    sapNumber: "string",
-    articles: [{
-        invBroj: "dfsd",
-        serialNumber: "s23131",
-        status: "string",
-        timestamp: "string",
-        userId: 1,
-        }]
-    },
-  ]; */
-
+export default function TableFunction(props:any) {
+  
   const columns = useMemo<MRT_ColumnDef<UserArticleBaseType>[]>(
     () => [
       {
@@ -73,7 +57,7 @@ export default function TableFunction(dataUser:UserArticleBaseType[]) {
   return (
     <MaterialReactTable
           columns={columns} 
-          data={data} 
+          data={props.data} 
           enableColumnOrdering //enable some features
           enableRowSelection 
           enablePagination={false} //disable a default feature
@@ -91,7 +75,11 @@ export default function TableFunction(dataUser:UserArticleBaseType[]) {
           }}
         >
           {row.original.articles?.map(expand => (
-            <Typography>Address: {expand.serialNumber}</Typography>
+            <><Typography>Serijski broj: {expand.serialNumber}</Typography>
+            <Typography>Inventurni broj: {expand.invBroj}</Typography>
+            <Typography>Status: {expand.status}</Typography>
+            <Typography>Datum akcije: {expand.timestamp}</Typography>
+            <Typography>Korisnik: {expand.userId}</Typography></>
           ))}
           
            {/* {row.original.map(cc => (

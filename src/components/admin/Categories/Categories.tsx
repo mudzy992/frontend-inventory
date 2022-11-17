@@ -238,10 +238,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         return (
             <Row>
                 {this.printErrorMessage()}
-<<<<<<< HEAD
-                
-=======
->>>>>>> parent of 55399ad (XD)
                 {this.state.subCategory?.map(this.singleCategory)}
             </Row>
         );

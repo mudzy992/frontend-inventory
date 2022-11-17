@@ -14,6 +14,7 @@ import { hrHR } from '@mui/material/locale';
 import { Button } from "@mui/material";
 
 import UserArticleType from '../../../types/UserArticleType';
+import TableFunction from './TableFunction';
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
@@ -152,6 +153,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             articles: articles
         }))
     }
+
  
     private setUserArticle(data: UserArticleType[]) {
         const articles: UserArticleBaseType[] = data.map(ar => {
@@ -184,6 +186,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     render() {
         /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
         /* kraj provjera */
+        const data: UserArticleBaseType[] = this.state.userArticle
         return (
             /* prikaz klijentu */
             <>
@@ -197,14 +200,25 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                     </Row>
 
                     <Row>
+                       
+                        {TableFunction(data)}
                         <Table>
-                            {this.state.userArticle?.map(arti => (
-                                <tr>
-                                    {arti.articles?.map(details => (
-                                        <><td>{details.serialNumber}</td><td>{details.status}</td><td>{details.invBroj}</td></>
-                                    ))}
-                                </tr>
-                            ))}                            
+                            <tr> 
+                            {this.state.userArticle.map(main => (
+                                <>
+                                <td>
+                                        {main.name}
+                                        {main.sapNumber}
+                                        {main.excerpt}
+                                        {main.articles?.map(expand => (
+                                            <td>
+                                                {expand.serialNumber}
+                                            </td>
+                                        ))}
+                                </td>
+                                </>
+                            ))}
+                            </tr>
                         </Table>
                     </Row>
 
@@ -280,6 +294,8 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getCategoriesData()
+        const data: UserArticleBaseType[] = this.state.userArticle
+        console.log(data)
     }
 
     componentDidUpdate(oldProperties: CategoryPageProperties) {
@@ -288,6 +304,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             return;
         }
         this.getCategoriesData();
+        
     }
 
     /* Funkcija za dopremanje podataka, veza sa api-jem  

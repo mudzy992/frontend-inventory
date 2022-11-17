@@ -74,7 +74,7 @@ export default interface ApiArticleDto {
         value: string;
         serialNumber: string;
         timestamp: string;
-        status: 'razduženo';
+        status: 'zaduženo';
     }[];
     documents:{
         documentsId: number;

@@ -114,7 +114,6 @@ export default class UserPage extends React.Component {
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
-        console.log(this.state.users)
     }
 
     private printOptionalMessage() {

@@ -38,7 +38,7 @@ export default interface ApiUserProfileDto {
         userArticleId: number;
         articleId: number;
         value: number;
-        status: 'zaduženo' | 'razduženo' | 'otpisano';
+        status: 'zaduženo';
         timestamp: string;
         serialNumber: string;
         invBroj: string;
@@ -51,6 +51,7 @@ export default interface ApiUserProfileDto {
         comment: string;
         timestamp: string;
         serialNumber: string;
+        status: 'razduženo';
     }[];
     destroyeds: {
         destroyedId: number;
@@ -59,6 +60,7 @@ export default interface ApiUserProfileDto {
         comment: string;
         timestamp: string
         serialNumber: string;
+        status: 'otpisano';
     }[];
     userArticles: {
         articleId: number;

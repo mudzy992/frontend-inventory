@@ -63,6 +63,7 @@ export default interface ArticleByUserType {
         timestamp: string;
         userId: string;
         serialNumber: string;
+        status: 'otpisano';
     }[];
     debtItems:{
         debtItemsId:number;
@@ -72,6 +73,7 @@ export default interface ArticleByUserType {
         comment:string;
         serialNumber:string;
         timestamp:string;
+        status: 'razduženo';
     }[];
     responsibilities:{
         responsibilityId: number;
@@ -80,6 +82,6 @@ export default interface ArticleByUserType {
         value: string;
         serialNumber: string;
         timestamp: string;
-        status: 'razduženo';
+        status: 'zaduženo';
     }[];
 }

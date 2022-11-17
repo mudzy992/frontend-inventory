@@ -1,5 +1,5 @@
 import { Alert } from '@mui/material';
-import React, { useMemo, FC } from 'react';
+import React from 'react';
 import { Card, Col, Row, Container, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
@@ -9,13 +9,11 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { TABELE } from "../../../config/lang.ba";
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 import { hrHR } from '@mui/material/locale';
 import { Button } from "@mui/material";
 
 import UserArticleType from '../../../types/UserArticleType';
-import Tabela from './TableFunction';
-import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
@@ -63,64 +61,6 @@ interface CategoryDto {
     imagePath: string;
 }
 
-function TabelaExpand(data: UserArticleBaseType[]) {
-        const columns = useMemo<MRT_ColumnDef[]>(
-          () => [
-            {
-              accessorKey: "articleId",
-              header: "ID",
-              size: 50
-            },
-            {
-              accessorKey: "name",
-              header: "First Namde"
-            },
-            {
-              accessorKey: "excerpt",
-              header: "Middle Name"
-            },
-            {
-              accessorKey: "sapNumber",
-              header: "Last Name"
-            }
-          ],
-          []
-        );
-      
-        return (
-          <MaterialReactTable
-            columns={columns}
-            data={data}
-            displayColumnDefOptions={{
-              "mrt-row-expand": {
-                muiTableHeadCellProps: {
-                  align: "left"
-                },
-                muiTableBodyCellProps: {
-                  align: "left"
-                }
-              }
-            }}
-            initialState={{ expanded: true }}
-            renderDetailPanel={({ row }) => (
-              <Box
-                sx={{
-                  display: "grid",
-                  margin: "auto",
-                  gridTemplateColumns: "1fr 1fr",
-                  width: "100%"
-                }}
-              >
-                {/* <Typography>Address: {row.original.address}</Typography>
-                <Typography>City: {row.original.city}</Typography>
-                <Typography>State: {row.original.state}</Typography>
-                <Typography>Country: {row.original.country}</Typography> */}
-              </Box>
-            )}
-            positionExpandColumn="last"
-          />
-        );
-}
 
 function CategoryTable(row:ArticleType[]){
     const theme = createTheme(
@@ -237,6 +177,8 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             userArticle: articles
         }))
     }
+
+
     /* KRAJ SET FUNCKIJA */
 
     render() {
@@ -296,7 +238,10 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         return (
             <Row>
                 {this.printErrorMessage()}
-                {TabelaExpand(this.state.userArticle)}
+<<<<<<< HEAD
+                
+=======
+>>>>>>> parent of 55399ad (XD)
                 {this.state.subCategory?.map(this.singleCategory)}
             </Row>
         );
@@ -400,7 +345,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 }
                 /* popunjavamo type kategorije iz responsa */
                 this.setUserArticle(res.data)
-                console.log(this.state.userArticle)
         })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

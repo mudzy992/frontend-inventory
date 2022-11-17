@@ -1,5 +1,4 @@
 import { GridLocaleText } from "@mui/x-data-grid/models/api/gridLocaleTextApi"
-import { ReactNode } from "react"
 
 export const LangBa = {
     /* Kako budem uređivao koju komponentu tako ću dodavati poruke */

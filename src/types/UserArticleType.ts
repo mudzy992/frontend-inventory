@@ -4,7 +4,7 @@ export default class UserArticleType {
     documentId?: number;
     userId?: number;
     serialNumber?: string;
-    status?: string;
+    status?: 'zaduženo' | 'razduženo' | 'otpisano';
     timestamp?: string;
     comment?: string;
     invBroj?: string;
@@ -14,7 +14,7 @@ export default class UserArticleType {
         articleId: number;
         value: number;
         comment: string;
-        status: 'razduženo'
+        status: 'razduženo';
         timestampe: string;
         serialNumber: string;
         invBroj: string;
@@ -25,7 +25,7 @@ export default class UserArticleType {
         articleId: number;
         value: number;
         comment: string;
-        status: 'otpisano'
+        status: 'otpisano';
         timestampe: string;
         serialNumber: string;
     }[];
@@ -36,7 +36,7 @@ export default class UserArticleType {
         articleId: number;
         documentId: number;
         value: number;
-        status: 'zaduženo' | 'razduženo' | 'otpisano';
+        status: 'zaduženo';
         timestamp: string;
         serialNumber: string;
         invBroj: string;

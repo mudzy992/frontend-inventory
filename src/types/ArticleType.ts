@@ -74,7 +74,7 @@ export default class ArticleType {
         value: string;
         serialNumber: string;
         timestamp: string;
-        status: 'razduženo';
+        status: 'zaduženo';
     }[];
     documents?:{
         documentsId: number;

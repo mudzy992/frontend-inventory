@@ -17,6 +17,7 @@ import UserArticleType from '../../../types/UserArticleType';
 
 import MaterialReactTable, { MRT_ColumnDef } from 'material-react-table';
 import TableFunction from './TableFunction';
+import UserArticleDto from '../../../dtos/UserArticleDto';
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
@@ -157,8 +158,14 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         }))
     }
 
+    private setUserArticle(data: UserArticleBaseType[]) {
+        this.setState(Object.assign(this.state, {
+            userArticle: data
+        }))
+    }
+
  
-    private setUserArticle(data: UserArticleType[]) {
+   /*  private setUserArticle(data: UserArticleType[]) {
         const articles: UserArticleBaseType[] = data.map(ar => {
             return {
                 articleId: ar.articleId,
@@ -182,7 +189,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             userArticle: articles
         }))
     }
-
+ */
 
     /* KRAJ SET FUNCKIJA */
 
@@ -336,8 +343,47 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 if (res.status === 'error') {
                     return this.setErrorMessage('Greška prilikom učitavanja user Article apija. Osvježite ili pokušajte ponovo kasnije')
                 }
+
+                const data: UserArticleDto = res.data;
+
+                const userArticleData: UserArticleBaseType[] = [];
+
+                for (const statusRespon of res.data) {
+                    let articleId = statusRespon.articleId;
+                    let name = statusRespon.name;
+                    let excerpt = statusRespon.excerpt;
+                    let sapNumber = '';
+                    let invBroj = '';
+                    let serialNumber = '';
+                    let status = '';
+                    let timestamp = '';
+                    let userId = 0;
+                    let articles = [invBroj, serialNumber, status, timestamp, userId];
+                    
+                    if (statusRespon.articleId === data.articleId) {
+                        status = statusRespon.status;
+                        invBroj = statusRespon.invBroj;
+                        serialNumber = statusRespon.serialNumber;
+                        timestamp = statusRespon.timestamp;
+                        userId = statusRespon.userId;
+
+                        articles.push({invBroj, serialNumber, articleId, timestamp, userId})
+                    }
+
+                    userArticleData.push({ name, excerpt, sapNumber })
+                }
+
                 /* popunjavamo type kategorije iz responsa */
-                this.setUserArticle(res.data)
+                this.setUserArticle(userArticleData)
         })
+
+        // api('api/userArticle/?filter=article.categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
+        //     .then((res: ApiResponse) => {
+        //         if (res.status === 'error') {
+        //             return this.setErrorMessage('Greška prilikom učitavanja user Article apija. Osvježite ili pokušajte ponovo kasnije')
+        //         }
+        //         /* popunjavamo type kategorije iz responsa */
+        //         this.setUserArticle(res.data)
+        // })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

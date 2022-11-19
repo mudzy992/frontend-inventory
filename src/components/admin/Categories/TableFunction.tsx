@@ -1,46 +1,70 @@
-import { useMemo, useRef, useState, useEffect, FC} from 'react';
+import { useMemo, useRef, useState, useEffect} from 'react';
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { Box, Typography } from "@mui/material";
-
+import { Button, TableCell, TableContainer, TableHead, TableRow, TableBody, Paper, Table } from "@mui/material";
+import Moment from 'moment';
 
 interface UserArticleBaseType {
     articleId?: number;
     name?: string;
-    excerpt?: string;
+    concract?: string;
     sapNumber?: string;
-    articles?: {
+    articlesInStock?: {
+      valueOnConcract: number;
+      valueAvailable: number;
+    };
+    userArticles?: {
         invBroj?: string;
         serialNumber?: string;
         status?: string;
         timestamp?: string;
         userId?: number;
-    }[]
+    }[] 
 }
-
-
 
 export default function TableFunction(props:any) {
   
-  const columns = useMemo<MRT_ColumnDef<UserArticleBaseType>[]>(
+  const columns = useMemo(
     () => [
       {
-        accessorKey: "name",
+        accessorKey: "articleId",
         header: "ID",
+        size: 10,
+        Cell:({cell}) => (
+          <Button
+          size="small"
+          style={{ marginLeft: 5 }}
+          href={`#/article/${cell.getValue()}`} 
+        >
+          <i className="bi bi-info-circle" style={{fontSize:20}}/>
+        </Button>
+        )
+      },
+      {
+        accessorKey: "name",
+        header: "Naziv opreme"
+      },
+      {
+        accessorKey: "concract",
+        header: "Ugovor",
         size: 50
       },
       {
-        accessorKey: "excerpt",
-        header: "First Namde"
-      },
-      {
         accessorKey: "sapNumber",
-        header: "Middle Name"
+        header: "SAP broj"
       },
       {
-        accessorKey: "articleId",
-        header: "Last Name"
-      }
-    ],
+        accessorKey: "articlesInStock.valueAvailable",
+        header: "Dostupno",
+        size: 20,
+        Cell:({cell}) => {
+          if(cell.getValue() === 0) {
+            return (<div style={{color:"red", fontWeight:"bold"}}> <i className="bi bi-exclamation-circle"/> {cell.getValue()}</div>)
+          } else {
+            return (<div style={{color:"green", fontWeight:"bold"}}><i className="bi bi-check-circle"/> {cell.getValue()}</div>)
+          }
+        }
+      },
+    ] as MRT_ColumnDef<UserArticleBaseType>[],
     []
   );
 
@@ -56,37 +80,73 @@ export default function TableFunction(props:any) {
 
   return (
     <MaterialReactTable
-          columns={columns} 
-          data={props.data} 
-          enableColumnOrdering //enable some features
-          enableRowSelection 
-          enablePagination={false} //disable a default feature
+          columns={columns}
+          data={props.data}         
+          enablePagination={true} //disable a default feature
           onRowSelectionChange={setRowSelection} //hoist internal state to your own state (optional)
           state={{ rowSelection }} //manage your own state, pass it back to the table (optional)
           tableInstanceRef={tableInstanceRef} //get a reference to the underlying table instance (optional)
-          
-          renderDetailPanel={({ row }) => (
-        <Box
-          sx={{
-            display: "grid",
-            margin: "auto",
-            gridTemplateColumns: "1fr 1fr",
-            width: "100%"
-          }}
-        >
-          {row.original.articles?.map(expand => (
-            <><Typography>Serijski broj: {expand.serialNumber}</Typography>
-            <Typography>Inventurni broj: {expand.invBroj}</Typography>
-            <Typography>Status: {expand.status}</Typography>
-            <Typography>Datum akcije: {expand.timestamp}</Typography>
-            <Typography>Korisnik: {expand.userId}</Typography></>
-          ))}
-          
-           {/* {row.original.map(cc => (
-                <Typography>Address: {cc.serialNumber}</Typography>
-            ))} */}
-          
-        </Box>
+          renderDetailPanel={({row}) => (
+            <>
+            <TableContainer component={Paper}>
+              <Table>
+              <TableHead>
+                <TableRow>
+                <TableCell>
+                  Serijski broj
+                  </TableCell>
+                  <TableCell>
+                  Inventurni broj
+                  </TableCell>
+                  <TableCell>
+                  Status
+                  </TableCell>
+                  <TableCell>
+                  Datum i vrijeme akcije
+                  </TableCell>
+                  <TableCell>
+                  Korisnik
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+            
+            <TableBody>
+              {Array.from(new Set(row.original.userArticles?.map(s => s.serialNumber)))
+              .sort()
+              .map(serialNumber => {
+                return (
+                  <>
+                  <TableRow key={serialNumber}>
+                  <TableCell component="th" scope="row">
+                  <Button
+                      size="small"
+                      style={{ marginLeft: 5 }}
+                      href={`#/admin/userArticle/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}/${row.original.articleId}/${serialNumber}`} 
+                    >
+                      {serialNumber}
+                    </Button>
+                    </TableCell>
+                  <TableCell>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.invBroj}</TableCell>
+                  <TableCell>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.status}</TableCell>
+                  <TableCell>{Moment(row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                  <TableCell>
+                  <Button
+                      size="small"
+                      style={{ marginLeft: 5 }}
+                      href={`#/admin/userProfile/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}`} 
+                    >
+                      <i className="bi bi-person-fill" style={{fontSize:20}}/> Profil
+                    </Button>
+                  </TableCell>
+                  </TableRow>
+                  </>
+                )
+              })
+              }
+              </TableBody>
+              </Table>
+              </TableContainer>
+              </>
       )}
       positionExpandColumn="last"
     />

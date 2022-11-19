@@ -29,6 +29,7 @@ export default class ArticleType {
         timestamp: string;
         serialNumber: string;
         comment: string;
+        invBroj: string;
     }[];
     userDetails?:{
         userId: number;

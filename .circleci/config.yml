@@ -25,6 +25,9 @@ jobs:
       - run:
           name: Deploy app to Firebase
           command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_TOKEN  
+      - run:
+          name: Start frontend
+          command: npm run start:dev
 workflows:
   build-and-deploy:
     jobs:

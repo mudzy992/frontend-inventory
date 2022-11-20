@@ -73,5 +73,17 @@
     "@types/react-loading-overlay": "^1.0.1",
     "file-saver": "^2.0.5",
     "html-webpack-plugin": "^5.5.0"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mudzy992/frontend-inventory.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mudzy992/frontend-inventory/issues"
+  },
+  "homepage": "https://github.com/mudzy992/frontend-inventory#readme"
 }

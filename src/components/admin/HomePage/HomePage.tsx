@@ -85,7 +85,7 @@ export default class HomePage extends React.Component {
             <>
                 <RoledMainMenu role='administrator'/>
                     <Container style={{marginTop: 15 }}>
-                       {/*  <UserPage /> */}
+                        <UserPage />
                             <Row >
                                 <h5 style={{marginLeft:10, color:"white"}}> 
                                 <i className="bi bi-card-list"/> Top level kategorije</h5>

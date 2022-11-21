@@ -5,7 +5,7 @@ export default function api(
     path: string,
     method: 'get' | 'post' | 'patch' | 'delete',
     body: any | undefined,
-    role: 'user' | 'administrator' = 'user',
+    role: 'administrator' | 'user' = 'user',
 ) {
     return new Promise<ApiResponse>((resolve) => {
         const requestData = {
@@ -77,25 +77,25 @@ export default function api(
         return resolve(response);
     }
 
-    function getToken(role: 'user' | 'administrator'): string {
+    function getToken(role: 'administrator' | 'user'): string {
         const token = sessionStorage.getItem('api_token_' + role);
         return 'Berer ' + token;
     }
     
-    export function saveToken(role: 'user' | 'administrator', token: string) {
+    export function saveToken(role: 'administrator' | 'user', token: string) {
         sessionStorage.setItem('api_token_' + role, token);
     }
     
-    function getRefreshToken(role: 'user' | 'administrator'): string {
+    function getRefreshToken(role: 'administrator' | 'user'): string {
         const token = sessionStorage.getItem('api_refresh_token_' + role);
         return token + '';
     }
     
-    export function saveRefreshToken(role: 'user' | 'administrator', token: string) {
+    export function saveRefreshToken(role: 'administrator' | 'user', token: string) {
         sessionStorage.setItem('api_refresh_token_' + role, token);
     }
     
-    async function refreshToken(role: 'user' | 'administrator'): Promise<string | null> {
+    async function refreshToken(role: 'administrator' | 'user'): Promise<string | null> {
         const path = 'auth/' + role + '/refresh';
         const data = {
             token: getRefreshToken(role),

@@ -101,7 +101,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 <Container style={{ marginTop: 15 }}>
                     <Row className={this.state.articles.length > 0 ? '' : 'd-none'}>
                         <h5 style={{marginLeft:10, marginBottom:8, color:"white"}}><i className="bi bi-list"/>{this.state.category?.name}</h5>
-                        <div> 
+                        <div style={{borderRadius:10}}> 
                             {this.showArticles()}
                         </div>
                     </Row>

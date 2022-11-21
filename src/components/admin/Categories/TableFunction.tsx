@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect} from 'react';
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { Button, TableCell, TableContainer, TableHead, TableRow, TableBody, Paper, Table } from "@mui/material";
+import { Button, TableCell, TableHead, TableRow, TableBody, Table, Card } from "@mui/material";
 import Moment from 'moment';
 
 interface UserArticleBaseType {
@@ -79,6 +79,8 @@ export default function TableFunction(props:any) {
    const tableInstanceRef = useRef(null);
 
   return (
+    <>
+    <Card>
     <MaterialReactTable
           columns={columns}
           data={props.data}         
@@ -87,52 +89,51 @@ export default function TableFunction(props:any) {
           state={{ rowSelection }} //manage your own state, pass it back to the table (optional)
           tableInstanceRef={tableInstanceRef} //get a reference to the underlying table instance (optional)
           renderDetailPanel={({row}) => (
-            <>
-            <TableContainer component={Paper}>
+            <Card variant="outlined" style={{backgroundColor:"#3E4149"}}>
               <Table>
               <TableHead>
-                <TableRow>
-                <TableCell>
+                <TableRow style={{}}>
+                <TableCell style={{color:"white", borderColor:"#444F5A"}}>
                   Serijski broj
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
                   Inventurni broj
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
                   Status
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
                   Datum i vrijeme akcije
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
                   Korisnik
                   </TableCell>
                 </TableRow>
               </TableHead>
             
             <TableBody>
-              {Array.from(new Set(row.original.userArticles?.map(s => s.serialNumber)))
+            {Array.from(new Set(row.original.userArticles?.map(s => s.serialNumber)))
               .sort()
-              .map(serialNumber => {
+              .map(serialNumber => { 
                 return (
                   <>
                   <TableRow key={serialNumber}>
-                  <TableCell component="th" scope="row">
+                  <TableCell component="th" scope="row" style={{borderColor:"#444F5A"}}>
                   <Button
                       size="small"
-                      style={{ marginLeft: 5 }}
+                      style={{ marginLeft: 5, color:"#9ED5C5"}}
                       href={`#/admin/userArticle/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}/${row.original.articleId}/${serialNumber}`} 
                     >
                       {serialNumber}
                     </Button>
                     </TableCell>
-                  <TableCell>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.invBroj}</TableCell>
-                  <TableCell>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.status}</TableCell>
-                  <TableCell>{Moment(row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                  <TableCell>
+                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.invBroj}</TableCell>
+                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.status}</TableCell>
+                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>{Moment(row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                  <TableCell style={{borderColor:"#444F5A"}}>
                   <Button
                       size="small"
-                      style={{ marginLeft: 5 }}
+                      style={{ marginLeft: 5, color:"#9ED5C5"}}
                       href={`#/admin/userProfile/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}`} 
                     >
                       <i className="bi bi-person-fill" style={{fontSize:20}}/> Profil
@@ -145,10 +146,9 @@ export default function TableFunction(props:any) {
               }
               </TableBody>
               </Table>
-              </TableContainer>
-              </>
+              </Card>
       )}
       positionExpandColumn="last"
-    />
+    /></Card></>
   );
 };

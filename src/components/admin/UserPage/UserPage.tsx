@@ -43,7 +43,7 @@ function UserTable(row:UserType[]){
               </Button>
           ),
     },
-        {field: 'fullname', headerName: 'Ime i prezime', width: 200},
+        {field: 'fullname', headerName: 'Ime i prezime!', width: 200},
         {field: 'departmentTitle', headerName: 'Sektor/Odjeljenje', width: 200},
         {field: 'jobTitle', headerName: 'Radno mjesto', width: 200},
         {field: 'locationName', headerName: 'Lokacija', width: 150},

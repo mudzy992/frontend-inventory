@@ -1,6 +1,6 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Button, Card, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
+import { Button, Card, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
 import MuiAlert from '@mui/material/Alert';
 import { Snackbar, Stack } from '@mui/material';
 import LocationType from '../../../types/LocationType';

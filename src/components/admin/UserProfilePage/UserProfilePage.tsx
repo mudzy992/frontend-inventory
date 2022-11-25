@@ -239,12 +239,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             <>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 20 }}>
-                    <Card className="text-white bg-dark">
+                    <Card className="text-white bg-dark mb-3">
                         <Card.Header>
                             <Card.Title>
-                                <Row>
+                                <Row style={{display:"flex", alignItems:"center"}}>
                                     <Col>
-                                    <i className="bi bi-card-checklist" /> {
+                                   {
                                     this.state.users ?
                                         this.state.users.fullname :
                                         'Kartica korisnika nije pronadjena'

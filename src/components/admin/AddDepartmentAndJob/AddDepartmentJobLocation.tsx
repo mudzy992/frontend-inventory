@@ -227,7 +227,7 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                     <Row style={{ alignItems: 'end' }}>
                             <Button onClick={() => this.doAddDepartmentJobLocation()} 
                                     variant="success"
-                                    style={{background:"#70A9A1", color:"#1F363D", border:0, fontSize:18}}>
+                                    >
                             <i className="bi bi-node-plus" /> Poveži </Button>
                         </Row>
                 </Modal.Footer>

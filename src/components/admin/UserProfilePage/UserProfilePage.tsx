@@ -114,14 +114,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         const newState = Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
         });
-
         this.setState(newState);
-    }
-
-    private setDepartmentJobs(departmentJobsData: DepartmentByIdType[]) {
-        this.setState(Object.assign(this.state, {
-            departmentJobs: departmentJobsData
-        }))
     }
 
     private async showEditModal() {
@@ -140,11 +133,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
-    }
-
-    componentDidUpdate() {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-
     }
 
     private printOptionalMessage() {
@@ -258,15 +246,14 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     </Col>
                                     <Col style={{display:"flex", flexDirection:"row-reverse"}}>
                                     <Button onClick={() => this.showEditModal()} > 
-                                        
-                                     <Modal size="lg" centered show={this.state.modal.editUser.visible} onHide={() => this.setEditModalVisibleState(false)}>
+                                        Izmjeni</Button>
+                                        <Modal size="lg" centered show={this.state.modal.editUser.visible} onHide={() => this.setEditModalVisibleState(false)}>
                                          <EditUser match={{
                                                     params: {
                                                         userId: this.props.match.params.userID
                                                     }
                                                 }} />
                                         </Modal>
-                                        Izmjeni</Button>
                                     </Col>
                                 </Row>
                                 

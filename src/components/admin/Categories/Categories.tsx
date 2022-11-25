@@ -1,7 +1,7 @@
 import { Alert } from '@mui/material';
 import React from 'react';
 import { Card, Col, Row, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import ArticleType from '../../../types/ArticleType';
 import CategoryType from '../../../types/CategoryType';
@@ -40,6 +40,7 @@ interface CategoryPageState {
     message: string;
     articles: ArticleType[];
     userArticle: UserArticleBaseDetailsType[];
+    isLoggedIn: boolean;
 }
 
 
@@ -56,7 +57,8 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         this.state = {
             userArticle:[],
             articles:[],
-            message: ""
+            message: "",
+            isLoggedIn: true,
         }
     }
 
@@ -90,11 +92,23 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             userArticle: data,
         }))
     }
+
+    private setLogginState(isLoggedIn: boolean) {
+        const newState = Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        });
+        this.setState(newState);
+    }
   
 
     /* KRAJ SET FUNCKIJA */
 
     render() {
+        if (this.state.isLoggedIn === false) {
+            return (
+                <Redirect to="/admin/login" />
+            );
+        }
         return (
             <>
                 <RoledMainMenu role='administrator' />
@@ -191,6 +205,9 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 if (res.status === 'error') {
                     return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                 }
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
 
                 /* popunjavamo type kategorije iz responsa */
 
@@ -219,6 +236,9 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 if (res.status === 'error') {
                     return this.setErrorMessage('Greška prilikom učitavanja user Article apija. Osvježite ili pokušajte ponovo kasnije')
                 }
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
                 this.setArticles(res.data)
         })
 
@@ -227,6 +247,9 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     return this.setErrorMessage('Greška prilikom učitavanja user Article apija. Osvježite ili pokušajte ponovo kasnije')
+                }
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
                 }
                 this.setUserArticle(res.data)
 

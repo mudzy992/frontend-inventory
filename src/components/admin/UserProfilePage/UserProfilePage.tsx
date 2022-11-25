@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Avatar } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import ArticleByUserData from "../../../data/ArticleByUserData";
 import ArticleByUserType from "../../../types/ArticleByUserType";
@@ -144,6 +144,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 {this.state.message}
             </Card.Text>
         );
+    }
+
+    private Avatar(surename: string, forname: string) {
+        return(
+            <Avatar sx={{ bgcolor: "#497174", borderColor:"#EB6440", boderSize:5, width:150, height:150, fontSize: 50 }}>{surename.charAt(0) + '' + forname.charAt(0)}</Avatar>
+        )
     }
 
     /* Funkcija za dopremanje podataka, veza sa api-jem  
@@ -424,35 +430,44 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     private renderArticleData(user: ApiUserDto) {
 
         return (
-            <Row>
-                <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
-                    <ul className="list-group">
-                        <>
-                            <li className="list-group-item active"><b>Detalji korisnika</b></li>
-                            <li className="list-group-item">Ime: {user.surname}</li>
-                            <li className="list-group-item">Prezime: {user.forname}</li>
-                            <li className="list-group-item">Email: {user.email}</li>
-                            <li className="list-group-item">Sektor: {user.department?.title}</li>
-                            <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
-                            <li className="list-group-item">Lokacija: {user.location?.name}</li>
-                        </>
-                    </ul>
-                </Col>
-                <Col xs="12" lg="9" >
+            <>
+                <Row>
+                    <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
                     <Row>
-                        {this.articlesByUser()}
+                        <Col style={{display:"flex", justifyContent:"center"}} className="mb-3">
+                        {this.Avatar(user.surname, user.forname)}
+                        </Col>
                     </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.responsibilityArticlesOnUser()}
-                    </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.debtArticlesOnUser()}
-                    </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.destroyedArticlesOnUser()}
-                    </Row>
-                </Col>
-            </Row>
+                        <ul className="list-group">
+                            <>
+                                <li className="list-group-item active"><b>Detalji korisnika</b></li>
+                                <li className="list-group-item">Ime: {user.surname}</li>
+                                <li className="list-group-item">Prezime: {user.forname}</li>
+                                <li className="list-group-item">Email: {user.email}</li>
+                                <li className="list-group-item">Sektor: {user.department?.title}</li>
+                                <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
+                                <li className="list-group-item">Lokacija: {user.location?.name}</li>
+                                <li className="list-group-item">Broj lokala: {user.localNumber}</li>
+                                <li className="list-group-item">Telefon: {user.telephone}</li>
+                            </>
+                        </ul>
+                    </Col>
+                    <Col xs="12" lg="9">
+                        <Row>
+                            {this.articlesByUser()}
+                        </Row>
+                        <Row style={{ padding: 5 }}>
+                            {this.responsibilityArticlesOnUser()}
+                        </Row>
+                        <Row style={{ padding: 5 }}>
+                            {this.debtArticlesOnUser()}
+                        </Row>
+                        <Row style={{ padding: 5 }}>
+                            {this.destroyedArticlesOnUser()}
+                        </Row>
+                    </Col>
+                </Row>
+            </>
         );
     }
 

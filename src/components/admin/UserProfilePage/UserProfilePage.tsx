@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
@@ -16,6 +16,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
+import EditUser from "../EditUser/EditUser";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -38,6 +39,11 @@ interface AdminUserProfilePageState {
     features: FeaturesType[];
     isLoggedIn: boolean;
     departmentJobs: DepartmentByIdType[];
+    modal: {
+        editUser:{
+            visible: boolean,
+        }
+    }
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -55,6 +61,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             features: [],
             isLoggedIn: true,
             departmentJobs: [],
+            modal:{
+                editUser: {
+                    visible: false,
+                }
+            }
         }
     }
     private setFeaturesData(featuresData: FeaturesType[]) {
@@ -111,6 +122,16 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         this.setState(Object.assign(this.state, {
             departmentJobs: departmentJobsData
         }))
+    }
+
+    private async showEditModal() {
+        this.setEditModalVisibleState(true)
+    }
+
+    private setEditModalVisibleState(newState: boolean) {
+        this.setState(Object.assign(this.state.modal.editUser, {
+                visible: newState,
+            }));
     }
 
     /* KRAJ SET FUNCKIJA */
@@ -227,11 +248,28 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <Card className="text-white bg-dark">
                         <Card.Header>
                             <Card.Title>
-                                <i className="bi bi-card-checklist" /> {
+                                <Row>
+                                    <Col>
+                                    <i className="bi bi-card-checklist" /> {
                                     this.state.users ?
                                         this.state.users.fullname :
                                         'Kartica korisnika nije pronadjena'
-                                }
+                                    }
+                                    </Col>
+                                    <Col style={{display:"flex", flexDirection:"row-reverse"}}>
+                                    <Button onClick={() => this.showEditModal()} > 
+                                        
+                                     <Modal size="lg" centered show={this.state.modal.editUser.visible} onHide={() => this.setEditModalVisibleState(false)}>
+                                         <EditUser match={{
+                                                    params: {
+                                                        userId: this.props.match.params.userID
+                                                    }
+                                                }} />
+                                        </Modal>
+                                        Izmjeni</Button>
+                                    </Col>
+                                </Row>
+                                
                             </Card.Title>
                         </Card.Header>
                         <Card.Body>

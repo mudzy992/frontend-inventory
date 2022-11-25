@@ -383,7 +383,7 @@ export default class AddUserPage extends React.Component<{}>{
 
                         <Row>
                             <Col lg="6" xs="12">
-                                <FloatingLabel label="Telefon" className="mb-3">
+                            <FloatingLabel label="Telefon" className="mb-3">
                                 <Form.Control 
                                 id="telephone" 
                                 type='telephone'

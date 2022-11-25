@@ -35,15 +35,9 @@ interface FeatureBaseType {
     name: string;
     value: string;
 }
-interface ArticlePageState {
-    message: string;
-    articles?: ApiArticleDto;
-    categories: CategoryType[];
-    feature: FeaturesType[];
-    articleTimeline: ArticleTimelineType[];
-    users: userData[];
-    editFeature: {
-        visible:boolean;
+
+interface EditFeaturesType {
+    visible:boolean;
         categoryId: number;
         name: string;
         excerpt: string;
@@ -59,7 +53,15 @@ interface ArticlePageState {
             name: string;
             value: string;
         }[]
-    }
+}
+interface ArticlePageState {
+    message: string;
+    articles?: ApiArticleDto;
+    categories: CategoryType[];
+    feature: FeaturesType[];
+    articleTimeline: ArticleTimelineType[];
+    users: userData[];
+    editFeature: EditFeaturesType;
     changeStatus: {
         visible: boolean;
         userId: number | null;

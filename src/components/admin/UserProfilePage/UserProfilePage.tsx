@@ -196,7 +196,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 const departmentJobs: DepartmentByIdType[] = res.data;
                 this.setDepartmentJobs(departmentJobs)
             }) */
-        api('api/article/?filter=userArticles.userId||$eq||'
+        /* api('api/article/?filter=userArticles.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -221,7 +221,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 }
                 this.setFeaturesData(features);
             }
-            )
+            ) */
     }
 
     /* KRAJ GET I MOUNT FUNKCIJA */

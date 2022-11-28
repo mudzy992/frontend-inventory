@@ -166,7 +166,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
-        api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
+        /* api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
             + this.props.match.params.userID +
             ''
             , 'get', {}, 'user')
@@ -191,7 +191,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 }
                 this.setFeaturesData(features);
             }
-            )
+            ) */
     }
 
     /* KRAJ GET I MOUNT FUNKCIJA */

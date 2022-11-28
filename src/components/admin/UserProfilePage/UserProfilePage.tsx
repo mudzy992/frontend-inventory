@@ -176,17 +176,17 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||razduženo' + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
             })
-        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||otpisano' + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||zaduženo' + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
@@ -196,7 +196,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 const departmentJobs: DepartmentByIdType[] = res.data;
                 this.setDepartmentJobs(departmentJobs)
             }) */
-        api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
+        api('api/article/?filter=userArticles.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -487,6 +487,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     </Card>
                     </Col>
                 </>
-            )))
+            ))        
+            )
     }
 }

@@ -176,17 +176,17 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||razduženo' + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||razduženo&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
             })
-        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||otpisano' + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||otpisano&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||zaduženo' + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||zaduženo&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)

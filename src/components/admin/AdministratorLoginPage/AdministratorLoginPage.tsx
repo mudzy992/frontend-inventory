@@ -120,7 +120,7 @@ export default class AdministratorLoginPage extends React.Component {
                     <Card style={{ marginTop: '50%' }}>
                         <Card.Body>
                             <Card.Title>
-                                <i className="bi bi-box-arrow-in-right" /> Administrator Login
+                                <i className="bi bi-box-arrow-in-right" /> Administrator Login 1
                             </Card.Title>
                             <Form>
                                 <Form.Group>

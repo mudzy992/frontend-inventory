@@ -191,14 +191,10 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
-        /* api('api/departmentJob/?filter=users.userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                const departmentJobs: DepartmentByIdType[] = res.data;
-                this.setDepartmentJobs(departmentJobs)
-            }) */
-        /* api('api/article/?filter=userArticles.userId||$eq||'
-            + this.props.match.params.userID
-            , 'get', {}, 'administrator')
+
+        api('api/article/?filter=userArticles.userId||$eq||'
+            + this.props.match.params.userID,
+            'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;
                 this.setArticleByUser(articleByUser)
@@ -221,7 +217,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 }
                 this.setFeaturesData(features);
             }
-            ) */
+            )
     }
 
     /* KRAJ GET I MOUNT FUNKCIJA */

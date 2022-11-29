@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect} from 'react';
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { Button, TableCell, TableHead, TableRow, TableBody, Table, Card } from "@mui/material";
+import { Button, TableCell, TableHead, TableRow, TableBody, Table, Card, Alert } from "@mui/material";
 import Moment from 'moment';
 
 interface UserArticleBaseType {
@@ -93,8 +93,9 @@ export default function TableFunction(props:any) {
           state={{ rowSelection }} //manage your own state, pass it back to the table (optional)
           tableInstanceRef={tableInstanceRef} //get a reference to the underlying table instance (optional)
           renderDetailPanel={({row}) => (
-            <Card variant="outlined" style={{backgroundColor:"#3E4149"}}>
-              <Table>
+            <Card variant="outlined" style={{backgroundColor:"#3E4149"}} >
+              <Alert className={!row.original.userArticles?.length ? '' : 'd-none'} severity="info">Nema definisanih artikala</Alert>
+              <Table className={row.original.userArticles?.length ? '' : 'd-none'}>
               <TableHead>
                 <TableRow style={{}}>
                 <TableCell style={{color:"white", borderColor:"#444F5A"}}>
@@ -141,30 +142,14 @@ export default function TableFunction(props:any) {
                       className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId ? '': 'd-none'}
                       href={`#/admin/userProfile/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}`} 
                     >
-                      
-                      <i className="bi bi-person-fill" style={{fontSize:20}}/> Profil
+                      <i className="bi bi-person-fill" style={{fontSize:20}}/> {row.original.userDetails?.find(s => s.userId === row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId)?.fullname}
                     </Button>
                   </TableCell>
-                  <TableCell style={{borderColor:"#444F5A"}}>
-                  <Button
-                      size="small"
-                      style={{ marginLeft: 5, color:"#9ED5C5"}}
-                      /* className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId ? '': 'd-none'} */
-                      href={`#/admin/userProfile/${row.original.userDetails?.find(s => s.userId === s.userId)?.fullname}`} 
-                    >
-                      
-                      <i className="bi bi-person-fill" style={{fontSize:20}}/> Profil
-                    </Button>
-                  </TableCell>
-                  
                   </TableRow>
                   </>
                 )
               })
               }
-              {row.original.userDetails?.map(sa => {
-                    return (<p>{sa.fullname} ssad</p>)
-                  })}
               </TableBody>
               </Table>
               </Card>

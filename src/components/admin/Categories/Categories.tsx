@@ -22,8 +22,8 @@ interface UserArticleBaseDetailsType {
     concract?: string;
     sapNumber?: string;
     articlesInStock?: {
-        valueOnConcract: number;
-        valueAvailable: number;
+        valueOnConcract?: number;
+        valueAvailable?: number;
     };
     userArticles?: {
         invBroj?: string;
@@ -31,7 +31,11 @@ interface UserArticleBaseDetailsType {
         status?: string;
         timestamp?: string;
         userId?: number;
-    }[]  
+    }[];
+    userDetails?: {
+        userId: number;
+        fullname: string;
+    }[]
 }
 
 interface CategoryPageState {
@@ -252,7 +256,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                     return this.setLogginState(false);
                 }
                 this.setUserArticle(res.data)
-
         })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

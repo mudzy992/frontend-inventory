@@ -18,7 +18,11 @@ interface UserArticleBaseType {
         status?: string;
         timestamp?: string;
         userId?: number;
-    }[] 
+    }[];
+    userDetails?: {
+      userId: number;
+      fullname: string;
+  }[]
 }
 
 export default function TableFunction(props:any) {
@@ -134,16 +138,33 @@ export default function TableFunction(props:any) {
                   <Button
                       size="small"
                       style={{ marginLeft: 5, color:"#9ED5C5"}}
+                      className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId ? '': 'd-none'}
                       href={`#/admin/userProfile/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}`} 
                     >
+                      
                       <i className="bi bi-person-fill" style={{fontSize:20}}/> Profil
                     </Button>
                   </TableCell>
+                  <TableCell style={{borderColor:"#444F5A"}}>
+                  <Button
+                      size="small"
+                      style={{ marginLeft: 5, color:"#9ED5C5"}}
+                      /* className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId ? '': 'd-none'} */
+                      href={`#/admin/userProfile/${row.original.userDetails?.find(s => s.userId === s.userId)?.fullname}`} 
+                    >
+                      
+                      <i className="bi bi-person-fill" style={{fontSize:20}}/> Profil
+                    </Button>
+                  </TableCell>
+                  
                   </TableRow>
                   </>
                 )
               })
               }
+              {row.original.userDetails?.map(sa => {
+                    return (<p>{sa.fullname} ssad</p>)
+                  })}
               </TableBody>
               </Table>
               </Card>

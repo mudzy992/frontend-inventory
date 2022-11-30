@@ -8,39 +8,6 @@ export default class UserArticleType {
     timestamp?: string;
     comment?: string;
     invBroj?: string;
-    debtItems?: {
-        debtItemsId: number;
-        userId: number;
-        articleId: number;
-        value: number;
-        comment: string;
-        status: 'razduženo';
-        timestampe: string;
-        serialNumber: string;
-        invBroj: string;
-    }[];
-    destroyeds?: {
-        destroyedId: number;
-        userId: number;
-        articleId: number;
-        value: number;
-        comment: string;
-        status: 'otpisano';
-        timestampe: string;
-        serialNumber: string;
-    }[];
-    responsibilities?:{
-        responsibilityId: number;
-        userArticleId: number,
-        userId: number;
-        articleId: number;
-        documentId: number;
-        value: number;
-        status: 'zaduženo';
-        timestamp: string;
-        serialNumber: string;
-        invBroj: string;
-    }[];
     user?: {
         userId: number;
         surname: string;

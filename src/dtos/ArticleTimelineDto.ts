@@ -1,4 +1,4 @@
-export default class ArticleTimelineDto {
+export default interface ArticleTimelineDto {
     articleTimelineId?: number;
     articleId?: number;
     documentId?: number;

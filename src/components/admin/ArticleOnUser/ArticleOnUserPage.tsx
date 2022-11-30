@@ -8,7 +8,6 @@ import Moment from 'moment';
 import FeaturesType from '../../../types/FeaturesType';
 import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import ArticleByUserType from '../../../types/ArticleByUserType';
-import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
@@ -40,7 +39,6 @@ interface upgradeFeaturesType {
 
 
 interface AdminArticleOnUserPageState {
-    userArticle: UserArticleDto[];
     message: string;
     article: ArticleByUserType[];
     features: FeaturesType[];
@@ -85,7 +83,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             isLoggedIn: true,
             errorMessage: '',
             changeStatus: {
-                userId: this.props.match.params.userID,
+                userId: 0,
                 articleId: 0,
                 value: null,
                 comment: '',
@@ -102,7 +100,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 comment: "",
                 serialNumber: "",
             },
-            userArticle: [],
         }
     }
 
@@ -165,12 +162,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         }))
     }
 
-    private setUserArticle(userArticleData: UserArticleDto[]) {
-        this.setState(Object.assign(this.state, {
-            userArticle: userArticleData
-        }))
-    }
-
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
             features: featuresData
@@ -201,16 +192,29 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
         if (oldProperties.match.params.userID === this.props.match.params.userID) {
             return;
         }
-        this.getArticleData();
+        this.getUserArticleData();
     }
     /* '&filter=userDetails.userId||$eq||' + this.props.match.params.userID + */
     private getArticleData() {
+        api('api/articleTimeline/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'error') {
+                    this.setFeaturesData([]);
+                    this.setErrorMessage(LangBa.ARTICLE_ON_USER.ERR_READ_CATEGORY)
+                    return;
+                }
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
+
+                this.setArticleTimelineData(res.data)
+            })
+
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
-            '&filter=userDetails.userId||$eq||' + this.state.changeStatus.userId +
+           /*  '&filter=userDetails.userId||$eq||' + this.state.changeStatus.userId + */
             '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
             '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -239,13 +243,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 break;
                             }
                         }
-
                         features.push({ name, value });
                     }
                 }
                 this.setFeaturesData(features);
             }
-            )
+        )
 
         api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -258,42 +261,46 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 this.setUser(res.data)
             }
         )
+        
+    }
 
-        api('/api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                this.setUser(res.data)
-            }
-        )
-
-        api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+    private getUserArticleData(){
+        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
+            '&filter=userDetails.userId||$eq||' + this.state.changeStatus.userId + 
+            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
+            '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
-                    this.setErrorMessage(LangBa.ARTICLE_ON_USER.ERR_READ_CATEGORY)
+                    this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                     return;
                 }
                 if (res.status === 'login') {
                     return this.setLogginState(false);
                 }
-                const data: UserArticleDto[] = res.data;
-                this.setUserArticle(data)
 
-                const articleTimeline: ArticleTimelineType[] = [];
-                for (const ua of data) {
-                    let status = ua.status;
-                    let serialNumber = ua.serialNumber;
-                    let invBroj = ua.invBroj;
-                    let sapNumber = ua.article?.sapNumber;
-                    let surname = ua.user?.surname;
-                    let forname = ua.user?.forname;
-                    let timestamp = ua.timestamp;
-                    let comment = ua.comment;
-                    let documentPath = ua.document?.path 
+                const data: ArticleByUserType[] = res.data;
+                this.setErrorMessage('')
+                this.setArticle(data)
+                const features: FeaturesType[] = [];
 
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, invBroj, sapNumber, timestamp, documentPath })
+                for (const start of data) {
+                    for (const articleFeature of start.articleFeature) {
+                        const value = articleFeature.value;
+                        let name = '';
+
+                        for (const feature of start.features) {
+                            if (feature.featureId === articleFeature.featureId) {
+                                name = feature.name;
+                                break;
+                            }
+                        }
+                        features.push({ name, value });
+                    }
                 }
-                this.setArticleTimelineData(articleTimeline)
-            })
+                this.setFeaturesData(features);
+            }
+        )
     }
 
     private getUpgradeFeatureBySerialNumber () {
@@ -478,7 +485,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     return
                 }
                 this.setChangeStatusVisibleState(false)
-                this.getArticleData()
+                this.getUserArticleData()
             })
     }
 
@@ -782,11 +789,11 @@ private upgradeFeature() {
                                         <TableBody>
                                             {this.state.articleTimeline?.map(articleTimeline => (
                                                 <TableRow hover>
-                                                    <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
+                                                    <TableCell>{articleTimeline.user?.surname} {articleTimeline.user?.forname}</TableCell>
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell>
+                                                    <TableCell>{this.saveFile(articleTimeline.document?.path)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

@@ -18,7 +18,7 @@ export default function AdminMenu() {
         {icon: <i className='bi bi-card-checklist' style={{fontSize:'21px'}}/> , name: 'Kategorije', link: "/admin/category"},
         {icon: <i className='bi bi-person-plus-fill' style={{fontSize:'21px'}}/>, name: 'Korisnici', link: "/admin/user/"},
         {icon: <i className='bi bi-journal-text' style={{fontSize:'21px'}}/>, name: 'Dokumenti', link: "/admin/document/"},
-        {icon: <i className='bi bi-building-add' style={{fontSize:'21px'}}/> , name: 'Sektor/služba/odljenje', link: "/admin/department/"},
+/*         {icon: <i className='bi bi-building-add' style={{fontSize:'21px'}}/> , name: 'Sektor/služba/odljenje', link: "/admin/department/"}, */
       ]
     return (
         <>

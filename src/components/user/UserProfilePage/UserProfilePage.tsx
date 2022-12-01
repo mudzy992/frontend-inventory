@@ -151,25 +151,24 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/userArticle/?filter=userId||$eq||&filter=status||$eq||razduženo' + this.props.match.params.userID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
             })
-        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/userArticle/?filter=userId||$eq||&filter=status||$eq||otpisano' + this.props.match.params.userID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/userArticle/?filter=userId||$eq||&filter=status||$eq||zaduženo' + this.props.match.params.userID, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
         api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
-            + this.props.match.params.userID +
-            ''
-            , 'get', {}, 'user')
+            + this.props.match.params.userID,
+            'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;
                 this.setArticleByUser(articleByUser)

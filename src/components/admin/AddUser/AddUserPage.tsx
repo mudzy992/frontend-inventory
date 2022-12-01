@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Card, Row, Col, Form, FloatingLabel, Button, Alert, Modal,} from 'react-bootstrap';
+import { Container, Card, Row, Col, Form, FloatingLabel, Button, Modal} from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import AdminMenu from '../AdminMenu/AdminMenu';
@@ -11,6 +11,8 @@ import AddJob from '../AddDepartmentAndJob/AddJob';
 import AddLocation from '../AddDepartmentAndJob/AddLocation';
 import AddDepartmentJobLocation from '../AddDepartmentAndJob/AddDepartmentJobLocation';
 import { Redirect } from 'react-router-dom';
+import MuiAlert from '@mui/material/Alert';
+import { Snackbar, Stack } from '@mui/material';
 
 
 interface LocationDto {
@@ -26,7 +28,10 @@ interface JobBaseType {
     jobCode: string;
 }
 interface AddUserPageState{
-    message: string;
+    error: {
+        message?: string;
+        visible: boolean;
+    };
     isLoggedIn: boolean;
     addUser: {
         surename: string;
@@ -65,7 +70,9 @@ export default class AddUserPage extends React.Component<{}>{
     constructor(props: Readonly<{}>) {
         super(props);
         this.state = {
-            message: '',
+            error: {
+                visible: false,
+            },
             isLoggedIn: true,
             addUser: {
                 surename: '',
@@ -104,23 +111,30 @@ export default class AddUserPage extends React.Component<{}>{
     }
     /* SET */
     private setErrorMessage(message: string) {
-        const newState = Object.assign(this.state, {
-            errorMessage: message,
-        });
-        this.setState(newState);
+        this.setState(Object.assign(this.state.error, {
+            message: message,
+        }));
+    }
+    
+    private setErrorMessageVisible(newState: boolean) {
+        this.setState(Object.assign(this.state.error, {
+                visible: newState,
+        }));
+    }
+
+    private async showErrorMessage() {
+        this.setErrorMessageVisible(true)
     }
 
     private setAddUserStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addUser, {
+        this.setState(Object.assign(this.state.addUser, {
                 [fieldName]: newValue,
-            })))
+            }))
     }
     private setAddUserNumberFieldState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addUser, {
+        this.setState(Object.assign(this.state.addUser,{
                 [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
+            }))
     }
 
     private setLocation(location: LocationDto[]) {
@@ -162,15 +176,12 @@ export default class AddUserPage extends React.Component<{}>{
 
     private async showDepartmentModal() {
         this.setDepartmentModalVisibleState(true)
-        console.log(this.state.modal.department.visible)
     }
 
     private setDepartmentModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.department, {
+        this.setState(Object.assign(this.state.modal.department, {
                 visible: newState,
-            })
-        ));
+            }));
         this.getData();
     }
 
@@ -179,11 +190,9 @@ export default class AddUserPage extends React.Component<{}>{
     }
 
     private setJobModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.job, {
+        this.setState(Object.assign(this.state.modal.job, {
                 visible: newState,
-            })
-        ));
+            }));
         this.getData();
     }
 
@@ -192,11 +201,9 @@ export default class AddUserPage extends React.Component<{}>{
     }
 
     private setLocationModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.location, {
+        this.setState(Object.assign(this.state.modal.location, {
                 visible: newState,
-            })
-        ));
+            }));
         this.getData();
     }
 
@@ -205,11 +212,9 @@ export default class AddUserPage extends React.Component<{}>{
     }
 
     private setDepartmentJobLocationModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.departmentJobLocation, {
+        this.setState(Object.assign(this.state.modal.departmentJobLocation, {
                 visible: newState,
-            })
-        ));
+            }));
         this.getJobsByDepartmentId(this.state.addUser.departmentId); // Ovo ne radi kako je zamišljeno
     }
 
@@ -264,13 +269,13 @@ export default class AddUserPage extends React.Component<{}>{
     /* Kraj GET */
     /* Dodatne funkcije */
     private printOptionalMessage() {
-        if (this.state.message === '') {
+        if (this.state.error.message === '') {
             return;
         }
 
         return (
             <Card.Text>
-                {this.state.message}
+                {this.state.error.message}
             </Card.Text>
         );
     }
@@ -289,23 +294,12 @@ export default class AddUserPage extends React.Component<{}>{
             
         }, 'administrator')
         .then(async (res: ApiResponse) => {
-            if(res.data.statusCode === 201) {
-                this.setErrorMessage('Korisnik dodan')
-            }
-            
-            if(res.status === 'ok') {
-                
-            }
-
-/*             if (res.status === "login") {
-                this.setLogginState(false);
+            if (res.status === "error" || res.status === "login") {
+                this.setErrorMessage('Greška prilikom dodavanja lokacije.');
                 return;
             }
-
-            if (res.status === "error") {
-                this.setAddModalStringFieldState('message', JSON.stringify(res.data));
-                return;
-            } */
+            this.setErrorMessage('Uspješno dodan novi korisnik');
+            this.showErrorMessage()
         });
     }
     /* Kraj dodatnih funkcija */
@@ -389,7 +383,7 @@ export default class AddUserPage extends React.Component<{}>{
 
                         <Row>
                             <Col lg="6" xs="12">
-                                <FloatingLabel label="Telefon" className="mb-3">
+                            <FloatingLabel label="Telefon" className="mb-3">
                                 <Form.Control 
                                 id="telephone" 
                                 type='telephone'
@@ -496,11 +490,13 @@ export default class AddUserPage extends React.Component<{}>{
                         <Button style={{background:"#70A9A1", color:"#1F363D", border:0}} onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/> Dodaj korisnika</Button>
                     </Row>
                     <Row>
-                    <Alert variant="danger"
-                        style={{ marginTop: 15 }}
-                        className={this.state.errorMessage ? '' : 'd-none'}>
-                        <i className="bi bi-exclamation-triangle" />  {this.state.errorMessage}
-                    </Alert>
+                    <Stack spacing={2} sx={{ width: '100%' }}>
+                        <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
+                            <MuiAlert severity="success" sx={{ width: '100%' }}>
+                                {this.printOptionalMessage()}
+                            </MuiAlert>
+                        </Snackbar>
+                    </Stack>
                     </Row>
                 </Card.Footer>
             </Card>  

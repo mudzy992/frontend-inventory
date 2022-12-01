@@ -8,11 +8,9 @@ import Moment from 'moment';
 import FeaturesType from '../../../types/FeaturesType';
 import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import ArticleByUserType from '../../../types/ArticleByUserType';
-import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import UserType from '../../../types/UserType';
 import { LangBa } from '../../../config/lang.ba';
-
 
 interface ArticleOnUserPageProperties {
     match: {
@@ -34,7 +32,6 @@ interface upgradeFeaturesType {
 
 interface ArticleOnUserPageState {
     user: UserType[];
-    userArticle: UserArticleDto[];
     message: string;
     article: ArticleByUserType[];
     features: FeaturesType[];
@@ -75,7 +72,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 serialNumber: '',
                 status: '',
             },
-            userArticle: [],
         }
     }
 
@@ -94,12 +90,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     private setArticle(articleData: ArticleByUserType[]) {
         this.setState(Object.assign(this.state, {
             article: articleData
-        }))
-    }
-
-    private setUserArticle(userArticleData: UserArticleDto[]) {
-        this.setState(Object.assign(this.state, {
-            userArticle: userArticleData
         }))
     }
     
@@ -176,32 +166,17 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 }
                 this.setFeaturesData(features);
             })
-        api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
+            api('api/articleTimeline/?filter=serilaNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
-                    this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                    this.setErrorMessage("Greška prilikom učitavanja historije artikla")
                     return;
                 }
-                if (res.status === 'login') {
+/*                 if (res.status === 'login') {
                     return this.setLogginState(false);
-                }
-                const data: UserArticleDto[] = res.data;
-                this.setUserArticle(data)
-
-                const articleTimeline: ArticleTimelineType[] = [];
-                for (const ua of data) {
-                    let status = ua.status;
-                    let serialNumber = ua.serialNumber;
-                    let sapNumber = ua.article?.sapNumber;
-                    let surname = ua.user?.surname;
-                    let forname = ua.user?.forname;
-                    let timestamp = ua.timestamp;
-                    let comment = ua.comment;
-
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, sapNumber, timestamp })
-                }
-                this.setArticleTimelineData(articleTimeline)
+                } */
+                this.setArticleTimelineData(res.data)
             })
 
         api('api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
@@ -438,11 +413,11 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                         <TableBody>
                                             {this.state.articleTimeline?.map(articleTimeline => (
                                                 <TableRow hover>
-                                                    <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
+                                                    <TableCell>{articleTimeline.user?.surname} {articleTimeline.user?.forname}</TableCell>
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{articleTimeline.serialNumber}</TableCell>
-                                                    <TableCell>{articleTimeline.sapNumber}</TableCell>
+                                                    <TableCell>{articleTimeline.article?.sapNumber}</TableCell>
                                                     <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                                 </TableRow>
                                             ))}

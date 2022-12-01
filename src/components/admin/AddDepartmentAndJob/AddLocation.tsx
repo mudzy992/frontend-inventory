@@ -47,17 +47,13 @@ export default class AddLocation extends React.Component<{}> {
     componentDidMount() {
         this.getLocations()
     }
-
     /* SET */
-
-
     private setAddNewLocationStringState(fieldName: string, newValue: string) {
         this.setState(Object.assign(this.state,
             Object.assign(this.state.add.location, {
                 [fieldName]: newValue,
             })))
     }
-
     private setErrorMessage(message: string) {
         this.setState(Object.assign(this.state.error, {
             message: message,
@@ -75,11 +71,9 @@ export default class AddLocation extends React.Component<{}> {
     }
 
     private setErrorMessageVisible(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.error, {
+        this.setState(Object.assign(this.state.error, {
                 visible: newState,
-            })
-        ));
+        }));
     }
 
     /* GET */

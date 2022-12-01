@@ -35,15 +35,9 @@ interface FeatureBaseType {
     name: string;
     value: string;
 }
-interface ArticlePageState {
-    message: string;
-    articles?: ApiArticleDto;
-    categories: CategoryType[];
-    feature: FeaturesType[];
-    articleTimeline: ArticleTimelineType[];
-    users: userData[];
-    editFeature: {
-        visible:boolean;
+
+interface EditFeaturesType {
+    visible:boolean;
         categoryId: number;
         name: string;
         excerpt: string;
@@ -59,7 +53,15 @@ interface ArticlePageState {
             name: string;
             value: string;
         }[]
-    }
+}
+interface ArticlePageState {
+    message: string;
+    articles?: ApiArticleDto;
+    categories: CategoryType[];
+    feature: FeaturesType[];
+    articleTimeline: ArticleTimelineType[];
+    users: userData[];
+    editFeature: EditFeaturesType;
     changeStatus: {
         visible: boolean;
         userId: number | null;
@@ -394,7 +396,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 }
                 this.setFeaturesData(features);
 
-                const articleTimeline: ArticleTimelineType[] = [];
+/*                 const articleTimeline: ArticleTimelineType[] = [];
 
                 for (const statusRespon of data.userArticles) {
                     let articleId = data.articleId;
@@ -426,11 +428,25 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     }
                     articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, documentPath, userId })
                 }
-                this.setArticleTimelineData(articleTimeline)
+                this.setArticleTimelineData(articleTimeline) */
                 this.editFeatureCategoryChanged()
                 this.putArticleDetailsInState(res.data)
             }
         )
+
+        api('api/articleTimeline/?filter=articleId||$eq||' + this.props.match.params.articleID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'error') {
+                    this.setFeaturesData([]);
+                    this.setErrorMessage("Greška prilikom učitavanja historije artikla")
+                    return;
+                }
+/*                 if (res.status === 'login') {
+                    return this.setLogginState(false);
+                } */
+                this.setArticleTimelineData(res.data)
+            })
+
         api('/api/user/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
@@ -861,7 +877,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                             {this.state.articleTimeline?.map(articleTimeline => (
                                                 <TableRow hover>
                                                     <TableCell><Link href={`#/admin/userProfile/${articleTimeline.userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
-                                                        {articleTimeline.surname} {articleTimeline.forname}</Link>
+                                                        {articleTimeline.user?.surname} {articleTimeline.user?.forname}</Link>
                                                     </TableCell>
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
@@ -869,7 +885,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                         {articleTimeline.serialNumber}</Link>
                                                     </TableCell>
                                                     <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell style={{ justifyContent: 'center'}}>{this.saveFile(articleTimeline.documentPath)}</TableCell>
+                                                    <TableCell style={{ justifyContent: 'center'}}>{this.saveFile(articleTimeline.document?.path)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

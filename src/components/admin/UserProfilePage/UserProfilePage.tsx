@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Avatar } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import ArticleByUserData from "../../../data/ArticleByUserData";
 import ArticleByUserType from "../../../types/ArticleByUserType";
@@ -16,6 +16,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
+import EditUser from "../EditUser/EditUser";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -38,6 +39,11 @@ interface AdminUserProfilePageState {
     features: FeaturesType[];
     isLoggedIn: boolean;
     departmentJobs: DepartmentByIdType[];
+    modal: {
+        editUser:{
+            visible: boolean,
+        }
+    }
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -55,6 +61,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             features: [],
             isLoggedIn: true,
             departmentJobs: [],
+            modal:{
+                editUser: {
+                    visible: false,
+                }
+            }
         }
     }
     private setFeaturesData(featuresData: FeaturesType[]) {
@@ -103,14 +114,17 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         const newState = Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
         });
-
         this.setState(newState);
     }
 
-    private setDepartmentJobs(departmentJobsData: DepartmentByIdType[]) {
-        this.setState(Object.assign(this.state, {
-            departmentJobs: departmentJobsData
-        }))
+    private async showEditModal() {
+        this.setEditModalVisibleState(true)
+    }
+
+    private setEditModalVisibleState(newState: boolean) {
+        this.setState(Object.assign(this.state.modal.editUser, {
+                visible: newState,
+            }));
     }
 
     /* KRAJ SET FUNCKIJA */
@@ -119,11 +133,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
-    }
-
-    componentDidUpdate() {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-
     }
 
     private printOptionalMessage() {
@@ -135,6 +144,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 {this.state.message}
             </Card.Text>
         );
+    }
+
+    private Avatar(surename: string, forname: string) {
+        return(
+            <Avatar sx={{ bgcolor: "#497174", borderColor:"#EB6440", boderSize:5, width:150, height:150, fontSize: 50 }}>{surename.charAt(0) + '' + forname.charAt(0)}</Avatar>
+        )
     }
 
     /* Funkcija za dopremanje podataka, veza sa api-jem  
@@ -161,29 +176,25 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||razduženo&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
             })
-        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||otpisano&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||zaduženo&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
             })
-        /* api('api/departmentJob/?filter=users.userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                const departmentJobs: DepartmentByIdType[] = res.data;
-                this.setDepartmentJobs(departmentJobs)
-            }) */
-        api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
-            + this.props.match.params.userID
-            , 'get', {}, 'administrator')
+
+        api('api/article/?filter=userArticles.userId||$eq||'
+            + this.props.match.params.userID,
+            'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;
                 this.setArticleByUser(articleByUser)
@@ -224,14 +235,30 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             <>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 20 }}>
-                    <Card className="text-white bg-dark">
+                    <Card className="text-white bg-dark mb-3">
                         <Card.Header>
                             <Card.Title>
-                                <i className="bi bi-card-checklist" /> {
+                                <Row style={{display:"flex", alignItems:"center"}}>
+                                    <Col>
+                                   {
                                     this.state.users ?
                                         this.state.users.fullname :
                                         'Kartica korisnika nije pronadjena'
-                                }
+                                    }
+                                    </Col>
+                                    <Col style={{display:"flex", flexDirection:"row-reverse"}}>
+                                    <Button onClick={() => this.showEditModal()} > 
+                                        Izmjeni</Button>
+                                        <Modal size="lg" centered show={this.state.modal.editUser.visible} onHide={() => this.setEditModalVisibleState(false)}>
+                                         <EditUser match={{
+                                                    params: {
+                                                        userId: this.props.match.params.userID
+                                                    }
+                                                }} />
+                                        </Modal>
+                                    </Col>
+                                </Row>
+                                
                             </Card.Title>
                         </Card.Header>
                         <Card.Body>
@@ -399,35 +426,44 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     private renderArticleData(user: ApiUserDto) {
 
         return (
-            <Row>
-                <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
-                    <ul className="list-group">
-                        <>
-                            <li className="list-group-item active"><b>Detalji korisnika</b></li>
-                            <li className="list-group-item">Ime: {user.surname}</li>
-                            <li className="list-group-item">Prezime: {user.forname}</li>
-                            <li className="list-group-item">Email: {user.email}</li>
-                            <li className="list-group-item">Sektor: {user.department?.title}</li>
-                            <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
-                            <li className="list-group-item">Lokacija: {user.location?.name}</li>
-                        </>
-                    </ul>
-                </Col>
-                <Col xs="12" lg="9" >
+            <>
+                <Row>
+                    <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
                     <Row>
-                        {this.articlesByUser()}
+                        <Col style={{display:"flex", justifyContent:"center"}} className="mb-3">
+                        {this.Avatar(user.surname, user.forname)}
+                        </Col>
                     </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.responsibilityArticlesOnUser()}
-                    </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.debtArticlesOnUser()}
-                    </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.destroyedArticlesOnUser()}
-                    </Row>
-                </Col>
-            </Row>
+                        <ul className="list-group">
+                            <>
+                                <li className="list-group-item active"><b>Detalji korisnika</b></li>
+                                <li className="list-group-item">Ime: {user.surname}</li>
+                                <li className="list-group-item">Prezime: {user.forname}</li>
+                                <li className="list-group-item">Email: {user.email}</li>
+                                <li className="list-group-item">Sektor: {user.department?.title}</li>
+                                <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
+                                <li className="list-group-item">Lokacija: {user.location?.name}</li>
+                                <li className="list-group-item">Broj lokala: {user.localNumber}</li>
+                                <li className="list-group-item">Telefon: {user.telephone}</li>
+                            </>
+                        </ul>
+                    </Col>
+                    <Col xs="12" lg="9">
+                        <Row>
+                            {this.articlesByUser()}
+                        </Row>
+                        <Row style={{ padding: 5 }}>
+                            {this.responsibilityArticlesOnUser()}
+                        </Row>
+                        <Row style={{ padding: 5 }}>
+                            {this.debtArticlesOnUser()}
+                        </Row>
+                        <Row style={{ padding: 5 }}>
+                            {this.destroyedArticlesOnUser()}
+                        </Row>
+                    </Col>
+                </Row>
+            </>
         );
     }
 
@@ -447,6 +483,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     </Card>
                     </Col>
                 </>
-            )))
+            ))        
+            )
     }
 }

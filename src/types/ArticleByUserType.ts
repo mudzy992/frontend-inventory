@@ -55,33 +55,4 @@ export default interface ArticleByUserType {
         department: string;
         location: string;
     }[];
-    destroyeds:{
-        destroyedId:number;
-        articleId: number;
-        value:number;
-        comment: string;
-        timestamp: string;
-        userId: string;
-        serialNumber: string;
-        status: 'otpisano';
-    }[];
-    debtItems:{
-        debtItemsId:number;
-        articleId:number;
-        userId:number;
-        value: number;
-        comment:string;
-        serialNumber:string;
-        timestamp:string;
-        status: 'razduženo';
-    }[];
-    responsibilities:{
-        responsibilityId: number;
-        articleId: number;
-        userId: number;
-        value: string;
-        serialNumber: string;
-        timestamp: string;
-        status: 'zaduženo';
-    }[];
 }

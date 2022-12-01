@@ -130,6 +130,20 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     }
 
     private getArticleData() {
+        api('api/articleTimeline/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'error') {
+                    this.setFeaturesData([]);
+                    this.setErrorMessage(LangBa.ARTICLE_ON_USER.ERR_READ_CATEGORY)
+                    return;
+                }
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
+
+                this.setArticleTimelineData(res.data)
+            })
+            
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
             '&filter=userDetails.userId||$eq||' + this.props.match.params.userID +
             '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
@@ -165,18 +179,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                     }
                 }
                 this.setFeaturesData(features);
-            })
-            api('api/articleTimeline/?filter=serilaNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
-            .then((res: ApiResponse) => {
-                if (res.status === 'error') {
-                    this.setFeaturesData([]);
-                    this.setErrorMessage("Greška prilikom učitavanja historije artikla")
-                    return;
-                }
-/*                 if (res.status === 'login') {
-                    return this.setLogginState(false);
-                } */
-                this.setArticleTimelineData(res.data)
             })
 
         api('api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')

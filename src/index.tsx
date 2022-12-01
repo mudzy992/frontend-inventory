@@ -36,7 +36,7 @@ ReactDOM.render(
 
         <Route exact path="/admin/login" component={AdministratorLoginPage} />
         <Route exact path="/user/" component={UserPage} />
-        <Route path="/admin/userArticle/:userID/:articleId/:serial" component={AdminArticleOnUserPage} />
+        <Route path="/admin/userArticle/:articleId/:serial" component={AdminArticleOnUserPage} />
         <Route path="/admin/userProfile/:userID" component={AdminUserProfilePage} />
         <Route exact path="/" component={HomePage} />
         <Route path="/category/:categoryID" component={CategoryPage} />

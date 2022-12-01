@@ -16,7 +16,6 @@ import UserType from '../../../types/UserType';
 interface AdminArticleOnUserPageProperties {
     match: {
         params: {
-            userID: number;
             articleId: number;
             serial: string;
         }
@@ -24,9 +23,16 @@ interface AdminArticleOnUserPageProperties {
 }
 
 interface userData {
+    departmentId: number;
+    email: string;
     userId: number;
     surname: string;
     forname: string;
+    fullname: string;
+    jobId: number;
+    localNumber: string;
+    locationId: number;
+    telephone: string;
 }
 
 interface upgradeFeaturesType {
@@ -83,7 +89,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             isLoggedIn: true,
             errorMessage: '',
             changeStatus: {
-                userId: 0,
+                userId: 1,
                 articleId: 0,
                 value: null,
                 comment: '',
@@ -191,13 +197,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         this.getUpgradeFeatureBySerialNumber()
     }
 
-    componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
-        if (oldProperties.match.params.userID === this.props.match.params.userID) {
-            return;
-        }
-        this.getUserArticleData();
-    }
-    /* '&filter=userDetails.userId||$eq||' + this.props.match.params.userID + */
     private getArticleData() {
         api('api/articleTimeline/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -214,7 +213,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             })
 
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
-           /*  '&filter=userDetails.userId||$eq||' + this.state.changeStatus.userId + */
             '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
             '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -247,6 +245,41 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     }
                 }
                 this.setFeaturesData(features);
+
+                const userDetail: userData[] = [];
+                for (const artDet of data){
+                        let departmentId = 0;
+                        let email = "";
+                        let userId = 0;
+                        let surname = "";
+                        let forname = "";
+                        let fullname = "";
+                        let jobId = 0;
+                        let localNumber = "";
+                        let locationId = 0;
+                        let telephone = "";
+                    for (const user of artDet.userDetails)
+                        {
+                        departmentId = user.departmentId;
+                        email = user.email;
+                        userId = user.userId;
+                        surname = user.surname;
+                        forname = user.forname;
+                        fullname = user.fullname;
+                        jobId = user.jobId;
+                        localNumber = user.localNumber;
+                        locationId = user.locationId;
+                        telephone = user.telephone;                        
+                    }
+                    api('/api/user/?filter=userId||$eq||' + userId, 'get', {}, 'administrator')
+                            .then((res: ApiResponse) => {
+                                this.setUser(res.data)
+                            }
+                        )
+                    userDetail.push({departmentId, email, userId, surname, forname, fullname, jobId, localNumber, locationId, telephone})
+
+                    this.setChangeStatusNumberFieldState("userId", userId)
+                }
             }
         )
 
@@ -255,13 +288,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 this.setUsers(res.data)
             }
         )
-
-        api('/api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                this.setUser(res.data)
-            }
-        )
-        
     }
 
     private getUserArticleData(){
@@ -299,6 +325,39 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     }
                 }
                 this.setFeaturesData(features);
+
+                const userDetail: userData[] = [];
+                for (const artDet of data){
+                        let departmentId = 0;
+                        let email = "";
+                        let userId = 0;
+                        let surname = "";
+                        let forname = "";
+                        let fullname = "";
+                        let jobId = 0;
+                        let localNumber = "";
+                        let locationId = 0;
+                        let telephone = "";
+                    for (const user of artDet.userDetails)
+                        {
+                        departmentId = user.departmentId;
+                        email = user.email;
+                        userId = user.userId;
+                        surname = user.surname;
+                        forname = user.forname;
+                        fullname = user.fullname;
+                        jobId = user.jobId;
+                        localNumber = user.localNumber;
+                        locationId = user.locationId;
+                        telephone = user.telephone;   
+                    }
+                    api('/api/user/?filter=userId||$eq||' + userId, 'get', {}, 'administrator')
+                            .then((res: ApiResponse) => {
+                                this.setUser(res.data)
+                            }
+                        )
+                    userDetail.push({departmentId, email, userId, surname, forname, fullname, jobId, localNumber, locationId, telephone})
+                }
             }
         )
     }
@@ -484,8 +543,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     this.setLogginState(false);
                     return
                 }
-                this.setChangeStatusVisibleState(false)
                 this.getUserArticleData()
+                this.setChangeStatusVisibleState(false)
             })
     }
 
@@ -532,7 +591,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>{LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER}</option>
                                         {this.state.users.map(users => (
-                                            <option value={Number(users.userId)}>{users.forname} {users.surname}</option>
+                                            <option value={Number(users.userId)}>{users.fullname}</option>
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>

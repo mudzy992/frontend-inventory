@@ -329,7 +329,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         <TableBody>
                             {this.state.responsibility?.map(ura => (
                                 <TableRow hover>
-                                    <TableCell><Link href={`#/admin/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/admin/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{ura.serialNumber}</TableCell>
@@ -369,7 +369,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         <TableBody>
                             {this.state.debt?.map(debt => (
                                 <TableRow hover>
-                                    <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/admin/userArticle/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
                                     <TableCell>{debt.comment}</TableCell>
                                     <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{debt.serialNumber}</TableCell>
@@ -409,7 +409,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         <TableBody>
                             {this.state.destroyed?.map(destroyed => (
                                 <TableRow hover>
-                                    <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/admin/userArticle/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
                                     <TableCell>{destroyed.comment}</TableCell>
                                     <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{destroyed.serialNumber}</TableCell>
@@ -474,12 +474,19 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 <>
                 <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
                     <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
-                        <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <Badge pill bg="primary">
-                                {artikal.category.name}
-                            </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
-                            <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
-                        </Card.Body>
+                            <Row lg="2" xs="2" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop:5 }} >
+                                <Badge pill bg="primary">
+                                    {artikal.category.name}
+                                </Badge>
+                            </Row>
+                            <Row style={{ display: "flex", flexDirection: "row", justifyContent:"left" }}>
+                                <Col xs="6" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
+                                </Col>
+                                <Col xs="6" style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyItems:"left" }}>
+                                {<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
+                                </Col>
+                            </Row>
                     </Card>
                     </Col>
                 </>

@@ -127,7 +127,7 @@ export default function TableFunction(props:any) {
                   <Button
                       size="small"
                       style={{ marginLeft: 5, color:"#9ED5C5"}}
-                      href={`#/admin/userArticle/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}/${row.original.articleId}/${serialNumber}`} 
+                      href={`#/admin/userArticle/${row.original.articleId}/${serialNumber}`} 
                     >
                       {serialNumber}
                     </Button>

@@ -473,7 +473,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 <>
                 <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
                     <div className="mb-3" style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", border:"solid 5px #252d34"}}>
-                    <Row lg="2" xs="2" style={{ display: "flex", flexDirection: "column", alignItems: "center"}} >
+                    <Row style={{width:"70%", margin:"auto"}} >
                             <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20}}>
                                 {artikal.category.name}
                             </Badge>

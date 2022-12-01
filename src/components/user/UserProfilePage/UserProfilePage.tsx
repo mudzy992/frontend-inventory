@@ -167,7 +167,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 this.setResponsibility(responsibility)
             })
         api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
-            + this.props.match.params.userID,
+            + this.props.match.params.userID + '&filter=userArticles.status||$eq||zaduženo',
             'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;

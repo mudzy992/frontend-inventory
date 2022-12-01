@@ -193,7 +193,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             })
 
         api('api/article/?filter=userArticles.userId||$eq||'
-            + this.props.match.params.userID,
+            + this.props.match.params.userID + '&filter=userArticles.status||$eq||zaduženo',
             'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const articleByUser: ArticleByUserType[] = res.data;
@@ -468,14 +468,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private articlesByUser() {
-        
-        return (
+        return (           
             this.state.articlesByUser.map(artikal => (
                 <>
                 <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
-                    <div className="mb-3" style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem"}}>
+                    <div className="mb-3" style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", border:"solid 5px #252d34"}}>
                     <Row lg="2" xs="2" style={{ display: "flex", flexDirection: "column", alignItems: "center"}} >
-                            <Badge pill bg="primary">
+                            <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20}}>
                                 {artikal.category.name}
                             </Badge>
                         </Row>
@@ -486,16 +485,16 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         spacing={1}
                         >
                             <div>
-                            <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
+                            <i className={`${artikal.category.imagePath}`} style={{ fontSize: 40, color:"white" }}/>
                             </div>
                             <div>
-                            {<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
+                            {<div style={{ fontSize: 12, color:"white" }}>{artikal.name}</div>}
                             </div>
                     </Stack>
                     </div>
                     </Col>
                 </>
-            ))        
+            )) 
             )
     }
 }

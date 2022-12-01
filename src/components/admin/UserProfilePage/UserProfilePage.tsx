@@ -472,9 +472,9 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             this.state.articlesByUser.map(artikal => (
                 <>
                 <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
-                    <div className="mb-3" style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", border:"solid 5px #252d34"}}>
-                    <Row style={{width:"70%", margin:"auto"}} >
-                            <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20}}>
+                    <div className="mb-3" style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", boxShadow:"0px 0px 0px 5px #252d34"}}>
+                    <Row style={{width:"auto", margin:"auto"}} >
+                            <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}}>
                                 {artikal.category.name}
                             </Badge>
                         </Row>

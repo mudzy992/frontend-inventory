@@ -148,7 +148,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 
     private Avatar(surename: string, forname: string) {
         return(
-            <Avatar sx={{ bgcolor: "#497174", borderColor:"#EB6440", boderSize:5, width:150, height:150, fontSize: 50 }}>{surename.charAt(0) + '' + forname.charAt(0)}</Avatar>
+            <Avatar sx={{ bgcolor: "#497174", boxShadow:"0px 0px 6px 3px #424747", width:150, height:150, fontSize: 50, marginBottom:2 }}>{surename.charAt(0) + '' + forname.charAt(0)}</Avatar>
         )
     }
 

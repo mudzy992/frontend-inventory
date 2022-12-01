@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Avatar } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Avatar, Stack } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import ArticleByUserData from "../../../data/ArticleByUserData";
 import ArticleByUserType from "../../../types/ArticleByUserType";
@@ -473,21 +473,26 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             this.state.articlesByUser.map(artikal => (
                 <>
                 <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
-                    <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
-                            <Row lg="2" xs="2" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop:5 }} >
-                                <Badge pill bg="primary">
-                                    {artikal.category.name}
-                                </Badge>
-                            </Row>
-                            <Row style={{ display: "flex", flexDirection: "row", justifyContent:"left" }}>
-                                <Col xs="6" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
-                                </Col>
-                                <Col xs="6" style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyItems:"left" }}>
-                                {<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
-                                </Col>
-                            </Row>
-                    </Card>
+                    <div className="mb-3" style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem"}}>
+                    <Row lg="2" xs="2" style={{ display: "flex", flexDirection: "column", alignItems: "center"}} >
+                            <Badge pill bg="primary">
+                                {artikal.category.name}
+                            </Badge>
+                        </Row>
+                    <Stack 
+                        direction="row"
+                        justifyContent="flex-start"
+                        alignItems="center"
+                        spacing={1}
+                        >
+                            <div>
+                            <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
+                            </div>
+                            <div>
+                            {<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
+                            </div>
+                    </Stack>
+                    </div>
                     </Col>
                 </>
             ))        

@@ -151,17 +151,17 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/userArticle/?filter=userId||$eq||&filter=status||$eq||razduženo' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||razduženo', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
             })
-        api('api/userArticle/?filter=userId||$eq||&filter=status||$eq||otpisano' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||otpisano', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const destroyed: DestroyedType[] = res.data;
                 this.setDestroyed(destroyed)
             })
-        api('api/userArticle/?filter=userId||$eq||&filter=status||$eq||zaduženo' + this.props.match.params.userID, 'get', {}, 'user')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||zaduženo', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
@@ -261,7 +261,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             {this.state.responsibility?.map(ura => (
                                 <TableRow hover>
                                     <TableCell>{ura.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
                                     <TableCell>{ura.value}</TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>

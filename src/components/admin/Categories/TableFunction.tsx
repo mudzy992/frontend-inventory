@@ -93,66 +93,65 @@ export default function TableFunction(props:any) {
           state={{ rowSelection }} //manage your own state, pass it back to the table (optional)
           tableInstanceRef={tableInstanceRef} //get a reference to the underlying table instance (optional)
           renderDetailPanel={({row}) => (
-            <Card variant="outlined" style={{backgroundColor:"#3E4149"}} >
-              <Alert className={!row.original.userArticles?.length ? '' : 'd-none'} severity="info">Nema definisanih artikala</Alert>
+            <><Alert className={!row.original.userArticles?.length ? '' : 'd-none'} severity="info">Nema definisanih artikala</Alert>
+            <Card variant="outlined" style={{ backgroundColor: "#3E4149" }} className={row.original.userArticles?.length ? '' : 'd-none'}>
               <Table className={row.original.userArticles?.length ? '' : 'd-none'}>
-              <TableHead>
-                <TableRow style={{}}>
-                <TableCell style={{color:"white", borderColor:"#444F5A"}}>
-                  Serijski broj
-                  </TableCell>
-                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
-                  Inventurni broj
-                  </TableCell>
-                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
-                  Status
-                  </TableCell>
-                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
-                  Datum i vrijeme akcije
-                  </TableCell>
-                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>
-                  Korisnik
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-            
-            <TableBody>
-            {Array.from(new Set(row.original.userArticles?.map(s => s.serialNumber)))
-              .sort()
-              .map(serialNumber => { 
-                return (
-                  <>
-                  <TableRow key={serialNumber}>
-                  <TableCell component="th" scope="row" style={{borderColor:"#444F5A"}}>
-                  <Button
-                      size="small"
-                      style={{ marginLeft: 5, color:"#9ED5C5"}}
-                      href={`#/admin/userArticle/${row.original.articleId}/${serialNumber}`} 
-                    >
-                      {serialNumber}
-                    </Button>
+                <TableHead>
+                  <TableRow style={{}}>
+                    <TableCell style={{ color: "white", borderColor: "#444F5A" }}>
+                      Serijski broj
                     </TableCell>
-                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.invBroj}</TableCell>
-                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.status}</TableCell>
-                  <TableCell style={{color:"white", borderColor:"#444F5A"}}>{Moment(row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                  <TableCell style={{borderColor:"#444F5A"}}>
-                  <Button
-                      size="small"
-                      style={{ marginLeft: 5, color:"#9ED5C5"}}
-                      className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId ? '': 'd-none'}
-                      href={`#/admin/userProfile/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}`} 
-                    >
-                      <i className="bi bi-person-fill" style={{fontSize:20}}/> {row.original.userDetails?.find(s => s.userId === row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId)?.fullname}
-                    </Button>
-                  </TableCell>
+                    <TableCell style={{ color: "white", borderColor: "#444F5A" }}>
+                      Inventurni broj
+                    </TableCell>
+                    <TableCell style={{ color: "white", borderColor: "#444F5A" }}>
+                      Status
+                    </TableCell>
+                    <TableCell style={{ color: "white", borderColor: "#444F5A" }}>
+                      Datum i vrijeme akcije
+                    </TableCell>
+                    <TableCell style={{ color: "white", borderColor: "#444F5A" }}>
+                      Korisnik
+                    </TableCell>
                   </TableRow>
-                  </>
-                )
-              })
-              }
-              </TableBody>
+                </TableHead>
+
+                <TableBody>
+                  {Array.from(new Set(row.original.userArticles?.map(s => s.serialNumber)))
+                    .sort()
+                    .map(serialNumber => {
+                      return (
+                        <>
+                          <TableRow key={serialNumber}>
+                            <TableCell component="th" scope="row" style={{ borderColor: "#444F5A" }}>
+                              <Button
+                                size="small"
+                                style={{ marginLeft: 5, color: "#9ED5C5" }}
+                                href={`#/admin/userArticle/${row.original.articleId}/${serialNumber}`}
+                              >
+                                {serialNumber}
+                              </Button>
+                            </TableCell>
+                            <TableCell style={{ color: "white", borderColor: "#444F5A" }}>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.invBroj}</TableCell>
+                            <TableCell style={{ color: "white", borderColor: "#444F5A" }}>{row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.status}</TableCell>
+                            <TableCell style={{ color: "white", borderColor: "#444F5A" }}>{Moment(row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                            <TableCell style={{ borderColor: "#444F5A" }}>
+                              <Button
+                                size="small"
+                                style={{ marginLeft: 5, color: "#9ED5C5" }}
+                                className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId ? '' : 'd-none'}
+                                href={`#/admin/userProfile/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}`}
+                              >
+                                <i className="bi bi-person-fill" style={{ fontSize: 20 }} /> {row.original.userDetails?.find(s => s.userId === row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId)?.fullname}
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      );
+                    })}
+                </TableBody>
               </Table>
-              </Card>
+            </Card></>
       )}
       positionExpandColumn="last"
     /></Card></>

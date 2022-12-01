@@ -32,7 +32,7 @@ ReactDOM.render(
       <Switch>
         <Route exact path="/user/login" component={UserLoginPage} />
         <Route path="/userProfile/:userID" component={UserProfilePage} />
-        <Route path="/userArticle/:userID/:articleId/:serial" component={ArticleOnUserPage} />
+        <Route path="/userArticle/:articleId/:serial" component={ArticleOnUserPage} />
 
         <Route exact path="/admin/login" component={AdministratorLoginPage} />
         <Route exact path="/user/" component={UserPage} />

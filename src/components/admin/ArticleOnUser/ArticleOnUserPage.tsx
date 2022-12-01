@@ -258,30 +258,32 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         let localNumber = "";
                         let locationId = 0;
                         let telephone = "";
-                    for (const user of artDet.userDetails)
-                        {
-                        departmentId = user.departmentId;
-                        email = user.email;
-                        userId = user.userId;
-                        surname = user.surname;
-                        forname = user.forname;
-                        fullname = user.fullname;
-                        jobId = user.jobId;
-                        localNumber = user.localNumber;
-                        locationId = user.locationId;
-                        telephone = user.telephone;                        
-                    }
-                    api('/api/user/?filter=userId||$eq||' + userId, 'get', {}, 'administrator')
+                    for (const ua of artDet.userArticles)
+                        for(const user of artDet.userDetails){
+                            if(user.userId === ua.userId){
+                                departmentId = user.departmentId;
+                                email = user.email;
+                                userId = user.userId;
+                                surname = user.surname;
+                                forname = user.forname;
+                                fullname = user.fullname;
+                                jobId = user.jobId;
+                                localNumber = user.localNumber;
+                                locationId = user.locationId;
+                                telephone = user.telephone;
+                            }
+                        }
+                        api('/api/user/?filter=userId||$eq||' + userId, 'get', {}, 'administrator')
                             .then((res: ApiResponse) => {
                                 this.setUser(res.data)
                             }
                         )
-                    userDetail.push({departmentId, email, userId, surname, forname, fullname, jobId, localNumber, locationId, telephone})
 
-                    this.setChangeStatusNumberFieldState("userId", userId)
-                }
-            }
-        )
+                        userDetail.push({departmentId, email, userId, surname, forname, fullname, jobId, localNumber, locationId, telephone})
+
+                        this.setChangeStatusNumberFieldState("userId", userId)                                           
+                    }
+                })
 
         api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -325,7 +327,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     }
                 }
                 this.setFeaturesData(features);
-
                 const userDetail: userData[] = [];
                 for (const artDet of data){
                         let departmentId = 0;
@@ -338,26 +339,31 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         let localNumber = "";
                         let locationId = 0;
                         let telephone = "";
-                    for (const user of artDet.userDetails)
-                        {
-                        departmentId = user.departmentId;
-                        email = user.email;
-                        userId = user.userId;
-                        surname = user.surname;
-                        forname = user.forname;
-                        fullname = user.fullname;
-                        jobId = user.jobId;
-                        localNumber = user.localNumber;
-                        locationId = user.locationId;
-                        telephone = user.telephone;   
-                    }
-                    api('/api/user/?filter=userId||$eq||' + userId, 'get', {}, 'administrator')
+                    for (const ua of artDet.userArticles)
+                        for(const user of artDet.userDetails){
+                            if(user.userId === ua.userId){
+                                departmentId = user.departmentId;
+                                email = user.email;
+                                userId = user.userId;
+                                surname = user.surname;
+                                forname = user.forname;
+                                fullname = user.fullname;
+                                jobId = user.jobId;
+                                localNumber = user.localNumber;
+                                locationId = user.locationId;
+                                telephone = user.telephone;
+                            }
+                        }
+                        api('/api/user/?filter=userId||$eq||' + userId, 'get', {}, 'administrator')
                             .then((res: ApiResponse) => {
                                 this.setUser(res.data)
                             }
                         )
-                    userDetail.push({departmentId, email, userId, surname, forname, fullname, jobId, localNumber, locationId, telephone})
-                }
+
+                        userDetail.push({departmentId, email, userId, surname, forname, fullname, jobId, localNumber, locationId, telephone})
+
+                        this.setChangeStatusNumberFieldState("userId", userId)                                           
+                    }
             }
         )
     }

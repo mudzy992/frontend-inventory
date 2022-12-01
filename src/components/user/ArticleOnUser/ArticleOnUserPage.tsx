@@ -15,7 +15,7 @@ import { LangBa } from '../../../config/lang.ba';
 interface ArticleOnUserPageProperties {
     match: {
         params: {
-            userID: number;
+
             articleId: number;
             serial: string;
         }
@@ -30,7 +30,21 @@ interface upgradeFeaturesType {
     timestamp: string;
 }
 
+interface userData {
+    departmentId: number;
+    email: string;
+    userId: number;
+    surname: string;
+    forname: string;
+    fullname: string;
+    jobId: number;
+    localNumber: string;
+    locationId: number;
+    telephone: string;
+}
+
 interface ArticleOnUserPageState {
+    users: userData[];
     user: UserType[];
     message: string;
     article: ArticleByUserType[];
@@ -40,13 +54,15 @@ interface ArticleOnUserPageState {
     isLoggedIn: boolean;
     errorMessage: string;
     changeStatus: {
-        userId: number;
-        articleId: number;
+        visible: boolean;
+        userId: number | null;
+        articleId: number | null;
         value: number | null;
         comment: string;
         serialNumber: string;
+        invBroj: string;
         status: string;
-    }
+    },
 
 }
 
@@ -57,7 +73,8 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         super(props);
         this.state = {
             message: "",
-            user: [],
+            users: [],
+            user:[],
             features: [],
             articleTimeline: [],
             upgradeFeature: [],
@@ -65,12 +82,14 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             isLoggedIn: true,
             errorMessage: '',
             changeStatus: {
-                userId: 0,
+                userId: 1,
                 articleId: 0,
                 value: null,
                 comment: '',
                 serialNumber: '',
+                invBroj: '',
                 status: '',
+                visible: false,
             },
         }
     }
@@ -99,6 +118,12 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }));
     }
 
+    private setUsers(usersData: userData[]) {
+        this.setState(Object.assign(this.state, {
+            users: usersData
+        }))
+    }
+
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
             features: featuresData
@@ -117,6 +142,13 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }))
     }
 
+    private setChangeStatusNumberFieldState(fieldName: string, newValue: any) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.changeStatus, {
+                [fieldName]: (newValue === 'null') ? null : Number(newValue),
+            })))
+    }
+
     componentDidMount() {
         this.getArticleData()
     }
@@ -130,7 +162,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     }
 
     private getArticleData() {
-        api('api/articleTimeline/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/articleTimeline/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -144,8 +176,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 this.setArticleTimelineData(res.data)
             })
             
-        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
-            '&filter=userDetails.userId||$eq||' + this.props.match.params.userID +
+            api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
             '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
             '&sort=userArticles.timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
@@ -174,25 +205,55 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 break;
                             }
                         }
-
                         features.push({ name, value });
                     }
                 }
                 this.setFeaturesData(features);
-            })
 
-        api('api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
-        .then((res: ApiResponse) => {
-            if (res.status === 'error') {
-                this.setFeaturesData([]);
-                this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                return;
+                const userDetail: userData[] = [];
+                for (const artDet of data){
+                        let departmentId = 0;
+                        let email = "";
+                        let userId = 0;
+                        let surname = "";
+                        let forname = "";
+                        let fullname = "";
+                        let jobId = 0;
+                        let localNumber = "";
+                        let locationId = 0;
+                        let telephone = "";
+                    for (const ua of artDet.userArticles)
+                        for(const user of artDet.userDetails){
+                            if(user.userId === ua.userId){
+                                departmentId = user.departmentId;
+                                email = user.email;
+                                userId = user.userId;
+                                surname = user.surname;
+                                forname = user.forname;
+                                fullname = user.fullname;
+                                jobId = user.jobId;
+                                localNumber = user.localNumber;
+                                locationId = user.locationId;
+                                telephone = user.telephone;
+                            }
+                        }
+                        api('/api/user/?filter=userId||$eq||' + userId, 'get', {}, 'user')
+                            .then((res: ApiResponse) => {
+                                this.setUser(res.data)
+                            }
+                        )
+
+                        userDetail.push({departmentId, email, userId, surname, forname, fullname, jobId, localNumber, locationId, telephone})
+
+                        this.setChangeStatusNumberFieldState("userId", userId)                                           
+                    }
+                })
+
+        api('/api/user/?sort=forname,ASC', 'get', {}, 'user')
+            .then((res: ApiResponse) => {
+                this.setUsers(res.data)
             }
-            if (res.status === 'login') {
-                return this.setLogginState(false);
-            }
-            this.setUser(res.data)
-        })
+        )
 
         api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'user')
         .then((res: ApiResponse) => {

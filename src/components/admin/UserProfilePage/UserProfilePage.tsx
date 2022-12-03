@@ -434,7 +434,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         {this.Avatar(user.surname, user.forname)}
                         </Col>
                     </Row>
-                        <ul className="list-group">
+                        <ul className="list-group mb-3">
                             <>
                                 <li className="list-group-item active"><b>Detalji korisnika</b></li>
                                 <li className="list-group-item">Ime: {user.surname}</li>

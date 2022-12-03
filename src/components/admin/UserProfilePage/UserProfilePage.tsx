@@ -395,7 +395,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         return (
             <>
                 <b>Uništena oprema</b><br />
-                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
+                <TableContainer className="mb-3" style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                     <Table sx={{ minWidth: 700 }} aria-label="custumuzed table">
                         <TableHead>
                             <TableRow>
@@ -427,39 +427,49 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 
         return (
             <>
-                <Row>
-                    <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
-                    <Row>
-                        <Col style={{display:"flex", justifyContent:"center"}} className="mb-3">
+                <Row className="mb-3">
+                    <Col xs="12" lg="3" >
+                    <Row className="mb-3">
+                        <Col style={{display:"flex", justifyContent:"center"}} >
                         {this.Avatar(user.surname, user.forname)}
                         </Col>
                     </Row>
-                        <ul className="list-group mb-3">
-                            <>
-                                <li className="list-group-item active"><b>Detalji korisnika</b></li>
-                                <li className="list-group-item">Ime: {user.surname}</li>
-                                <li className="list-group-item">Prezime: {user.forname}</li>
-                                <li className="list-group-item">Email: {user.email}</li>
-                                <li className="list-group-item">Sektor: {user.department?.title}</li>
-                                <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
-                                <li className="list-group-item">Lokacija: {user.location?.name}</li>
-                                <li className="list-group-item">Broj lokala: {user.localNumber}</li>
-                                <li className="list-group-item">Telefon: {user.telephone}</li>
-                            </>
-                        </ul>
+                    <Row>
+                        <Col className="mb-3">
+                            <ul className="list-group mb-3">
+                                <>
+                                    <li className="list-group-item active"><b>Detalji korisnika</b></li>
+                                    <li className="list-group-item">Ime: {user.surname}</li>
+                                    <li className="list-group-item">Prezime: {user.forname}</li>
+                                    <li className="list-group-item">Email: {user.email}</li>
+                                    <li className="list-group-item">Sektor: {user.department?.title}</li>
+                                    <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
+                                    <li className="list-group-item">Lokacija: {user.location?.name}</li>
+                                    <li className="list-group-item">Broj lokala: {user.localNumber}</li>
+                                    <li className="list-group-item">Telefon: {user.telephone}</li>
+                                </>
+                            </ul>
+                        </Col>
+                    </Row>
                     </Col>
-                    <Col xs="12" lg="9">
+                    <Col>
                         <Row>
                             {this.articlesByUser()}
                         </Row>
-                        <Row style={{ padding: 5 }}>
-                            {this.responsibilityArticlesOnUser()}
+                        <Row>
+                            <Col className="mb-3">
+                                {this.responsibilityArticlesOnUser()}
+                            </Col>
                         </Row>
-                        <Row style={{ padding: 5 }}>
-                            {this.debtArticlesOnUser()}
+                        <Row >
+                            <Col className="mb-3">
+                                {this.debtArticlesOnUser()}
+                            </Col>
                         </Row>
-                        <Row style={{ padding: 5 }}>
-                            {this.destroyedArticlesOnUser()}
+                        <Row>
+                            <Col className="mb-3">
+                                {this.destroyedArticlesOnUser()}
+                            </Col>
                         </Row>
                     </Col>
                 </Row>
@@ -471,28 +481,28 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         return (           
             this.state.articlesByUser.map(artikal => (
                 <>
-                <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
-                    <div className="mb-3" style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", boxShadow:"0px 0px 0px 5px #252d34"}}>
-                    <Row style={{width:"auto", margin:"auto"}} >
-                            <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}}>
-                                {artikal.category.name}
-                            </Badge>
-                        </Row>
-                    <Stack 
-                        direction="row"
-                        justifyContent="flex-start"
-                        alignItems="center"
-                        spacing={1}
-                        >
-                            <div>
-                            <i className={`${artikal.category.imagePath}`} style={{ fontSize: 40, color:"white" }}/>
-                            </div>
-                            <div>
-                            {<div style={{ fontSize: 12, color:"white" }}>{artikal.name}</div>}
-                            </div>
-                    </Stack>
+               <Col className="mb-3" lg="3" xs="6">
+                    <div style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", boxShadow:"0px 0px 0px 5px #252d34"}}>
+                        <Row style={{width:"auto", margin:"auto"}} >
+                                <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}}>
+                                    {artikal.category.name}
+                                </Badge>
+                            </Row>
+                        <Stack 
+                            direction="row"
+                            justifyContent="flex-start"
+                            alignItems="center"
+                            spacing={1}
+                            >
+                                <div>
+                                <i className={`${artikal.category.imagePath}`} style={{ fontSize: 40, color:"white" }}/>
+                                </div>
+                                <div>
+                                {<div style={{ fontSize: 12, color:"white" }}>{artikal.name}</div>}
+                                </div>
+                        </Stack>
                     </div>
-                    </Col>
+                </Col>
                 </>
             )) 
             )

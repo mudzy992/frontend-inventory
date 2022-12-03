@@ -186,7 +186,7 @@ export default class UserPage extends React.Component {
         }
         return (
             <>
-                <Row>
+                <Row className="mb-3">
                     <h5 style={{marginLeft:10, color:"white"}}> 
                     <i className="bi bi-people-fill"/> Korisnici</h5>
                     {UserTable(this.state.users)}

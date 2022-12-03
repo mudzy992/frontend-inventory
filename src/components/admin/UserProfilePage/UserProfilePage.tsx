@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
+import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, Modal, Popover } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Avatar, Stack } from "@mui/material";
@@ -502,8 +502,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     private featureTest (features: FeaturesType[], articleId: number) {
         return features.filter(x => x.articleId === articleId).map(ftr => (
             <>
-            <div>{ftr.name}</div>
-            <div>{ftr.value}</div>
+            <li style={{display: "flex", alignItems:"flex-start", flexWrap:"wrap"}} className="list-group-item"><strong>{ftr.name}: </strong>{ftr.value}</li>
             </>
         ))
     }
@@ -521,9 +520,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     placement="bottom"
                                     delay={{ show: 250, hide: 400 }}
                                     overlay={
-                                    <Tooltip>
-                                    {this.featureTest(this.state.features, artikal.articleId)}
-                                    </Tooltip>
+                                    <Popover>
+                                        <Popover.Body>
+                                        <ul style={{width:"auto", margin:"auto"}}>                                        
+                                            {this.featureTest(this.state.features, artikal.articleId)}
+                                        </ul>
+                                    </Popover.Body>
+                                    </Popover>
                                     }>
                                     <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}} >
                                         <Stack>

@@ -500,15 +500,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private featureTest (features: FeaturesType[], articleId: number) {
-        return(
-        features.map(feature => {
-            if(feature.articleId === articleId) {
-                return(
-                    <><div>{feature.name}</div><div>{feature.value}</div></> 
-                )
-               
-            }
-        }))
+        return features.filter(x => x.articleId === articleId).map(ftr => (
+            <>
+            <div>{ftr.name}</div>
+            <div>{ftr.value}</div>
+            </>
+        ))
     }
 
     private articlesByUser() {
@@ -519,24 +516,22 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <div style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", boxShadow:"0px 0px 0px 5px #252d34"}}
                    
                    >
-                        <Row style={{width:"auto", margin:"auto"}} >
-                            <OverlayTrigger 
-                                placement="bottom"
-                                delay={{ show: 250, hide: 400 }}
-                                overlay={
-                                <Tooltip id="tooltip-kolicina">{this.featureTest(this.state.features, artikal.articleId)}</Tooltip>
-                                }>
-                                <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}} >
-                                    <Stack
-                                    
-                                    >
-                                       {artikal.category.name}
-                                    <i style={{position:"absolute"}} className="bi bi-info-circle"  />  
-                                    </Stack>
-                                    
-                                </Badge>
-                        </OverlayTrigger>
-                                
+                            <Row style={{width:"auto", margin:"auto"}} >
+                                <OverlayTrigger 
+                                    placement="bottom"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={
+                                    <Tooltip>
+                                    {this.featureTest(this.state.features, artikal.articleId)}
+                                    </Tooltip>
+                                    }>
+                                    <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}} >
+                                        <Stack>
+                                            {artikal.category.name}
+                                            <i style={{position:"absolute"}} className="bi bi-info-circle"  />  
+                                        </Stack>
+                                    </Badge>
+                                </OverlayTrigger>
                             </Row>
                         <Stack 
                             direction="row"
@@ -559,8 +554,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                             </>
                                         )
                                     })
-                                    }
-                                
+                                }
                                 </div>
                         </Stack>
                     </div>

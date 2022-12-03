@@ -13,6 +13,7 @@ export default interface ArticleByUserData {
         parentCategoryId:number;
     };
     articleFeature: {
+        articleId: number;
         articleFeatureId: number;
         featureId: number;
         value: string;
@@ -22,6 +23,11 @@ export default interface ArticleByUserData {
         name: string;
     }[];
     userArticles:{
+        articleId: number;
+        comment: string;
+        documentId: number;
+        invBroj: string;
+        userId: number;
         userArticleId: number;
         value: string;
         status: 'zaduženo' | 'razduženo' | 'otpisano';

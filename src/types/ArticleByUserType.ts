@@ -20,6 +20,7 @@ export default interface ArticleByUserType {
     features: {
         featureId: number;
         name: string;
+        categoryId: number;
     }[];
     userArticles:{
         userArticleId: number;

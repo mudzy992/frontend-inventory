@@ -42,6 +42,9 @@ interface AdminUserProfilePageState {
     modal: {
         editUser:{
             visible: boolean,
+        },
+        features: {
+            visible: boolean,
         }
     }
 }
@@ -63,6 +66,9 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             departmentJobs: [],
             modal:{
                 editUser: {
+                    visible: false,
+                },
+                features: {
                     visible: false,
                 }
             }
@@ -121,8 +127,18 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         this.setEditModalVisibleState(true)
     }
 
+    private async showFeatureModal() {
+        this.setFeatureModalVisibleState(true)
+    }
+
     private setEditModalVisibleState(newState: boolean) {
         this.setState(Object.assign(this.state.modal.editUser, {
+                visible: newState,
+            }));
+    }
+
+    private setFeatureModalVisibleState(newState: boolean) {
+        this.setState(Object.assign(this.state.modal.features, {
                 visible: newState,
             }));
     }
@@ -201,23 +217,29 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 const features: FeaturesType[] = [];
 
                 for (const start of articleByUser) {
+                    let value = "";
+                    let articleId = start.articleId;
+                    let name = '';
+                    let featureId = 0;
+                    let categoryId = start.categoryId;
                     for (const articleFeature of start.articleFeature) {
-                        const value = articleFeature.value;
-                        const articleId = articleFeature.articleId;
-                        let name = '';
-
-                        for (const feature of start.features) {
-                            if (feature.featureId === articleFeature.featureId) {
-                                name = feature.name;
-                                break;
+                        if(articleFeature.articleId === articleId) {
+                            value = articleFeature.value;
+                            featureId = articleFeature.featureId;
+                            for (const feature of start.features) {
+                                if (feature.featureId === articleFeature.featureId) {
+                                    name = feature.name;
+                                    categoryId = feature.categoryId;
+                                    break;
+                                }
                             }
+                            features.push({ articleId, name, value, featureId, categoryId});
                         }
-                        features.push({ articleId, name, value });
                     }
                 }
                 this.setFeaturesData(features);
             }
-            )
+        )
     }
 
     /* KRAJ GET I MOUNT FUNKCIJA */
@@ -477,16 +499,44 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         );
     }
 
+    private featureTest (features: FeaturesType[], articleId: number) {
+        return(
+        features.map(feature => {
+            if(feature.articleId === articleId) {
+                return(
+                    <><div>{feature.name}</div><div>{feature.value}</div></> 
+                )
+               
+            }
+        }))
+    }
+
     private articlesByUser() {
         return (           
             this.state.articlesByUser.map(artikal => (
                 <>
                <Col className="mb-3" lg="3" xs="6">
-                    <div style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", boxShadow:"0px 0px 0px 5px #252d34"}}>
+                    <div style={{backgroundColor:"#316B83", padding:10, borderRadius:"0.375rem", boxShadow:"0px 0px 0px 5px #252d34"}}
+                   
+                   >
                         <Row style={{width:"auto", margin:"auto"}} >
-                                <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}}>
-                                    {artikal.category.name}
+                            <OverlayTrigger 
+                                placement="bottom"
+                                delay={{ show: 250, hide: 400 }}
+                                overlay={
+                                <Tooltip id="tooltip-kolicina">{this.featureTest(this.state.features, artikal.articleId)}</Tooltip>
+                                }>
+                                <Badge pill bg="#344D67" style={{backgroundColor:"#344D67" , marginTop:-20, boxShadow:"1px 0px 5px 0px black"}} >
+                                    <Stack
+                                    
+                                    >
+                                       {artikal.category.name}
+                                    <i style={{position:"absolute"}} className="bi bi-info-circle"  />  
+                                    </Stack>
+                                    
                                 </Badge>
+                        </OverlayTrigger>
+                                
                             </Row>
                         <Stack 
                             direction="row"
@@ -498,11 +548,24 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 <i className={`${artikal.category.imagePath}`} style={{ fontSize: 40, color:"white" }}/>
                                 </div>
                                 <div>
-                                {<div style={{ fontSize: 12, color:"white" }}>{artikal.name}</div>}
+                                    {
+                                    Array.from(new Set(artikal.userArticles.map(s => s.articleId)))
+                                    .sort()
+                                    .map(articleId => {
+                                        return (
+                                            <>
+                                            <div style={{ fontSize: 12, color: "white" }}>{artikal.name}</div>
+                                            <div style={{ fontSize: 12, color: "white" }}>{artikal.userArticles.find(s => s.articleId === articleId)?.serialNumber}</div>
+                                            </>
+                                        )
+                                    })
+                                    }
+                                
                                 </div>
                         </Stack>
                     </div>
                 </Col>
+                
                 </>
             )) 
             )

@@ -1,4 +1,4 @@
-export default class ArticleTimelineDto {
+export default class ArticleTimelineType {
     articleTimelineId?: number;
     articleId?: number;
     documentId?: number;

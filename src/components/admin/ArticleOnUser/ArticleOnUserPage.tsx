@@ -213,8 +213,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             })
 
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
-            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
-            '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
+            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial, 
+            'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -295,8 +295,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     private getUserArticleData(){
         api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
             '&filter=userDetails.userId||$eq||' + this.state.changeStatus.userId + 
-            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
-            '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
+            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial,
+            'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -816,9 +816,9 @@ private upgradeFeature() {
                                                 </ListGroup.Item>
                                             ), this)}
                                             <ListGroup.Item>
-                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}</ListGroup.Item> 
+                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{article.map(art => (art.userArticles.map(ua => ua.serialNumber)))}</ListGroup.Item> 
                                             <ListGroup.Item>
-                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.articleTimeline.map(art => ([art.invBroj])).shift()}</ListGroup.Item> 
+                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{article.map(art => (art.userArticles.map(ua => ua.invBroj)))}</ListGroup.Item> 
                                         </ListGroup>
                                     </Card>
                                 </Col>
@@ -854,7 +854,7 @@ private upgradeFeature() {
                                         <TableBody>
                                             {this.state.articleTimeline?.map(articleTimeline => (
                                                 <TableRow hover>
-                                                    <TableCell>{articleTimeline.user?.surname} {articleTimeline.user?.forname}</TableCell>
+                                                    <TableCell>{articleTimeline.user?.fullname}</TableCell>
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -883,8 +883,8 @@ private upgradeFeature() {
                                 </Card.Header>
                                 <ListGroup variant="flush">
                                     <>
-                                        <ListGroup.Item>Status: <b>{article.map(artStat => (artStat.userArticles.map(status => ([status.status])).shift()))} </b></ListGroup.Item>
-                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
+                                        <ListGroup.Item>Status: <b>{article.map(article => (article.userArticles.map(ua => (ua.status))))} </b></ListGroup.Item>
+                                        <ListGroup.Item>Datum akcije: <b>{article.map(article => (article.userArticles.map(ua => (Moment(ua.timestamp)).format('DD.MM.YYYY. - HH:mm'))))} </b></ListGroup.Item>
                                     </>
                                 </ListGroup>
                             </Card>

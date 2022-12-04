@@ -7,9 +7,6 @@ import Paper from '@mui/material/Paper';
 import ArticleByUserData from "../../../data/ArticleByUserData";
 import ArticleByUserType from "../../../types/ArticleByUserType";
 import ApiUserDto from "../../../dtos/ApiUserDto";
-import ResponsibilityType from "../../../types/ResponsibilityType";
-import DebtType from "../../../types/DebtType";
-import DestroyedType from "../../../types/DestroyedType";
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
@@ -17,6 +14,8 @@ import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import EditUser from "../EditUser/EditUser";
+import ArticleTimelineType from "../../../types/ArticleTimelineType";
+import UserArticleType from "../../../types/UserArticleType";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -32,9 +31,8 @@ interface AdminUserProfilePageState {
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
     users?: ApiUserDto;
     message: string;
-    responsibility: ResponsibilityType[];
-    debt: DebtType[];
-    destroyed: DestroyedType[];
+    userArticle: UserArticleType[];
+    articleTimeline: ArticleTimelineType[];
     articlesByUser: ArticleByUserData[];
     features: FeaturesType[];
     isLoggedIn: boolean;
@@ -43,9 +41,6 @@ interface AdminUserProfilePageState {
         editUser:{
             visible: boolean,
         },
-        features: {
-            visible: boolean,
-        }
     }
 }
 
@@ -57,9 +52,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         super(props);
         this.state = {
             message: "",
-            responsibility: [],
-            debt: [],
-            destroyed: [],
+            userArticle: [],
+            articleTimeline: [],
             articlesByUser: [],
             features: [],
             isLoggedIn: true,
@@ -68,9 +62,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 editUser: {
                     visible: false,
                 },
-                features: {
-                    visible: false,
-                }
             }
         }
     }
@@ -80,21 +71,15 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         }))
     }
 
-    private setResponsibility(responsibilityData: ResponsibilityType[]) {
+    private setUserArticle(userArticleData: UserArticleType[]) {
         this.setState(Object.assign(this.state, {
-            responsibility: responsibilityData
+            userArticle: userArticleData
         }))
     }
 
-    private setDebt(debtData: DebtType[]) {
+    private setArticleTimeline(articleTimelineData: ArticleTimelineType[]) {
         this.setState(Object.assign(this.state, {
-            debt: debtData
-        }))
-    }
-
-    private setDestroyed(destroyedData: DestroyedType[]) {
-        this.setState(Object.assign(this.state, {
-            destroyed: destroyedData
+            articleTimeline: articleTimelineData
         }))
     }
 
@@ -127,18 +112,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         this.setEditModalVisibleState(true)
     }
 
-    private async showFeatureModal() {
-        this.setFeatureModalVisibleState(true)
-    }
-
     private setEditModalVisibleState(newState: boolean) {
         this.setState(Object.assign(this.state.modal.editUser, {
-                visible: newState,
-            }));
-    }
-
-    private setFeatureModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state.modal.features, {
                 visible: newState,
             }));
     }
@@ -168,12 +143,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         )
     }
 
-    /* Funkcija za dopremanje podataka, veza sa api-jem  
-    api u većini slučajeva traži povratnu informaciju 3 parametra
-    api('1', '2', '3'){} 
-    1. ruta (provjeriti u backend), 
-    2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
-    3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
     private getUserData() {
         api('api/user/' + this.props.match.params.userID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -191,21 +160,14 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 this.setErrorMessage('')
                 this.setUsers(data)
             })
-        /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||razduženo&sort=timestamp,DESC', 'get', {}, 'administrator')
+
+        api('api/articleTimeline/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||razduženo&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
-                const debt: DebtType[] = res.data;
-                this.setDebt(debt)
+                this.setArticleTimeline(res.data)
             })
-        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||otpisano&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
-                const destroyed: DestroyedType[] = res.data;
-                this.setDestroyed(destroyed)
-            })
-        api('api/userArticle/?filter=userId||$eq||' + this.props.match.params.userID + '&filter=status||$eq||zaduženo&sort=timestamp,DESC', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                const responsibility: ResponsibilityType[] = res.data;
-                this.setResponsibility(responsibility)
+                this.setUserArticle(res.data)
             })
 
         api('api/article/?filter=userArticles.userId||$eq||'
@@ -326,7 +288,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 }
 
     private responsibilityArticlesOnUser() {
-        if (this.state.responsibility.length === 0) {
+        const responsibilitiy: UserArticleType[] = this.state.userArticle.filter(ua => ua.status === 'zaduženo');
+        if (responsibilitiy.length === 0) {
             return (
                 <>
                     <b>Zadužena oprema</b><br />
@@ -349,13 +312,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.responsibility?.map(ura => (
+                            {responsibilitiy.map(ura => (
                                 <TableRow hover>
-                                    <TableCell><Link href={`#/admin/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
-                                    <TableCell>{ura.status}</TableCell>
-                                    <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{ura.serialNumber}</TableCell>
-                                    <TableCell>{this.saveFile(ura.document?.path)}</TableCell>
+                                <TableCell><Link href={`#/admin/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
+                                <TableCell>{ura.status}</TableCell>
+                                <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                <TableCell>{ura.serialNumber}</TableCell>
+                                <TableCell>{this.saveFile(ura.document?.path)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -366,7 +329,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private debtArticlesOnUser() {
-        if (this.state.debt.length === 0) {
+        if (this.state.articleTimeline.length === 0) {
             return (
                 <>
                     <b>Razdužena oprema</b><br />
@@ -389,7 +352,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.debt?.map(debt => (
+                            {this.state.articleTimeline?.map(debt => (
                                 <TableRow hover>
                                     <TableCell><Link href={`#/admin/userArticle/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
                                     <TableCell>{debt.comment}</TableCell>
@@ -406,7 +369,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private destroyedArticlesOnUser() {
-        if (this.state.destroyed.length === 0) {
+        const destroye: UserArticleType[] = this.state.userArticle.filter(ua => ua.status === 'otpisano');
+        if (destroye.length === 0) {
             return (
                 <>
                     <b>Uništena oprema</b><br />
@@ -429,13 +393,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.destroyed?.map(destroyed => (
+                            {destroye.map(ura => (
                                 <TableRow hover>
-                                    <TableCell><Link href={`#/admin/userArticle/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
-                                    <TableCell>{destroyed.comment}</TableCell>
-                                    <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{destroyed.serialNumber}</TableCell>
-                                    <TableCell>{this.saveFile(destroyed.document?.path)}</TableCell>
+                                <TableCell><Link href={`#/admin/userArticle/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
+                                <TableCell>{ura.status}</TableCell>
+                                <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                <TableCell>{ura.serialNumber}</TableCell>
+                                <TableCell>{this.saveFile(ura.document?.path)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -446,7 +410,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private renderArticleData(user: ApiUserDto) {
-
         return (
             <>
                 <Row className="mb-3">
@@ -499,7 +462,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         );
     }
 
-    private featureTest (features: FeaturesType[], articleId: number) {
+    private featurePopover (features: FeaturesType[], articleId: number) {
         return features.filter(x => x.articleId === articleId).map(ftr => (
             <>
             <li style={{display: "flex", alignItems:"flex-start", flexWrap:"wrap"}} className="list-group-item"><strong>{ftr.name}: </strong>{ftr.value}</li>
@@ -523,7 +486,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     <Popover>
                                         <Popover.Body>
                                         <ul style={{width:"auto", margin:"auto"}}>                                        
-                                            {this.featureTest(this.state.features, artikal.articleId)}
+                                            {this.featurePopover(this.state.features, artikal.articleId)}
                                         </ul>
                                     </Popover.Body>
                                     </Popover>
@@ -562,7 +525,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         </Stack>
                     </div>
                 </Col>
-                
                 </>
             )) 
             )

@@ -44,7 +44,6 @@ export default class HomePage extends React.Component {
         const newState = Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
         });
-
         this.setState(newState);
     }
 

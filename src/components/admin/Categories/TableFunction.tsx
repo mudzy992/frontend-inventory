@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, useEffect} from 'react';
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Button, TableCell, TableHead, TableRow, TableBody, Table, Card, Alert } from "@mui/material";
 import Moment from 'moment';
+import "./style.css";
 
 interface UserArticleBaseType {
     articleId?: number;
@@ -122,7 +123,10 @@ export default function TableFunction(props:any) {
                     .map(serialNumber => {
                       return (
                         <>
-                          <TableRow key={serialNumber}>
+                          <TableRow key={serialNumber}
+                           className={(row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status !== "otpisano") ? '' : 'destroyed') +
+                           (row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status !== "razduženo") ? '' : 'debt')  }
+                          >
                             <TableCell component="th" scope="row" style={{ borderColor: "#444F5A" }}>
                               <Button
                                 size="small"
@@ -139,7 +143,7 @@ export default function TableFunction(props:any) {
                               <Button
                                 size="small"
                                 style={{ marginLeft: 5, color: "#9ED5C5" }}
-                                className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId ? '' : 'd-none'}
+                                className={row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo") ? '' : 'd-none'}
                                 href={`#/admin/userProfile/${row.original.userArticles?.find(s => s.serialNumber === serialNumber)?.userId}`}
                               >
                                 <i className="bi bi-person-fill" style={{ fontSize: 20 }} /> {row.original.userDetails?.find(s => s.userId === row.original.userArticles?.find(s => s.serialNumber === serialNumber && s.status === "zaduženo")?.userId)?.fullname}

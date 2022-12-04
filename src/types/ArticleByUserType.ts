@@ -32,6 +32,7 @@ export default interface ArticleByUserType {
         status: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp: string;
         serialNumber: string;
+        invBroj: string;
     }[];
     articlesInStock:{
         stockId: number;

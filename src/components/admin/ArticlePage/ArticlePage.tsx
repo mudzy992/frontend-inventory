@@ -5,12 +5,12 @@ import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, } from "@mui/material";
-import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';
 import CategoryType from '../../../types/CategoryType';
+import UserArticleType from '../../../types/UserArticleType';
 
 interface ArticlePageProperties {
     match: {
@@ -56,10 +56,11 @@ interface EditFeaturesType {
 }
 interface ArticlePageState {
     message: string;
+    isLoggedIn: boolean;
     articles?: ApiArticleDto;
     categories: CategoryType[];
     feature: FeaturesType[];
-    articleTimeline: ArticleTimelineType[];
+    userArticle: UserArticleType[];
     users: userData[];
     editFeature: EditFeaturesType;
     changeStatus: {
@@ -81,8 +82,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         super(props);
         this.state = {
             message: "",
+            isLoggedIn: true,
             feature: [],
-            articleTimeline: [],
+            userArticle: [],
             categories: [],
             users: [],
             editFeature: {
@@ -109,6 +111,13 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 visible: false,
             },
         }
+    }
+
+    private setLogginState(isLoggedIn: boolean) {
+        const newState = Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        });
+        this.setState(newState);
     }
 
     private setArticles(articleData: ApiArticleDto | undefined) {
@@ -156,7 +165,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private setEditFeatureValue(featureId: number, value: string) {
         const addFeatures: { featureId: number; value: string; }[] = [...this.state.editFeature.features];
-
         for (const feature of addFeatures) {
             if (feature.featureId === featureId) {
                 feature.value = value;
@@ -185,9 +193,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         }))
     }
 
-    private setArticleTimelineData(articleTimelineData: ArticleTimelineType[]) {
+    private setUserArticle(userArticleData: UserArticleType[]) {
         this.setState(Object.assign(this.state, {
-            articleTimeline: articleTimelineData
+            userArticle: userArticleData
         }))
     }
 
@@ -222,11 +230,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     componentDidMount() {
         this.getArticleData()
         this.getCategories()
-        
     }
 
     componentDidUpdate(oldProperties: ArticlePageProperties) {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
         if (oldProperties.match.params.articleID === this.props.match.params.articleID) {
             return;
         }
@@ -395,56 +401,22 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     features.push({ name, value });
                 }
                 this.setFeaturesData(features);
-
-/*                 const articleTimeline: ArticleTimelineType[] = [];
-
-                for (const statusRespon of data.userArticles) {
-                    let articleId = data.articleId;
-                    let surname = '';
-                    let forname = '';
-                    let comment = statusRespon.comment;
-                    let status = '';
-                    let serialNumber = '';
-                    let timestamp = '';
-                    let userId = 0;
-                    let documentPath = '';
-                    if (statusRespon.articleId === data.articleId) {
-                        status = statusRespon.status;
-                        serialNumber = statusRespon.serialNumber;
-                        timestamp = statusRespon.timestamp;
-                        for (const user of data.userDetails) {
-                            if (statusRespon.userId === user.userId) {
-                                userId = user.userId;
-                                surname = user.surname;
-                                forname = user.forname;
-                            }
-                        }
-                    }
-                    for (const doc of data.documents) {
-                        if (doc.documentsId === statusRespon.documentId) {
-                            documentPath = doc.path;
-                            break;
-                        }
-                    }
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, documentPath, userId })
-                }
-                this.setArticleTimelineData(articleTimeline) */
                 this.editFeatureCategoryChanged()
                 this.putArticleDetailsInState(res.data)
             }
         )
 
-        api('api/articleTimeline/?filter=articleId||$eq||' + this.props.match.params.articleID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/userArticle/?filter=articleId||$eq||' + this.props.match.params.articleID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
                     this.setErrorMessage("Greška prilikom učitavanja historije artikla")
                     return;
                 }
-/*                 if (res.status === 'login') {
+                if (res.status === 'login') {
                     return this.setLogginState(false);
-                } */
-                this.setArticleTimelineData(res.data)
+                }
+                this.setUserArticle(res.data)
             })
 
         api('/api/user/', 'get', {}, 'administrator')
@@ -874,18 +846,18 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {this.state.articleTimeline?.map(articleTimeline => (
+                                            {this.state.userArticle?.map(ua => (
                                                 <TableRow hover>
-                                                    <TableCell><Link href={`#/admin/userProfile/${articleTimeline.userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
-                                                        {articleTimeline.user?.surname} {articleTimeline.user?.forname}</Link>
+                                                    <TableCell><Link href={`#/admin/userProfile/${ua.userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
+                                                        {ua.user?.fullname}</Link>
                                                     </TableCell>
-                                                    <TableCell>{articleTimeline.status}</TableCell>
-                                                    <TableCell>{articleTimeline.comment}</TableCell>
-                                                    <TableCell><Link href={`#/admin/userArticle/${articleTimeline.userId}/${articleTimeline.articleId}/${articleTimeline.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >
-                                                        {articleTimeline.serialNumber}</Link>
+                                                    <TableCell>{ua.status}</TableCell>
+                                                    <TableCell>{ua.comment}</TableCell>
+                                                    <TableCell><Link href={`#/admin/userArticle/${ua.articleId}/${ua.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >
+                                                        {ua.serialNumber}</Link>
                                                     </TableCell>
-                                                    <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell style={{ justifyContent: 'center'}}>{this.saveFile(articleTimeline.document?.path)}</TableCell>
+                                                    <TableCell>{Moment(ua.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    <TableCell style={{ justifyContent: 'center'}}>{this.saveFile(ua.document?.path)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

@@ -316,21 +316,21 @@ export default class AddUserPage extends React.Component<{}>{
             );
         } 
         return(
-            <>
-            <RoledMainMenu role='administrator'/>
-            
-            <Container style={{ marginTop:15}}>
-                {this.printOptionalMessage()}
-                {this.addForm()}
-                <AdminMenu />
-            </Container>
-            </>
+            <div>
+                <RoledMainMenu role='administrator'/>
+                
+                <Container style={{ marginTop:15}}>
+                    {this.printOptionalMessage()}
+                    {this.addForm()}
+                    <AdminMenu />
+                </Container>
+            </div>
         )
     }
 
     private addForm() {
         return (
-            <> 
+            <div> 
             <Card className="mb-3">
                 <Card.Header><i className="bi bi-person-lines-fill"/> Informacije o korisniku</Card.Header>
                 <Card.Body>
@@ -504,7 +504,7 @@ export default class AddUserPage extends React.Component<{}>{
                     </Row>
                 </Card.Footer>
             </Card>  
-            </>
+            </div>
         )
     }
 

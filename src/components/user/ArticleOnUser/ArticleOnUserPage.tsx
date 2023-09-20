@@ -242,7 +242,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
             );
         }
         return (
-            <>
+            <div>
                 <RoledMainMenu role='user' />
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
@@ -282,7 +282,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                         </Card.Body>
                     </Card>
                 </Container>
-            </>
+            </div>
         )
     }
 
@@ -327,13 +327,13 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                         <Card bg="success" text="white" className="mb-2">
                             <Card.Header>Detalji korisnika</Card.Header>
                             <ListGroup variant="flush" >
-                            <><ListGroup.Item>Ime: {userDet.map(usr => (usr.surname))}</ListGroup.Item>
+                            <div><ListGroup.Item>Ime: {userDet.map(usr => (usr.surname))}</ListGroup.Item>
                                     <ListGroup.Item>Prezime: {userDet.map(usr => (usr.forname))}</ListGroup.Item>
                                     <ListGroup.Item>Email: {userDet.map(usr => (usr.email))}</ListGroup.Item>
                                     <ListGroup.Item>Sektor: {userDet.map(usr => (usr.department?.title))}</ListGroup.Item>
                                     <ListGroup.Item>Radno mjesto: {userDet.map(usr => (usr.job?.title))}</ListGroup.Item>
                                     <ListGroup.Item>Lokacija: {userDet.map(usr => (usr.location?.name))}</ListGroup.Item>
-                                </>
+                                </div>
                             </ListGroup>
                         </Card>
                     </Col>
@@ -466,10 +466,10 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                    <>
+                                    <div>
                                         <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].status))} </b></ListGroup.Item>
                                         <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
-                                    </>
+                                    </div>
                                 </ListGroup>
                             </Card>
                         </Col>

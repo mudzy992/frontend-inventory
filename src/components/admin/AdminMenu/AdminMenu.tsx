@@ -21,7 +21,7 @@ export default function AdminMenu() {
         {icon: <i className='bi bi-building-add' style={{fontSize:'21px'}}/> , name: 'Sektor/služba/odljenje', link: "/admin/department/"},
       ]
     return (
-        <>
+        <div>
         <Backdrop open={open} />
         <SpeedDial
             ariaLabel="Administrator dashboard"
@@ -41,6 +41,6 @@ export default function AdminMenu() {
                     tooltipOpen
                     onClick={()=> window.open('#' + action.link, '_self', 'noopener,noreferrer')} />
             ))}
-        </SpeedDial></>
+        </SpeedDial></div>
     );
   }

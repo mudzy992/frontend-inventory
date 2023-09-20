@@ -83,7 +83,7 @@ export default class AddArticlePage extends React.Component<{}>{
     /* Kraj dodatnih funkcija */
     render() {
         return(
-            <>
+            <div>
             <RoledMainMenu role='administrator'/>
             <Container style={{ marginTop:15}}> 
             {this.printOptionalMessage()}
@@ -93,7 +93,7 @@ export default class AddArticlePage extends React.Component<{}>{
                         ''
                 }{}
             </Container>
-            </>
+            </div>
         )
     }
 
@@ -139,7 +139,7 @@ export default class AddArticlePage extends React.Component<{}>{
             paginationPosition: 'top'
         };
         return (
-            <>
+            <div>
                 <BootstrapTable
                     keyField="userId"
                     data={this.state.articles}
@@ -152,7 +152,7 @@ export default class AddArticlePage extends React.Component<{}>{
                     filter={filterFactory()}
                     pagination={paginationFactory(options)}
                 />
-            </>
+            </div>
         )
     }
 

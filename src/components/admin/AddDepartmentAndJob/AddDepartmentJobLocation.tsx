@@ -150,9 +150,9 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
         }
 
         return (
-            <>
+            <div>
                 {this.state.error.message}
-            </>
+            </div>
         );
     }
     private doAddDepartmentJobLocation() {
@@ -170,7 +170,7 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
 
     addForm() {
         return(
-            <><Modal.Header closeButton>
+            <div><Modal.Header closeButton>
                 <Modal.Title>Modul povezivanja radnog mjesta sa sektorom i lokacijom</Modal.Title>
             </Modal.Header>
             <Modal.Body >
@@ -232,7 +232,7 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                         </Row>
                 </Modal.Footer>
                 </Modal.Body>
-            </>
+            </div>
         )
     }
 
@@ -240,12 +240,12 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
 
     render() {
         return (
-            <>
-            <Container style={{ marginTop:15}}>
-                {this.renderData()}
-                
-            </Container>
-            </>
+            <div>
+                <Container style={{ marginTop:15}}>
+                    {this.renderData()}
+                    
+                </Container>
+            </div>
         )
     }
 

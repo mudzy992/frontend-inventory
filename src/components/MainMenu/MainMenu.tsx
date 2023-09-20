@@ -67,10 +67,14 @@ export class MainMenu extends React.Component<MainMenuProperties> {
         );
     }
     /* a može i ova varijanta */
-    private makeNavLink(item: MainMenuItem) {
+    private makeNavLink(item: MainMenuItem, index: number) {
         return (
-            <Link to={item.link}
-                className="nav-link" >{item.text}</Link>
+            <Link
+                key={index}
+                to={item.link}
+                className="nav-link" >
+                    {item.text}
+            </Link>
         );
     }
 }

@@ -82,7 +82,7 @@ export default class HomePage extends React.Component {
         /* kraj provjera */
         return (
             /* prikaz klijentu */
-            <>
+            <div>
                 <RoledMainMenu role='administrator'/>
                     <Container style={{marginTop: 15 }}>
                         <UserPage />
@@ -94,13 +94,13 @@ export default class HomePage extends React.Component {
                             </Row>
                             <AdminMenu />
                     </Container>
-            </>
+            </div>
         )
     }
 
     private singleCategory(category: CategoryType) {
         return (
-            <Col lg="2" md="4" sm="6" xs="6">
+            <Col lg="2" md="4" sm="6" xs="6" key={category.categoryId}>
                 <CardGroup>
                 <Card className="text-white bg-dark mb-3">
                     <Card.Header>

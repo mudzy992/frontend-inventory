@@ -288,7 +288,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private editFeatureInput(feature: any) {
         return (
-            <><Form.Group className="mb-3 was-validated">
+            <div><Form.Group className="mb-3 was-validated">
                 <Row style={{ alignItems: 'baseline' }}>
                     <Col xs="4" sm="1" className="text-center">
                         <input type="checkbox" value="1" checked={feature.use === 1}
@@ -314,7 +314,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     </Col>
                 </Row>
             </Form.Group>
-            </>
+            </div>
         );
     }
     
@@ -502,7 +502,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     render() {
         return (
-            <>
+            <div>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
@@ -546,7 +546,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         </Card.Body>
                     </Card>
                 </Container>
-            </>
+            </div>
         )
     }
 
@@ -589,7 +589,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             return (
                 
                     
-                    <><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
+                    <div><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Kartica zaduženja</Modal.Title>
                     </Modal.Header>
@@ -669,7 +669,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </Button>
                         </Modal.Footer>
                     </Modal.Body>
-                </Modal></>
+                </Modal></div>
             )
         }
 
@@ -686,7 +686,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private saveFile (docPath: any) {
             if(!docPath) {
-                return (<>
+                return (<div>
                 <Link >
                     <OverlayTrigger 
                     placement="top"
@@ -694,7 +694,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     overlay={
                     <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
                     }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
-                    </Link></> )
+                    </Link></div> )
             }
             if (docPath) {
                 const savedFile = (docPath:any) => {

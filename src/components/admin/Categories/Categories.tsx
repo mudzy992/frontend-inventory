@@ -186,7 +186,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
         /* kraj provjera */
         return (
             /* prikaz klijentu */
-            <>
+            <div>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
                     <Row className={this.state.articles.length > 0 ? '' : 'd-none'}>
@@ -196,18 +196,6 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                         </div>
                     </Row>
 
-                    <Row>
-                        <Table>
-                            {this.state.userArticle?.map(arti => (
-                                <tr>
-                                    {arti.articles?.map(details => (
-                                        <><td>{details.serialNumber}</td><td>{details.status}</td><td>{details.invBroj}</td></>
-                                    ))}
-                                </tr>
-                            ))}                            
-                        </Table>
-                    </Row>
-
                     <Row style={{marginTop:25}}>
                     <h5 style={{marginLeft:10, marginBottom:8, color:"white"}}> <i className="bi bi-list-nested"/> Podkategorije</h5>
                         <div>
@@ -215,7 +203,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                         </div>
                     </Row>
                 </Container>
-            </>
+            </div>
         )
     }
 
@@ -246,7 +234,7 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
     private singleCategory(category: CategoryType) {
         return (
             /* Ono kako želimo da prikažemo kategoriju (dizajn) */
-            <Col lg="2" md="4" sm="6" xs="6">
+            <Col lg="2" md="4" sm="6" xs="6" key={category.categoryId}>
                 <Card className="bg-dark text-white mb-3">
                     <Card.Header>
                         <Card.Title>

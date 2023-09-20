@@ -230,7 +230,7 @@ export default class AddArticlePage extends React.Component<{}>{
 
     private addArticleFeatureInput(feature: any) {
         return (
-            <><Form.Group className="mb-3 was-validated">
+            <div><Form.Group className="mb-3 was-validated">
                 <Row style={{ alignItems: 'baseline' }}>
                     <Col xs="4" sm="1" className="text-center">
                         <input type="checkbox" value="1" checked={feature.use === 1}
@@ -250,7 +250,7 @@ export default class AddArticlePage extends React.Component<{}>{
                     </Col>
                 </Row>
             </Form.Group>
-            </>
+            </div>
 
         );
     }
@@ -282,7 +282,7 @@ export default class AddArticlePage extends React.Component<{}>{
     /* Kraj dodatnih funkcija */
     render() {
         return(
-            <>
+            <div>
             <RoledMainMenu role='administrator'/>
             <Container style={{ marginTop:15}}> 
             {this.printOptionalMessage()}
@@ -292,13 +292,13 @@ export default class AddArticlePage extends React.Component<{}>{
                         ''
                 }{}
             </Container>
-            </>
+            </div>
         )
     }
 
     private addForm() {
         return (
-            <>
+            <div>
             <Card className="mb-3">
                 <Card.Header>Detalji opreme</Card.Header>
                 <Card.Body>
@@ -422,7 +422,7 @@ export default class AddArticlePage extends React.Component<{}>{
             </Card>
 
             
-            </>
+            </div>
         )
     }
 

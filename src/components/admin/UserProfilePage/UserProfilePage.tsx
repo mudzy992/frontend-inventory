@@ -221,7 +221,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             );
         }
         return (
-            <>
+            <div>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 20 }}>
                     <Card className="text-white bg-dark">
@@ -234,25 +234,22 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 }
                             </Card.Title>
                         </Card.Header>
-                        <Card.Body>
-                            <Card.Text>
-                                {this.printOptionalMessage()}
+                        <Card.Body> {this.printOptionalMessage()}
                                 {
                                     this.state.users ?
                                         (this.renderArticleData(this.state.users)) :
                                         ''
                                 }
-                            </Card.Text>
                         </Card.Body>
                     </Card>
                 </Container>
-            </>
+            </div>
         )
     }
 
     private saveFile (docPath: any) {
         if(!docPath) {
-            return (<>
+            return (<div>
             <Button size='sm' style={{backgroundColor:"#9D5353"}}>
                 <OverlayTrigger 
                 placement="top"
@@ -260,7 +257,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 overlay={
                 <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
                 }><i className="bi bi-file-earmark-text" style={{ fontSize: 20, color:"white" }}/></OverlayTrigger>
-                </Button></> )
+                </Button></div> )
         }
         if (docPath) {
             const savedFile = (docPath:any) => {
@@ -279,14 +276,14 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     private responsibilityArticlesOnUser() {
         if (this.state.responsibility.length === 0) {
             return (
-                <>
+                <div>
                     <b>Zadužena oprema</b><br />
                     <Alert variant="filled" severity="info">Korisnik nema zadužene opreme</Alert>
-                </>
+                </div>
             )
         }
         return (
-            <>
+            <div>
                 <b>Zadužena oprema</b><br />
                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                     <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
@@ -300,8 +297,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.responsibility?.map(ura => (
-                                <TableRow hover>
+                            {this.state.responsibility?.map((ura, index) => (
+                                <TableRow hover key={index}>
                                     <TableCell><Link href={`#/admin/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -312,21 +309,21 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </>
+            </div>
         )
     }
 
     private debtArticlesOnUser() {
         if (this.state.debt.length === 0) {
             return (
-                <>
+                <div>
                     <b>Razdužena oprema</b><br />
                     <Alert variant="filled" severity="info">Korisnik nema razdužene opreme</Alert>
-                </>
+                </div>
             )
         }
         return (
-            <>
+            <div>
                 <b>Razdužena oprema</b><br />
                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                     <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -340,8 +337,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.debt?.map(debt => (
-                                <TableRow hover>
+                            {this.state.debt?.map((debt, index) => (
+                                <TableRow hover key={index}>
                                     <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
                                     <TableCell>{debt.comment}</TableCell>
                                     <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -352,21 +349,21 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </>
+            </div>
         )
     }
 
     private destroyedArticlesOnUser() {
         if (this.state.destroyed.length === 0) {
             return (
-                <>
+                <div>
                     <b>Uništena oprema</b><br />
                     <Alert variant="filled" severity="info">Korisnik nema otpisane opreme</Alert>
-                </>
+                </div>
             )
         }
         return (
-            <>
+            <div>
                 <b>Uništena oprema</b><br />
                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                     <Table sx={{ minWidth: 700 }} aria-label="custumuzed table">
@@ -380,8 +377,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.destroyed?.map(destroyed => (
-                                <TableRow hover>
+                            {this.state.destroyed?.map((destroyed, index) => (
+                                <TableRow hover key={index}>
                                     <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
                                     <TableCell>{destroyed.comment}</TableCell>
                                     <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
@@ -392,7 +389,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </>
+            </div>
         )
     }
 
@@ -400,9 +397,9 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 
         return (
             <Row>
-                <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
-                    <ul className="list-group">
-                        <>
+                <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }} key={user.userId}>
+                    <ul className="list-group" >
+                        <div>
                             <li className="list-group-item active"><b>Detalji korisnika</b></li>
                             <li className="list-group-item">Ime: {user.surname}</li>
                             <li className="list-group-item">Prezime: {user.forname}</li>
@@ -410,11 +407,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             <li className="list-group-item">Sektor: {user.department?.title}</li>
                             <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
                             <li className="list-group-item">Lokacija: {user.location?.name}</li>
-                        </>
+                        </div>
                     </ul>
                 </Col>
-                <Col xs="12" lg="9" >
-                    <Row>
+                <Col xs="12" lg="9">
+                    <Row >
                         {this.articlesByUser()}
                     </Row>
                     <Row style={{ padding: 5 }}>
@@ -434,19 +431,19 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     private articlesByUser() {
         
         return (
-            this.state.articlesByUser.map(artikal => (
-                <>
-                <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
-                    <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
-                        <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <Badge pill bg="primary">
-                                {artikal.category.name}
-                            </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
-                            <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
-                        </Card.Body>
-                    </Card>
+            this.state.articlesByUser.map((artikal) => (
+                <div key={artikal.articleId}>
+                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
+                        <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
+                            <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <Badge pill bg="primary">
+                                    {artikal.category.name}
+                                </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
+                                <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
+                            </Card.Body>
+                        </Card>
                     </Col>
-                </>
+                </div>
             )))
     }
 }

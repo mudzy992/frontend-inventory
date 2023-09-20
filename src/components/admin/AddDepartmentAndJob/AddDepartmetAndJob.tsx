@@ -184,9 +184,9 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
         }
 
         return (
-            <>
+            <div>
                 {this.state.message}
-            </>
+            </div>
         );
     }
 
@@ -240,7 +240,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
 
     addForm() {
         return(
-            <><Card className="mb-3">
+            <div><Card className="mb-3">
                 <Card.Header>
                     <Card.Title>Detalji sektora/službe/odjeljenja</Card.Title>
                 </Card.Header>
@@ -468,7 +468,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
                         </Row>
                     </Card.Footer>
             </Card>
-            </>
+            </div>
         )
     }
 
@@ -476,13 +476,13 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
 
     render() {
         return (
-            <>
-            <RoledMainMenu role="administrator" />
-            <Container style={{ marginTop:15}}>
-                {this.renderCategoryData()}
-                <AdminMenu />
-            </Container>
-            </>
+            <div>
+                <RoledMainMenu role="administrator" />
+                <Container style={{ marginTop:15}}>
+                    {this.renderCategoryData()}
+                    <AdminMenu />
+                </Container>
+            </div>
         )
     }
 

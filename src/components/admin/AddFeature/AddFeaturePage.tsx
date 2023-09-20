@@ -165,7 +165,7 @@ export default class AddFeaturePage extends React.Component<{}> {
 
     private addForm() {
         return(
-            <><Card className="mb-3">
+            <div><Card className="mb-3">
                 <Card.Header>
                     <Card.Title>Detalji osobine</Card.Title>
                 </Card.Header>
@@ -214,7 +214,7 @@ export default class AddFeaturePage extends React.Component<{}> {
                         </Row>
                     </Card.Footer>
             </Card>
-            </>
+            </div>
         )
     }
     /* KRAJ DODATNIH FUNKCIJA */
@@ -223,13 +223,13 @@ export default class AddFeaturePage extends React.Component<{}> {
 
     render() {
         return (
-            <>
-            <RoledMainMenu role="administrator" />
-            <Container style={{ marginTop:15}}>
-                {this.renderFeatureData()}
-                <AdminMenu />
-            </Container>
-            </>
+            <div>
+                <RoledMainMenu role="administrator" />
+                <Container style={{ marginTop:15}}>
+                    {this.renderFeatureData()}
+                    <AdminMenu />
+                </Container>
+            </div>
         )
     }
 

@@ -102,9 +102,9 @@ export default class AddDepartment extends React.Component<{}> {
         }
 
         return (
-            <>
+            <div>
                 {this.state.error.message}
-            </>
+            </div>
         );
     }
 
@@ -123,7 +123,7 @@ export default class AddDepartment extends React.Component<{}> {
 
     addForm() {
         return(
-            <>
+            <div>
             <Modal.Header closeButton>
                     <Modal.Title>Detalji sektora/službe/odjeljenja</Modal.Title>
                 </Modal.Header>
@@ -192,7 +192,7 @@ export default class AddDepartment extends React.Component<{}> {
                     </Row>
                 </Modal.Footer>
                 </Modal.Body>
-            </>
+            </div>
         )
     }
 
@@ -200,12 +200,12 @@ export default class AddDepartment extends React.Component<{}> {
 
     render() {
         return (
-            <>
-            <Container style={{ marginTop:15}}>
-                {this.renderData()}
-                
-            </Container>
-            </>
+            <div>
+                <Container style={{ marginTop:15}}>
+                    {this.renderData()}
+                    
+                </Container>
+            </div>
         )
     }
 

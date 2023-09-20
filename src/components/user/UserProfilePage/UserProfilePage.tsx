@@ -205,7 +205,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             );
         }
         return (
-            <>
+            <div>
                 <RoledMainMenu role='user' />
                 <Container style={{ marginTop: 20 }}>
                     <Card className="text-white bg-dark">
@@ -230,21 +230,21 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         </Card.Body>
                     </Card>
                 </Container>
-            </>
+            </div>
         )
     }
 
     private responsibilityArticlesOnUser() {
         if (this.state.responsibility.length === 0) {
             return (
-                <>
+                <div>
                     <b>Zadužena oprema</b><br />
                     <Alert variant="filled" severity="info">Korisnik nema zadužene opreme</Alert>
-                </>
+                </div>
             )
         }
         return (
-            <>
+            <div>
                 <b>Zadužena oprema</b><br />
                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                     <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
@@ -272,21 +272,21 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </>
+            </div>
         )
     }
 
     private debtArticlesOnUser() {
         if (this.state.debt.length === 0) {
             return (
-                <>
+                <div>
                     <b>Razdužena oprema</b><br />
                     <Alert variant="filled" severity="info">Korisnik nema razdužene opreme</Alert>
-                </>
+                </div>
             )
         }
         return (
-            <>
+            <div>
                 <b>Razdužena oprema</b><br />
                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                     <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -314,21 +314,21 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </>
+            </div>
         )
     }
 
     private destroyedArticlesOnUser() {
         if (this.state.destroyed.length === 0) {
             return (
-                <>
+                <div>
                     <b>Uništena oprema</b><br />
                     <Alert variant="filled" severity="info">Korisnik nema otpisane opreme</Alert>
-                </>
+                </div>
             )
         }
         return (
-            <>
+            <div>
                 <b>Uništena oprema</b><br />
                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                     <Table sx={{ minWidth: 700 }} aria-label="custumuzed table">
@@ -356,7 +356,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </>
+            </div>
         )
     }
 
@@ -365,7 +365,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             <Row>
                 <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
                     <ul className="list-group">
-                        <>
+                        <div>
                             <li className="list-group-item active"><b>Detalji korisnika</b></li>
                             <li className="list-group-item">Ime: {user.surname}</li>
                             <li className="list-group-item">Prezime: {user.forname}</li>
@@ -373,7 +373,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                             <li className="list-group-item">Sektor: {user.department.title}</li>
                             <li className="list-group-item">Radno mjest: {user.job.title}</li>
                             <li className="list-group-item">Lokacija: {user.location.name}</li>
-                        </>
+                        </div>
                     </ul>
                 </Col>
                 <Col xs="12" lg="9" >
@@ -398,7 +398,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         return (
 
             this.state.articlesByUser.map(artikal => (
-                <>
+                <div>
                     <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
                             <Card bg="light" text="dark" className="mb-2" >
                                 <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -409,7 +409,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                                 </Card.Body>
                             </Card>
                     </Col>
-                </>
+                </div>
             )))
     }
 }

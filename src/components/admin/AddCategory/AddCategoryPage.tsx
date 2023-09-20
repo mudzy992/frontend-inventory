@@ -82,9 +82,9 @@ export default class AddNewCategoryPage extends React.Component<{}> {
         }
 
         return (
-            <>
+            <div>
                 {this.state.message}
-            </>
+            </div>
         );
     }
 
@@ -101,7 +101,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
 
     private addForm() {
         return(
-            <><Card className="mb-3">
+            <div><Card className="mb-3">
                 <Card.Header>
                     <Card.Title>Detalji kategorije</Card.Title>
                 </Card.Header>
@@ -160,7 +160,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                         </Row>
                     </Card.Footer>
             </Card>
-            </>
+            </div>
         )
     }
 
@@ -168,13 +168,13 @@ export default class AddNewCategoryPage extends React.Component<{}> {
 
     render() {
         return (
-            <>
+            <div>
             <RoledMainMenu role="administrator" />
             <Container style={{ marginTop:15}}>
                 {this.renderCategoryData()}
                 <AdminMenu />
             </Container>
-            </>
+            </div>
         )
     }
 

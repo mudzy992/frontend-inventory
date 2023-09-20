@@ -323,7 +323,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private addNewUpgradeFeatureButton () {
         return (
-        <><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>{LangBa.ARTICLE_ON_USER.BTN_UPGRADE}</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
+        <div><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>{LangBa.ARTICLE_ON_USER.BTN_UPGRADE}</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
                 <Modal.Header closeButton>
               {LangBa.ARTICLE_ON_USER.MODAL_HEADER_TEXT}
                 </Modal.Header>
@@ -369,7 +369,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Button variant='success' onClick={() => this.addNewUpgradeFeature()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
                     </Modal.Footer>
                 </Modal.Body>
-            </Modal></>
+            </Modal></div>
         )
     }
     
@@ -393,7 +393,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             );
         }
         return (
-            <>
+            <div>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
@@ -434,7 +434,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         </Card.Body>
                     </Card>
                 </Container>
-            </>
+            </div>
         )
     }
 
@@ -525,7 +525,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>{LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER}</option>
                                         {this.state.users.map(users => (
-                                            <option value={Number(users.userId)}>{users.forname} {users.surname}</option>
+                                            <option key={users.userId} value={Number(users.userId)}>{users.forname} {users.surname}</option>
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>
@@ -625,13 +625,14 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Card bg="success" text="white" className="mb-2">
                             <Card.Header>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</Card.Header>
                             <ListGroup variant="flush" >
-                                <>  <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDetails.map(user => (user.surname))} </ListGroup.Item>
+                                <div>  
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDetails.map(user => (user.surname))} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDetails.map(user => (user.forname))} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDetails.map(user => (user.email))} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDetails.map(user => (user.department?.title))} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDetails.map(user => (user.job?.title))} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LOCATION + userDetails.map(user => (user.location?.name))} </ListGroup.Item>
-                                </>
+                                </div>
                             </ListGroup>
                         </Card>
                     </Col>
@@ -642,7 +643,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private saveFile (docPath: any) {
         if(!docPath) {
-            return (<>
+            return (<div>
             <Link to="">
                 <OverlayTrigger 
                 placement="top"
@@ -650,7 +651,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 overlay={
                 <Tooltip id="tooltip-prenosnica">{LangBa.ARTICLE_ON_USER.DOCUMENT.ERR_DOCUMENT_TOOLTIO}</Tooltip>
                 }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
-                </Link></> )
+                </Link></div> )
         }
         if (docPath) {
             const savedFile = (docPath:any) => {
@@ -701,8 +702,8 @@ private upgradeFeature() {
                             </Col></Row>
                             </Card.Header>
                         <ListGroup variant="flush" >
-                        {this.state.upgradeFeature.map(uf => (
-                                <ListGroup.Item style={{ display: "flex", alignItems: "center"}}>
+                        {this.state.upgradeFeature.map((uf, index) => (
+                                <ListGroup.Item key={index} style={{ display: "flex", alignItems: "center"}}>
                                     <b>{uf.name}: </b> {uf.value}
                                     <OverlayTrigger 
                                     placement="top"
@@ -810,10 +811,10 @@ private upgradeFeature() {
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                    <>
+                                    <div>
                                         <ListGroup.Item>Status: <b>{article.map(artStat => (artStat.userArticles.map(status => ([status.status])).shift()))} </b></ListGroup.Item>
                                         <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
-                                    </>
+                                    </div>
                                 </ListGroup>
                             </Card>
                         </Col>
@@ -825,11 +826,12 @@ private upgradeFeature() {
                                  <ListGroup variant="flush" >
                                     {article.map(artStock => (
 
-                                            <><ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + artStock.articlesInStock.valueOnConcract}</ListGroup.Item>
+                                            <div>
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + artStock.articlesInStock.valueOnConcract}</ListGroup.Item>
                                                 <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + artStock.articlesInStock.valueAvailable}</ListGroup.Item>
                                                 <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + artStock.articlesInStock.sapNumber}</ListGroup.Item>
                                                 <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(artStock.articlesInStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                            </>
+                                            </div>
                                         
                                     ))
                                     }

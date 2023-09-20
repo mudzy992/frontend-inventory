@@ -185,14 +185,14 @@ export default class UserPage extends React.Component {
             );
         }
         return (
-            <>
+            <div>
                 <Row>
                     <h5 style={{marginLeft:10, color:"white"}}> 
                     <i className="bi bi-people-fill"/> Korisnici</h5>
                     {UserTable(this.state.users)}
                         <p>{this.state.message}</p>
                 </Row>
-            </>
+            </div>
         )
     }
 }

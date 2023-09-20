@@ -108,7 +108,7 @@ export default class UserLoginPage extends React.Component {
             );
         }
         return (
-            <>
+            <div>
                 <Container>
                     <Col md={{ span: 6, offset: 3 }}>
                         <Card style={{ marginTop: 10 }}>
@@ -146,7 +146,7 @@ export default class UserLoginPage extends React.Component {
                         </Card>
                     </Col>
                 </Container>
-            </>
+            </div>
         )
     }
 }/* Kraj koda */

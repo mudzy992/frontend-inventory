@@ -108,7 +108,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                 <Card.Body>
                     <Form>
                         <Form.Group className="mb-3 ">
-                            <FloatingLabel controlId="name" label="Nova kategorija (naziv)" className="mb-3 was-validated">
+                            <FloatingLabel label="Nova kategorija (naziv)" className="mb-3 was-validated">
                                 <Form.Control
                                     id="name"
                                     type="text"
@@ -117,7 +117,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewCategoryStringState('name', e.target.value)}
                                     required />
                             </FloatingLabel>
-                            <FloatingLabel controlId="imagePath" label="Ikona kategorije" className="mb-3">
+                            <FloatingLabel label="Ikona kategorije" className="mb-3">
                                 <Form.Control
                                     id="imagePath"
                                     type="text"
@@ -129,7 +129,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                                         Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"} rel={"noreferrer"}>ovjde</a> te kopirati class. Primjer <i style={{color:"red"}}>"bi bi-align-center"</i>
                                     </Form.Text>
                             </FloatingLabel>
-                            <FloatingLabel controlId='parentCategoryId' label="Kategorija" className="mb-3">
+                            <FloatingLabel label="Kategorija" className="mb-3">
                                 <Form.Select
                                     id='parentCategoryId'
                                     value={this.state.addNewCategory.parentCategoryId.toString()}

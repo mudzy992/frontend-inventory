@@ -172,7 +172,7 @@ export default class AddFeaturePage extends React.Component<{}> {
                 <Card.Body>
                     <Form>
                         <Form.Group className="mb-3 was-validated">
-                                <FloatingLabel controlId='categoryId' label="Kategorija" className="mb-3">
+                                <FloatingLabel label="Kategorija" className="mb-3">
                                     <Form.Select
                                         id='categoryId'
                                         value={this.state.addNewFeature.categoryId.toString()}
@@ -189,7 +189,7 @@ export default class AddFeaturePage extends React.Component<{}> {
                                     {this.state.addNewFeature.features.map(this.addFeatureInput, this)}
                                 </List>  
                                 
-                            <FloatingLabel controlId="name" label="Nova osobina (naziv)" className="mb-3">
+                            <FloatingLabel label="Nova osobina (naziv)" className="mb-3">
                                 <Form.Control
                                     id="name"
                                     type="text"

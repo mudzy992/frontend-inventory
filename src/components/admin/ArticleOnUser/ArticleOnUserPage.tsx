@@ -334,7 +334,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             </h6>
                         </Form.Text>
                         <Form.Group>
-                            <FloatingLabel controlId='name' label="Naziv" className="mb-3">
+                            <FloatingLabel label="Naziv" className="mb-3">
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
@@ -343,7 +343,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         onChange={(e) => this.setUpgradeFeatureStringFieldState('name', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
-                            <FloatingLabel controlId='value' label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
+                            <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
@@ -352,7 +352,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         onChange={(e) => this.setUpgradeFeatureStringFieldState('value', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
-                            <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
+                            <FloatingLabel label="Komentar" className="mb-3">
                                 <Form.Control
                                     required
                                     defaultValue=""
@@ -520,7 +520,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 <h6>{ModalMessageArticleOnUser(artiName, userFullName)}</h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='userId' label={LangBa.ARTICLE_ON_USER.NEW_OBLIGATE_LABEL} className="mb-3">
+                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.NEW_OBLIGATE_LABEL} className="mb-3">
                                     <Form.Select placeholder={LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER} id='userId' required
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>{LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER}</option>
@@ -531,7 +531,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </FloatingLabel>
                             </Form.Group>
                             <Form.Group className="mb-3">             
-                                <FloatingLabel controlId='kolicina' label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
+                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
                                 <OverlayTrigger 
                                 placement="top"
                                 delay={{ show: 250, hide: 400 }}
@@ -542,7 +542,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 <Form.Text></Form.Text> 
                             </Form.Group>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='status' label="Status" className="mb-3">
+                                <FloatingLabel label="Status" className="mb-3">
                                     <Form.Select id="status"
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)} required>
                                         <option value="">izaberi status</option>
@@ -559,7 +559,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                 </FloatingLabel>
                             </Form.Group>
                             <Form.Group>
-                                <FloatingLabel controlId='serialNumber' label={LangBa.ARTICLE_ON_USER.FORM_LABEL_SERIALNUMBER} className="mb-3">
+                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_SERIALNUMBER} className="mb-3">
                                     <OverlayTrigger 
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
@@ -570,7 +570,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                         onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
                                     </OverlayTrigger>
                                 </FloatingLabel>
-                                <FloatingLabel controlId='invBroj' label={LangBa.ARTICLE_ON_USER.FORM_LABEL_INV_NUMBER} className="mb-3">
+                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_INV_NUMBER} className="mb-3">
                                     <OverlayTrigger 
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
@@ -584,7 +584,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             </Form.Group>
 
                             <Form.Group className='was-validated'>
-                                <FloatingLabel controlId='comment' label={LangBa.ARTICLE_ON_USER.FORM_LABEL_COMMENT} className="mb-3">
+                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_COMMENT} className="mb-3">
                                     <Form.Control
                                         required
                                         defaultValue=""

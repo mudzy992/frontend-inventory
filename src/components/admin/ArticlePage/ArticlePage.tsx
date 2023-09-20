@@ -296,7 +296,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     </Col>
 
                     <Col>
-                        <FloatingLabel controlId='name' label={feature.name} className="mb-3">
+                        <FloatingLabel label={feature.name} className="mb-3">
                         <OverlayTrigger 
                             placement="top"
                             delay={{ show: 250, hide: 400 }}
@@ -595,7 +595,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     </Modal.Header>
                     <Modal.Body>
                         <Form.Group className='was-validated'>
-                            <FloatingLabel controlId='userId' label="Novo zaduženje na korisnika" className="mb-3">
+                            <FloatingLabel label="Novo zaduženje na korisnika" className="mb-3">
                                 <Form.Select placeholder='izaberi korisnika' id='userId' required
                                     onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                     <option value=''>izaberi korisnika</option>
@@ -606,7 +606,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </FloatingLabel>
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <FloatingLabel controlId='kolicina' label="Kolicina" className="mb-3">
+                            <FloatingLabel label="Kolicina" className="mb-3">
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
@@ -616,7 +616,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         </Form.Group>
 
                         <Form.Group className='was-validated'>
-                            <FloatingLabel controlId='status' label="Status" className="mb-3">
+                            <FloatingLabel label="Status" className="mb-3">
                                 <Form.Select id="status" required
                                     onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
                                     <option value=''> izaberi status</option>
@@ -633,7 +633,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </FloatingLabel>
                         </Form.Group>
                         <Form.Group className='was-validated'>
-                            <FloatingLabel controlId='serialNumber' label="Serijski broj" className="mb-3">
+                            <FloatingLabel label="Serijski broj" className="mb-3">
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
@@ -642,7 +642,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                         onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
-                            <FloatingLabel controlId='invBroj' label="Inventurni broj" className="mb-3">
+                            <FloatingLabel label="Inventurni broj" className="mb-3">
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
@@ -653,7 +653,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </FloatingLabel>
                         </Form.Group>
                         <Form.Group className='was-validated'>
-                            <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
+                            <FloatingLabel label="Komentar" className="mb-3">
                                 <Form.Control
                                     id="comment"
                                     as="textarea"
@@ -731,7 +731,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                             <Modal.Body>
                                                 <Form>
                                                 <Form.Group className="mb-3 was-validated">
-                                                <FloatingLabel controlId='name' label="Naziv opreme" className="mb-3">
+                                                <FloatingLabel label="Naziv opreme" className="mb-3">
                                                     <Form.Control 
                                                     id="name" 
                                                     type="text" 
@@ -740,7 +740,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     onChange={ (e) => this.setEditArticleStringFieldState('name', e.target.value) }
                                                     required />
                                                 </FloatingLabel>
-                                                <FloatingLabel controlId='excerpt' label="Kratki opis" className="mb-3">
+                                                <FloatingLabel label="Kratki opis" className="mb-3">
                                                     <Form.Control 
                                                     id="excerpt" 
                                                     as="textarea" 
@@ -751,7 +751,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     onChange={ (e) => this.setEditArticleStringFieldState('excerpt', e.target.value) }
                                                     required />
                                                 </FloatingLabel>
-                                                <FloatingLabel controlId='description' label="Detaljan opis" className="mb-3">
+                                                <FloatingLabel label="Detaljan opis" className="mb-3">
                                                     <Form.Control 
                                                     id="description" 
                                                     as="textarea" 
@@ -762,7 +762,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     onChange={ (e) => this.setEditArticleStringFieldState('description', e.target.value) }
                                                     required />
                                                 </FloatingLabel>
-                                                <FloatingLabel controlId='concract' label="Ugovor" className="mb-3">
+                                                <FloatingLabel label="Ugovor" className="mb-3">
                                                     <Form.Control 
                                                     id="concract" 
                                                     type="text" 
@@ -771,7 +771,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     onChange={ (e) => this.setEditArticleStringFieldState('concract', e.target.value) }
                                                     required />
                                                 </FloatingLabel>
-                                                <FloatingLabel controlId='valueOnConcract' label="Stanje po ugovoru" className="mb-3">
+                                                <FloatingLabel label="Stanje po ugovoru" className="mb-3">
                                                     <Form.Control 
                                                     id="valueOnConcract" 
                                                     type="text" 
@@ -781,7 +781,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     required
                                                     readOnly />
                                                 </FloatingLabel>
-                                                <FloatingLabel controlId='valueAvailable' label="Dostupno artikala" className="mb-3">
+                                                <FloatingLabel label="Dostupno artikala" className="mb-3">
                                                     <Form.Control 
                                                     id="valueAvailable" 
                                                     type="text" 
@@ -790,7 +790,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     onChange={ (e) => this.setEditArticleNumberFieldState('valueAvailable', e.target.value) }
                                                     required />
                                                 </FloatingLabel>
-                                                <FloatingLabel controlId='sap_number' label="SAP broj" className="mb-3">
+                                                <FloatingLabel label="SAP broj" className="mb-3">
                                                     <Form.Control 
                                                     id="sap_number" 
                                                     type="text" 
@@ -799,7 +799,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                                     onChange={ (e) => this.setEditArticleStringFieldState('sap_number', e.target.value) }
                                                     required />
                                                 </FloatingLabel>
-                                                <FloatingLabel controlId='comment' label="Komentar" className="mb-3">
+                                                <FloatingLabel label="Komentar" className="mb-3">
                                                     <Form.Control
                                                     id="comment"
                                                     as="textarea"

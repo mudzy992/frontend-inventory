@@ -432,8 +432,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         
         return (
             this.state.articlesByUser.map((artikal) => (
-                <div key={artikal.articleId}>
-                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
+                
+                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}} key={artikal.articleId}>
                         <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
                             <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <Badge pill bg="primary">
@@ -443,7 +443,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </Card.Body>
                         </Card>
                     </Col>
-                </div>
+                
             )))
     }
 }

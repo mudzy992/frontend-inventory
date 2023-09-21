@@ -321,8 +321,8 @@ export default class AddArticlePage extends React.Component<{}>{
                             onChange={(e) => this.addArticleCategoryChanged(e as any)}
                             required>
                                 <option value=''>izaberi kategoriju</option>
-                                {this.state.categories.map(category => (
-                                    <option value={category.categoryId?.toString()}>{category.name}</option>
+                                {this.state.categories.map((category, index) => (
+                                    <option key={index} value={category.categoryId?.toString()}>{category.name}</option>
                                 ))} 
                             </Form.Select>
                         </FloatingLabel>
@@ -410,7 +410,7 @@ export default class AddArticlePage extends React.Component<{}>{
             <Card className={this.state.addArticle.categoryId ? '' : 'd-none mb-3'}>
                 <Card.Header>Detalji opreme</Card.Header>
                 <Card.Body>
-                    <Form>
+                    <Form key="forma-dodavanja-dodataka-artikla">
                         {this.state.addArticle.features.map(this.addArticleFeatureInput, this)}
                     </Form>
                 </Card.Body>

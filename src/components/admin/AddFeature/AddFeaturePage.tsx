@@ -179,13 +179,13 @@ export default class AddFeaturePage extends React.Component<{}> {
                                         onChange={(e) => this.addFeatureCategoryChanged(e as any)}
                                         required>
                                         <option value=''>izaberi kategoriju</option>
-                                        {this.state.categories.map(category => (
-                                            <option value={category.categoryId?.toString()}>{category.name}</option>
+                                        {this.state.categories.map((category, index) => (
+                                            <option key={index} value={category.categoryId?.toString()}>{category.name}</option>
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>
                                 <List>
-                                <ListSubheader className={this.state.addNewFeature.categoryId ? '' : 'd-none'}>Trenutne osobine</ListSubheader>
+                                <ListSubheader key="trenutne-osobine" className={this.state.addNewFeature.categoryId ? '' : 'd-none'}>Trenutne osobine</ListSubheader>
                                     {this.state.addNewFeature.features.map(this.addFeatureInput, this)}
                                 </List>  
                                 

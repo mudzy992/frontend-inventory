@@ -183,8 +183,8 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewDepartmentJobLocationStringState('departmentId', e.target.value)}
                                     >
                                     <option value=''>izaberi sektor/službu/odjeljenje</option>
-                                    {this.state.departmentBase.map(data => (
-                                        <option value={data.departmentId?.toString()}>{data.title}</option>
+                                    {this.state.departmentBase.map((data, index) => (
+                                        <option key={index} value={data.departmentId?.toString()}>{data.title}</option>
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
@@ -196,8 +196,8 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                                     onChange={e => {this.setAddNewDepartmentJobLocationStringState('jobId', e.target.value)}}
                                     >
                                     <option value=''>izaberi radno mjesto</option>
-                                    {this.state.jobBase.map(jobData => (
-                                        <option value={jobData.jobId?.toString()}>{jobData.title}</option>
+                                    {this.state.jobBase.map((jobData, index) => (
+                                        <option key={index} value={jobData.jobId?.toString()}>{jobData.title}</option>
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
@@ -209,8 +209,8 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewDepartmentJobLocationStringState('locationId', e.target.value)}
                                     >
                                     <option value='NULL'>izaberi lokaciju</option>
-                                    {this.state.locationBase.map(locData => (
-                                        <option value={locData.locationId?.toString()}>{locData.name}</option>
+                                    {this.state.locationBase.map((locData, index) => (
+                                        <option key={index} value={locData.locationId?.toString()}>{locData.name}</option>
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>

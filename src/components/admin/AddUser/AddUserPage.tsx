@@ -421,8 +421,8 @@ export default class AddUserPage extends React.Component<{}>{
                                     onChange={e => {this.setAddUserNumberFieldState('departmentId', e.target.value); this.addJobDepartmentChange(e as any)}}
                                     required >
                                     <option value=''>izaberi sektor</option>
-                                    {this.state.department.map(dep => (
-                                        <option value={dep.departmentId?.toString()}>{dep.departmendCode} - {dep.title} </option>
+                                    {this.state.department.map((dep, index) => (
+                                        <option key={index} value={dep.departmentId?.toString()}>{dep.departmendCode} - {dep.title} </option>
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
@@ -442,8 +442,8 @@ export default class AddUserPage extends React.Component<{}>{
                                         onChange={(e) => this.setAddUserNumberFieldState('jobId', e.target.value)}
                                         required >
                                         <option value=''>izaberi radno mjesto</option>
-                                        {this.state.job.map(jo => (
-                                            <option value={jo.jobId?.toString()}>{jo.jobCode} - {jo.title} </option>
+                                        {this.state.job.map((jo, index) => (
+                                            <option key={index} value={jo.jobId?.toString()}>{jo.jobCode} - {jo.title} </option>
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>
@@ -475,8 +475,8 @@ export default class AddUserPage extends React.Component<{}>{
                                         onChange={(e) => this.setAddUserNumberFieldState('locationId', e.target.value)}
                                         required >
                                         <option value=''>izaberi lokaciju</option>
-                                        {this.state.location.map(loc => (
-                                            <option value={loc.locationId?.toString()}>{loc.code} - {loc.name} </option>
+                                        {this.state.location.map((loc, index) => (
+                                            <option key={index} value={loc.locationId?.toString()}>{loc.code} - {loc.name} </option>
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>

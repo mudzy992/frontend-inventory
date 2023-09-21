@@ -18,8 +18,9 @@ export const LangBa = {
 
             /* FORMS */
             MODAL_FORM_DESCRIPTION : 'Poruka za nadogradnju opreme',
-            TOOLTIP_NAME : 'Naziv',
-            TOOLTIP_VALUE : 'Vrijednost',
+            TOOLTIP_NAME : 'Naziv dodatne opreme',
+            TOOLTIP_VALUE : 'Vrijednost ili količina',
+            TOOLTIP_COMMENT : "Upiši komentar koji se odnosi na izmjenu",
             TOOLTIP_DEFAULT_VALUE : 'Zadana vrijednost zaduženja ove opreme je 1 KOM',
             FORM_COMMENT_PLACEHOLDER : 'Razlog razduženja opreme (neobavezno)',
             FORM_SELECT_USER_PLACEHOLDER : 'Izaberi korisnika',
@@ -47,6 +48,9 @@ export const LangBa = {
                 DEPARTMENT: 'Sektor: ',
                 JOBNAME: 'Radno mjesto: ',
                 LOCATION: 'Lokacija: ',
+                STATUS:"Status: ",
+                ARTICLE: "Naziv artikla: ",
+                USERNAME: "Korisničko ime: "
             },
 
             DOCUMENT: {

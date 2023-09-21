@@ -158,8 +158,8 @@ export default class AddLocation extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewLocationStringState('parentLocationId', e.target.value)}
                                     >
                                     <option value='NULL'>izaberi podlokaciju</option>
-                                    {this.state.locationBase.map(locData => (
-                                        <option value={locData.locationId?.toString()}>{locData.name}</option>
+                                    {this.state.locationBase.map((locData, index) => (
+                                        <option key={index} value={locData.locationId?.toString()}>{locData.name}</option>
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>

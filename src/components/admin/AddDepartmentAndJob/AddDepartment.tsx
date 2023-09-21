@@ -169,8 +169,8 @@ export default class AddDepartment extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewDepartmentStringState('parentDepartmentId', e.target.value)}
                                     >
                                     <option value='NULL'>izaberi sektor/službu/odjeljenje</option>
-                                    {this.state.departmentBase.map(data => (
-                                        <option value={data.departmentId?.toString()}>{data.title}</option>
+                                    {this.state.departmentBase.map((data, index) => (
+                                        <option key={index} value={data.departmentId?.toString()}>{data.title}</option>
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>

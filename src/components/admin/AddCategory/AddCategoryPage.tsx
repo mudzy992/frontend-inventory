@@ -136,8 +136,8 @@ export default class AddNewCategoryPage extends React.Component<{}> {
                                     onChange={(e) => this.setAddNewCategoryNumberState('parentCategoryId', e.target.value)}
                                     >
                                     <option value=''>izaberi kategoriju</option>
-                                    {this.state.categories.map(category => (
-                                        <option value={category.categoryId?.toString()}>{category.name}</option>
+                                    {this.state.categories.map((category, index) => (
+                                        <option key={index} value={category.categoryId?.toString()}>{category.name}</option>
                                     ))}
                                 </Form.Select>
                                 <Form.Text>U slučaju da se odabere kategorije, kreira se podkategorije</Form.Text>

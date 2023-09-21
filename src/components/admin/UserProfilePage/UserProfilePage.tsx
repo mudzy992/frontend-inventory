@@ -398,7 +398,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         return (
             <Row>
                 <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }} key={user.userId}>
-                    <ul className="list-group" >
+                    <ul className="list-group"  style={{ borderRadius: '--bs-card-border-radius', overflow: 'hidden' }}>
                         <div>
                             <li className="list-group-item active"><b>Detalji korisnika</b></li>
                             <li className="list-group-item">Ime: {user.surname}</li>
@@ -417,12 +417,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
                     </Row>
-                    <Row style={{ padding: 5 }}>
+                   {/*  <Row style={{ padding: 5 }}>
                         {this.debtArticlesOnUser()}
                     </Row>
                     <Row style={{ padding: 5 }}>
                         {this.destroyedArticlesOnUser()}
-                    </Row>
+                    </Row> */}
                 </Col>
             </Row>
         );
@@ -433,7 +433,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         return (
             this.state.articlesByUser.map((artikal) => (
                 
-                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}} key={artikal.articleId}>
+                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:16}} key={artikal.articleId}>
                         <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
                             <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <Badge pill bg="primary">

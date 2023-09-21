@@ -705,7 +705,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 }
                 return (
                     <Link onClick={() => savedFile(docPath)}>
-                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02" }} />
+                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
                     </Link>
                 )
         }

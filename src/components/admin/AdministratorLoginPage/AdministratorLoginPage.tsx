@@ -42,6 +42,12 @@ export default class AdministratorLoginPage extends React.Component {
         }));
     }
 
+    private handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
+        if (event.key === 'Enter') {
+            this.doLogin();
+        }
+    }
+
     private setLogginState(isLoggedIn: boolean) {
         this.setState(Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
@@ -69,6 +75,7 @@ export default class AdministratorLoginPage extends React.Component {
             visible: newState,
         }));
     }
+    
 
     private doLogin() {
         api(
@@ -125,15 +132,25 @@ export default class AdministratorLoginPage extends React.Component {
                             <Form>
                                 <Form.Group>
                                     <Form.Label className='login-form-label' htmlFor="username">Korisničko ime:</Form.Label>
-                                    <Form.Control className='login-form-control' type="text" id="username"
+                                    <Form.Control 
+                                        className='login-form-control' 
+                                        type="text" 
+                                        id="username"
                                         value={this.state.username}
-                                        onChange={event => this.formInputChanged(event as any)} />
+                                        onChange={event => this.formInputChanged(event as any)} 
+                                        onKeyDown={event => this.handleKeyPress(event as any)}
+                                        />
                                 </Form.Group>
                                 <Form.Group>
                                     <Form.Label className='login-form-label' htmlFor="password">Password:</Form.Label>
-                                    <Form.Control className='login-form-control' type="password" id="password"
+                                    <Form.Control 
+                                        className='login-form-control' 
+                                        type="password" 
+                                        id="password"
                                         value={this.state.password}
-                                        onChange={event => this.formInputChanged(event as any)} />
+                                        onChange={event => this.formInputChanged(event as any)}
+                                        onKeyDown={event => this.handleKeyPress(event as any)}
+                                        />
                                 </Form.Group>
                                 <Form.Group>
                                 <div className='block'>

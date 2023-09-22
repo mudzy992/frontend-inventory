@@ -106,6 +106,24 @@ export default class AddArticlePage extends React.Component<{}>{
         ));
     }
 
+    private clearFormFields() {
+        this.setState({
+            addArticle: {
+                name: '',
+                categoryId: 0,
+                excerpt: '',
+                description: '',
+                concract: '',
+                comment: '',
+                sapNumber: '',
+                valueOnConcract: 0,
+                valueAvailable: 0,
+                features: [],
+            },
+        });
+    }
+    
+
     private setAddArticleFeatureValue(featureId: number, value: string) {
         const addFeatures: { featureId: number; value: string; }[] = [...this.state.addArticle.features];
 
@@ -276,7 +294,11 @@ export default class AddArticlePage extends React.Component<{}>{
                 })),
         }, 'administrator')
         .then(async (res: ApiResponse) => {
-
+            if (res.status === 'ok') {
+                // Nakon uspješnog dodavanja, pozovite clearFormFields da biste očistili polja
+                this.clearFormFields();
+            }
+            // Dodajte ostatak koda za obradu odgovora ako je potrebno
         });
     }
     /* Kraj dodatnih funkcija */

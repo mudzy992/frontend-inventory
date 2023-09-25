@@ -1,0 +1,31 @@
+.user-article-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-article-link {
+    color: blue;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+  .user-article-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Dodajte ove klase u vaš CSS fajl */
+.status-zaduzeno {
+    color: darkGreen;
+  }
+  
+  .status-razduzeno {
+    color: darkgoldenrod;
+  }
+  
+  .status-otpisano {
+    color: darkRed;
+  }
+  

@@ -38,6 +38,7 @@ export default class ArticleType {
         jobTitle: string;
         department: string;
         location: string;
+        fullname: string;
     }[];
     articlesInStock?:{
         stockId: number;

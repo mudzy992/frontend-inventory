@@ -1,5 +1,4 @@
 import React, { FC, useMemo } from "react";
-import { Link } from "react-router-dom";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Box, Typography } from "@mui/material";
 import ArticleType from '../../../types/ArticleType';
@@ -19,6 +18,12 @@ interface UserArticleBaseType {
         timestamp?: string;
         userId?: number;
     }[],
+    userDetails?: {
+      userId: number;
+      surname: string;
+      forname: string;
+      fullname: string;
+    }[]
 }
 
 
@@ -58,19 +63,19 @@ const Tabela: FC<{ data: ArticleType[] }> = ({ data }) => {
         },
       },
       {
-        //simple accessorFn that works the same way as an `accessorKey`
         accessorKey: "articleId",
         id: 'articleId',
         header: '',
         Cell: ({ cell }) => <>
         <Button
           variant="contained"
-          color="primary" 
+          color="primary"
+          className="btn-sm"
           onClick={() => {
             window.location.href = `#/article/${cell.getValue<string>()}/`;
           }}
         >
-          Pogledaj detalje
+          Detalji opreme
         </Button>
         </>, 
       },
@@ -98,8 +103,8 @@ const Tabela: FC<{ data: ArticleType[] }> = ({ data }) => {
       
         if (!original || (!original.userArticles) || (original.userArticles?.length === 0)) {
           return (
-            <Typography>
-              Nema dostupnih artikala ili informacija o korisniku za proširenje.
+            <Typography className="alert alert-warning user-article-typography">
+                Nema dostupnih artikala ili informacija o korisniku za proširenje.
             </Typography>
           );
         }
@@ -108,31 +113,41 @@ const Tabela: FC<{ data: ArticleType[] }> = ({ data }) => {
           <Box
             sx={{
               display: "grid",
-              margin: "auto",
-              gridTemplateColumns: "1fr 1fr",
-              width: "100%",
-              padding: "2px"
+              gridTemplateColumns: 'repeat(3, 1fr)',
             }}
           >
-            {original.userArticles?.map((userArticle: any) => (
-              <div
-                key={userArticle.serialNumber}
-                className="user-article-box"
-              >
-                <Typography>Serijski broj: {userArticle.serialNumber}</Typography>
-                <Typography>Inventurni broj: {userArticle.invBroj}</Typography>
-                <Typography className={`status-${userArticle.status}`}>
-                  Status: {userArticle.status}
-                </Typography>
-                <Link
-                  to={`/admin/userArticle/${userArticle.userId}/${userArticle.articleId}/${userArticle.serialNumber}`}
-                  className="user-article-link"
-                >
-                  Pogledaj detalje
-                </Link>
-              </div>
-            ))}
+            {original.userArticles.map((userArticle: any) => {
+              // Pronađi odgovarajući userDetails objekat koji ima isti userId kao trenutni userArticle
+              const userDetails = original.userDetails?.find(
+                (details: any) => details.userId === userArticle.userId
+              );
+
+              return (
+                <div key={userArticle.serialNumber} className="user-article-box">
+                  <Typography className="user-article-typography">Serijski broj: {userArticle.serialNumber}</Typography>
+                  <Typography className="user-article-typography">Inventurni broj: {userArticle.invBroj}</Typography>
+                  <Typography className="user-article-typography">Korisnik: {userDetails ? userDetails.fullname : "N/A"}</Typography>
+                  <Typography className="user-article-typography">Status: <div className= {"status-" + userArticle.status}> {userArticle.status}</div></Typography>
+                  <div className="button-container">
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        className="btn-sm"
+                        style={{
+
+                        }}
+                        onClick={() => {
+                          window.location.href = `#/admin/userArticle/${userArticle.userId}/${userArticle.articleId}/${userArticle.serialNumber}`;
+                        }}
+                      >
+                        Pogledaj detalje
+                    </Button>
+                </div>
+                </div>
+              );
+            })}
           </Box>
+
         );
       }}
       

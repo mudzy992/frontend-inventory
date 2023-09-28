@@ -220,6 +220,23 @@ export default class AddUserPage extends React.Component<{}>{
 
         this.setState(newState);
     }
+
+    private clearFormFields() {
+        this.setState({
+          addUser: {
+            surename: '',
+            forname: '',
+            email: '',
+            localNumber: '',
+            telephone: '',
+            jobId: Number(),
+            departmentId: Number(),
+            locationId: Number(),
+            password: '',
+          },
+        });
+      };
+      
     /* Kraj SET */
     /* GET */
     private getData(){
@@ -291,10 +308,12 @@ export default class AddUserPage extends React.Component<{}>{
         .then(async (res: ApiResponse) => {
             if(res.data.statusCode === 201) {
                 this.setErrorMessage('Korisnik dodan')
+                this.clearFormFields();
             }
             
             if(res.status === 'ok') {
-                
+                this.setErrorMessage('Korisnik dodan')
+                this.clearFormFields()
             }
 
 /*             if (res.status === "login") {

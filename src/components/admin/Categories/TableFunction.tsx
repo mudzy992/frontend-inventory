@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Box, Typography } from "@mui/material";
-import ArticleType from '../../../types/ArticleType';
 import './TableFunction.css';
 import { Button } from "react-bootstrap";
 
@@ -12,7 +11,7 @@ interface UserArticleBaseType {
     excerpt?: string;
     sapNumber?: string;
     userArticles?: {
-        /* invBroj?: string; */
+        invBroj?: string;
         serialNumber?: string;
         status?: 'zaduženo' | 'razduženo' | 'otpisano';
         timestamp?: string;
@@ -29,7 +28,7 @@ interface UserArticleBaseType {
 
 
 
-const Tabela: FC<{ data: ArticleType[] }> = ({ data }) => {
+const Tabela: FC<{ data: UserArticleBaseType[] }> = ({ data }) => {
   const columns = useMemo<MRT_ColumnDef[]>(
     () => [
       {

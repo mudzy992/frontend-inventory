@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, Col, Row, Container, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
-import ArticleType from '../../../types/ArticleType';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
@@ -26,6 +25,31 @@ interface CategoryPageProperties {
             categoryID: number;
         }
     }
+}
+
+interface ArticleType {
+    articleId?: number;
+    name?: string;
+    excerpt?: string;
+    sapNumber?: string;
+    categoryId?: number;
+    category?: {
+        name: string;
+        imagePath: string;
+    };
+    userArticles?: {
+        /* invBroj?: string; */
+        serialNumber?: string;
+        status?: 'zaduženo' | 'razduženo' | 'otpisano';
+        timestamp?: string;
+        userId?: number;
+    }[],
+    userDetails?: {
+      userId: number;
+      surname: string;
+      forname: string;
+      fullname: string;
+    }[]
 }
 
 interface UserArticleBaseType {
@@ -62,60 +86,6 @@ interface CategoryDto {
     imagePath: string;
 }
 
-
-function CategoryTable(row:ArticleType[]){
-    const theme = createTheme(
-        hrHR,
-    )
-    const kolone: GridColDef[] = [
-        {
-        field: 'articleId', 
-        headerName: 'Profil',
-        sortable: false,
-        disableColumnMenu: true,
-        headerAlign: 'center',
-        renderCell: (params: GridRenderCellParams<String>) => (
-              <Button
-                size="small"
-                style={{ marginLeft: 5 }}
-                href={`#/article/${params.row.articleId}`} 
-                tabIndex={params.hasFocus ? 0 : -1}
-              >
-                <i className="bi bi-three-dots" style={{fontSize:25}}/>
-              </Button>
-          ),
-    },
-        {field: 'name', headerName: 'Naziv', width: 340},
-        {field: 'excerpt', headerName: 'Kratak opis', width: 320},
-        {field: 'sapNumber', headerName: 'SAP broj', width: 200},
-        {field: 'concract', headerName: 'Ugovor', width: 150},
-        ];
-    return(
-        <ThemeProvider theme={theme}>
-            <Box sx={{height: 400, width: '100%' }}>
-                <DataGrid
-                    rows={row}
-                    getRowId={(row) => row.articleId}
-                    columns={kolone}
-                    localeText={
-                        {...TABELE}}
-                    pageSize={10}
-                    rowsPerPageOptions={[10,15,20,50,100]}
-                    style={{backgroundColor:"white"}}
-                    disableColumnFilter
-                    disableColumnMenu
-                    components={{ Toolbar: GridToolbar }}
-                    componentsProps={{
-                        toolbar: {
-                            showQuickFilter: true,
-                            quickFilterProps: { debounceMs: 500 },
-                        }
-                    }}
-                />
-            </Box>
-        </ThemeProvider>
-    )
-}
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
 export default class CategoryPage extends React.Component<CategoryPageProperties> {

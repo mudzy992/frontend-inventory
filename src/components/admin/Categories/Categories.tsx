@@ -14,6 +14,7 @@ import { hrHR } from '@mui/material/locale';
 import { Button } from "@mui/material";
 
 import UserArticleType from '../../../types/UserArticleType';
+import Tabela from './TableFunction';
 
 /* Ako imamo potrebu da se stranica učitava prilikom osvježavanja komponente po parametrima
 npr. Ako nam treba konkretno neki artikal po articleID, kategorija po categoryID, korisnik po userID
@@ -272,13 +273,9 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             )
         }
         return (
-<<<<<<< Updated upstream
-                CategoryTable(this.state.articles)
-=======
                 /* CategoryTable(this.state.articles) */
                 
                 <Tabela categoryID={this.props.match.params.categoryID} />
->>>>>>> Stashed changes
         );
     }
 

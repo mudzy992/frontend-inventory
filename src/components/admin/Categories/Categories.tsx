@@ -272,7 +272,13 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
             )
         }
         return (
+<<<<<<< Updated upstream
                 CategoryTable(this.state.articles)
+=======
+                /* CategoryTable(this.state.articles) */
+                
+                <Tabela categoryID={this.props.match.params.categoryID} />
+>>>>>>> Stashed changes
         );
     }
 
@@ -325,22 +331,22 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 this.setSubcategories(subcategories);
             })
 
-        api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'error') {
-                    return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                }
-                /* popunjavamo type kategorije iz responsa */
-                this.setArticles(res.data)
-        })
+        // api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
+        //     .then((res: ApiResponse) => {
+        //         if (res.status === 'error') {
+        //             return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+        //         }
+        //         /* popunjavamo type kategorije iz responsa */
+        //         this.setArticles(res.data)
+        // })
 
-        api('api/userArticle/?filter=article.categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'error') {
-                    return this.setErrorMessage('Greška prilikom učitavanja user Article apija. Osvježite ili pokušajte ponovo kasnije')
-                }
-                /* popunjavamo type kategorije iz responsa */
-                this.setUserArticle(res.data)
-        })
+        // api('api/userArticle/?filter=article.categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
+        //     .then((res: ApiResponse) => {
+        //         if (res.status === 'error') {
+        //             return this.setErrorMessage('Greška prilikom učitavanja user Article apija. Osvježite ili pokušajte ponovo kasnije')
+        //         }
+        //         /* popunjavamo type kategorije iz responsa */
+        //         this.setUserArticle(res.data)
+        // })
     }
 }/* KRAJ GET I MOUNT FUNKCIJA */

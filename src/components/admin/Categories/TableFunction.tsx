@@ -115,7 +115,7 @@ const Tabela: FC<{ categoryID: number }> = ({ categoryID }) => {
       <MaterialReactTable
         columns={columns}
         data={data}
-        initialState={{ pagination: { pageSize: 5, pageIndex: 1 } }}
+        initialState={{ pagination: { pageSize: 5, pageIndex: 0 } }}
         displayColumnDefOptions={{
           "mrt-row-drag": {
             muiTableHeadCellProps: {

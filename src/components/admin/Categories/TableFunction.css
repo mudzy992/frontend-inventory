@@ -1,0 +1,39 @@
+.user-article-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+  }
+  
+    .user-article-link {
+    color: darkslategray;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+    .user-article-link:hover {
+    text-decoration: underline;
+  }
+
+    .status-zaduženo {
+    color: darkGreen;
+    font-weight: bold;
+  }
+  
+    .status-razduženo {
+    color: darkgoldenrod;
+  }
+  
+    .status-otpisano {
+    color: darkRed;
+  }
+    .button-container {
+    display: flex;
+    justify-content: flex-end; 
+  }
+  .user-article-typography {
+    font-size: 15px !important;
+    display: flex !important;
+  }
+
+  

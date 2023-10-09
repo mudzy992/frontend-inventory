@@ -328,14 +328,14 @@ export default class CategoryPage extends React.Component<CategoryPageProperties
                 this.setSubcategories(subcategories);
             })
 
-        // api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
-        //     .then((res: ApiResponse) => {
-        //         if (res.status === 'error') {
-        //             return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-        //         }
-        //         /* popunjavamo type kategorije iz responsa */
-        //         this.setArticles(res.data)
-        // })
+        api('api/article/?filter=categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'error') {
+                    return this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                }
+                /* popunjavamo type kategorije iz responsa */
+                this.setArticles(res.data)
+        })
 
         // api('api/userArticle/?filter=article.categoryId||$eq||' + this.props.match.params.categoryID, 'get', {}, 'administrator')
         //     .then((res: ApiResponse) => {

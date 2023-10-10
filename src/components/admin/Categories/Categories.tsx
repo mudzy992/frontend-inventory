@@ -148,7 +148,7 @@ const CategoryPage: React.FC = () => {
       );
     }
 
-    return <Tabela data={state.articles} />;
+    return <Tabela categoryId={categoryID} />;
   };
 
   return (

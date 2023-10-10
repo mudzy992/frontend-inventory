@@ -1,156 +1,115 @@
-import React, { FC, useMemo } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { Box, Typography } from "@mui/material";
-import './TableFunction.css';
 import { Button } from "react-bootstrap";
+import api from "../../../API/api";
 
-
-interface UserArticleBaseType {
-    articleId?: number;
-    name?: string;
-    excerpt?: string;
-    sapNumber?: string;
-    userArticles?: {
-        invBroj?: string;
-        serialNumber?: string;
-        status?: 'zaduženo' | 'razduženo' | 'otpisano';
-        timestamp?: string;
-        userId?: number;
-    }[],
-    userDetails?: {
-      userId: number;
-      surname: string;
-      forname: string;
-      fullname: string;
-    }[]
+interface ArticleType {
+  articleId: number;
+  name: string;
+  excerpt: string;
+  sapNumber: string;
 }
 
+interface TabelaProps {
+  categoryId: string;
+}
 
+const Tabela: FC<TabelaProps> = ({ categoryId }) => {
+  const [data, setData] = useState<ArticleType[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Pozovite funkciju za dohvaćanje podataka o artiklima
+    const fetchData = async () => {
+      try {
+        const response = await api(`api/category/${categoryId}`, 'get', {}, 'administrator');
+        if (response.status === 'error') {
+          setErrorMessage('Greška prilikom učitavanja artikala. Osvježite stranicu ili pokušajte ponovo kasnije.');
+          return;
+        }
 
-const Tabela: FC<{ data: UserArticleBaseType[] }> = ({ data }) => {
+        // Dobijte podatke o artiklima iz response-a
+        const articles = response.data.articles as ArticleType[];
+        setData(articles);
+      } catch (error) {
+        console.error("Greška:", error);
+      }
+    };
+
+    fetchData();
+  }, [categoryId]);
+
   const columns = useMemo<MRT_ColumnDef[]>(
     () => [
       {
+        accessorKey: "articleId",
+        header: "articleId",
+        size: 0, // Sakrijte ovo polje u prikazu tablice
+      },
+      {
         accessorKey: "name",
-        header: "Naziv opreme"
+        header: "Naziv opreme",
+        Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
         accessorKey: "excerpt",
-        header: "Opis opreme"
+        header: "Opis opreme",
+        Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
         accessorKey: "sapNumber",
-        header: "SAP broj"
-      },
-      {
-        accessorKey: "articlesInStock.valueAvailable",
-        header: "Dostupno",
-        size: 150,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<number>();
-          const cellStyle = {
-            color: value === 0 ? "red" : "green",
-            fontWeight: "bold",
-          };
-
-          return (
-            <div style={cellStyle}>
-              {value}
-            </div>
-          );
-        },
+        header: "SAP broj",
+        Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
         accessorKey: "articleId",
-        id: 'articleId',
-        header: '',
-        Cell: ({ cell }) => <>
-        <Button
-          variant="contained"
-          color="primary"
-          className="btn-sm"
-          onClick={() => {
-            window.location.href = `#/article/${cell.getValue<string>()}/`;
-          }}
-        >
-          Detalji opreme
-        </Button>
-        </>, 
+        id: "articleId",
+        header: "Zaduženja",
+        Cell: ({ cell }) => (
+          <Button
+            variant="contained"
+            color="primary"
+            className="btn-sm"
+            onClick={() => {
+              const articleId = cell.getValue<number>();
+              window.location.href = `/api/userArticle/${articleId}`;
+            }}
+          >
+            Zaduženja
+          </Button>
+        ),
+      },
+      {
+        accessorKey: "articleId",
+        id: "articleId",
+        header: "",
+        Cell: ({ cell }) => (
+          <Button
+            variant="contained"
+            color="primary"
+            className="btn-sm"
+            onClick={() => {
+              const articleId = cell.getValue<number>();
+              window.location.href = `#/article/${articleId}/`;
+            }}
+          >
+            Detalji opreme
+          </Button>
+        ),
       },
     ],
     []
   );
 
+  if (errorMessage) {
+    return <div>{errorMessage}</div>;
+  }
+
   return (
     <MaterialReactTable
       columns={columns}
       data={data}
-      displayColumnDefOptions={{
-        "mrt-row-expand": {
-          muiTableHeadCellProps: {
-            align: "left"
-          },
-          muiTableBodyCellProps: {
-            align: "left"
-          }
-        }
-      }}
-     
-      renderDetailPanel={({ row }) => {
-        const original = row.original as UserArticleBaseType | undefined;
-      
-        if (!original || (!original.userArticles) || (original.userArticles?.length === 0)) {
-          return (
-            <Typography className="alert alert-warning user-article-typography">
-                Nema dostupnih artikala ili informacija o korisniku za proširenje.
-            </Typography>
-          );
-        }
-      
-        return (
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: 'repeat(3, 1fr)',
-            }}
-          >
-            {original.userArticles.map((userArticle: any) => {
-              // Pronađi odgovarajući userDetails objekat koji ima isti userId kao trenutni userArticle
-              const userDetails = original.userDetails?.find(
-                (details: any) => details.userId === userArticle.userId
-              );
-
-              return (
-                <div key={userArticle.serialNumber} className="user-article-box">
-                  <Typography className="user-article-typography">Serijski broj: {userArticle.serialNumber}</Typography>
-                  <Typography className="user-article-typography">Inventurni broj: {userArticle.invBroj}</Typography>
-                  <Typography className="user-article-typography">Korisnik: {userDetails ? userDetails.fullname : "N/A"}</Typography>
-                  <Typography className="user-article-typography">Status: <div className= {"status-" + userArticle.status}> {userArticle.status}</div></Typography>
-                  <div className="button-container">
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        className="btn-sm"
-                        style={{
-
-                        }}
-                        onClick={() => {
-                          window.location.href = `#/admin/userArticle/${userArticle.userId}/${userArticle.articleId}/${userArticle.serialNumber}`;
-                        }}
-                      >
-                        Pogledaj detalje
-                    </Button>
-                </div>
-                </div>
-              );
-            })}
-          </Box>
-
-        );
-      }}
-      
-      positionExpandColumn="last"
+      // ...
     />
   );
 };

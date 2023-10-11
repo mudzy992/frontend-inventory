@@ -1,7 +1,8 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Button } from "react-bootstrap";
 import api from "../../../API/api";
+import ArticleModal from "./ArticleModal";
 
 interface ArticleType {
   articleId: number;
@@ -17,6 +18,21 @@ interface TabelaProps {
 const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const [data, setData] = useState<ArticleType[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false); // Dodajte state za prikaz moda
+  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
+
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
+
+  const handleHideModal = () => {
+    setShowModal(false);
+  };
+
+  const openModalWithArticle = (articleId: number) => {
+    setSelectedArticleId(articleId);
+    handleShowModal();
+  };
 
   useEffect(() => {
     // Pozovite funkciju za dohvaćanje podataka o artiklima
@@ -42,11 +58,6 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const columns = useMemo<MRT_ColumnDef[]>(
     () => [
       {
-        accessorKey: "articleId",
-        header: "articleId",
-        size: 0, // Sakrijte ovo polje u prikazu tablice
-      },
-      {
         accessorKey: "name",
         header: "Naziv opreme",
         Cell: ({ cell }) => cell.getValue<string>(),
@@ -63,7 +74,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
       },
       {
         accessorKey: "articleId",
-        id: "articleId",
+        key: "articleId1",
         header: "Zaduženja",
         Cell: ({ cell }) => (
           <Button
@@ -72,16 +83,16 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
             className="btn-sm"
             onClick={() => {
               const articleId = cell.getValue<number>();
-              window.location.href = `/api/userArticle/${articleId}`;
-            }}
+              openModalWithArticle(articleId); // Proslijedite articleId funkciji
+            } }
           >
             Zaduženja
           </Button>
         ),
       },
-      {
+       {
         accessorKey: "articleId",
-        id: "articleId",
+        key: "articleId2",
         header: "",
         Cell: ({ cell }) => (
           <Button
@@ -96,7 +107,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
             Detalji opreme
           </Button>
         ),
-      },
+      }, 
     ],
     []
   );
@@ -106,11 +117,17 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   }
 
   return (
-    <MaterialReactTable
-      columns={columns}
-      data={data}
-      // ...
-    />
+    <>
+      <MaterialReactTable
+        columns={columns}
+        data={data}
+      />
+      <ArticleModal
+        show={showModal}
+        onHide={handleHideModal}
+        articleId={selectedArticleId!} // Proslijedite articleId
+      />
+    </>
   );
 };
 

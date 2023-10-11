@@ -11,6 +11,7 @@ import AddJob from '../AddDepartmentAndJob/AddJob';
 import AddLocation from '../AddDepartmentAndJob/AddLocation';
 import AddDepartmentJobLocation from '../AddDepartmentAndJob/AddDepartmentJobLocation';
 import { Redirect } from 'react-router-dom';
+import './adduser.css'
 
 
 interface LocationDto {
@@ -240,7 +241,7 @@ export default class AddUserPage extends React.Component<{}>{
     /* Kraj SET */
     /* GET */
     private getData(){
-        api('api/location/', 'get', {}, 'administrator')
+        api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom hvatanja lokacija')
@@ -251,7 +252,7 @@ export default class AddUserPage extends React.Component<{}>{
             this.setLocation(res.data)
         })
 
-        api('api/department/', 'get', {}, 'administrator')
+        api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
@@ -262,7 +263,7 @@ export default class AddUserPage extends React.Component<{}>{
 
     private async getJobsByDepartmentId(departmentId: number): Promise<JobBaseType[]> {
         return new Promise(resolve => {
-            api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/', 'get', {}, 'administrator')
+            api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/&sort=title,ASC', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
@@ -441,13 +442,13 @@ export default class AddUserPage extends React.Component<{}>{
                                     required >
                                     <option value=''>izaberi sektor</option>
                                     {this.state.department.map((dep, index) => (
-                                        <option key={index} value={dep.departmentId?.toString()}>{dep.departmendCode} - {dep.title} </option>
+                                        <option key={index} value={dep.departmentId?.toString()}> {dep.title} - {dep.departmendCode}</option>
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
                             </Col>
                             <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
-                                <Button size='sm' style={{background:"none", color:"#70A9A1", border:0, fontSize:20}} onClick={() => this.showDepartmentModal()}><i className="bi bi-plus-circle-fill" /></Button>
+                                <Button size='sm' className='btn-plus' onClick={() => this.showDepartmentModal()}><i className="bi bi-plus-circle-fill" /></Button>
                                 <Modal size="lg" centered show={this.state.modal.department.visible} onHide={() => this.setDepartmentModalVisibleState(false)}>
                                     <AddDepartment />
                                 </Modal>
@@ -468,7 +469,7 @@ export default class AddUserPage extends React.Component<{}>{
                                 </FloatingLabel>
                             </Col>
                             <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
-                            <Button size='sm' style={{background:"none", color:"#70A9A1", border:0, fontSize:20}} onClick={() => this.showJobModal()}><i className="bi bi-plus-circle-fill" /></Button>
+                            <Button size='sm' className='btn-plus' onClick={() => this.showJobModal()}><i className="bi bi-plus-circle-fill" /></Button>
                             <Modal size="lg" centered show={this.state.modal.job.visible} onHide={() => this.setJobModalVisibleState(false)}>
                                 <AddJob />
                             </Modal>
@@ -478,7 +479,7 @@ export default class AddUserPage extends React.Component<{}>{
                         <Col lg="11" xs="11">
                         <Form.Text>
                             Ukoliko je lista radnih mjesta prazna ili radno mjesto ne postoji u istoj, potrebno je izvršiti povezivanje radnog mjesta sa lokacijom i sektorom. To možete učiniti klikom
-                            <Button style={{background:"none", color:"#40798C", border:0, fontSize:15, marginBottom:4, paddingLeft:3}} onClick={() => this.showDepartmentJobLocationModal()}> <b>ovdje.</b></Button>
+                            <Button className='btn-link-here' onClick={() => this.showDepartmentJobLocationModal()}> <b>ovdje.</b></Button>
                             <Modal size="lg" centered show={this.state.modal.departmentJobLocation.visible} onHide={() => this.setDepartmentJobLocationModalVisibleState(false)}>
                                 <AddDepartmentJobLocation />
                             </Modal>
@@ -501,7 +502,7 @@ export default class AddUserPage extends React.Component<{}>{
                                 </FloatingLabel>
                             </Col>
                             <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
-                                <Button size='sm' style={{background:"none", color:"#70A9A1", border:0, fontSize:20}} onClick={() => this.showLocationModal()}><i className="bi bi-plus-circle-fill" /></Button>
+                                <Button size='sm' className='btn-plus' onClick={() => this.showLocationModal()}><i className="bi bi-plus-circle-fill" /></Button>
                                     <Modal size="lg" centered show={this.state.modal.location.visible} onHide={() => this.setLocationModalVisibleState(false)}>
                                         <AddLocation />
                                     </Modal>
@@ -512,10 +513,10 @@ export default class AddUserPage extends React.Component<{}>{
                 </Card.Body>
                 <Card.Footer>
                     <Row style={{ alignItems: 'end' }}>
-                        <Button style={{background:"#70A9A1", color:"#1F363D", border:0}} onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/> Dodaj korisnika</Button>
+                        <Button onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/> Dodaj korisnika</Button>
                     </Row>
                     <Row>
-                    <Alert variant="danger"
+                    <Alert variant="success"
                         style={{ marginTop: 15 }}
                         className={this.state.errorMessage ? '' : 'd-none'}>
                         <i className="bi bi-exclamation-triangle" />  {this.state.errorMessage}

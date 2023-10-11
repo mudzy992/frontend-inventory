@@ -220,7 +220,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     componentDidMount() {
         this.getArticleData()
         this.getCategories()
-        
     }
 
     componentDidUpdate(oldProperties: ArticlePageProperties) {

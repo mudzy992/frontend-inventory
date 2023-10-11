@@ -1,0 +1,19 @@
+.btn-link-here,
+.btn-link-here:hover,
+.btn-link-here:active,
+.btn-link-here:focus
+{
+    background: none;
+    color: #40798C !important;
+    border: 0;
+    font-size: 15px;
+    margin-bottom: 2px;
+    padding-left: 3px;
+}
+
+.btn-plus{
+    background:none;
+    color: #70a9a1 !important;; 
+    border:0px; 
+    font-size:20px;
+}

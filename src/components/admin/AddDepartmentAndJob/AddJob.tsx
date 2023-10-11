@@ -85,7 +85,7 @@ export default class AddJob extends React.Component<{}> {
     /* GET */
 
     private getJobs() {
-        api('api/job/', 'get', {}, 'administrator')
+        api('api/job?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === "error" || res.status === "login") {
                 this.setErrorMessage('Greška prilikom učitavanja radnih mjesta.');

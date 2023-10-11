@@ -85,7 +85,7 @@ export default class AddLocation extends React.Component<{}> {
     /* GET */
 
     private getLocations() {
-        api('api/location/', 'get', {}, 'administrator')
+        api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === "error" || res.status === "login") {
                 this.setErrorMessage('Greška prilikom učitavanja lokacija.');

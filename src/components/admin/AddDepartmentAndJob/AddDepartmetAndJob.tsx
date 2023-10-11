@@ -149,7 +149,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     /* GET */
 
     private getDepartments() {
-        api('api/department/', 'get', {}, 'administrator')
+        api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === "error" || res.status === "login") {
                 this.setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
@@ -158,7 +158,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
             this.setDepartmentData(res.data);
         })
 
-        api('api/job/', 'get', {}, 'administrator')
+        api('api/job?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === "error" || res.status === "login") {
                 this.setErrorMessage('Greška prilikom učitavanja radnih mjesta.');
@@ -167,7 +167,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
             this.setJobData(res.data);
         })
 
-        api('api/location/', 'get', {}, 'administrator')
+        api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === "error" || res.status === "login") {
                 this.setErrorMessage('Greška prilikom učitavanja lokacija.');

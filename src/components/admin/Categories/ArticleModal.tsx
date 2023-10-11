@@ -57,7 +57,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, articleId }) => {
       <Modal.Header closeButton>
         <Modal.Title>Detalji zaduženja</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body style={{ overflowX: 'auto' }}>
   {isLoading ? (
     <div>Učitavanje...</div>
   ) : userArticleData && userArticleData.length > 0 ? (

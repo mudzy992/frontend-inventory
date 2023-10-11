@@ -85,7 +85,7 @@ export default class AddDepartment extends React.Component<{}> {
     /* GET */
 
     private getDepartments() {
-        api('api/department/', 'get', {}, 'administrator')
+        api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === "error" || res.status === "login") {
                 this.setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');

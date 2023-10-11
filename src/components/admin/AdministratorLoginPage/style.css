@@ -28,7 +28,7 @@
 
 .btn-style {
     display: block;
-    color:white;
+    color:white !important;
     --bs-btn-hover-bg: #057e5f !important;
     --bs-btn-active-bg: #07b083 !important;
     background-color: #069771;
@@ -40,9 +40,4 @@
     font-weight: normal;
 }
 
-a:link {
-    color: #1976d2 !important ;
-    text-decoration: none !important;
-    font-weight: bold !important;
-  } 
 

@@ -513,7 +513,7 @@ export default class AddUserPage extends React.Component<{}>{
                 </Card.Body>
                 <Card.Footer>
                     <Row style={{ alignItems: 'end' }}>
-                        <Button onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/> Dodaj korisnika</Button>
+                        <Button onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/>Dodaj korisnika</Button>
                     </Row>
                     <Row>
                     <Alert variant="success"

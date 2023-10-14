@@ -80,4 +80,4 @@ export class MainMenu extends React.Component<MainMenuProperties> {
 }
 
 /* Standardna jedna metoda kreiranja komponente */
-/* Importi, export klase s nazivom, proširena sa React.Componentom, obavezni render i bubaš kod */
+/* Importi, export klase s nazivom, proširena sa React.Componentom, obavezni render i kod */

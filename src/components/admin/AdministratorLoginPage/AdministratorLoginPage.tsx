@@ -1,95 +1,87 @@
-import React from 'react'
-import './style.css'
+import React, { useState, useEffect } from 'react';
+import './style.css';
 import { Container, Col, Card, Form, Button } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
 import MuiAlert from '@mui/material/Alert';
 import { Snackbar, Stack } from '@mui/material';
 
-interface administratorData {
+interface AdministratorData {
     id: number;
 }
+
 interface AdministratorLoginPageState {
     username: string;
     password: string;
-    administratorID: administratorData[];
+    administratorID: AdministratorData[];
     isLoggedIn: boolean;
     error: {
         message?: string;
         visible: boolean;
     };
+    isTyping: boolean;
+    showAdminText: boolean;
 }
 
-export default class AdministratorLoginPage extends React.Component {
-    state: AdministratorLoginPageState;
+export default function AdministratorLoginPage() {
+    const [state, setState] = useState<AdministratorLoginPageState>({
+        username: '',
+        password: '',
+        administratorID: [],
+        isLoggedIn: false,
+        error: {
+            visible: false,
+        },
+        isTyping: true,
+        showAdminText: false, // Dodajte ovu promjenljivu
+    });
 
-    constructor(props: Readonly<{}>) {
-        super(props);
+    useEffect(() => {
+        const typingTimeout = setTimeout(() => {
+            setState({ ...state, isTyping: false });
+        }, 3500); // Promijenite trajanje na 3500ms (3.5s)
 
-        this.state = {
-            username: '',
-            password: '',
-            administratorID: [],
-            isLoggedIn: false,
-            error: {
-                visible: false,
-            },
-        }
-    }
-    private formInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
-        this.setState(Object.assign(this.state, {
-            [event.target.id]: event.target.value,
-        }));
-    }
+        return () => clearTimeout(typingTimeout);
+    }, [state]);
 
-    private handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
+    const formInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setState({ ...state, [event.target.id]: event.target.value });
+    };
+
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            this.doLogin();
+            doLogin();
         }
-    }
+    };
 
-    private setLogginState(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        }));
-    }
+    const setLoggingState = (isLoggedIn: boolean) => {
+        setState({ ...state, isLoggedIn });
+    };
 
-    private setAdministratorID(administratorID: administratorData[]) {
-        this.setState(Object.assign(this.state, {
-            administratorID: administratorID,
-        }));
-    }
+    const setAdminID = (administratorID: AdministratorData[]) => {
+        setState({ ...state, administratorID });
+    };
 
-    private setErrorMessage(message: string) {
-       this.setState(Object.assign(this.state.error, {
-            message: message,
-        }));
-    }
+    const setErrorMessage = (message: string) => {
+        setState({ ...state, error: { ...state.error, message } });
+    };
 
-    private async showErrorMessage() {
-        this.setErrorMessageVisible(true)
-    }
+    const showErrorMessage = () => {
+        setErrorMessageVisible(true);
+    };
 
-    private setErrorMessageVisible(newState: boolean) {
-        this.setState(Object.assign(this.state.error, {
-            visible: newState,
-        }));
-    }
-    
+    const setErrorMessageVisible = (newState: boolean) => {
+        setState({ ...state, error: { ...state.error, visible: newState } });
+    };
 
-    private doLogin() {
-        api(
-            'auth/administrator/login',
-            'post',
-            {
-                username: this.state.username,
-                password: this.state.password,
-            }
-        )
+    const doLogin = () => {
+        api('auth/administrator/login', 'post', {
+            username: state.username,
+            password: state.password,
+        })
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
-                    this.setErrorMessage('System error... Try again!');
-
+                    setErrorMessage('Sistemski problem... Pokušajte ponovo!');
                     return;
                 }
 
@@ -98,82 +90,103 @@ export default class AdministratorLoginPage extends React.Component {
                         let message = '';
 
                         switch (res.data.statusCode) {
-                            case -3001: message = 'Neispravni korisnički podaci!'; break;
-                            case -3002: message = 'Neispravni korisnički podaci!'; break;
+                            case -3001:
+                                message = 'Neispravni korisnički podaci!';
+                                break;
+                            case -3002:
+                                message = 'Neispravni korisnički podaci!';
+                                break;
+                            default:
+                                message = 'Nepoznata greška prilikom prijave';
                         }
 
-                        this.setErrorMessage(message);
-                        this.showErrorMessage()
+                        setErrorMessage(message);
+                        showErrorMessage();
                         return;
                     }
-                    this.setAdministratorID(res.data.id);
+                    setAdminID(res.data.id);
                     saveToken('administrator', res.data.token);
                     saveRefreshToken('administrator', res.data.refreshToken);
 
-                    this.setLogginState(true);
-                    
+                    setLoggingState(true);
                 }
             });
+    };
+
+    if (state.isLoggedIn === true) {
+        return <Redirect to="/" />;
     }
-    render() {
-        if (this.state.isLoggedIn === true) {
-            return (
-                <Redirect to="/" />
-            );
-        }
-        return (
-            <Container>
-                <Col md={{ span: 4, offset: 4 }}>
-                    <Card style={{ marginTop: '50%' }}>
-                        <Card.Body>
-                            <Card.Title>
-                                <i className="bi bi-box-arrow-in-right" /> Administrator Login
-                            </Card.Title>
-                            <Form>
-                                <Form.Group>
-                                    <Form.Label className='login-form-label' htmlFor="username">Korisničko ime:</Form.Label>
-                                    <Form.Control 
-                                        className='login-form-control' 
-                                        type="text" 
-                                        id="username"
-                                        value={this.state.username}
-                                        onChange={event => this.formInputChanged(event as any)} 
-                                        onKeyDown={event => this.handleKeyPress(event as any)}
-                                        />
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Label className='login-form-label' htmlFor="password">Password:</Form.Label>
-                                    <Form.Control 
-                                        className='login-form-control' 
-                                        type="password" 
-                                        id="password"
-                                        value={this.state.password}
-                                        onChange={event => this.formInputChanged(event as any)}
-                                        onKeyDown={event => this.handleKeyPress(event as any)}
-                                        />
-                                </Form.Group>
-                                <Form.Group>
-                                <div className='block'>
-                                    <Button 
-                                        variant="success" 
-                                        className='btn-style'
-                                        onClick={() => this.doLogin()}>
+
+    return (
+        <Container>
+            
+            <Col md={{ span: 4, offset: 4 }}>
+            
+                <Card style={{ marginTop: '50%' }}>
+                    <Card.Body>
+                    <div className="banner">
+                <h1 className={`typing-text ${state.isTyping ? 'typing' : ''}`}>
+                    Inventory Database
+                </h1>
+             
+            </div>
+                        <Card.Title>
+                            <i className="bi bi-box-arrow-in-right" /> Administrator Login
+                        </Card.Title>
+                        <Form>
+                            <Form.Group>
+                                <Form.Label className="login-form-label" htmlFor="username">
+                                    Korisničko ime:
+                                </Form.Label>
+                                <Form.Control
+                                    className="login-form-control"
+                                    type="text"
+                                    id="username"
+                                    value={state.username}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => formInputChanged(event)}
+                                    onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyPress(event)}
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label className="login-form-label" htmlFor="password">
+                                    Lozinka:
+                                </Form.Label>
+                                <Form.Control
+                                    className="login-form-control"
+                                    type="password"
+                                    id="password"
+                                    value={state.password}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => formInputChanged(event)}
+                                    onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => handleKeyPress(event)}
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <div className="block">
+                                    <Button
+                                        variant="success"
+                                        className="btn-style"
+                                        onClick={() => doLogin()}
+                                    >
                                         Prijava
                                     </Button>
                                 </div>
-                                </Form.Group>
-                            </Form>
-                            <Stack spacing={2} sx={{ width: '100%' }}>
-                                <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
-                                    <MuiAlert severity="error" sx={{ width: '100%' }}>
-                                        {this.state.error.message}
-                                    </MuiAlert>
-                                </Snackbar>
-                            </Stack>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Container>
-        )
-    }
-}/* Kraj koda */
+                            </Form.Group>
+                        </Form>
+                        <Stack spacing={2} sx={{ width: '100%' }}>
+                            <Snackbar
+                                open={state.error.visible}
+                                autoHideDuration={6000}
+                                onClose={() => setErrorMessageVisible(false)}
+                                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            >
+                                <MuiAlert severity="error" sx={{ width: '100%' }}>
+                                    {state.error.message}
+                                </MuiAlert>
+                            </Snackbar>
+                        </Stack>
+                    </Card.Body>
+                </Card>
+            </Col>
+        </Container>
+    );
+}

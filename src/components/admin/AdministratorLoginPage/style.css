@@ -41,3 +41,61 @@
 }
 
 
+
+.typing {
+    overflow: hidden; /* Skriva tekst izvan okvira */
+    border-right: .15em solid orange; /* Simulira kursor */
+    white-space: nowrap; /* Tekst se ne prelazi u novi red */
+    margin: 0 auto; /* Postavite element na sredinu */
+    letter-spacing: .15em; /* Razmak između slova */
+    animation:
+      typing 3.5s steps(40, end),
+      blink-caret .75s step-end infinite;
+  }
+  
+  /* Klase za animaciju */
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+  
+  @keyframes blink-caret {
+    from, to {
+      border-color: transparent;
+    }
+    50% {
+      border-color: orange;
+    }
+  }
+
+  .sub-heading.typing {
+    overflow: hidden; /* Skriva tekst izvan okvira */
+    white-space: nowrap; /* Tekst se ne prelazi u novi red */
+    margin: 0 auto; /* Postavite element na sredinu */
+    letter-spacing: .15em; /* Razmak između slova */
+    animation:
+      sub-heading-typing 3.5s steps(40, end),
+      blink-caret .75s step-end infinite;
+  }
+  
+  /* Dodajte animaciju za sub-heading */
+  @keyframes sub-heading-typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+
+
+
+
+  
+  
+  

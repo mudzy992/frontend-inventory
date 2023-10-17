@@ -6,6 +6,7 @@ import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api'
 import MuiAlert from '@mui/material/Alert';
 import { Snackbar, Stack } from '@mui/material';
 
+
 interface AdministratorData {
     id: number;
 }
@@ -121,15 +122,16 @@ export default function AdministratorLoginPage() {
         <Container>
             
             <Col md={{ span: 4, offset: 4 }}>
-            
                 <Card style={{ marginTop: '50%' }}>
+                <div className="logo-container">
+                        <div className="circle">
+                            <i className="bi bi-incognito incognito-icon"></i>
+                        </div>
+                            <div className={`typing ${state.isTyping ? 'typing' : ''}`}>Inventory Database
+                            </div>
+                    </div>
                     <Card.Body>
-                    <div className="banner">
-                <h1 className={`typing-text ${state.isTyping ? 'typing' : ''}`}>
-                    Inventory Database
-                </h1>
-             
-            </div>
+                    
                         <Card.Title>
                             <i className="bi bi-box-arrow-in-right" /> Administrator Login
                         </Card.Title>

@@ -24,12 +24,6 @@ interface userData {
     surname: string;
     forname: string;
 }
-interface CategoryDto {
-    categoryId: number,
-    name: string,
-    imagePath: string,
-    parentCategoryId: number,
-}
 interface FeatureBaseType {
     featureId?: number;
     name: string;
@@ -38,7 +32,6 @@ interface FeatureBaseType {
 interface ArticlePageState {
     message: string;
     articles?: ApiArticleDto;
-    categories: CategoryType[];
     feature: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
     users: userData[];
@@ -81,7 +74,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             message: "",
             feature: [],
             articleTimeline: [],
-            categories: [],
             users: [],
             editFeature: {
                 visible: false,
@@ -219,7 +211,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     componentDidMount() {
         this.getArticleData()
-        this.getCategories()
     }
 
     componentDidUpdate(oldProperties: ArticlePageProperties) {
@@ -228,31 +219,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             return;
         }
         this.getArticleData();
-    }
-
-    private getCategories() {
-        api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
-                return;
-            }
-            this.putCategoriesInState(res.data)
-        })
-    }
-
-    private putCategoriesInState(data?: CategoryDto[]) {
-        const categories: CategoryType[] | undefined = data?.map(category => {
-            return {
-                categoryId: category.categoryId,
-                name: category.name,
-                imagePath: category.imagePath,
-                parentCategoryId: category.parentCategoryId,
-            };
-        });
-
-        this.setState(Object.assign(this.state, {
-            categories: categories,
-        }));
     }
 
     private async editFeatureCategoryChanged() {
@@ -430,6 +396,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 this.putArticleDetailsInState(res.data)
             }
         )
+        
+    }
+
+    private async getUsers(){
         api('/api/user/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
@@ -485,6 +455,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private async showModal() {
         this.setModalVisibleState(true)
+        this.getUsers()
     }
 
     private printOptionalMessage() {

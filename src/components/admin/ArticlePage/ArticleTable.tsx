@@ -51,7 +51,7 @@ const ArticleTable: FC<TabelaProps> = ({ articleId }) => {
   const fetchData = async (page: number, perPage: number) => {
     const offset = (page - 1) * perPage;
     try {
-      const response = await api(`api/articleTimeline/p/${articleId}/?perPage=${perPage}&offset=${offset}`, 'get', {}, 'administrator');
+      const response = await api(`api/articleTimeline/${articleId}/?perPage=${perPage}&offset=${offset}`, 'get', {}, 'administrator');
 
       if (response.status === 'error') {
         setErrorMessage('Greška prilikom učitavanja vremenske linije artikla. Osvježite stranicu ili pokušajte ponovo kasnije');

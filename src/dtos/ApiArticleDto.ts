@@ -47,35 +47,6 @@ export default interface ApiArticleDto {
         valueAvailable: number;
         sapNumber: string;
     };
-    destroyeds:{
-        destroyedId: number;
-        articleId: number;
-        userId: number;
-        value: string;
-        comment: string;
-        timestamp: string;
-        serialNumber: string;
-        status: 'otpisano';
-    }[];
-    debtItems:{
-        debtItemsId: number;
-        articleId: number;
-        userId: number;
-        value: string;
-        comment: string;
-        serialNumber: string;
-        timestamp: string;
-        status: 'razduženo';
-    }[];
-    responsibilities:{
-        responsibilityId: number;
-        articleId: number;
-        userId: number;
-        value: string;
-        serialNumber: string;
-        timestamp: string;
-        status: 'zaduženo';
-    }[];
     documents:{
         documentsId: number;
         articleId: number;

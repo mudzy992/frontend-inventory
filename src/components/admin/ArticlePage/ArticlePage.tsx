@@ -11,6 +11,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';
 import CategoryType from '../../../types/CategoryType';
+import ArticleTable from './ArticleTable';
 
 interface ArticlePageProperties {
     match: {
@@ -63,6 +64,8 @@ interface ArticlePageState {
         invBroj: string;
         status: string;
     };
+    currentPage: number;
+    itemsPerPage: number;
 }
 
 export default class ArticlePage extends React.Component<ArticlePageProperties> {
@@ -98,6 +101,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 invBroj: '',
                 visible: false,
             },
+            currentPage: Number(),
+            itemsPerPage: 5,
         }
     }
 
@@ -210,7 +215,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     componentDidMount() {
-        this.getArticleData()
+        this.getArticleData(1)
     }
 
     componentDidUpdate(oldProperties: ArticlePageProperties) {
@@ -218,7 +223,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         if (oldProperties.match.params.articleID === this.props.match.params.articleID) {
             return;
         }
-        this.getArticleData();
+        this.getArticleData(1);
     }
 
     private async editFeatureCategoryChanged() {
@@ -328,7 +333,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
 
-    private getArticleData() {
+    private getArticleData(page:number) {
+        const itemsPerPage = this.state.itemsPerPage;
+        const offset = (page - 1) * itemsPerPage;
+        //const includeRelations = ['category', 'userDetails', 'articleFeature', 'features', 'userArticles', 'documents'];
+        //const includeParam = includeRelations.join(',');
+        //api('api/article/p/'+ this.props.match.params.articleID +`/?perPage=${itemsPerPage}&offset=${offset}`, 'get', {}, 'administrator')
         api('api/article/' + this.props.match.params.articleID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
@@ -408,6 +418,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
     
     private doEditArticle() {
+        const curPage = this.state.currentPage;
         api('api/article/' + this.props.match.params.articleID, 'patch', {
             categoryId: this.state.editFeature.categoryId,
             details : {
@@ -433,11 +444,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         .then((res: ApiResponse) => {
             /* Hvatati grešku ako korisnik nema pravo da mjenja status */
             this.setEditFeatureModalVisibleState(false)
-            this.getArticleData()
+            this.getArticleData(Number(curPage))
         })
     }
 
     private changeStatu() {
+        const curPage = this.state.currentPage;
         api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
             articleId: this.props.match.params.articleID,
             value: 1,
@@ -449,7 +461,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             .then((res: ApiResponse) => {
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 this.setModalVisibleState(false)
-                this.getArticleData()
+                this.getArticleData(Number(curPage))
             })
     }
 
@@ -811,8 +823,15 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             </Card>
                         </Col>
                     </Row>
-
                     <Row>
+                        <Col>
+                            <Card className="mb-3"> 
+                            <ArticleTable articleId={this.props.match.params.articleID} />
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    {/* <Row>
                         <Col>
                             <Card className="mb-3">
                                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
@@ -847,7 +866,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 </TableContainer>
                             </Card>
                         </Col>
-                    </Row>
+                    </Row> */}
                 </Col>
                 <Col sm="12" xs="12" lg="4" >
                     <Row>

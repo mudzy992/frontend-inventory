@@ -6,6 +6,7 @@ import { saveAs } from 'file-saver';
 import { Link } from "@mui/material";
 import api from "../../../API/api";
 import { ApiConfig } from "../../../config/api.config";
+import Moment from 'moment';
 
 interface ArticleType {
   articleId: number;
@@ -33,6 +34,7 @@ interface ArticleTimelineType {
     path: string;
   };
   user: {
+    userId: number;
     fullname: string;
   };
 }
@@ -51,7 +53,7 @@ const ArticleTable: FC<TabelaProps> = ({ articleId }) => {
   const fetchData = async (page: number, perPage: number) => {
     const offset = (page - 1) * perPage;
     try {
-      const response = await api(`api/articleTimeline/${articleId}/?perPage=${perPage}&offset=${offset}`, 'get', {}, 'administrator');
+      const response = await api(`api/articleTimeline/p/${articleId}/?perPage=${perPage}&offset=${offset}`, 'get', {}, 'administrator');
 
       if (response.status === 'error') {
         setErrorMessage('Greška prilikom učitavanja vremenske linije artikla. Osvježite stranicu ili pokušajte ponovo kasnije');
@@ -79,8 +81,23 @@ const ArticleTable: FC<TabelaProps> = ({ articleId }) => {
       {
         accessorKey: "user.fullname",
         header: "Korisnik",
-        Cell: ({ cell }) => cell.getValue<string>(),
-      },
+        Cell: ({ cell }) => {
+          const row = cell.row.original as ArticleTimelineType;
+          const userId = row && row.userId;
+      
+          if (userId) {
+            return (
+              <Link href={`#/admin/userProfile/${userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
+                {cell.getValue<string>()}
+              </Link>
+            );
+          }
+      
+          return null;
+        },
+      }
+      
+      ,      
       {
         accessorKey: "status",
         header: "Status",
@@ -94,8 +111,16 @@ const ArticleTable: FC<TabelaProps> = ({ articleId }) => {
       {
         accessorKey: "serialNumber",
         header: "Serijski broj",
-        Cell: ({ cell }) => cell.getValue<string>(),
-      },
+        Cell: ({ cell }) => {
+          const articleTimeline = cell.row.original as ArticleTimelineType;
+          const linkUrl = `#/admin/userArticle/${articleTimeline.userId}/${articleTimeline.article.articleId}/${articleTimeline.serialNumber}`;
+          return (
+            <Link href={linkUrl} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
+              {cell.getValue<string>()}
+            </Link>
+          );
+        },
+      },      
       {
         accessorKey: "invBroj",
         header: "Inventurni broj",
@@ -104,7 +129,7 @@ const ArticleTable: FC<TabelaProps> = ({ articleId }) => {
       {
         accessorKey: "timestamp",
         header: "Vrijeme akcije",
-        Cell: ({ cell }) => cell.getValue<string>(),
+        Cell: ({ cell }) => Moment(cell.getValue<string>()).format('DD.MM.YYYY. - HH:mm'),
       },
       {
         accessorKey: "document.path",
@@ -166,23 +191,6 @@ const ArticleTable: FC<TabelaProps> = ({ articleId }) => {
 
   return (
     <>
-      {/* <Dropdown>
-        <Dropdown.Toggle variant="success" id="dropdown-basic">
-          {itemsPerPage} rezultata po stranici
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={() => handleItemsPerPageChange(5)}>5</Dropdown.Item>
-          <Dropdown.Item onClick={() => handleItemsPerPageChange(10)}>10</Dropdown.Item>
-          <Dropdown.Item onClick={() => handleItemsPerPageChange(20)}>20</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-      <Button onClick={() => handlePageChange(currentPage - 1)} disabled={!hasPreviousPage}>
-        Prethodna stranica
-      </Button>
-      <Button onClick={() => handlePageChange(currentPage + 1)} disabled={!hasNextPage}>
-        Sljedeća stranica
-      </Button> */}
-
       <MaterialReactTable
         columns={columns}
         data={data}

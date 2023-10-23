@@ -265,7 +265,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             }
         )
 
-        api('api/articleTimeline/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        api('api/articleTimeline/SN/' + this.props.match.params.serial , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);

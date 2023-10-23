@@ -4,13 +4,12 @@ import {Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Mod
 import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, } from "@mui/material";
+import { Link, } from "@mui/material";
 import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';
-import CategoryType from '../../../types/CategoryType';
 import ArticleTable from './ArticleTable';
 
 interface ArticlePageProperties {
@@ -34,7 +33,6 @@ interface ArticlePageState {
     message: string;
     articles?: ApiArticleDto;
     feature: FeaturesType[];
-    articleTimeline: ArticleTimelineType[];
     users: userData[];
     editFeature: {
         visible:boolean;
@@ -76,7 +74,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         this.state = {
             message: "",
             feature: [],
-            articleTimeline: [],
             users: [],
             editFeature: {
                 visible: false,
@@ -177,12 +174,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     private setUsers(usersData: userData[]) {
         this.setState(Object.assign(this.state, {
             users: usersData
-        }))
-    }
-
-    private setArticleTimelineData(articleTimelineData: ArticleTimelineType[]) {
-        this.setState(Object.assign(this.state, {
-            articleTimeline: articleTimelineData
         }))
     }
 
@@ -334,11 +325,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
 
     private getArticleData(page:number) {
-        const itemsPerPage = this.state.itemsPerPage;
-        const offset = (page - 1) * itemsPerPage;
-        //const includeRelations = ['category', 'userDetails', 'articleFeature', 'features', 'userArticles', 'documents'];
-        //const includeParam = includeRelations.join(',');
-        //api('api/article/p/'+ this.props.match.params.articleID +`/?perPage=${itemsPerPage}&offset=${offset}`, 'get', {}, 'administrator')
         api('api/article/' + this.props.match.params.articleID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
@@ -369,39 +355,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 }
                 this.setFeaturesData(features);
 
-                const articleTimeline: ArticleTimelineType[] = [];
-
-                for (const statusRespon of data.userArticles) {
-                    let articleId = data.articleId;
-                    let surname = '';
-                    let forname = '';
-                    let comment = statusRespon.comment;
-                    let status = '';
-                    let serialNumber = '';
-                    let timestamp = '';
-                    let userId = 0;
-                    let documentPath = '';
-                    if (statusRespon.articleId === data.articleId) {
-                        status = statusRespon.status;
-                        serialNumber = statusRespon.serialNumber;
-                        timestamp = statusRespon.timestamp;
-                        for (const user of data.userDetails) {
-                            if (statusRespon.userId === user.userId) {
-                                userId = user.userId;
-                                surname = user.surname;
-                                forname = user.forname;
-                            }
-                        }
-                    }
-                    for (const doc of data.documents) {
-                        if (doc.documentsId === statusRespon.documentId) {
-                            documentPath = doc.path;
-                            break;
-                        }
-                    }
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, articleId, timestamp, documentPath, userId })
-                }
-                this.setArticleTimelineData(articleTimeline)
                 this.editFeatureCategoryChanged()
                 this.putArticleDetailsInState(res.data)
             }
@@ -696,7 +649,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     renderArticleData(article: ApiArticleDto) {
         
         return (
-            <Row>
+            <><Row>
                 <Col xs="12" lg="8">
                     <Row>
                         <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: "center", display: "flex" }}>
@@ -704,108 +657,107 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         </Col>
                         <Col xs="12" lg="8" sm="8">
                             <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header style={{backgroundColor:"#263238"}}>
-                                        Detalji opreme
-                                        <Modal size="lg" centered show={this.state.editFeature.visible} onHide={() => this.setEditFeatureModalVisibleState(false)}>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>Izmjena detalja opreme</Modal.Title>
-                                            </Modal.Header>
-                                            <Modal.Body>
-                                                <Form>
+                                <Card.Header style={{ backgroundColor: "#263238" }}>
+                                    Detalji opreme
+                                    <Modal size="lg" centered show={this.state.editFeature.visible} onHide={() => this.setEditFeatureModalVisibleState(false)}>
+                                        <Modal.Header closeButton>
+                                            <Modal.Title>Izmjena detalja opreme</Modal.Title>
+                                        </Modal.Header>
+                                        <Modal.Body>
+                                            <Form>
                                                 <Form.Group className="mb-3 was-validated">
-                                                <FloatingLabel label="Naziv opreme" className="mb-3">
-                                                    <Form.Control 
-                                                    id="name" 
-                                                    type="text" 
-                                                    placeholder="Naziv"
-                                                    value={ this.state.editFeature.name }
-                                                    onChange={ (e) => this.setEditArticleStringFieldState('name', e.target.value) }
-                                                    required />
-                                                </FloatingLabel>
-                                                <FloatingLabel label="Kratki opis" className="mb-3">
-                                                    <Form.Control 
-                                                    id="excerpt" 
-                                                    as="textarea" 
-                                                    rows={3} 
-                                                    style={{ height: '100px' }}
-                                                    placeholder="Kratki opis"
-                                                    value={ this.state.editFeature.excerpt }
-                                                    onChange={ (e) => this.setEditArticleStringFieldState('excerpt', e.target.value) }
-                                                    required />
-                                                </FloatingLabel>
-                                                <FloatingLabel label="Detaljan opis" className="mb-3">
-                                                    <Form.Control 
-                                                    id="description" 
-                                                    as="textarea" 
-                                                    rows={5} 
-                                                    style={{ height: '100px' }}
-                                                    placeholder="Detaljan opis"
-                                                    value={ this.state.editFeature.description }
-                                                    onChange={ (e) => this.setEditArticleStringFieldState('description', e.target.value) }
-                                                    required />
-                                                </FloatingLabel>
-                                                <FloatingLabel label="Ugovor" className="mb-3">
-                                                    <Form.Control 
-                                                    id="concract" 
-                                                    type="text" 
-                                                    placeholder="Ugovor"
-                                                    value={ this.state.editFeature.concract }
-                                                    onChange={ (e) => this.setEditArticleStringFieldState('concract', e.target.value) }
-                                                    required />
-                                                </FloatingLabel>
-                                                <FloatingLabel label="Stanje po ugovoru" className="mb-3">
-                                                    <Form.Control 
-                                                    id="valueOnConcract" 
-                                                    type="text" 
-                                                    placeholder="Stanje po ugovoru"
-                                                    value={ this.state.editFeature.valueOnConcract }
-                                                    onChange={ (e) => this.setEditArticleNumberFieldState('valueOnConcract', e.target.value) }
-                                                    required
-                                                    readOnly />
-                                                </FloatingLabel>
-                                                <FloatingLabel label="Dostupno artikala" className="mb-3">
-                                                    <Form.Control 
-                                                    id="valueAvailable" 
-                                                    type="text" 
-                                                    placeholder="SAP Broj"
-                                                    value={ this.state.editFeature.valueAvailable }
-                                                    onChange={ (e) => this.setEditArticleNumberFieldState('valueAvailable', e.target.value) }
-                                                    required />
-                                                </FloatingLabel>
-                                                <FloatingLabel label="SAP broj" className="mb-3">
-                                                    <Form.Control 
-                                                    id="sap_number" 
-                                                    type="text" 
-                                                    placeholder="SAP Broj"
-                                                    value={ this.state.editFeature.sap_number }
-                                                    onChange={ (e) => this.setEditArticleStringFieldState('sap_number', e.target.value) }
-                                                    required />
-                                                </FloatingLabel>
-                                                <FloatingLabel label="Komentar" className="mb-3">
-                                                    <Form.Control
-                                                    id="comment"
-                                                    as="textarea"
-                                                    rows={3}
-                                                    style={{ height: '100px' }}
-                                                    value={ this.state.editFeature.comment }
-                                                    onChange={ (e) => this.setEditArticleStringFieldState('comment', e.target.value) }
-                                                    required
-                                                    isValid
-                                                    />
-                                                </FloatingLabel>
+                                                    <FloatingLabel label="Naziv opreme" className="mb-3">
+                                                        <Form.Control
+                                                            id="name"
+                                                            type="text"
+                                                            placeholder="Naziv"
+                                                            value={this.state.editFeature.name}
+                                                            onChange={(e) => this.setEditArticleStringFieldState('name', e.target.value)}
+                                                            required />
+                                                    </FloatingLabel>
+                                                    <FloatingLabel label="Kratki opis" className="mb-3">
+                                                        <Form.Control
+                                                            id="excerpt"
+                                                            as="textarea"
+                                                            rows={3}
+                                                            style={{ height: '100px' }}
+                                                            placeholder="Kratki opis"
+                                                            value={this.state.editFeature.excerpt}
+                                                            onChange={(e) => this.setEditArticleStringFieldState('excerpt', e.target.value)}
+                                                            required />
+                                                    </FloatingLabel>
+                                                    <FloatingLabel label="Detaljan opis" className="mb-3">
+                                                        <Form.Control
+                                                            id="description"
+                                                            as="textarea"
+                                                            rows={5}
+                                                            style={{ height: '100px' }}
+                                                            placeholder="Detaljan opis"
+                                                            value={this.state.editFeature.description}
+                                                            onChange={(e) => this.setEditArticleStringFieldState('description', e.target.value)}
+                                                            required />
+                                                    </FloatingLabel>
+                                                    <FloatingLabel label="Ugovor" className="mb-3">
+                                                        <Form.Control
+                                                            id="concract"
+                                                            type="text"
+                                                            placeholder="Ugovor"
+                                                            value={this.state.editFeature.concract}
+                                                            onChange={(e) => this.setEditArticleStringFieldState('concract', e.target.value)}
+                                                            required />
+                                                    </FloatingLabel>
+                                                    <FloatingLabel label="Stanje po ugovoru" className="mb-3">
+                                                        <Form.Control
+                                                            id="valueOnConcract"
+                                                            type="text"
+                                                            placeholder="Stanje po ugovoru"
+                                                            value={this.state.editFeature.valueOnConcract}
+                                                            onChange={(e) => this.setEditArticleNumberFieldState('valueOnConcract', e.target.value)}
+                                                            required
+                                                            readOnly />
+                                                    </FloatingLabel>
+                                                    <FloatingLabel label="Dostupno artikala" className="mb-3">
+                                                        <Form.Control
+                                                            id="valueAvailable"
+                                                            type="text"
+                                                            placeholder="SAP Broj"
+                                                            value={this.state.editFeature.valueAvailable}
+                                                            onChange={(e) => this.setEditArticleNumberFieldState('valueAvailable', e.target.value)}
+                                                            required />
+                                                    </FloatingLabel>
+                                                    <FloatingLabel label="SAP broj" className="mb-3">
+                                                        <Form.Control
+                                                            id="sap_number"
+                                                            type="text"
+                                                            placeholder="SAP Broj"
+                                                            value={this.state.editFeature.sap_number}
+                                                            onChange={(e) => this.setEditArticleStringFieldState('sap_number', e.target.value)}
+                                                            required />
+                                                    </FloatingLabel>
+                                                    <FloatingLabel label="Komentar" className="mb-3">
+                                                        <Form.Control
+                                                            id="comment"
+                                                            as="textarea"
+                                                            rows={3}
+                                                            style={{ height: '100px' }}
+                                                            value={this.state.editFeature.comment}
+                                                            onChange={(e) => this.setEditArticleStringFieldState('comment', e.target.value)}
+                                                            required
+                                                            isValid />
+                                                    </FloatingLabel>
                                                 </Form.Group>
-                                                    <Form.Group className='was-validated'>
-                                                        {this.state.editFeature.features.map(this.editFeatureInput, this)}
-                                                    </Form.Group>
-                                                </Form>
-                                                <Modal.Footer>
-                                                    <Button variant="primary" onClick={() => this.doEditArticle()}> Sačuvaj
-                                                    </Button>
-                                                </Modal.Footer>
-                                            </Modal.Body>
-                                        </Modal>
-                                    </Card.Header>
-                                <ListGroup variant="flush" >
+                                                <Form.Group className='was-validated'>
+                                                    {this.state.editFeature.features.map(this.editFeatureInput, this)}
+                                                </Form.Group>
+                                            </Form>
+                                            <Modal.Footer>
+                                                <Button variant="primary" onClick={() => this.doEditArticle()}> Sačuvaj
+                                                </Button>
+                                            </Modal.Footer>
+                                        </Modal.Body>
+                                    </Modal>
+                                </Card.Header>
+                                <ListGroup variant="flush">
                                     {this.state.feature.map(feature => (
                                         <ListGroup.Item>
                                             <b>{feature.name}:</b> {feature.value}
@@ -818,91 +770,56 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     <Row>
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header style={{backgroundColor:"#263238"}}>Detaljan opis</Card.Header>
+                                <Card.Header style={{ backgroundColor: "#263238" }}>Detaljan opis</Card.Header>
                                 <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.description}</Card.Body>
                             </Card>
                         </Col>
                     </Row>
-                    <Row>
-                        <Col>
-                            <Card className="mb-3"> 
-                            <ArticleTable articleId={this.props.match.params.articleID} />
-                            </Card>
-                        </Col>
-                    </Row>
+                    
 
-                    {/* <Row>
-                        <Col>
-                            <Card className="mb-3">
-                                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Korisnik</TableCell>
-                                                <TableCell>Status</TableCell>
-                                                <TableCell>Komentar</TableCell>
-                                                <TableCell>Serijski broj</TableCell>
-                                                <TableCell>Datum i vrijeme akcije</TableCell>
-                                                <TableCell>#</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {this.state.articleTimeline?.map(articleTimeline => (
-                                                <TableRow hover>
-                                                    <TableCell><Link href={`#/admin/userProfile/${articleTimeline.userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
-                                                        {articleTimeline.surname} {articleTimeline.forname}</Link>
-                                                    </TableCell>
-                                                    <TableCell>{articleTimeline.status}</TableCell>
-                                                    <TableCell>{articleTimeline.comment}</TableCell>
-                                                    <TableCell><Link href={`#/admin/userArticle/${articleTimeline.userId}/${articleTimeline.articleId}/${articleTimeline.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >
-                                                        {articleTimeline.serialNumber}</Link>
-                                                    </TableCell>
-                                                    <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell style={{ justifyContent: 'center'}}>{this.saveFile(articleTimeline.documentPath)}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Card>
-                        </Col>
-                    </Row> */}
                 </Col>
-                <Col sm="12" xs="12" lg="4" >
+                <Col sm="12" xs="12" lg="4">
                     <Row>
                         <Col>
-                            <Card className="text-dark bg-light mb-2" >
+                            <Card className="text-dark bg-light mb-2">
                                 <Card.Header>
                                     <Row style={{
                                         display: "flex",
                                         alignItems: "center",
                                     }}>
-                                    <Col style={{
-                                        display: "flex",
-                                        justifyContent: "flex-start",
-                                    }}>
-                                        U skladištu
-                                    </Col>
-                                    <Col style={{
-                                        display: "flex",
-                                        justifyContent: "flex-end",
-                                    }}>
-                                    {this.changeStatusButton()}
-                                    </Col>
-                                        
+                                        <Col style={{
+                                            display: "flex",
+                                            justifyContent: "flex-start",
+                                        }}>
+                                            U skladištu
+                                        </Col>
+                                        <Col style={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                        }}>
+                                            {this.changeStatusButton()}
+                                        </Col>
+
                                     </Row>
                                 </Card.Header>
-                                 <ListGroup variant="flush" >
-                                            <ListGroup.Item>Stanje po ugovoru: {this.state.articles?.articlesInStock.valueOnConcract}</ListGroup.Item>
-                                            <ListGroup.Item>Trenutno stanje: {this.state.articles?.articlesInStock.valueAvailable}</ListGroup.Item>
-                                            <ListGroup.Item>SAP broj: {this.state.articles?.articlesInStock.sapNumber}</ListGroup.Item>
-                                            <ListGroup.Item>Stanje na: {Moment(this.state.articles?.articlesInStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                </ListGroup> 
+                                <ListGroup variant="flush">
+                                    <ListGroup.Item>Stanje po ugovoru: {this.state.articles?.articlesInStock.valueOnConcract}</ListGroup.Item>
+                                    <ListGroup.Item>Trenutno stanje: {this.state.articles?.articlesInStock.valueAvailable}</ListGroup.Item>
+                                    <ListGroup.Item>SAP broj: {this.state.articles?.articlesInStock.sapNumber}</ListGroup.Item>
+                                    <ListGroup.Item>Stanje na: {Moment(this.state.articles?.articlesInStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                </ListGroup>
                             </Card>
                         </Col>
                     </Row>
                 </Col>
             </Row>
+            <Row>
+                        <Col>
+                            <Card className="mb-3">
+                                <ArticleTable articleId={this.props.match.params.articleID} />
+                            </Card>
+                        </Col>
+                    </Row></>
         );
     }
 }

@@ -5,10 +5,13 @@ import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
 
 interface ArticleType {
-  articleId: number;
+  stockId: number;
   name: string;
   excerpt: string;
   sapNumber: string;
+  articles?: [
+
+  ]
 }
 
 interface TabelaProps {
@@ -19,7 +22,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const [data, setData] = useState<ArticleType[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false); // Dodajte state za prikaz moda
-  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
+  const [selectedStockId, setSelectedStockId] = useState<number | null>(null);
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -29,8 +32,8 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     setShowModal(false);
   };
 
-  const openModalWithArticle = (articleId: number) => {
-    setSelectedArticleId(articleId);
+  const openModalWithArticle = (stockId: number) => {
+    setSelectedStockId(stockId);
     handleShowModal();
   };
 
@@ -38,15 +41,15 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     // Pozovite funkciju za dohvaćanje podataka o artiklima
     const fetchData = async () => {
       try {
-        const response = await api(`api/category/${categoryId}`, 'get', {}, 'administrator');
+        const response = await api(`api/stock/c/${categoryId}`, 'get', {}, 'administrator');
         if (response.status === 'error') {
           setErrorMessage('Greška prilikom učitavanja artikala. Osvježite stranicu ili pokušajte ponovo kasnije.');
           return;
         }
 
         // Dobijte podatke o artiklima iz response-a
-        const articles = response.data.articles as ArticleType[];
-        setData(articles);
+        const stocks = response.data as ArticleType[];
+        setData(stocks);
       } catch (error) {
         console.error("Greška:", error);
       }
@@ -73,8 +76,8 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
-        accessorKey: "articleId",
-        key: "articleId1",
+        accessorKey: "stockId",
+        key: "stockId1",
         header: "Zaduženja",
         Cell: ({ cell }) => (
           <Button
@@ -82,8 +85,8 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
             color="primary"
             className="btn-sm"
             onClick={() => {
-              const articleId = cell.getValue<number>();
-              openModalWithArticle(articleId); // Proslijedite articleId funkciji
+              const stockId = cell.getValue<number>();
+              openModalWithArticle(stockId); // Proslijedite articleId funkciji
             } }
           >
             Zaduženja
@@ -91,7 +94,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         ),
       },
        {
-        accessorKey: "articleId",
+        accessorKey: "stockId",
         key: "articleId2",
         header: "",
         Cell: ({ cell }) => (
@@ -125,7 +128,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
       <ArticleModal
         show={showModal}
         onHide={handleHideModal}
-        articleId={selectedArticleId!} // Proslijedite articleId
+        stockId={selectedStockId!} // Proslijedite articleId
       />
     </>
   );

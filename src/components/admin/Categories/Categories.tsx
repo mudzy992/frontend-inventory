@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Card, Col, Container, Row } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
-import UserArticleType from '../../../types/UserArticleType';
+import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import Tabela from './TableFunction';
 
@@ -10,22 +10,24 @@ interface CategoryPageState {
   category?: CategoryType;
   subCategory: CategoryType[];
   message: string;
-  articles: UserArticleType[];
+  stocks: StockType[];
 }
 
 interface CategoryDto {
   categoryId: number;
   name: string;
   imagePath: string;
-  articles: {
-    articleId: number;
+  stocks: {
+    stockId: number;
     name: string;
     excerpt: string;
     description: string;
     concract: string;
     categoryId: number;
-    comment: string;
     sapNumber: string;
+    valueOnContract: number;
+    valueAvailable: number;
+    timestamp: string;
   }[];
 }
 
@@ -33,15 +35,17 @@ interface CategoryType {
   categoryId?: number;
   name?: string;
   imagePath?: string;
-  articles?: {
-    articleId: number;
+  stocks?: {
+    stockId: number;
     name: string;
     excerpt: string;
     description: string;
     concract: string;
     categoryId: number;
-    comment: string;
     sapNumber: string;
+    valueOnContract: number;
+    valueAvailable: number;
+    timestamp: string;
   }[];
 }
 
@@ -50,7 +54,7 @@ const CategoryPage: React.FC = () => {
   const [state, setState] = useState<CategoryPageState>({
     subCategory: [],
     message: '',
-    articles: [],
+    stocks: [],
   });
 
   useEffect(() => {
@@ -82,7 +86,7 @@ const CategoryPage: React.FC = () => {
           categoryId: res.data.categoryId,
           name: res.data.name,
           imagePath: res.data.imagePath,
-          articles: res.data.articles,
+          stocks: res.data.stocks,
         };
 
         setCategoryData(categoryData);
@@ -92,7 +96,7 @@ const CategoryPage: React.FC = () => {
             categoryId: category.categoryId,
             name: category.name,
             imagePath: category.imagePath,
-            articles: category.articles,
+            stocks: category.stocks,
           })
         );
 
@@ -157,7 +161,7 @@ const CategoryPage: React.FC = () => {
       );
     }
   
-    if (!state.category.articles || state.category.articles.length === 0) {
+    if (!state.category || state.category.stocks?.length === 0) {
       return (
         <div>Nema opreme definisane za ovu kategoriju.</div>
       );
@@ -171,7 +175,7 @@ const CategoryPage: React.FC = () => {
     <div>
       <RoledMainMenu role="administrator" />
       <Container style={{ marginTop: 15 }}>
-      <Row className={state.category?.articles?.length && state.category.articles.length > 0 ? '' : 'd-none'}>
+      <Row className={state.category?.stocks?.length && state.category.stocks.length > 0 ? '' : 'd-none'}>
           <h5 style={{ marginLeft: 10, marginBottom: 8, color: 'white' }}>
             <i className="bi bi-list" />
             {state.category?.name}

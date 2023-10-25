@@ -72,6 +72,7 @@
     "@types/react-bootstrap-table2-toolkit": "^2.1.8",
     "@types/react-loading-overlay": "^1.0.2",
     "file-saver": "^2.0.5",
-    "html-webpack-plugin": "^5.5.3"
+    "html-webpack-plugin": "^5.5.3",
+    "@babel/plugin-proposal-private-property-in-object": "^7.0.0"
   }
 }

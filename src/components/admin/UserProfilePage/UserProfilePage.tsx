@@ -161,7 +161,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 this.setUsers(data)
             })
         /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
+        /* api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const debt: DebtType[] = res.data;
                 this.setDebt(debt)
@@ -175,13 +175,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             .then((res: ApiResponse) => {
                 const responsibility: ResponsibilityType[] = res.data;
                 this.setResponsibility(responsibility)
-            })
+            }) */
         /* api('api/departmentJob/?filter=users.userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 const departmentJobs: DepartmentByIdType[] = res.data;
                 this.setDepartmentJobs(departmentJobs)
             }) */
-        api('api/article/?join=userArticles&filter=userArticles.userId||$eq||'
+        api('api/article/?filter=user.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -414,10 +414,10 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <Row >
                         {this.articlesByUser()}
                     </Row>
-                    <Row style={{ padding: 5 }}>
+                   {/*   <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
                     </Row>
-                   {/*  <Row style={{ padding: 5 }}>
+                   <Row style={{ padding: 5 }}>
                         {this.debtArticlesOnUser()}
                     </Row>
                     <Row style={{ padding: 5 }}>

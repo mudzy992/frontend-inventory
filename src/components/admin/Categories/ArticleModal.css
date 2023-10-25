@@ -1,0 +1,24 @@
+.important-button:hover {
+    background-color: transparent;
+    color: black !important;
+  }
+
+  .important-button:active {
+    background-color: transparent;
+    color: black !important;
+  }
+
+  .important-button{
+    background-color: transparent;
+    color: black !important;
+  }
+
+  .important-button::after {
+    background-color: transparent;
+    color: black !important;
+  }
+
+.search-box-modal {
+    display: flex;
+    justify-content: center;
+}

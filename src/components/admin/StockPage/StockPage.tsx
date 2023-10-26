@@ -10,13 +10,15 @@ import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';
-import ArticleTable from './ArticleTable';
+import ArticleTable from './StockArticleTable';
 import ArticleType from '../../../types/ArticleType';
+import StockType from '../../../types/StockType';
+import StockArticleTable from './StockArticleTable';
 
-interface ArticlePageProperties {
+interface StockPageProperties {
     match: {
         params: {
-            articleID: number;
+            stockID: number;
         }
     }
 }
@@ -30,9 +32,9 @@ interface FeatureBaseType {
     name: string;
     value: string;
 }
-interface ArticlePageState {
+interface StockPageState {
     message: string;
-    article: ArticleType;
+    stock: StockType;
     feature: FeaturesType[];
     users: userData[];
     editFeature: {
@@ -57,7 +59,6 @@ interface ArticlePageState {
         visible: boolean;
         userId: number | null;
         articleId: number | null;
-        value: number | null;
         comment: string;
         serialNumber: string;
         invBroj: string;
@@ -67,14 +68,14 @@ interface ArticlePageState {
     itemsPerPage: number;
 }
 
-export default class ArticlePage extends React.Component<ArticlePageProperties> {
-    state: ArticlePageState;
+export default class StockPage extends React.Component<StockPageProperties> {
+    state: StockPageState;
 
-    constructor(props: Readonly<ArticlePageProperties>) {
+    constructor(props: Readonly<StockPageProperties>) {
         super(props);
         this.state = {
             message: "",
-            article: {},
+            stock: {},
             feature: [],
             users: [],
             editFeature: {
@@ -93,7 +94,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             changeStatus: {
                 userId: 0,
                 articleId: 0,
-                value: null,
                 comment: '',
                 serialNumber: '',
                 status: '',
@@ -105,9 +105,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         }
     }
 
-    private setArticles(articleData: ArticleType | undefined) {
+    private setStocks(stockData: StockType | undefined) {
         this.setState(Object.assign(this.state, {
-            article: articleData
+            stock: stockData
         }))
     }
 
@@ -208,15 +208,15 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     componentDidMount() {
-        this.getArticleData(1)
+        this.getStockData(1)
     }
 
-    componentDidUpdate(oldProperties: ArticlePageProperties) {
+    componentDidUpdate(oldProperties: StockPageProperties) {
         /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if (oldProperties.match.params.articleID === this.props.match.params.articleID) {
+        if (oldProperties.match.params.stockID === this.props.match.params.stockID) {
             return;
         }
-        this.getArticleData(1);
+        this.getStockData(1);
     }
 
     private async editFeatureCategoryChanged() {
@@ -233,7 +233,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 features: stateFeatures,
             }),
         ));
-    }
+    } 
 
     private async getFeaturesByCategoryId(): Promise<FeatureBaseType[]> {
         return new Promise(resolve => {
@@ -242,7 +242,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 const features: FeatureBaseType[] = res.data.map((item: any) => ({
                     featureId: item.featureId,
                     name: item.name,
-                    value: item.articleFeature.map((feature: any) => (feature.value)),
+                    value: item.articleFeatures.map((feature: any) => (feature.value)),
                 }));
                 resolve(features);
             })
@@ -285,16 +285,16 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         this.setEditFeatureModalVisibleState(true)
     }
 
-    private async putArticleDetailsInState(article: ArticleType) {
+    private async putArticleDetailsInState(article: StockType) {
         this.setEditArticleNumberFieldState('categoryId', Number(article.categoryId))
-        this.setEditArticleStringFieldState('name', String(article.stock?.name))
-        this.setEditArticleStringFieldState('excerpt', String(article.stock?.excerpt))
-        this.setEditArticleStringFieldState('description', String(article.stock?.description))
-        this.setEditArticleStringFieldState('concract', String(article.stock?.concract))
-        this.setEditArticleStringFieldState('comment', String(article.comment))
-        this.setEditArticleStringFieldState('valueOnConcract', String(article.stock?.valueOnContract))
-        this.setEditArticleStringFieldState('valueAvailable', String(article.stock?.valueAvailable))
-        this.setEditArticleStringFieldState('sap_number', String(article.stock?.sapNumber))
+        this.setEditArticleStringFieldState('name', String(article.name))
+        this.setEditArticleStringFieldState('excerpt', String(article.excerpt))
+        this.setEditArticleStringFieldState('description', String(article.description))
+        this.setEditArticleStringFieldState('concract', String(article.contract))
+        this.setEditArticleStringFieldState('comment', String(article.timestamp))
+        this.setEditArticleStringFieldState('valueOnConcract', String(article.valueOnContract))
+        this.setEditArticleStringFieldState('valueAvailabe', String(article.valueAvailable))
+        this.setEditArticleStringFieldState('sapNumber', String(article.sapNumber))
 
         if (!article.categoryId) {
             return;
@@ -306,16 +306,21 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             apiFeature.use   = 0;
             apiFeature.value = '';
 
-            if (!article.articleFeatures) {
+            if (!article.articles) {
                 continue;
             }
-
-            for (const articleFeature of article.articleFeatures) {
-                if (articleFeature.featureId === apiFeature.featureId) {
-                    apiFeature.use = 1;
-                    apiFeature.value = articleFeature.value;
+            for (const art of article.articles) {
+                if (!art?.articleFeatures) {
+                    continue;
+                }
+                for (const articleFeature of art.articleFeatures) {
+                    if (articleFeature.featureId === apiFeature.featureId) {
+                        apiFeature.use = 1;
+                        apiFeature.value = articleFeature.value;
+                    }
                 }
             }
+            
         }
 
         this.setState(Object.assign(this.state,
@@ -326,38 +331,22 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
 
-    private getArticleData(page:number) {
-        api('api/article/' + this.props.match.params.articleID, 'get', {}, 'administrator')
+    private getStockData(page:number) {
+        api('api/stock/' + this.props.match.params.stockID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
-                    this.setArticles(undefined);
+                    this.setStocks(undefined);
                     this.setFeaturesData([]);
                     this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                     return;
                 }
 
-                const data: ApiArticleDto = res.data;
+                const data: StockType = res.data;
                 this.setErrorMessage('')
-                this.setArticles(data)
+                this.setStocks(data)
+                console.log(data)
 
-                const features: FeaturesType[] = [];
-
-                for (const articleFeature of data.articleFeature) {
-                    let value = articleFeature.value;
-                    let name = '';
-
-                    for (const feature of data.features) {
-                        if (feature.featureId === articleFeature.featureId) {
-                            name = feature.name;
-                            break;
-                        }
-                    }
-
-                    features.push({ name, value });
-                }
-                this.setFeaturesData(features);
-
-                this.editFeatureCategoryChanged()
+                this.editFeatureCategoryChanged() 
                 this.putArticleDetailsInState(res.data)
             }
         )
@@ -374,7 +363,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     
     private doEditArticle() {
         const curPage = this.state.currentPage;
-        api('api/article/' + this.props.match.params.articleID, 'patch', {
+        api('api/article/' + this.props.match.params.stockID, 'patch', {
             categoryId: this.state.editFeature.categoryId,
             details : {
                 name: this.state.editFeature.name,
@@ -399,24 +388,25 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         .then((res: ApiResponse) => {
             /* Hvatati grešku ako korisnik nema pravo da mjenja status */
             this.setEditFeatureModalVisibleState(false)
-            this.getArticleData(Number(curPage))
+            this.getStockData(Number(curPage))
         })
     }
 
+    // Ovo je changeStatus kada se prvi put iz stocka zadužuje artikal
     private changeStatu() {
         const curPage = this.state.currentPage;
-        api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
-            articleId: this.props.match.params.articleID,
-            value: 1,
+        api('api/article/' + this.props.match.params.stockID, 'post', {
+            stockId: this.props.match.params.stockID,
+            userId: this.state.changeStatus.userId,
             comment: this.state.changeStatus.comment,
             serialNumber: this.state.changeStatus.serialNumber,
             status: this.state.changeStatus.status,
-            invBroj: this.state.changeStatus.invBroj,
+            invNumber: this.state.changeStatus.invBroj,
         }, 'administrator')
             .then((res: ApiResponse) => {
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 this.setModalVisibleState(false)
-                this.getArticleData(Number(curPage))
+                this.getStockData(Number(curPage))
             })
     }
 
@@ -450,12 +440,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                             alignItems: "center",
                                         }}>
                                         <Col md="auto" xs="auto">
-                                        <i className={this.state.article?.category?.imagePath}/>
+                                        <i className={this.state.stock?.category?.imagePath}/>
                                         </Col>
                                         <Col md="auto" xs="auto">
                                             {
-                                            this.state.article ?
-                                                this.state.article?.stock?.name :
+                                            this.state.stock ?
+                                                this.state.stock?.name :
                                                 'Oprema nije pronađena'
                                             }
                                         </Col>    
@@ -475,8 +465,8 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 {this.printOptionalMessage()}
 
                                 {
-                                    this.state.article ?
-                                        (this.renderArticleData(this.state.article)) :
+                                    this.state.stock ?
+                                        (this.renderStockData(this.state.stock)) :
                                         ''
                                 }
                             </Card.Text>
@@ -489,7 +479,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     private badgeStatus() {
 
-        let status = Number(this.state.editFeature?.valueAvailable);
+        let status = Number(this.state.stock?.valueAvailable);
 
         if (status === 0) {
             return (
@@ -509,7 +499,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     private changeStatusButton() {
-        let status = Number(this.state.article?.stock?.valueAvailable);
+        let status = Number(this.state.stock?.valueAvailable);
         /* this.state.articles?.articlesInStock.map(stock => (
             status = stock.valueAvailable
         )) */
@@ -621,34 +611,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     }
 
-    private saveFile (docPath: any) {
-            if(!docPath) {
-                return (<div>
-                <Link >
-                    <OverlayTrigger 
-                    placement="top"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={
-                    <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                    }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
-                    </Link></div> )
-            }
-            if (docPath) {
-                const savedFile = (docPath:any) => {
-                    saveAs(
-                        ApiConfig.TEMPLATE_PATH + docPath,
-                        docPath
-                    );
-                }
-                return (
-                    <Link onClick={() => savedFile(docPath)}>
-                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
-                    </Link>
-                )
-        }
-    }
-
-    renderArticleData(article: ArticleType) {
+    renderStockData(article: StockType) {
         
         return (
             <><Row>
@@ -760,11 +723,14 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                     </Modal>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                    {this.state.feature.map(feature => (
-                                        <ListGroup.Item>
-                                            <b>{feature.name}:</b> {feature.value}
+                                {article.articles && article.articles.map(feature => (
+                                    feature.articleFeatures && feature.articleFeatures.map(artFeature => (
+                                        <ListGroup.Item key={artFeature.feature?.name}>
+                                        <b>{artFeature.feature?.name}:</b> {artFeature.value}
                                         </ListGroup.Item>
-                                    ), this)}
+                                    ))
+                                    ))}
+
                                 </ListGroup>
                             </Card>
                         </Col>
@@ -773,7 +739,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header style={{ backgroundColor: "#263238" }}>Detaljan opis</Card.Header>
-                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.stock?.description}</Card.Body>
+                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.description}</Card.Body>
                             </Card>
                         </Col>
                     </Row>
@@ -805,10 +771,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                    <ListGroup.Item>Stanje po ugovoru: {this.state.article?.stock?.valueOnContract}</ListGroup.Item>
-                                    <ListGroup.Item>Trenutno stanje: {this.state.article?.stock?.valueAvailable}</ListGroup.Item>
-                                    <ListGroup.Item>SAP broj: {this.state.article?.stock?.sapNumber}</ListGroup.Item>
-                                    <ListGroup.Item>Stanje na: {Moment(this.state.article?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                    <ListGroup.Item>Stanje po ugovoru: {article.valueOnContract}</ListGroup.Item>
+                                    <ListGroup.Item>Trenutno stanje: {article.valueAvailable}</ListGroup.Item>
+                                    <ListGroup.Item>SAP broj: {article.sapNumber}</ListGroup.Item>
+                                    <ListGroup.Item>Stanje na: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
                                 </ListGroup>
                             </Card>
                         </Col>
@@ -818,7 +784,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             <Row>
                         <Col>
                             <Card className="mb-3">
-                                <ArticleTable articleId={this.props.match.params.articleID} />
+                                <StockArticleTable stockId={this.props.match.params.stockID} />
                             </Card>
                         </Col>
                     </Row></>

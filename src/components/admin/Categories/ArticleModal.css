@@ -1,4 +1,8 @@
-.important-button:hover {
+  
+  .important-button {
+    sx: small o !important;
+  }
+  .important-button:hover {
     background-color: transparent;
     color: black !important;
   }
@@ -18,7 +22,22 @@
     color: black !important;
   }
 
-.search-box-modal {
-    display: flex;
-    justify-content: center;
-}
+  .search-box-modal {
+      display: flex;
+      justify-content: center;
+  }
+
+  .status-zaduženo  {
+    color: darkGreen !important;
+    font-weight: bold !important;
+  }
+  
+  .status-razduženo {
+  color: darkgoldenrod !important;
+  font-weight: bold !important;
+  }
+  
+  .status-otpisano {
+  color: darkRed !important;
+  font-weight: bold !important;
+  }

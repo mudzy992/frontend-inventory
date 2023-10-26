@@ -137,13 +137,14 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                 </Link>
                 </TableCell>
                 <TableCell >{article.invNumber}</TableCell>
-                <TableCell >{article.status}</TableCell>
-                <td>{Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</td>
-                <TableCell  >
+                <TableCell className={`status-${article.status}`} >{article.status}</TableCell>
+                <TableCell>{Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                <TableCell >
                       <Button
                       variant="contained"
                       color="primary"
                       className="btn-sm"
+                      size="sm"
                       onClick={() => {
                         window.location.href = `#/article/${article.articleId}/`;
                       }}
@@ -161,11 +162,11 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
       )}
 
       <div style={{display:"flex", justifyContent:"center", alignItems:"center", marginTop:"10px"}}>
-        <Button style={{marginRight:"3px"}} variant="secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+        <Button size="sm" style={{marginRight:"3px"}} variant="secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
         <i className="bi bi-caret-left-fill" />
         </Button>
         {currentPage} od {Math.ceil(totalResults / itemsPerPage)}
-        <Button style={{marginLeft:"3px"}} variant="secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage * itemsPerPage >= totalResults}>
+        <Button size="sm" style={{marginLeft:"3px"}} variant="secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage * itemsPerPage >= totalResults}>
         <i className="bi bi-caret-right-fill" />
         </Button>
       </div>

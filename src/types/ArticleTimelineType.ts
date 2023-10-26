@@ -1,3 +1,6 @@
+import DocumentsType from "./DocumentsType";
+import UserType from "./UserType";
+
 export default class ArticleTimelineType {
     articleTimelineId?: number;
     articleId?: number;
@@ -8,4 +11,6 @@ export default class ArticleTimelineType {
     timestamp?: string;
     invNumber?: string;
     comment?: string;
+    document?: DocumentsType;
+    user?: UserType;
 }

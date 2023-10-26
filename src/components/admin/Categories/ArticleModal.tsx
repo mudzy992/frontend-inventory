@@ -132,7 +132,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                   
                 </TableCell>
                 <TableCell >
-                  <Link to={`/admin/userArticle/${article.user.userId}/${article.articleId}/${article.serialNumber}`}>
+                  <Link to={`/admin/user/${article.serialNumber}`}>
                   {article.serialNumber}
                 </Link>
                 </TableCell>

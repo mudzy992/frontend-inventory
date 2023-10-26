@@ -5,8 +5,6 @@ import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
 import Moment from 'moment';
-import FeaturesType from '../../../types/FeaturesType';
-import ArticleTimelineType from '../../../types/ArticleTimelineType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { ApiConfig } from '../../../config/api.config';
@@ -14,19 +12,12 @@ import saveAs from 'file-saver';
 import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
-import ArticleFeatureType from '../../../types/ArticleFeatureType';
 interface AdminArticleOnUserPageProperties {
     match: {
         params: {
             serial: string;
         }
     }
-}
-
-interface userData {
-    userId: number;
-    surname: string;
-    forname: string;
 }
 
 interface upgradeFeaturesType {
@@ -42,10 +33,7 @@ interface AdminArticleOnUserPageState {
     userArticle: UserArticleDto[];
     message: string;
     article: ArticleType;
-    features: FeaturesType[];
-    articleTimeline: ArticleTimelineType[];
-    users: userData[];
-    user: UserType[];
+    users: UserType[];
     isLoggedIn: boolean;
     errorMessage: string;
     changeStatus: {
@@ -76,10 +64,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         super(props);
         this.state = {
             message: "",
-            features: [],
-            articleTimeline: [],
             users: [],
-            user:[],
             article: {},
             isLoggedIn: true,
             errorMessage: '',
@@ -165,15 +150,9 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
 
-    private setUsers(usersData: userData[]) {
+    private setUsers(usersData: UserType[]) {
         this.setState(Object.assign(this.state, {
             users: usersData
-        }))
-    }
-
-    private setUser(userData: UserType[]) {
-        this.setState(Object.assign(this.state, {
-            user: userData
         }))
     }
 
@@ -210,18 +189,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUsers(res.data)
-            }
-        )
-
-        api('/api/user/?filter=userId||$eq||' + this.state.article.userId, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                this.setUser(res.data)
-            }
-        )
-
-        api('/api/user/?filter=userId||$eq||' + this.state.article.userId, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                this.setUser(res.data)
             }
         )
     }
@@ -642,7 +609,7 @@ private upgradeFeature() {
                         <ListGroup variant="flush" >
                         {this.state.upgradeFeature.map((uf, index) => (
                                 <ListGroup.Item key={index} style={{ display: "flex", alignItems: "center"}}>
-                                    <b>{uf.name}: </b> {uf.value}
+                                    <b style={{marginRight:"3px"}}>{uf.name}: </b> {uf.value}
                                     <OverlayTrigger 
                                         placement="top"
                                         delay={{ show: 250, hide: 400 }}
@@ -720,13 +687,16 @@ private upgradeFeature() {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
+                                            {article.articleTimelines?.map(timeline => (
                                                 <TableRow key="tabela-user" hover>
-                                                    <TableCell><Link href={`#/admin/userProfile/${this.state.article.userId}`} style={{textDecoration:"none", fontWeight:"bold", color:"#0E5E6F"}}>{this.state.article.user?.fullname}</Link></TableCell>
-                                                    <TableCell>{this.state.article.status}</TableCell>
-                                                    <TableCell>{this.state.article.comment}</TableCell>
-                                                    <TableCell>{Moment(this.state.article.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    {/* <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell> */}
+                                                    <TableCell><Link href={`#/admin/userProfile/${timeline.userId}`} style={{textDecoration:"none", fontWeight:"bold", color:"#0E5E6F"}}>{timeline.user?.fullname}</Link></TableCell>
+                                                    <TableCell>{timeline.status}</TableCell>
+                                                    <TableCell>{timeline.comment}</TableCell>
+                                                    <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    <TableCell>{this.saveFile(timeline.document?.path)}</TableCell>
                                                 </TableRow>
+                                            ))}
+                                                
                                         </TableBody>
                                     </Table>
                                 </TableContainer>

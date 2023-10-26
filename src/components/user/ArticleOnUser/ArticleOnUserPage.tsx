@@ -7,11 +7,11 @@ import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from
 import Moment from 'moment';
 import FeaturesType from '../../../types/FeaturesType';
 import ArticleTimelineType from '../../../types/ArticleTimelineType';
-import ArticleByUserType from '../../../types/ArticleByUserType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import UserType from '../../../types/UserType';
 import { LangBa } from '../../../config/lang.ba';
+import ArticleType from '../../../types/ArticleType';
 
 
 interface ArticleOnUserPageProperties {
@@ -36,7 +36,7 @@ interface ArticleOnUserPageState {
     user: UserType[];
     userArticle: UserArticleDto[];
     message: string;
-    article: ArticleByUserType[];
+    article: ArticleType[];
     features: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
     upgradeFeature: upgradeFeaturesType[],
@@ -91,7 +91,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }));
     }
 
-    private setArticle(articleData: ArticleByUserType[]) {
+    private setArticle(articleData: ArticleType[]) {
         this.setState(Object.assign(this.state, {
             article: articleData
         }))
@@ -154,10 +154,10 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                     return this.setLogginState(false);
                 }
 
-                const data: ArticleByUserType[] = res.data;
+                const data: ArticleType[] = res.data;
                 this.setErrorMessage('')
                 this.setArticle(data)
-                const features: FeaturesType[] = [];
+                /* const features: FeaturesType[] = [];
 
                 for (const start of data) {
                     for (const articleFeature of start.articleFeature) {
@@ -174,9 +174,9 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                         features.push({ name, value });
                     }
                 }
-                this.setFeaturesData(features);
+                this.setFeaturesData(features); */
             })
-        api('api/userArticle/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
+        api('api/article/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setFeaturesData([]);
@@ -186,10 +186,10 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 if (res.status === 'login') {
                     return this.setLogginState(false);
                 }
-                const data: UserArticleDto[] = res.data;
-                this.setUserArticle(data)
+                const data: ArticleType[] = res.data;
+                this.setArticle(data)
 
-                const articleTimeline: ArticleTimelineType[] = [];
+                /* const articleTimeline: ArticleTimelineType[] = [];
                 for (const ua of data) {
                     let status = ua.status;
                     let serialNumber = ua.serialNumber;
@@ -201,7 +201,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
 
                     articleTimeline.push({ surname, forname, status, comment, serialNumber, sapNumber, timestamp })
                 }
-                this.setArticleTimelineData(articleTimeline)
+                this.setArticleTimelineData(articleTimeline) */
             })
 
         api('api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
@@ -256,7 +256,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                                     this.state.article.map :
                                                     'Article not found'
                                             }
-                                            {this.state.article.map(ar => (ar.name))}
+                                            {this.state.article.map(ar => (ar.stock?.name))}
                                             {this.badgeStatus(this.state.article)}
                                         </Col>
                                     </Row>
@@ -286,9 +286,9 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         )
     }
 
-    private badgeStatus(article: ArticleByUserType[]) {
-        let stat = ""
-        article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
+    private badgeStatus(article: ArticleType[]) {
+        let stat:any = ""
+        article.map(ua => stat = (ua.status))
         if (stat === "zaduženo") {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
@@ -386,13 +386,13 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
     }
 
-    renderArticleData(article: ArticleByUserType[]) {
+    renderArticleData(article: ArticleType[]) {
         return (
             <Row>
                 <Col xs="12" lg="8">
                     <Row>
                         <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: "center", display: "flex" }}>
-                            <i className={`${article.map(cat => (cat.category.imagePath))}`} style={{ fontSize: 150 }}></i>
+                            <i className={`${article.map(cat => (cat.category?.imagePath))}`} style={{ fontSize: 150 }}></i>
                         </Col>
                         <Col xs="12" lg="8" sm="8">
                             <Card bg="dark" text="light" className="mb-3">
@@ -404,7 +404,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                         </ListGroup.Item>
                                     ), this)}
                                     <ListGroup.Item>
-                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}</ListGroup.Item> 
+                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.article.map(art => (art.serialNumber))}</ListGroup.Item> 
                                 </ListGroup>
                             </Card>
                             {this.upgradeFeature()}
@@ -415,7 +415,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header>Detaljan opis</Card.Header>
-                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.map(desc => (desc.description))}</Card.Body>
+                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.map(desc => (desc.stock?.description))}</Card.Body>
                             </Card>
                         </Col>
                     </Row>
@@ -436,13 +436,13 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {this.state.articleTimeline?.map(articleTimeline => (
+                                            {this.state.article?.map(articleTimeline => (
                                                 <TableRow hover>
-                                                    <TableCell>{articleTimeline.surname} {articleTimeline.forname}</TableCell>
+                                                    <TableCell>{articleTimeline.user?.fullname}</TableCell>
                                                     <TableCell>{articleTimeline.status}</TableCell>
                                                     <TableCell>{articleTimeline.comment}</TableCell>
                                                     <TableCell>{articleTimeline.serialNumber}</TableCell>
-                                                    <TableCell>{articleTimeline.sapNumber}</TableCell>
+                                                    <TableCell>{articleTimeline.stock?.sapNumber}</TableCell>
                                                     <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                                 </TableRow>
                                             ))}
@@ -467,8 +467,8 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 </Card.Header>
                                 <ListGroup variant="flush">
                                     <div>
-                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].status))} </b></ListGroup.Item>
-                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
+                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.status))} </b></ListGroup.Item>
+                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
                                     </div>
                                 </ListGroup>
                             </Card>

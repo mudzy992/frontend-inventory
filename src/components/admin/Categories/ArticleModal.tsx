@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import api from "../../../API/api"; 
 import Moment from 'moment';
 import { Link } from 'react-router-dom';
-import { TableContainer, TextField, Paper, Table, TableBody, TableCell, TableHead,TableRow} from '@mui/material';
+import { TableContainer, TextField, Paper, Table, TableBody, TableCell, TableHead,TableRow, Alert, CircularProgress} from '@mui/material';
 
 import './ArticleModal.css';
 
@@ -109,7 +109,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
         </Button>
       </div>
       {isLoading ? (
-        <div>Učitavanje...</div>
+        <div style={{display:"flex", justifyContent:"center"}}><CircularProgress /></div>
       ) : userArticleData && userArticleData.length > 0 ? (
         <TableContainer >
         <Table sx={{ minWidth: 650 }} aria-label="caption table">
@@ -157,7 +157,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
         </Table>
         </TableContainer>
       ) : (
-        <div>Artikal nema zaduženja.</div>
+        <div style={{marginTop:"10px"}}><Alert severity='info'>Artikal nema zaduženja.</Alert></div>
       )}
 
       <div style={{display:"flex", justifyContent:"center", alignItems:"center", marginTop:"10px"}}>

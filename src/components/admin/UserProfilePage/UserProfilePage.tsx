@@ -16,6 +16,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
+import ArticleType from "../../../types/ArticleType";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -34,7 +35,7 @@ interface AdminUserProfilePageState {
     responsibility: ResponsibilityType[];
     debt: DebtType[];
     destroyed: DestroyedType[];
-    articlesByUser: ArticleByUserData[];
+    article: ArticleType[];
     features: FeaturesType[];
     isLoggedIn: boolean;
     departmentJobs: DepartmentByIdType[];
@@ -51,7 +52,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             responsibility: [],
             debt: [],
             destroyed: [],
-            articlesByUser: [],
+            article: [],
             features: [],
             isLoggedIn: true,
             departmentJobs: [],
@@ -87,9 +88,9 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         }))
     }
 
-    private setArticleByUser(articleByUserData: ArticleByUserType[]) {
+    private setArticleByUser(articleData: ArticleType[]) {
         this.setState(Object.assign(this.state, {
-            articlesByUser: articleByUserData
+            article: articleData
         }))
     }
 
@@ -412,7 +413,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 </Col>
                 <Col xs="12" lg="9">
                     <Row >
-                        {this.articlesByUser()}
+                        {this.articles()}
                     </Row>
                    {/*   <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
@@ -428,18 +429,18 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         );
     }
 
-    private articlesByUser() {
+    private articles() {
         
         return (
-            this.state.articlesByUser.map((artikal) => (
+            this.state.article.map((artikal) => (
                 
                     <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:16}} key={artikal.articleId}>
                         <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
                             <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <Badge pill bg="primary">
-                                    {artikal.category.name}
-                                </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.name}</div>}
-                                <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
+                                    {artikal.category?.name}
+                                </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.stock?.name}</div>}
+                                <i className={`${artikal.category?.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
                             </Card.Body>
                         </Card>
                     </Col>

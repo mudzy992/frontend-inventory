@@ -191,7 +191,7 @@ export const TABELE: GridLocaleText = {
         MuiTablePagination:{ },
 }
 
-export function ModalMessageArticleOnUser(article: string, user: string) {
+export function ModalMessageArticleOnUser(article: any, user: string) {
     return (
         'Da li ste sigurni da želite promjeniti status opreme ' + article + ' sa korisnika ' + user + '?'
     )

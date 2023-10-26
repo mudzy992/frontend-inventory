@@ -7,18 +7,17 @@ import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link 
 import Moment from 'moment';
 import FeaturesType from '../../../types/FeaturesType';
 import ArticleTimelineType from '../../../types/ArticleTimelineType';
-import ArticleByUserType from '../../../types/ArticleByUserType';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
 import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
+import ArticleType from '../../../types/ArticleType';
+import ArticleFeatureType from '../../../types/ArticleFeatureType';
 interface AdminArticleOnUserPageProperties {
     match: {
         params: {
-            userID: number;
-            articleId: number;
             serial: string;
         }
     }
@@ -42,7 +41,7 @@ interface upgradeFeaturesType {
 interface AdminArticleOnUserPageState {
     userArticle: UserArticleDto[];
     message: string;
-    article: ArticleByUserType[];
+    article: ArticleType;
     features: FeaturesType[];
     articleTimeline: ArticleTimelineType[];
     users: userData[];
@@ -81,11 +80,11 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             articleTimeline: [],
             users: [],
             user:[],
-            article: [],
+            article: {},
             isLoggedIn: true,
             errorMessage: '',
             changeStatus: {
-                userId: this.props.match.params.userID,
+                userId: Number(),
                 articleId: 0,
                 value: null,
                 comment: '',
@@ -159,29 +158,12 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         }));
     }
 
-    private setArticle(articleData: ArticleByUserType[]) {
+    private setArticle(articleData: ArticleType) {
         this.setState(Object.assign(this.state, {
             article: articleData
         }))
     }
 
-    private setUserArticle(userArticleData: UserArticleDto[]) {
-        this.setState(Object.assign(this.state, {
-            userArticle: userArticleData
-        }))
-    }
-
-    private setFeaturesData(featuresData: FeaturesType[]) {
-        this.setState(Object.assign(this.state, {
-            features: featuresData
-        }))
-    }
-
-    private setArticleTimelineData(articleTimelineData: ArticleTimelineType[]) {
-        this.setState(Object.assign(this.state, {
-            articleTimeline: articleTimelineData
-        }))
-    }
 
     private setUsers(usersData: userData[]) {
         this.setState(Object.assign(this.state, {
@@ -202,50 +184,28 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
         /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if (oldProperties.match.params.userID === this.props.match.params.userID) {
+        if (oldProperties.match.params.serial === this.props.match.params.serial) {
             return;
         }
         this.getArticleData();
     }
     /* '&filter=userDetails.userId||$eq||' + this.props.match.params.userID + */
     private getArticleData() {
-        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
-            '&filter=userDetails.userId||$eq||' + this.state.changeStatus.userId +
-            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
-            '&sort=userArticles.timestamp,DESC', 'get', {}, 'administrator')
+        api(`api/article/sb/${this.props.match.params.serial}`, 'get', {}, 'administrator')
+
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
-                    this.setFeaturesData([]);
                     this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                     return;
                 }
                 if (res.status === 'login') {
                     return this.setLogginState(false);
                 }
-
-                const data: ArticleByUserType[] = res.data;
+                const data: ArticleType = res.data;
                 this.setErrorMessage('')
                 this.setArticle(data)
-                const features: FeaturesType[] = [];
-
-                for (const start of data) {
-                    for (const articleFeature of start.articleFeature) {
-                        const value = articleFeature.value;
-                        let name = '';
-
-                        for (const feature of start.features) {
-                            if (feature.featureId === articleFeature.featureId) {
-                                name = feature.name;
-                                break;
-                            }
-                        }
-
-                        features.push({ name, value });
-                    }
-                }
-                this.setFeaturesData(features);
             }
-            )
+        )
 
         api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -253,48 +213,17 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             }
         )
 
-        api('/api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
+        api('/api/user/?filter=userId||$eq||' + this.state.article.userId, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUser(res.data)
             }
         )
 
-        api('/api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
+        api('/api/user/?filter=userId||$eq||' + this.state.article.userId, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 this.setUser(res.data)
             }
         )
-
-        api('api/articleTimeline/SN/' + this.props.match.params.serial , 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'error') {
-                    this.setFeaturesData([]);
-                    this.setErrorMessage(LangBa.ARTICLE_ON_USER.ERR_READ_CATEGORY)
-                    return;
-                }
-                if (res.status === 'login') {
-                    return this.setLogginState(false);
-                }
-                const data: UserArticleDto[] = res.data;
-                this.setUserArticle(data)
-
-                const articleTimeline: ArticleTimelineType[] = [];
-                for (const ua of data) {
-                    let status = ua.status;
-                    let serialNumber = ua.serialNumber;
-                    let invBroj = ua.invBroj;
-                    let sapNumber = ua.article?.sapNumber;
-                    let surname = ua.user?.surname;
-                    let forname = ua.user?.forname;
-                    let userId = ua.user?.userId;
-                    let timestamp = ua.timestamp;
-                    let comment = ua.comment;
-                    let documentPath = ua.document?.path 
-
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, invBroj, sapNumber, timestamp, userId, documentPath })
-                }
-                this.setArticleTimelineData(articleTimeline)
-            })
     }
 
     private getUpgradeFeatureBySerialNumber () {
@@ -309,7 +238,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             name: this.state.upgradeFeatureAdd.name,
             value: this.state.upgradeFeatureAdd.value,
             comment: this.state.upgradeFeatureAdd.comment,
-            articleId: this.props.match.params.articleId,
+            articleId: this.state.article.articleId,
         }, 'administrator')
         .then((res: ApiResponse) => {
             this.setUpgradeModalVisibleState(false)
@@ -408,16 +337,13 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Card.Header >
                             <Card.Title >
                                 <Container>
-                                    <Row>
+                                <Row>
                                         <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
                                             
-                                            <i className={this.state.article.map(arti => (arti.category.imagePath)).toLocaleString()} style={{fontSize:20, marginRight:5}}/> {
-                                                this.state.article ?
-                                                    this.state.article.map :
-                                                    LangBa.ARTICLE_ON_USER.ERR_CONTAINER_ARTICLE_NOT_FOUND
-                                            }
-                                            {this.state.article.map(ar => (ar.name))}
-                                            {this.badgeStatus(this.state.article)}
+                                        <i className={this.state.article.category?.imagePath?.toString()} style={{fontSize: 20, marginRight: 5}}/>
+
+                                            {this.state.article.stock?.name}
+                                            {this.badgeStatus(this.state.article)} 
                                         </Col>
                                     </Row>
                                 </Container>
@@ -446,9 +372,10 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         )
     }
 
-    private badgeStatus(article: ArticleByUserType[]) {
-        let stat = ""
-        article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
+    private badgeStatus(article: ArticleType) {
+
+        let stat:any = article.status;
+        
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
@@ -472,7 +399,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
 
     private changeStatus() {
         api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
-            articleId: this.props.match.params.articleId,
+            articleId: this.state.article.articleId,
+            userId: this.state.article.userId,
             value: 1,
             comment: this.state.changeStatus.comment,
             serialNumber: this.state.changeStatus.serialNumber,
@@ -490,9 +418,9 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             })
     }
 
-    private showChangeStatusModal(artTime: ArticleTimelineType[]) {
-        const sb: any = artTime.map(SB => (SB.serialNumber)).shift();
-        const inv : any = artTime.map(inv => (inv.invBroj)).shift();
+    private showChangeStatusModal(article: ArticleType) {
+        const sb: any = article.serialNumber;
+        const inv : any = article.invNumber;
         /* const sb: any = serijskic.shift(); */
         this.setChangeStatusVisibleState(true)
         this.setChangeStatusStringFieldState('serialNumber', sb)
@@ -502,13 +430,10 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         this.setChangeStatusStringFieldState('invBroj', inv)
     }
 
-    private changeStatusButton(article: ArticleByUserType[]) {
-        let stat = ""
-        const userDetails: UserType[] = this.state.user;
-        article.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
-
-        const artiName: string = article.map(arti => (arti.name)).toString();
-        const userFullName: string = userDetails.map(user => (user.fullname)).toString();
+    private changeStatusButton(article: ArticleType) {
+        let stat = article.status;
+        const artiName = article.stock?.name;
+        const userFullName: any = article.user?.fullname;
 
         if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
@@ -520,7 +445,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                     <Button 
                         variant='success' 
                         size='sm' 
-                        onClick={() => this.showChangeStatusModal(this.state.articleTimeline)}>
+                        onClick={() => this.showChangeStatusModal(this.state.article)}>
                             {LangBa.ARTICLE_ON_USER.BTN_EDIT}
                     </Button>
                     <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setChangeStatusVisibleState(false)}>
@@ -621,10 +546,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         }
     }
 
-    private userDetails(userDet: ArticleByUserType[]) {
-        let stat = ""
-        userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status)
-        const userDetails: UserType[] = this.state.user;
+    private userDetails(userDet: ArticleType) {
+        let stat = userDet.status
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
             return (<Alert variant='info'> {LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}</Alert>)
         }
@@ -639,12 +562,11 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                             <Card.Header>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</Card.Header>
                             <ListGroup variant="flush" >
                                 <div>  
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDetails.map(user => (user.surname))} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDetails.map(user => (user.forname))} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDetails.map(user => (user.email))} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDetails.map(user => (user.department?.title))} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDetails.map(user => (user.job?.title))} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LOCATION + userDetails.map(user => (user.location?.name))} </ListGroup.Item>
+                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListGroup.Item>
                                 </div>
                             </ListGroup>
                         </Card>
@@ -702,6 +624,7 @@ private upgradeFeature() {
             </Row>
         )
     }
+
     if (this.state.upgradeFeature.length !== 0) {
         return (
             <Row>
@@ -733,18 +656,17 @@ private upgradeFeature() {
                     </Card>
                 </Col>
             </Row>
-        
         )
     }
 }
 
-    renderArticleData(article: ArticleByUserType[]) {
+    renderArticleData(article: ArticleType) {
         return (
             <Row>
                 <Col xs="12" lg="8">
                     <Row>
                         <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: "center", display: "flex" }}>
-                            <i className={`${article.map(cat => (cat.category.imagePath))}`} style={{ fontSize: 150 }}></i>
+                            <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
                         </Col>
                         <Col xs="12" lg="8" sm="8">
                             <Row>
@@ -754,16 +676,16 @@ private upgradeFeature() {
                                             {LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.CARD_HEADER}
                                             </Card.Header>
                                         <ListGroup variant="flush" >
-                                            {this.state.features.map((feature, index) => (
-                                                <ListGroup.Item key={index}>
-                                                    <b>{feature.name}:</b> {feature.value}
-                                                </ListGroup.Item>
-                                            ), this)}
+                                        {this.state.article.articleFeatures?.map((artFeature, index) => (
+                                            <ListGroup.Item key={index}>
+                                                <b>{artFeature.feature?.name}:</b> {artFeature.value}
+                                            </ListGroup.Item>
+                                        ))}
                                             <ListGroup.Item>
-                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.articleTimeline.map(art => ([art.serialNumber])).shift()}
+                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.article.serialNumber}
                                             </ListGroup.Item> 
                                             <ListGroup.Item>
-                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.articleTimeline.map(art => ([art.invBroj])).shift()}
+                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.article.invNumber}
                                             </ListGroup.Item> 
                                         </ListGroup>
                                     </Card>
@@ -778,7 +700,7 @@ private upgradeFeature() {
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header style={{backgroundColor:"#263238"}}>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</Card.Header>
                                 <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>
-                                    {article.map(desc => (desc.description))}</Card.Body>
+                                    {article.stock?.description}</Card.Body>
                             </Card>
                         </Col>
                     </Row>
@@ -798,15 +720,13 @@ private upgradeFeature() {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {this.state.articleTimeline?.map((articleTimeline, index) => (
-                                                <TableRow key={index} hover>
-                                                    <TableCell><Link href={`#/admin/userProfile/${articleTimeline.userId}`} style={{textDecoration:"none", fontWeight:"bold", color:"#0E5E6F"}}>{articleTimeline.surname} {articleTimeline.forname}</Link></TableCell>
-                                                    <TableCell>{articleTimeline.status}</TableCell>
-                                                    <TableCell>{articleTimeline.comment}</TableCell>
-                                                    <TableCell>{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell>
+                                                <TableRow key="tabela-user" hover>
+                                                    <TableCell><Link href={`#/admin/userProfile/${this.state.article.userId}`} style={{textDecoration:"none", fontWeight:"bold", color:"#0E5E6F"}}>{this.state.article.user?.fullname}</Link></TableCell>
+                                                    <TableCell>{this.state.article.status}</TableCell>
+                                                    <TableCell>{this.state.article.comment}</TableCell>
+                                                    <TableCell>{Moment(this.state.article.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    {/* <TableCell>{this.saveFile(articleTimeline.documentPath)}</TableCell> */}
                                                 </TableRow>
-                                            ))}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
@@ -829,8 +749,8 @@ private upgradeFeature() {
                                 </Card.Header>
                                 <ListGroup variant="flush">
                                     <div>
-                                        <ListGroup.Item key="status">Status: <b>{article.map(artStat => (artStat.userArticles.map(status => ([status.status])).shift()))} </b></ListGroup.Item>
-                                        <ListGroup.Item key="datum-akcije">Datum akcije:  {article.map(nesto => (Moment(nesto.userArticles[nesto.userArticles.length - nesto.userArticles.length + 0].timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
+                                        <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
+                                        <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
                                     </div>
                                 </ListGroup>
                             </Card>
@@ -841,17 +761,12 @@ private upgradeFeature() {
                             <Card className="text-dark bg-light mb-2" >
                                 <Card.Header>U skladištu</Card.Header>
                                  <ListGroup variant="flush" >
-                                    {article.map((artStock, index) => (
-
-                                            <div key={index}>
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + artStock.articlesInStock.valueOnConcract}</ListGroup.Item>
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + artStock.articlesInStock.valueAvailable}</ListGroup.Item>
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + artStock.articlesInStock.sapNumber}</ListGroup.Item>
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(artStock.articlesInStock.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                            <div key="stock-stanje">
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListGroup.Item>
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListGroup.Item>
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListGroup.Item>
+                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
                                             </div>
-                                        
-                                    ))
-                                    }
                                 </ListGroup>
                             </Card>
                         </Col>

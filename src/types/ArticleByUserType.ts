@@ -1,10 +1,12 @@
 export default interface ArticleByUserType {
     articleId?: number;
-    name?: string;
-    excerpt?: string;
-    description?: string;
-    concract?: string;
-    sapNumber?: string;
+    serialNumber?: string;
+    userId?: number;
+    documentId?: number;
+    status?: "zaduženo" | "razduženo" | "otpisano";
+    timestamp?: string;
+    stockId?: number;
+    comment?: string;
     categoryId?: number;
     category: {
         name: string;

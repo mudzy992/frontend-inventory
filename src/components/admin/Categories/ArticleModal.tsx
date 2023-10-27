@@ -20,7 +20,7 @@ interface ResponsibilityArticleBaseType {
   status: 'zaduženo' | 'razduženo' | 'otpisano';
   timestamp: string;
   articleId: number;
-  user:{
+  user?:{
     userId: number;
     fullname: string;
   }
@@ -83,7 +83,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
     <Modal 
     show={show} 
     onHide={onHide}
-    size='lg'
+    size='xl'
     >
       <Modal.Header closeButton>
         <Modal.Title>Detalji zaduženja</Modal.Title>
@@ -126,10 +126,11 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
             {userArticleData.map((article, index) => (
               <TableRow key={index}>
                 <TableCell component="th" scope="row">
-                <Link to={`/admin/userProfile/${article.user.userId}`}>
-                {article.user.fullname}
-                </Link>
-                  
+                {article.user? (
+                    <Link to={`/admin/userProfile/${article.user.userId}`}>
+                      {article.user.fullname}
+                    </Link>
+                  ) : <span className='status-razduženo'>Skladište</span>}
                 </TableCell>
                 <TableCell >
                   <Link to={`/admin/user/${article.serialNumber}`}>
@@ -146,10 +147,10 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                       className="btn-sm"
                       size="sm"
                       onClick={() => {
-                        window.location.href = `#/article/${article.articleId}/`;
+                        window.location.href = `#/admin/stock/${stockId}/`;
                       }}
                     >
-                      Detalji opreme
+                       Detalji opreme <i className="bi bi-arrow-bar-right"/>
                     </Button>
                 </TableCell>
               </TableRow>

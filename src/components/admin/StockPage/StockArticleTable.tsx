@@ -35,7 +35,7 @@ const StockArticleTable: FC<TabelaProps> = ({ stockId }) => {
       setData(articleTimelines);
       setTotalResults(response.data.total || 0); // Postavi ukupan broj rezultata iz odgovora
     } catch (error) {
-      console.error("Greška:", error);
+      console.error("Greška (Stock Article Table):", error);
       setData([]);
       setTotalResults(0);
     }
@@ -99,43 +99,59 @@ const StockArticleTable: FC<TabelaProps> = ({ stockId }) => {
         Cell: ({ cell }) => Moment(cell.getValue<string>()).format('DD.MM.YYYY. - HH:mm'),
       },
       {
-        accessorKey: "valueOnContract",
+        accessorKey: "documentId",
         header: "Dokument",
-        Cell: ({ cell }) => saveFile(cell.getValue<string>()),
+        Cell: ({ cell }) => {
+          const docId = cell.getValue<number>();
+          const [docPath, setDocPath] = useState<string | null>(null);
+
+          useEffect(() => {
+            const fetchData = async () => {
+              try {
+                const response = await api(`api/document/${docId}`, 'get', {}, 'administrator');
+                const data = response.data;
+                const path = data.path;
+                setDocPath(path);
+              } catch (error) {
+                console.error("Greška (Stock Article Table - Documents):", error);
+              }
+            };
+
+            fetchData();
+          }, [docId]);
+
+          if (docPath === null) {
+            return (
+              <div>
+                <Link>
+                  <OverlayTrigger
+                    placement="top"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={
+                      <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
+                    }
+                  >
+                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }} />
+                  </OverlayTrigger>
+                </Link>
+              </div>
+            );
+          }
+
+          const savedFile = () => {
+            saveAs(ApiConfig.TEMPLATE_PATH + `${docPath}`, docPath);
+          };
+
+          return (
+            <Link onClick={savedFile}>
+              <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor: "pointer" }} />
+            </Link>
+          );
+        },
       },
     ],
     []
   );
-
-  const saveFile = (docPath: string) => {
-    if (!docPath) {
-      return (
-        <div>
-          <Link>
-            <OverlayTrigger
-              placement="top"
-              delay={{ show: 250, hide: 400 }}
-              overlay={
-                <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-              }
-            >
-              <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }} />
-            </OverlayTrigger>
-          </Link>
-        </div>
-      );
-    }
-
-    const savedFile = () => {
-      saveAs(ApiConfig.TEMPLATE_PATH + `${docPath}`, docPath);
-    };
-
-    return (
-      <Link onClick={savedFile}>
-        <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor: "pointer" }} />
-      </Link>
-    );
-  };
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);

@@ -47,7 +47,7 @@ interface StockPageState {
         comment: string;
         valueOnConcract: number;
         valueAvailable: number;
-        sap_number: string;
+        sapNumber: string;
         features: {
             use: number;
             featureId: number;
@@ -88,7 +88,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 comment: "",
                 valueOnConcract: 0,
                 valueAvailable: 0,
-                sap_number: "",
+                sapNumber: "",
                 features:[],
             },
             changeStatus: {
@@ -293,7 +293,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
         this.setEditArticleStringFieldState('concract', String(article.contract))
         this.setEditArticleStringFieldState('comment', String(article.timestamp))
         this.setEditArticleStringFieldState('valueOnConcract', String(article.valueOnContract))
-        this.setEditArticleStringFieldState('valueAvailabe', String(article.valueAvailable))
+        this.setEditArticleStringFieldState('valueAvailable', String(article.valueAvailable))
         this.setEditArticleStringFieldState('sapNumber', String(article.sapNumber))
 
         if (!article.categoryId) {
@@ -371,12 +371,12 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 description: this.state.editFeature.description,
                 concract: this.state.editFeature.concract,
                 comment: this.state.editFeature.comment,
-                sap_number: this.state.editFeature.sap_number,
+                sap_number: this.state.editFeature.sapNumber,
             },
             stock:{
                 valueOnConcract: this.state.editFeature.valueOnConcract,
                 valueAvailable: this.state.editFeature.valueAvailable,
-                sap_number: this.state.editFeature.sap_number,
+                sap_number: this.state.editFeature.sapNumber,
             },
             features: this.state.editFeature.features
                 .filter(feature => feature.use === 1)
@@ -695,8 +695,8 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                                             id="sap_number"
                                                             type="text"
                                                             placeholder="SAP Broj"
-                                                            value={this.state.editFeature.sap_number}
-                                                            onChange={(e) => this.setEditArticleStringFieldState('sap_number', e.target.value)}
+                                                            value={this.state.editFeature.sapNumber}
+                                                            onChange={(e) => this.setEditArticleStringFieldState('sapNumber', e.target.value)}
                                                             required />
                                                     </FloatingLabel>
                                                     <FloatingLabel label="Komentar" className="mb-3">

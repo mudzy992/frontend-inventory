@@ -103,8 +103,8 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
             color="primary"
             className="btn-sm"
             onClick={() => {
-              const articleId = cell.getValue<number>();
-              window.location.href = `#/article/${articleId}/`;
+              const stockId = cell.getValue<number>();
+              window.location.href = `#/admin/stock/${stockId}/`;
             }}
           >
             Detalji opreme

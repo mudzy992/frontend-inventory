@@ -40,7 +40,6 @@ interface AdminArticleOnUserPageState {
         visible: boolean;
         userId: number | null;
         articleId: number | null;
-        value: number | null;
         comment: string;
         serialNumber: string;
         invBroj: string;
@@ -71,7 +70,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             changeStatus: {
                 userId: Number(),
                 articleId: 0,
-                value: null,
                 comment: '',
                 serialNumber: '',
                 invBroj: '',
@@ -365,13 +363,9 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     }
 
     private changeStatus() {
-        api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
-            articleId: this.state.article.articleId,
-            userId: this.state.article.userId,
-            value: 1,
+        api('api/article/status/' + this.state.article.articleId, 'patch', {
+            userId: this.state.changeStatus.userId,
             comment: this.state.changeStatus.comment,
-            serialNumber: this.state.changeStatus.serialNumber,
-            invBroj: this.state.changeStatus.invBroj,
             status: this.state.changeStatus.status
         }, 'administrator')
             .then((res: ApiResponse) => {
@@ -696,7 +690,6 @@ private upgradeFeature() {
                                                     <TableCell>{this.saveFile(timeline.document?.path)}</TableCell>
                                                 </TableRow>
                                             ))}
-                                                
                                         </TableBody>
                                     </Table>
                                 </TableContainer>

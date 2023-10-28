@@ -1,7 +1,14 @@
+<<<<<<< Updated upstream
+=======
+import ArticleType from "./ArticleType";
+import FeaturesType from "./FeaturesType";
+
+>>>>>>> Stashed changes
 export default class CategoryType {
     categoryId?: number;
     name?: string;
     imagePath?:string;
+<<<<<<< Updated upstream
     articles?: {
         articleId: number;
         name: string;
@@ -12,4 +19,9 @@ export default class CategoryType {
         comment: string;
         sapNumber: string;
       }[]
+=======
+    parentCategoryId?: number;
+    articles?: ArticleType[];
+    features?: FeaturesType[]
+>>>>>>> Stashed changes
 }

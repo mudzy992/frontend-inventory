@@ -1,4 +1,5 @@
 import ArticleType from "./ArticleType";
+import FeaturesType from "./FeaturesType";
 
 export default class CategoryType {
     categoryId?: number;
@@ -6,4 +7,5 @@ export default class CategoryType {
     imagePath?:string;
     parentCategoryId?: number;
     articles?: ArticleType[]
+    features?: FeaturesType[];
 }

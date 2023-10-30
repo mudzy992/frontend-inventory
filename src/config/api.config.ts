@@ -1,5 +1,5 @@
 export const ApiConfig = {
-    API_URL: 'http://77.221.31.121',
+    API_URL: 'http://192.168.0.13:3005',
     //API_URL: 'http://inventory-back.ddns.net/',
     //API_URL: 'http://192.168.12.144:3005/', 
     //API_URL: 'https://sore-lime-caridea-veil.cyclic.app',

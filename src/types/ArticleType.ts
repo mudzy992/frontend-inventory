@@ -1,4 +1,4 @@
-import ArticleFeatureType from "./ArticleFeatureType";
+import ArticleFeatureType from "./StockFeaturesType";
 import ArticleTimelineType from "./ArticleTimelineType";
 import CategoryType from "./CategoryType";
 import DocumentsType from "./DocumentsType";

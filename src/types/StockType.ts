@@ -1,5 +1,6 @@
 import ArticleType from "./ArticleType";
 import CategoryType from "./CategoryType";
+import StockFeatureType from "./StockFeaturesType";
 
 export default class StockType {
     stockId?: number;
@@ -12,6 +13,7 @@ export default class StockType {
     valueOnContract?: number;
     valueAvailable?: number;
     timestamp?: string;
+    stockFeatures?: StockFeatureType[];
     articles?: ArticleType[];
     category?: CategoryType;
 }

@@ -2,16 +2,8 @@ import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import {Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip, } from 'react-bootstrap';
 import FeaturesType from '../../../types/FeaturesType';
-import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
-import { Link, } from "@mui/material";
-import ArticleTimelineType from '../../../types/ArticleTimelineType';
-import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import saveAs from 'file-saver';
-import { ApiConfig } from '../../../config/api.config';
-import ArticleTable from './StockArticleTable';
-import ArticleType from '../../../types/ArticleType';
 import StockType from '../../../types/StockType';
 import StockArticleTable from './StockArticleTable';
 
@@ -30,7 +22,8 @@ interface userData {
 interface FeatureBaseType {
     featureId?: number;
     name: string;
-    value: string;
+    stockFeatureId: number;
+    value: string;  
 }
 interface StockPageState {
     message: string;
@@ -53,6 +46,7 @@ interface StockPageState {
             featureId: number;
             name: string;
             value: string;
+            stockFeatureId: number;
         }[]
     }
     changeStatus: {
@@ -89,7 +83,13 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 valueOnConcract: 0,
                 valueAvailable: 0,
                 sapNumber: "",
-                features:[],
+                features:[{
+                    use: 0,
+                    featureId: Number(),
+                    name: "",
+                    value: "",
+                    stockFeatureId: Number(),
+                }],
             },
             changeStatus: {
                 userId: 0,
@@ -148,7 +148,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
         ));
     }
 
-    private setEditFeatureValue(featureId: number, value: string) {
+   /*  private setEditFeatureValue(featureId: number, value: string) {
         const addFeatures: { featureId: number; value: string; }[] = [...this.state.editFeature.features];
 
         for (const feature of addFeatures) {
@@ -163,8 +163,35 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 features: addFeatures,
             }),
         ));
-    }
+    } */
 
+    private setEditFeatureValue(featureId: number, value: string) {
+        console.log(`setEditFeatureValue called with featureId: ${featureId}, value: ${value}`);
+        this.setState((prevState: StockPageState) => {
+            const updatedFeatures = prevState.editFeature.features.map((feature) => {
+                if (feature.featureId === featureId) {
+                    return {
+                        ...feature,
+                        value: value,
+                    };
+                }
+                return feature;
+            });
+            console.log("SET: " + updatedFeatures);
+    
+            return {
+                editFeature: {
+                    ...prevState.editFeature,
+                    features: updatedFeatures,
+                }
+            };
+        }, () => {
+            // Ovde možete obaviti dodatne akcije koje zavise od ažuriranog stanja
+            console.log("Stanje je ažurirano.", this.state);
+        });
+    }
+    
+    
     private setModalVisibleState(newState: boolean) {
         this.setState(Object.assign(this.state,
             Object.assign(this.state.changeStatus, {
@@ -208,7 +235,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
     }
 
     componentDidMount() {
-        this.getStockData(1)
+        this.getStockData()
     }
 
     componentDidUpdate(oldProperties: StockPageProperties) {
@@ -216,10 +243,10 @@ export default class StockPage extends React.Component<StockPageProperties> {
         if (oldProperties.match.params.stockID === this.props.match.params.stockID) {
             return;
         }
-        this.getStockData(1);
+        this.getStockData();
     }
 
-    private async editFeatureCategoryChanged() {
+    /* private async editFeatureCategoryChanged() {
         const features = await this.getFeaturesByCategoryId();
         const stateFeatures = features.map(feature => ({
             featureId: feature.featureId,
@@ -233,16 +260,49 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 features: stateFeatures,
             }),
         ));
-    } 
+    }  */
+
+    private async editFeatureCategoryChanged() {
+        const features = await this.getFeaturesByCategoryId();
+    
+        const updatedFeatures = this.state.editFeature.features.map((feature) => ({
+            ...feature,
+            use: 0, // Resetujte use na 0
+        }));
+    
+        // Iterirajte kroz features i ažurirajte vrednost u odgovarajućoj osobini
+        features.forEach((feature) => {
+            const existingFeature = updatedFeatures.find((f) => f.featureId === feature.featureId);
+    
+            if (existingFeature) {
+                existingFeature.name = feature.name;
+                existingFeature.value = feature.value;
+                existingFeature.stockFeatureId = feature.stockFeatureId;
+                // Dodajte ovde ažuriranje drugih svojstava po potrebi
+            }
+        });
+
+        console.log("UPDATE:" + updatedFeatures)
+        this.setState(Object.assign(this.state, {
+            editFeature: {
+                ...this.state.editFeature,
+                features: updatedFeatures,
+            },
+        }));
+    }
+    
+    
 
     private async getFeaturesByCategoryId(): Promise<FeatureBaseType[]> {
         return new Promise(resolve => {
             api('/api/feature/?filter=categoryId||$eq||' + this.state.editFeature.categoryId + '/', 'get', {}, 'administrator')
+            /* api('/api/feature/?join=stockFeatures&filter=stockFeatures.stockId||$eq||' + this.props.match.params.stockID + '/', 'get', {}, 'administrator') */
             .then((res: ApiResponse) => { 
                 const features: FeatureBaseType[] = res.data.map((item: any) => ({
                     featureId: item.featureId,
                     name: item.name,
-                    value: item.articleFeatures.map((feature: any) => (feature.value)),
+                    value: item.stockFeatures.map((feature: any) => (feature.value)),
+                    stockFeatureId: item.stockFeatures.map((feature: any) => (feature.stockFeatureId)),
                 }));
                 resolve(features);
             })
@@ -286,52 +346,47 @@ export default class StockPage extends React.Component<StockPageProperties> {
     }
 
     private async putArticleDetailsInState(article: StockType) {
-        this.setEditArticleNumberFieldState('categoryId', Number(article.categoryId))
-        this.setEditArticleStringFieldState('name', String(article.name))
-        this.setEditArticleStringFieldState('excerpt', String(article.excerpt))
-        this.setEditArticleStringFieldState('description', String(article.description))
-        this.setEditArticleStringFieldState('concract', String(article.contract))
-        this.setEditArticleStringFieldState('comment', String(article.timestamp))
-        this.setEditArticleStringFieldState('valueOnConcract', String(article.valueOnContract))
-        this.setEditArticleStringFieldState('valueAvailable', String(article.valueAvailable))
-        this.setEditArticleStringFieldState('sapNumber', String(article.sapNumber))
-
-        if (!article.categoryId) {
+        this.setEditArticleNumberFieldState('categoryId', Number(article.categoryId));
+        this.setEditArticleStringFieldState('name', String(article.name));
+        this.setEditArticleStringFieldState('excerpt', String(article.excerpt));
+        this.setEditArticleStringFieldState('description', String(article.description));
+        this.setEditArticleStringFieldState('concract', String(article.contract));
+        this.setEditArticleStringFieldState('comment', String(article.timestamp));
+        this.setEditArticleStringFieldState('valueOnConcract', String(article.valueOnContract));
+        this.setEditArticleStringFieldState('valueAvailable', String(article.valueAvailable));
+        this.setEditArticleStringFieldState('sapNumber', String(article.sapNumber));
+    
+        if (!article.stockFeatures) {
             return;
         }
-
+    
         const allFeatures: any[] = await this.getFeaturesByCategoryId();
-
+    
         for (const apiFeature of allFeatures) {
-            apiFeature.use   = 0;
+            apiFeature.use = 0;
             apiFeature.value = '';
-
-            if (!article.articles) {
-                continue;
-            }
-            for (const art of article.articles) {
-                if (!art?.articleFeatures) {
-                    continue;
-                }
-                for (const articleFeature of art.articleFeatures) {
-                    if (articleFeature.featureId === apiFeature.featureId) {
+    
+            for (const feature of article.stockFeatures) {
+                if (feature) {
+                    if (feature.featureId === apiFeature.featureId) {
                         apiFeature.use = 1;
-                        apiFeature.value = articleFeature.value;
+                        apiFeature.value = feature.value || ''; // Dodali smo provjeru za prazan string ako nema vrednosti
                     }
                 }
             }
-            
         }
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editFeature, {
+    
+        this.setState((prevState: StockPageState) => ({
+            editFeature: {
+                ...prevState.editFeature,
                 features: allFeatures,
-            }),
-        ));
+            },
+        }));
     }
+    
+    
 
-
-    private getStockData(page:number) {
+    private getStockData() {
         api('api/stock/' + this.props.match.params.stockID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
@@ -340,12 +395,9 @@ export default class StockPage extends React.Component<StockPageProperties> {
                     this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                     return;
                 }
-
                 const data: StockType = res.data;
                 this.setErrorMessage('')
                 this.setStocks(data)
-                console.log(data)
-
                 this.editFeatureCategoryChanged() 
                 this.putArticleDetailsInState(res.data)
             }
@@ -362,35 +414,48 @@ export default class StockPage extends React.Component<StockPageProperties> {
     }
     
     private doEditArticle() {
-        const curPage = this.state.currentPage;
-        api('api/article/' + this.props.match.params.stockID, 'patch', {
+        console.log("Before edit features:", this.state.editFeature.features);
+    
+        const filteredFeatures = this.state.editFeature.features.filter(feature => feature.use === 1);
+    
+        console.log("After filtering features:", filteredFeatures);
+    
+        const editedFeatures = this.state.editFeature.features
+            .filter(feature => feature.use === 1)
+            .map(feature => ({
+                featureId: feature.featureId,
+                value: feature.value,
+              /*   stockFeatureId: feature.stockFeatureId, */
+
+                /* stockFeatures: feature.stockFeatures ?
+                    feature.stockFeatures.map(af => ({
+                        featureId: af.featureId,
+                        value: feature.value || "s", // Postavite value na prazan string ako je af.value undefined
+                    })) : [], */
+            }));
+    
+        console.log("Edited features:", editedFeatures);
+    
+        const requestBody = {
+            name: this.state.editFeature.name,
+            excerpt: this.state.editFeature.excerpt,
+            description: this.state.editFeature.description,
+            contract: this.state.editFeature.concract,
             categoryId: this.state.editFeature.categoryId,
-            details : {
-                name: this.state.editFeature.name,
-                excerpt: this.state.editFeature.excerpt,
-                description: this.state.editFeature.description,
-                concract: this.state.editFeature.concract,
-                comment: this.state.editFeature.comment,
-                sap_number: this.state.editFeature.sapNumber,
-            },
-            stock:{
-                valueOnConcract: this.state.editFeature.valueOnConcract,
-                valueAvailable: this.state.editFeature.valueAvailable,
-                sap_number: this.state.editFeature.sapNumber,
-            },
-            features: this.state.editFeature.features
-                .filter(feature => feature.use === 1)
-                .map(feature => ({
-                    featureId: feature.featureId,
-                    value: feature.value
-                })),
-        }, 'administrator')
-        .then((res: ApiResponse) => {
-            /* Hvatati grešku ako korisnik nema pravo da mjenja status */
-            this.setEditFeatureModalVisibleState(false)
-            this.getStockData(Number(curPage))
-        })
+            sapNumber: this.state.editFeature.sapNumber,
+            valueOnContract: this.state.editFeature.valueOnConcract,
+            valueAvailable: this.state.editFeature.valueAvailable,
+            features: editedFeatures,
+        };
+    
+        api('api/stock/' + this.props.match.params.stockID, 'put', requestBody, 'administrator')
+            .then((res: ApiResponse) => {
+                /* Hvatati grešku ako korisnik nema pravo da mijenja status */
+                this.setEditFeatureModalVisibleState(false);
+                this.getStockData();
+            });
     }
+    
 
     // Ovo je changeStatus kada se prvi put iz stocka zadužuje artikal
     private changeStatu() {
@@ -406,7 +471,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             .then((res: ApiResponse) => {
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 this.setModalVisibleState(false)
-                this.getStockData(Number(curPage))
+                this.getStockData()
             })
     }
 
@@ -723,13 +788,11 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                     </Modal>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                {article.articles && article.articles.map(feature => (
-                                    feature.articleFeatures && feature.articleFeatures.map(artFeature => (
-                                        <ListGroup.Item key={artFeature.feature?.name}>
-                                        <b>{artFeature.feature?.name}:</b> {artFeature.value}
+                                {article.stockFeatures && article.stockFeatures.map(feature => (
+                                        <ListGroup.Item key={feature.feature?.name}>
+                                            <b>{feature.feature?.name}:</b> {feature.value}
                                         </ListGroup.Item>
-                                    ))
-                                    ))}
+                                ))}
 
                                 </ListGroup>
                             </Card>

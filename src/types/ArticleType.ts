@@ -17,7 +17,6 @@ export default class ArticleType {
     comment?: string;
     categoryId?: number;
     category?: CategoryType;
-    articleFeatures?: ArticleFeatureType[];
     user?: UserType;
     stock?: StockType;
     articleTimelines?:ArticleTimelineType[];

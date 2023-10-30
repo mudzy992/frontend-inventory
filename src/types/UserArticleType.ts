@@ -1,3 +1,5 @@
+import StockFeatureType from "./StockFeaturesType";
+
 export default class StockType {
     stockId?: number;
     name?: string;
@@ -9,4 +11,5 @@ export default class StockType {
     valueOnContract?: number;
     valueAvailable?: number;
     timestamp?: string;
+    stockFeatures?: StockFeatureType[];
 }

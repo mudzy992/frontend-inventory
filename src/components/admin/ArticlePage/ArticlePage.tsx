@@ -306,11 +306,11 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             apiFeature.use   = 0;
             apiFeature.value = '';
 
-            if (!article.articleFeatures) {
+            if (!article.stock?.stockFeatures) {
                 continue;
             }
 
-            for (const articleFeature of article.articleFeatures) {
+            for (const articleFeature of article.stock.stockFeatures) {
                 if (articleFeature.featureId === apiFeature.featureId) {
                     apiFeature.use = 1;
                     apiFeature.value = articleFeature.value;

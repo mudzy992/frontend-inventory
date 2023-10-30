@@ -637,7 +637,7 @@ private upgradeFeature() {
                                             {LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.CARD_HEADER}
                                             </Card.Header>
                                         <ListGroup variant="flush" >
-                                        {this.state.article.articleFeatures?.map((artFeature, index) => (
+                                        {this.state.article.stock?.stockFeatures?.map((artFeature, index) => (
                                             <ListGroup.Item key={index}>
                                                 <b>{artFeature.feature?.name}:</b> {artFeature.value}
                                             </ListGroup.Item>

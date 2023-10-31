@@ -60,7 +60,7 @@ interface ArticlePageState {
         value: number | null;
         comment: string;
         serialNumber: string;
-        invBroj: string;
+        invNumber: string;
         status: string;
     };
     currentPage: number;
@@ -97,7 +97,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 comment: '',
                 serialNumber: '',
                 status: '',
-                invBroj: '',
+                invNumber: '',
                 visible: false,
             },
             currentPage: Number(),
@@ -208,7 +208,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     componentDidMount() {
-        this.getArticleData(1)
+        this.getArticleData()
     }
 
     componentDidUpdate(oldProperties: ArticlePageProperties) {
@@ -216,7 +216,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         if (oldProperties.match.params.articleID === this.props.match.params.articleID) {
             return;
         }
-        this.getArticleData(1);
+        this.getArticleData();
     }
 
     private async editFeatureCategoryChanged() {
@@ -264,7 +264,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                             placement="top"
                             delay={{ show: 250, hide: 400 }}
                             overlay={
-                            <Tooltip id="tooltip-serialNumber">U slučaju da se ne označi kvadratić pored, osobina neće biti prikazana</Tooltip>
+                            <Tooltip id="tooltip-featureUpdate">U slučaju da se ne označi kvadratić pored, osobina neće biti prikazana</Tooltip>
                             }> 
                             <Form.Control
                                 id="name"
@@ -326,7 +326,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
 
-    private getArticleData(page:number) {
+    private getArticleData() {
         api('api/article/' + this.props.match.params.articleID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
@@ -373,7 +373,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
     
     private doEditArticle() {
-        const curPage = this.state.currentPage;
         api('api/article/' + this.props.match.params.articleID, 'patch', {
             categoryId: this.state.editFeature.categoryId,
             details : {
@@ -399,24 +398,23 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         .then((res: ApiResponse) => {
             /* Hvatati grešku ako korisnik nema pravo da mjenja status */
             this.setEditFeatureModalVisibleState(false)
-            this.getArticleData(Number(curPage))
+            this.getArticleData()
         })
     }
 
-    private changeStatu() {
-        const curPage = this.state.currentPage;
-        api('api/userArticle/add/' + this.state.changeStatus.userId, 'post', {
+    private changeStatus() {
+        api('api/article/status/' + this.state.changeStatus.userId, 'post', {
             articleId: this.props.match.params.articleID,
             value: 1,
             comment: this.state.changeStatus.comment,
             serialNumber: this.state.changeStatus.serialNumber,
             status: this.state.changeStatus.status,
-            invBroj: this.state.changeStatus.invBroj,
+            invNumber: this.state.changeStatus.invNumber,
         }, 'administrator')
             .then((res: ApiResponse) => {
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 this.setModalVisibleState(false)
-                this.getArticleData(Number(curPage))
+                this.getArticleData()
             })
     }
 
@@ -583,9 +581,9 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-invBroj">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>}>
-                                    <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} />
+                                    overlay={<Tooltip id="tooltip-invNumber">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>}>
+                                    <Form.Control type='text' id='invNumber' value={this.state.changeStatus.invNumber} isValid required
+                                        onChange={(e) => this.setChangeStatusStringFieldState('invNumber', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
                         </Form.Group>
@@ -602,7 +600,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                     isValid /></FloatingLabel>
                         </Form.Group>
                         <Modal.Footer>
-                            <Button variant="primary" onClick={() => this.changeStatu()}> Sačuvaj
+                            <Button variant="primary" onClick={() => this.changeStatus()}> Sačuvaj
                             </Button>
                         </Modal.Footer>
                     </Modal.Body>

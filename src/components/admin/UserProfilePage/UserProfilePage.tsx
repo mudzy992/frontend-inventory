@@ -17,6 +17,7 @@ import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import ArticleType from "../../../types/ArticleType";
+import UserType from "../../../types/UserType";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -30,11 +31,9 @@ interface AdminUserProfilePageProperties {
 interface AdminUserProfilePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
-    users?: ApiUserDto;
+    user?: UserType;
+    users?: UserType;
     message: string;
-    responsibility: ResponsibilityType[];
-    debt: DebtType[];
-    destroyed: DestroyedType[];
     article: ArticleType[];
     features: FeaturesType[];
     isLoggedIn: boolean;
@@ -49,9 +48,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         super(props);
         this.state = {
             message: "",
-            responsibility: [],
-            debt: [],
-            destroyed: [],
             article: [],
             features: [],
             isLoggedIn: true,
@@ -64,25 +60,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         }))
     }
 
-    private setResponsibility(responsibilityData: ResponsibilityType[]) {
-        this.setState(Object.assign(this.state, {
-            responsibility: responsibilityData
-        }))
-    }
-
-    private setDebt(debtData: DebtType[]) {
-        this.setState(Object.assign(this.state, {
-            debt: debtData
-        }))
-    }
-
-    private setDestroyed(destroyedData: DestroyedType[]) {
-        this.setState(Object.assign(this.state, {
-            destroyed: destroyedData
-        }))
-    }
-
-    private setUsers(userProfileDate: ApiUserDto | undefined) {
+    private setUsers(userProfileDate: UserType | undefined) {
         this.setState(Object.assign(this.state, {
             users: userProfileDate
         }))
@@ -157,7 +135,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     return this.setLogginState(false);
                 }
 
-                const data: ApiUserDto = res.data;
+                const data: UserType = res.data;
                 this.setErrorMessage('')
                 this.setUsers(data)
             })
@@ -186,28 +164,22 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
-                const articleByUser: ArticleByUserType[] = res.data;
+                const articleByUser: ArticleType[] = res.data;
                 this.setArticleByUser(articleByUser)
                 const features: FeaturesType[] = [];
 
                 for (const start of articleByUser) {
-                    for (const articleFeature of start.articleFeature) {
+                    for (const articleFeature of start.stock?.stockFeatures || []) {
                         const value = articleFeature.value;
-                        const articleId = articleFeature.articleId;
-                        let name = '';
+                        const articleId = articleFeature.feature?.articleId;
+                        const name = articleFeature.feature?.name;
 
-                        for (const feature of start.features) {
-                            if (feature.featureId === articleFeature.featureId) {
-                                name = feature.name;
-                                break;
-                            }
-                        }
                         features.push({ articleId, name, value });
                     }
                 }
                 this.setFeaturesData(features);
             }
-            )
+        )
     }
 
     /* KRAJ GET I MOUNT FUNKCIJA */
@@ -275,7 +247,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 }
 
     private responsibilityArticlesOnUser() {
-        if (this.state.responsibility.length === 0) {
+        if (this.state.users?.articles?.length === 0) {
             return (
                 <div>
                     <b>Zadužena oprema</b><br />
@@ -298,13 +270,13 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.responsibility?.map((ura, index) => (
+                            {this.state.users?.articles?.map((ura, index) => (
                                 <TableRow hover key={index}>
-                                    <TableCell><Link href={`#/admin/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
+                                    <TableCell><Link href={`#/admin/user/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.stock?.name}</Link></TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{ura.serialNumber}</TableCell>
-                                    <TableCell>{this.saveFile(ura.document?.path)}</TableCell>
+                                    <TableCell>{this.saveFile(ura.documents?.map(docpath => (docpath.path)))}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -314,7 +286,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         )
     }
 
-    private debtArticlesOnUser() {
+  /*   private debtArticlesOnUser() {
         if (this.state.debt.length === 0) {
             return (
                 <div>
@@ -392,9 +364,9 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 </TableContainer>
             </div>
         )
-    }
+    } */
 
-    private renderArticleData(user: ApiUserDto) {
+    private renderArticleData(user: UserType) {
 
         return (
             <Row>
@@ -415,10 +387,10 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <Row >
                         {this.articles()}
                     </Row>
-                   {/*   <Row style={{ padding: 5 }}>
+                   {   <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
                     </Row>
-                   <Row style={{ padding: 5 }}>
+                   /*<Row style={{ padding: 5 }}>
                         {this.debtArticlesOnUser()}
                     </Row>
                     <Row style={{ padding: 5 }}>

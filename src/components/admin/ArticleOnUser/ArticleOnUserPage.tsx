@@ -42,7 +42,7 @@ interface AdminArticleOnUserPageState {
         articleId: number | null;
         comment: string;
         serialNumber: string;
-        invBroj: string;
+        invNumber: string;
         status: string;
     },
     upgradeFeature: upgradeFeaturesType[],
@@ -72,7 +72,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                 articleId: 0,
                 comment: '',
                 serialNumber: '',
-                invBroj: '',
+                invNumber: '',
                 status: '',
                 visible: false,
             },
@@ -366,7 +366,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         api('api/article/status/' + this.state.article.articleId, 'patch', {
             userId: this.state.changeStatus.userId,
             comment: this.state.changeStatus.comment,
-            status: this.state.changeStatus.status
+            status: this.state.changeStatus.status,
+            invNumber: this.state.changeStatus.invNumber
         }, 'administrator')
             .then((res: ApiResponse) => {
                 /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
@@ -386,9 +387,9 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         this.setChangeStatusVisibleState(true)
         this.setChangeStatusStringFieldState('serialNumber', sb)
         if (inv === null) {
-            this.setChangeStatusStringFieldState('invBroj', 'ne ladi1')
+            this.setChangeStatusStringFieldState('invNumber', 'ne ladi1')
         }
-        this.setChangeStatusStringFieldState('invBroj', inv)
+        this.setChangeStatusStringFieldState('invNumber', inv)
     }
 
     private changeStatusButton(article: ArticleType) {
@@ -476,8 +477,8 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                                     overlay={
                                     <Tooltip id="tooltip-msg-invnumber">{LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}</Tooltip>
                                     }>
-                                    <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required readOnly
-                                        onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} />
+                                    <Form.Control type='text' id='invNumber' value={this.state.changeStatus.invNumber} isValid required readOnly
+                                        onChange={(e) => this.setChangeStatusStringFieldState('invNumber', e.target.value)} />
                                     </OverlayTrigger>
                                 </FloatingLabel>
                             </Form.Group>

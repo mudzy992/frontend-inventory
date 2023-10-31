@@ -3,7 +3,7 @@ import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Button, Dropdown } from "react-bootstrap";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { saveAs } from 'file-saver';
-import { Link } from "@mui/material";
+import { Card, Link } from "@mui/material";
 import api from "../../../API/api";
 import { ApiConfig } from "../../../config/api.config";
 import Moment from 'moment';
@@ -52,11 +52,11 @@ const StockArticleTable: FC<TabelaProps> = ({ stockId }) => {
         header: "Korisnik",
         Cell: ({ cell }) => {
           const row = cell.row.original as ArticleType;
-          const userId = row && row.user?.fullname;
+          const userId = row && row.user?.userId;
 
           if (userId) {
             return (
-              <Link href={`#/admin/userProfile/${userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
+              <Link href={`#/admin/user/${userId}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>
                 {cell.getValue<string>()}
               </Link>
             );
@@ -173,6 +173,7 @@ const StockArticleTable: FC<TabelaProps> = ({ stockId }) => {
 
   return (
     <>
+    <Card>    
       <MaterialReactTable
         columns={columns}
         data={data}
@@ -197,6 +198,7 @@ const StockArticleTable: FC<TabelaProps> = ({ stockId }) => {
           </Dropdown.Menu>
         </Dropdown>
       </div>
+      </Card>
     </>
   );
 };

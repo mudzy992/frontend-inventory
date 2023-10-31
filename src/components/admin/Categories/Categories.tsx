@@ -99,7 +99,6 @@ const CategoryPage: React.FC = () => {
             stocks: category.stocks,
           })
         );
-
         setSubcategories(subcategories);
       }
     );
@@ -112,18 +111,25 @@ const CategoryPage: React.FC = () => {
 
     return (
       <Alert variant="error" style={{ marginTop: 15 }}>
-        <i className="bi bi-exclamation-circle-fill"></i> {state.message}
+        <i className="bi bi-exclamation-circle-fill" /> {state.message}
       </Alert>
     );
   };
 
   const showSubcategories = () => {
     if (state.subCategory.length === 0) {
-      return null;
+      return (
+        <Alert variant="info" style={{ marginTop: 15 }}>
+        <i className="bi bi-info-circle" /> Nema podkategorija
+      </Alert>
+      )  
     }
 
     return (
       <Row>
+        <h5 style={{ marginLeft: 10, marginBottom: 8, color: 'white' }}>
+          <i className="bi bi-list-nested" /> Podkategorije
+        </h5>
         {printErrorMessage()}
         {state.subCategory.map(singleCategory)}
       </Row>
@@ -183,11 +189,7 @@ const CategoryPage: React.FC = () => {
           <div>{showArticles()}</div>
         </Row>
 
-
         <Row style={{ marginTop: 25 }}>
-          <h5 style={{ marginLeft: 10, marginBottom: 8, color: 'white' }}>
-            <i className="bi bi-list-nested" /> Podkategorije
-          </h5>
           <div>{showSubcategories()}</div>
         </Row>
       </Container>

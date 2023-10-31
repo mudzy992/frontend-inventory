@@ -1,3 +1,4 @@
+import ArticleTimelineType from "./ArticleTimelineType";
 import ArticleType from "./ArticleType";
 import DepartmentType from "./DepartmentType";
 import JobType from "./JobType";
@@ -17,9 +18,11 @@ export default class UserType {
     locationId?: number;
     registrationDate?: string;
     lastLoginDate?: string;
-    status?: "string"
+    status?: "string";
+    articles?: ArticleType[];
+    articleTimelines?: ArticleTimelineType[];
     department?: DepartmentType;
     job?: JobType;
     location?: LocationType;
-    articles?: ArticleType[];
+    
 }

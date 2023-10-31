@@ -3,6 +3,7 @@ import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Button } from "react-bootstrap";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
+import { Card, CardContent } from "@mui/material";
 
 interface ArticleType {
   stockId: number;
@@ -121,10 +122,15 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   return (
     <>
+    <Card>
+      
       <MaterialReactTable
         columns={columns}
         data={data}
       />
+     
+    </Card>
+      
       <ArticleModal
         show={showModal}
         onHide={handleHideModal}

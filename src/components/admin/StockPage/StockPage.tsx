@@ -148,25 +148,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
         ));
     }
 
-   /*  private setEditFeatureValue(featureId: number, value: string) {
-        const addFeatures: { featureId: number; value: string; }[] = [...this.state.editFeature.features];
-
-        for (const feature of addFeatures) {
-            if (feature.featureId === featureId) {
-                feature.value = value;
-                break;
-            }
-        }
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editFeature, {
-                features: addFeatures,
-            }),
-        ));
-    } */
-
     private setEditFeatureValue(featureId: number, value: string) {
-        console.log(`setEditFeatureValue called with featureId: ${featureId}, value: ${value}`);
         this.setState((prevState: StockPageState) => {
             const updatedFeatures = prevState.editFeature.features.map((feature) => {
                 if (feature.featureId === featureId) {
@@ -177,7 +159,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 }
                 return feature;
             });
-            console.log("SET: " + updatedFeatures);
     
             return {
                 editFeature: {
@@ -187,7 +168,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             };
         }, () => {
             // Ovde možete obaviti dodatne akcije koje zavise od ažuriranog stanja
-            console.log("Stanje je ažurirano.", this.state);
+            console.log("Stanje je features je ažurirano.", this.state);
         });
     }
     
@@ -246,22 +227,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
         this.getStockData();
     }
 
-    /* private async editFeatureCategoryChanged() {
-        const features = await this.getFeaturesByCategoryId();
-        const stateFeatures = features.map(feature => ({
-            featureId: feature.featureId,
-            name: feature.name,
-            value: feature.value,
-            use: 0,
-        }));
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editFeature, {
-                features: stateFeatures,
-            }),
-        ));
-    }  */
-
     private async editFeatureCategoryChanged() {
         const features = await this.getFeaturesByCategoryId();
     
@@ -282,7 +247,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
             }
         });
 
-        console.log("UPDATE:" + updatedFeatures)
         this.setState(Object.assign(this.state, {
             editFeature: {
                 ...this.state.editFeature,
@@ -291,8 +255,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
         }));
     }
     
-    
-
     private async getFeaturesByCategoryId(): Promise<FeatureBaseType[]> {
         return new Promise(resolve => {
             api('/api/feature/?filter=categoryId||$eq||' + this.state.editFeature.categoryId + '/', 'get', {}, 'administrator')
@@ -425,13 +387,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
             .map(feature => ({
                 featureId: feature.featureId,
                 value: feature.value,
-              /*   stockFeatureId: feature.stockFeatureId, */
-
-                /* stockFeatures: feature.stockFeatures ?
-                    feature.stockFeatures.map(af => ({
-                        featureId: af.featureId,
-                        value: feature.value || "s", // Postavite value na prazan string ako je af.value undefined
-                    })) : [], */
             }));
     
         console.log("Edited features:", editedFeatures);
@@ -458,8 +413,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
     
 
     // Ovo je changeStatus kada se prvi put iz stocka zadužuje artikal
-    private changeStatu() {
-        const curPage = this.state.currentPage;
+    private changeStatus() {
         api('api/article/' + this.props.match.params.stockID, 'post', {
             stockId: this.props.match.params.stockID,
             userId: this.state.changeStatus.userId,
@@ -565,9 +519,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
 
     private changeStatusButton() {
         let status = Number(this.state.stock?.valueAvailable);
-        /* this.state.articles?.articlesInStock.map(stock => (
-            status = stock.valueAvailable
-        )) */
 
         if (status === 0) {
             return (
@@ -577,10 +528,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             )
         }
         if (status > 0) {
-            
-            return (
-                
-                    
+            return (                    
                     <div><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Kartica zaduženja</Modal.Title>
@@ -657,7 +605,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                     isValid /></FloatingLabel>
                         </Form.Group>
                         <Modal.Footer>
-                            <Button variant="primary" onClick={() => this.changeStatu()}> Sačuvaj
+                            <Button variant="primary" onClick={() => this.changeStatus()}> Sačuvaj
                             </Button>
                         </Modal.Footer>
                     </Modal.Body>
@@ -793,7 +741,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                             <b>{feature.feature?.name}:</b> {feature.value}
                                         </ListGroup.Item>
                                 ))}
-
                                 </ListGroup>
                             </Card>
                         </Col>
@@ -806,8 +753,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
                             </Card>
                         </Col>
                     </Row>
-                    
-
                 </Col>
                 <Col sm="12" xs="12" lg="4">
                     <Row>
@@ -845,12 +790,11 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 </Col>
             </Row>
             <Row>
-                        <Col>
-                            <Card className="mb-3">
-                                <StockArticleTable stockId={this.props.match.params.stockID} />
-                            </Card>
-                        </Col>
-                    </Row></>
+                <Col>
+                    <StockArticleTable stockId={this.props.match.params.stockID} />
+                </Col>
+            </Row>
+            </>
         );
     }
 }

@@ -274,33 +274,32 @@ export default class AddArticlePage extends React.Component<{}>{
     }
 
     private doAddArticle() {
-        api('/api/article/', 'post', {
-            categoryId: this.state.addArticle.categoryId,
+        const requestBody = {
             name: this.state.addArticle.name,
             excerpt: this.state.addArticle.excerpt,
             description: this.state.addArticle.description,
-            concract: this.state.addArticle.concract,
-            comment: this.state.addArticle.comment,
-            sap_number: this.state.addArticle.sapNumber,
-            stock: {
-                valueOnConcract: this.state.addArticle.valueOnConcract,
-                valueAvailable: this.state.addArticle.valueAvailable,
-            },
+            contract: this.state.addArticle.concract, // Ispravite tipfeler (concract -> contract)
+            categoryId: this.state.addArticle.categoryId,
+            sapNumber: this.state.addArticle.sapNumber,
+            valueOnContract: this.state.addArticle.valueOnConcract, // Ispravite tipfeler (valueOnConcract -> valueOnContract)
+            valueAvailable: this.state.addArticle.valueAvailable,
             features: this.state.addArticle.features
                 .filter(feature => feature.use === 1)
                 .map(feature => ({
                     featureId: feature.featureId,
-                    value: feature.value
+                    value: feature.value,
                 })),
-        }, 'administrator')
-        .then(async (res: ApiResponse) => {
+        };
+    
+        api('/api/stock/', 'post', requestBody, 'administrator').then(async (res: ApiResponse) => {
             if (res.status === 'ok') {
-                // Nakon uspješnog dodavanja, pozovite clearFormFields da biste očistili polja
+                // Nakon uspešnog dodavanja, pozovite clearFormFields da biste očistili polja
                 this.clearFormFields();
             }
             // Dodajte ostatak koda za obradu odgovora ako je potrebno
         });
     }
+    
     /* Kraj dodatnih funkcija */
     render() {
         return(

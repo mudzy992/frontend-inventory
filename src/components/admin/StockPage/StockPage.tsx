@@ -18,6 +18,7 @@ interface userData {
     userId: number;
     surname: string;
     forname: string;
+    fullname: string;
 }
 interface FeatureBaseType {
     featureId?: number;
@@ -791,7 +792,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             </Row>
             <Row>
                 <Col>
-                    <StockArticleTable stockId={this.props.match.params.stockID} />
+                    <StockArticleTable stockId={this.state.stock.stockId || 0} />
                 </Col>
             </Row>
             </>

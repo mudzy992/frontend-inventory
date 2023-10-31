@@ -30,7 +30,7 @@ interface AddUserPageState{
     message: string;
     isLoggedIn: boolean;
     addUser: {
-        surename: string;
+        surname: string;
         forname: string;
         email: string;
         localNumber: string;
@@ -69,7 +69,7 @@ export default class AddUserPage extends React.Component<{}>{
             message: '',
             isLoggedIn: true,
             addUser: {
-                surename: '',
+                surname: '',
                 forname: '',
                 email: '',
                 localNumber: '',
@@ -225,7 +225,7 @@ export default class AddUserPage extends React.Component<{}>{
     private clearFormFields() {
         this.setState({
           addUser: {
-            surename: '',
+            surname: '',
             forname: '',
             email: '',
             localNumber: '',
@@ -295,7 +295,7 @@ export default class AddUserPage extends React.Component<{}>{
 
     private doAddUser() {
         api('api/user/add/', 'post', {
-            surename: this.state.addUser.surename,
+            surname: this.state.addUser.surname,
             forname: this.state.addUser.forname,
             password: this.state.addUser.password,
             email: this.state.addUser.email,
@@ -361,11 +361,11 @@ export default class AddUserPage extends React.Component<{}>{
                             <Col lg="6" xs="12">
                                 <FloatingLabel label="Ime" className="mb-3">
                                 <Form.Control 
-                                    id="surename" 
+                                    id="surname" 
                                     type="text" 
                                     placeholder="Ime"
-                                    value={ this.state.addUser.surename }
-                                    onChange={ (e) => this.setAddUserStringFieldState('surename', e.target.value) }
+                                    value={ this.state.addUser.surname }
+                                    onChange={ (e) => this.setAddUserStringFieldState('surname', e.target.value) }
                                     required />
                                 </FloatingLabel>
                             </Col>

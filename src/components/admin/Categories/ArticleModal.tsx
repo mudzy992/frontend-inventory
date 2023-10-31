@@ -29,7 +29,7 @@ interface ResponsibilityArticleBaseType {
 const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
   const [userArticleData, setUserArticleData] = useState<ResponsibilityArticleBaseType[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>('');

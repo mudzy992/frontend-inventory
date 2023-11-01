@@ -27,7 +27,7 @@
       {
         name: 'inventory-frontend',
         script: '/usr/bin/serve', // Postavite apsolutnu putanju do serve izvršne datoteke
-        args: ['-s', '-l', '4001'], // Postavite port na 4001 i tih način rada
+        args: ['-s'], // Koristite -s za tih način rada, port će ostati zadani (5000)
         interpreter: 'none',
         env: {
           NODE_ENV: 'production',
@@ -46,6 +46,7 @@
       },
     },
   };
+  
   
   
   

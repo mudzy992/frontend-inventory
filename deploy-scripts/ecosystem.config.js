@@ -1,8 +1,8 @@
 module.exports = {
     apps : [{
       name: 'inventory-frontend', // Zamijenite s odgovarajućim imenom za vašu aplikaciju
-      script: 'npm',
-      args: 'start',
+      script: 'serve',
+      args: 'build',
       interpreter: 'none',
       env: {
         NODE_ENV: 'production',

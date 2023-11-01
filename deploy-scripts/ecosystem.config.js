@@ -27,7 +27,7 @@
       {
         name: 'inventory-frontend',
         script: '/usr/local/bin/serve', // Postavite apsolutnu putanju do serve izvršne datoteke
-        args: ['-s', '-p', '4001', 'build'],
+        args: ['build', '-s', '-p', '4001'],
         interpreter: 'none',
         env: {
           NODE_ENV: 'production',

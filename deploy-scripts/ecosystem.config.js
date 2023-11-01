@@ -26,8 +26,7 @@
     apps: [
       {
         name: 'inventory-frontend',
-        script: '/usr/local/bin/serve', // Postavite apsolutnu putanju do serve izvršne datoteke
-        args: ['build', '-s', '-p', '4001'],
+        script: './serve.sh', // Postavite apsolutnu putanju do serve izvršne datoteke
         interpreter: 'none',
         env: {
           NODE_ENV: 'production',

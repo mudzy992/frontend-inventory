@@ -1,1 +1,2 @@
-serve -s build -p 4001
+#!/bin/bash
+http-server -p 4001 -d false

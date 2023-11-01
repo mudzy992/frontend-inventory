@@ -27,7 +27,7 @@
       {
         name: 'inventory-frontend',
         script: './serve.sh', // Postavite apsolutnu putanju do serve izvršne datoteke
-        interpreter: 'none',
+        interpreter: 'bash',
         env: {
           NODE_ENV: 'production',
           PATH: '/usr/local/bin',

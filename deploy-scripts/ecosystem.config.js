@@ -30,7 +30,6 @@
         interpreter: 'bash',
         env: {
           NODE_ENV: 'production',
-          PATH: '/usr/local/bin',
         },
       },
     ],

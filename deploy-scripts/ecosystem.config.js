@@ -26,8 +26,9 @@
     apps: [
       {
         name: 'inventory-frontend',
-        script: 'npx',
-        args: ['serve', '-s', '-l', '4001'], 
+        script: 'serve',
+        args: ['-s', '-p 4001'], // Postavite port na 4001 i tih način rada (-s)
+        interpreter: 'none',
         env: {
           NODE_ENV: 'production',
         },
@@ -45,6 +46,5 @@
       },
     },
   };
-  
   
   

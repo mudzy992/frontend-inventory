@@ -27,8 +27,7 @@
       {
         name: 'inventory-frontend',
         script: 'npx',
-        args: ['serve', '-s', '-l', '4001'], // Upotrijebite npx za izvršavanje serve
-        interpreter: 'none',
+        args: ['serve', '-s', '-l', '4001'], 
         env: {
           NODE_ENV: 'production',
         },

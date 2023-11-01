@@ -1,2 +1,2 @@
 #!/bin/bash
-serve -s build
+-s build -p 4001

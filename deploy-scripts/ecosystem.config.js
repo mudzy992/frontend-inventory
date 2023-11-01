@@ -16,7 +16,7 @@ module.exports = {
         host : '77.221.31.121',
         ref  : 'origin/AI-optimizacija', // Zamijenite s imenom vaše produkcione grane
         repo : 'https://github.com/mudzy992/frontend-inventory.git', // Zamijenite sa URL-om vašeg repozitorija
-        path : '/home/administrator/Documents/GitHub/frontend-inventory/', // Zamijenite sa stvarnom putanjom na vašem server
+        path : '/home/administrator/Documents/GitHub/frontend-inventory/', // Zamijenite sa stvarnom putanjom na vašem servera
         'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
       }
     }

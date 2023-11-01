@@ -26,8 +26,8 @@
     apps: [
       {
         name: 'inventory-frontend',
-        script: 'serve', // Koristi serve umjesto npm
-        args: '-s -l 4001', // Argumenti za konfiguriranje serve
+        script: 'serve',
+        args: ['-s', '-p', '4001'], // Postavite port na 4001 i tih način rada (-s)
         interpreter: 'none',
         env: {
           NODE_ENV: 'production',
@@ -46,4 +46,5 @@
       },
     },
   };
+  
   

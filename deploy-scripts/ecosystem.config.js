@@ -26,7 +26,7 @@
     apps: [
       {
         name: 'inventory-frontend',
-        script: './serve.sh', // Postavite apsolutnu putanju do serve izvršne datoteke
+        script: './serve.sh', 
         interpreter: 'bash',
         env: {
           NODE_ENV: 'production',

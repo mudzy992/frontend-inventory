@@ -1,9 +1,8 @@
 module.exports = {
     apps : [{
       name: 'inventory-frontend', // Zamijenite s odgovarajućim imenom za vašu aplikaciju
-      script: 'serve',
-      args: 'build',
-      interpreter: 'none',
+      script: './deploy-scripts/serve.sh',
+      interpreter: 'bash',
       env: {
         NODE_ENV: 'production',
         PORT:4001, //Port obrisati ako ne rad

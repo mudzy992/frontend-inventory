@@ -152,6 +152,7 @@ const StockArticleTable: FC<TabelaProps> = ({ stockId }) => {
     ],
     []
   );
+  
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);

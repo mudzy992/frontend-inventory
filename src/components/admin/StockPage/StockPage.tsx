@@ -6,6 +6,7 @@ import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
 import StockArticleTable from './StockArticleTable';
+import ArticleInStockTable from './StockArticleTableNew';
 
 interface StockPageProperties {
     match: {
@@ -792,7 +793,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             </Row>
             <Row>
                 <Col>
-                    <StockArticleTable stockId={this.state.stock.stockId || 0} />
+                    <ArticleInStockTable stockId={this.state.stock.stockId || 0} />
                 </Col>
             </Row>
             </>

@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import api from "../../../API/api"; 
 import Moment from 'moment';
 import { Link } from 'react-router-dom';
-import { TableContainer, TextField, Paper, Table, TableBody, TableCell, TableHead,TableRow, Alert, CircularProgress} from '@mui/material';
+import { TableContainer, TextField, Table, TableBody, TableCell, TableHead,TableRow, Alert, CircularProgress} from '@mui/material';
 
 import './ArticleModal.css';
 

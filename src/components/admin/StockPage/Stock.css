@@ -1,0 +1,43 @@
+  
+  .important-button {
+    sx: small o !important;
+  }
+  .important-button:hover {
+    background-color: transparent;
+    color: black !important;
+  }
+
+  .important-button:active {
+    background-color: transparent;
+    color: black !important;
+  }
+
+  .important-button{
+    background-color: transparent;
+    color: black !important;
+  }
+
+  .important-button::after {
+    background-color: transparent;
+    color: black !important;
+  }
+
+  .search-box-modal {
+      display: flex;
+      justify-content: center;
+  }
+
+  .status-zaduženo  {
+    color: darkGreen !important;
+    font-weight: bold !important;
+  }
+  
+  .status-razduženo {
+  color: darkgoldenrod !important;
+  font-weight: bold !important;
+  }
+  
+  .status-otpisano {
+  color: darkRed !important;
+  font-weight: bold !important;
+  }

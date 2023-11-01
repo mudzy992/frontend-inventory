@@ -26,8 +26,8 @@
     apps: [
       {
         name: 'inventory-frontend',
-        script: 'npx',
-        args: ['serve', '-s', '-p', '4001'], // Upotrijebite npx za izvršavanje serve s postavljenim portom
+        script: '/usr/bin/serve', // Postavite apsolutnu putanju do serve izvršne datoteke
+        args: ['-s', '-l', '4001'], // Postavite port na 4001 i tih način rada
         interpreter: 'none',
         env: {
           NODE_ENV: 'production',
@@ -46,6 +46,7 @@
       },
     },
   };
+  
   
   
   

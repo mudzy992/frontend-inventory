@@ -1,4 +1,4 @@
-const url = '77.221.31.121';
+const url = 'http://77.221.31.121';
 export const ApiConfig = {
     API_URL: url,
     //API_URL: 'http://inventory-back.ddns.net/',

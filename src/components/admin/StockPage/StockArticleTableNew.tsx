@@ -81,7 +81,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
   };
 
   return (
-    <Card>
+    <Card style={{padding:"10px"}}>
       <div className='search-box-modal'>
         <TextField 
           id="outlined-search" 

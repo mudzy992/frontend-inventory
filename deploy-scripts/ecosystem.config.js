@@ -1,7 +1,7 @@
 module.exports = {
     apps : [{
       name: 'inventory-frontend', // Zamijenite s odgovarajućim imenom za vašu aplikaciju
-      script: 'serve build -s -p 4001',
+      script: 'serve build -p 4001',
       interpreter: 'bash',
       env: {
         PATH: '/usr/local/bin/',

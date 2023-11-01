@@ -4,6 +4,7 @@ module.exports = {
       script: './deploy-scripts/serve.sh',
       interpreter: 'bash',
       env: {
+        PATH: '/usr/local/bin/',
         NODE_ENV: 'production',
         PORT:4001, //Port obrisati ako ne rad
       },

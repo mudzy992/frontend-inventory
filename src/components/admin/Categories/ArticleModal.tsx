@@ -149,7 +149,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                         window.location.href = `#/admin/stock/${stockId}/`;
                       }}
                     >
-                       Detalji opreme <i className="bi bi-arrow-bar-right"/>
+                       Više <i className="bi bi-arrow-bar-right"/>
                     </Button>
                 </TableCell>
               </TableRow>

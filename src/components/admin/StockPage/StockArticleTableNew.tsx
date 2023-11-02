@@ -8,6 +8,7 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
 import { ArrowForwardIos, ArrowBackIos, Search } from '@mui/icons-material';
+import { Pagination } from 'react-bootstrap';
 
 interface StockTableProps {
   stockId: number;
@@ -80,6 +81,8 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
   const saveFile = (path: string) => {
     saveAs(ApiConfig.TEMPLATE_PATH + path, path);
   };
+
+  const totalPages = Math.ceil(totalResults / itemsPerPage);
 
   return (
     <Card style={{padding:"10px"}}>
@@ -174,13 +177,21 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
       )}
 
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "10px" }}>
-        <Button size="sm" style={{ marginRight: "3px" }} variant="secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-          <i className="bi bi-caret-left-fill" />
-        </Button>
-        {currentPage} od {Math.ceil(totalResults / itemsPerPage)}
-        <Button size="sm" style={{ marginLeft: "3px" }} variant="secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage * itemsPerPage >= totalResults}>
-          <i className="bi bi-caret-right-fill" />
-        </Button>
+      <Pagination>
+        <Pagination.Prev
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          <ArrowBackIos style={{ color: 'black',fontSize:"20px" }} />
+        </Pagination.Prev>
+        <Pagination.Item disabled>{`${currentPage} od ${totalPages}`}</Pagination.Item>
+        <Pagination.Next
+          disabled={currentPage * itemsPerPage >= totalResults}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          <ArrowForwardIos style={{ color: 'black', fontSize:"20px"}} />
+        </Pagination.Next>
+      </Pagination>
       </div>
     </Card>
   );

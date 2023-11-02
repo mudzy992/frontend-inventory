@@ -3,7 +3,10 @@ import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Button } from "react-bootstrap";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
-import { Card, CardContent } from "@mui/material";
+import { Card} from "@mui/material";
+import { IoPeopleCircleOutline } from "@react-icons/all-files/io5/IoPeopleCircleOutline";
+import { MRT_Localization_SR_LATN_RS } from 'material-react-table/locales/sr-Latn-RS';
+
 
 interface ArticleType {
   stockId: number;
@@ -90,14 +93,14 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
               openModalWithArticle(stockId); // Proslijedite articleId funkciji
             } }
           >
-            Zaduženja
+            <IoPeopleCircleOutline style={{fontSize:"19px"}}/> Zaduženja
           </Button>
         ),
       },
        {
         accessorKey: "stockId",
         key: "articleId2",
-        header: "",
+        header: "Detalji opreme",
         Cell: ({ cell }) => (
           <Button
             variant="contained"
@@ -108,7 +111,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
               window.location.href = `#/admin/stock/${stockId}/`;
             }}
           >
-            Detalji opreme
+            <i className="bi bi-boxes"  style={{fontSize:"15px"}} /> Skladište
           </Button>
         ),
       }, 
@@ -127,6 +130,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
       <MaterialReactTable
         columns={columns}
         data={data}
+        localization={MRT_Localization_SR_LATN_RS}
       />
      
     </Card>

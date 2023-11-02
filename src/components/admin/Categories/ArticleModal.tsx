@@ -8,6 +8,7 @@ import { TableContainer, Table, TableBody, TableCell, TableHead,TableRow, Alert,
 import { ArrowForwardIos, ArrowBackIos, Search } from '@mui/icons-material';
 import { CgMoreO } from "@react-icons/all-files/cg/CgMoreO";
 import './ArticleModal.css';
+import { Pagination } from 'react-bootstrap';
 
 interface ArticleModalProps {
   show: boolean;
@@ -80,6 +81,8 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
     setCurrentPage(newPage);
   };
 
+  const totalPages = Math.ceil(totalResults / itemsPerPage);
+  
   return (
     <Modal 
     show={show} 
@@ -151,7 +154,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                       }}
                     >
                       <CgMoreO />
-                       Više <i className="bi bi-arrow-bar-right"/>
+                      {/*  Više <i className="bi bi-arrow-bar-right"/> */}
                     </Button>
                 </TableCell>
               </TableRow>
@@ -164,13 +167,22 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
       )}
 
       <div style={{display:"flex", justifyContent:"center", alignItems:"center", marginTop:"10px"}}>
-        <Button size="sm" className='btns' style={{marginRight:"3px"}} variant="secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-          <ArrowBackIos style={{color:"black"}} />
-        </Button>
-        {currentPage} od {Math.ceil(totalResults / itemsPerPage)}
-          <Button size="sm" className='btns' style={{marginLeft:"3px", backgroundColor:"transparent"}} variant="secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage * itemsPerPage >= totalResults}>
-            <ArrowForwardIos style={{color:"black"}}  />
-          </Button>
+
+      <Pagination>
+        <Pagination.Prev
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          <ArrowBackIos style={{ color: 'black',fontSize:"20px" }} />
+        </Pagination.Prev>
+        <Pagination.Item disabled>{`${currentPage} od ${totalPages}`}</Pagination.Item>
+        <Pagination.Next
+          disabled={currentPage * itemsPerPage >= totalResults}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          <ArrowForwardIos style={{ color: 'black', fontSize:"20px"}} />
+        </Pagination.Next>
+      </Pagination>
       </div>
 </Modal.Body>
       <Modal.Footer>

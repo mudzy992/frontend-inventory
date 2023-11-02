@@ -6,6 +6,7 @@ import Moment from 'moment';
 import { Link } from 'react-router-dom';
 import { TableContainer, Table, TableBody, TableCell, TableHead,TableRow, Alert, CircularProgress, IconButton, InputBase, Paper} from '@mui/material';
 import { ArrowForwardIos, ArrowBackIos, Search } from '@mui/icons-material';
+import { CgMoreO } from "@react-icons/all-files/cg/CgMoreO";
 import './ArticleModal.css';
 
 interface ArticleModalProps {
@@ -149,6 +150,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                         window.location.href = `#/admin/stock/${stockId}/`;
                       }}
                     >
+                      <CgMoreO />
                        Više <i className="bi bi-arrow-bar-right"/>
                     </Button>
                 </TableCell>

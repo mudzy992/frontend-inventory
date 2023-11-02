@@ -1,4 +1,4 @@
-/* module.exports = {
+module.exports = {
     apps : [{
       name: 'inventory-frontend', // Zamijenite s odgovarajućim imenom za vašu aplikaciju
       script: 'npm',
@@ -20,24 +20,10 @@
         'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
       }
     }
-  }; */
-  
-  
-  module.exports = {
-    apps: [
-      {
-        name: 'inventory-frontend',
-        script: 'serve',
-        args: 'build -p 4001',
-        interpreter: 'bash',
-        env: {
-          PATH: '/usr/local/bin/',
-          NODE_ENV: 'production',
-          PORT: 4001,
-        },
-      },
-    ],
   };
+  
+  
+  
   
   
   

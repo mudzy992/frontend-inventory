@@ -3,17 +3,17 @@
     sx: small o !important;
   }
   .important-button:hover {
-    background-color: transparent;
+    background-color: transparent !important;
     color: black !important;
   }
 
   .important-button:active {
-    background-color: transparent;
+    background-color: transparent !important;
     color: black !important;
   }
 
   .important-button{
-    background-color: transparent;
+    background-color: transparent !important;
     color: black !important;
   }
 
@@ -40,4 +40,12 @@
   .status-otpisano {
   color: darkRed !important;
   font-weight: bold !important;
+  }
+
+  .btns {
+    background-color: transparent !important;
+  }
+
+  .btns:active{
+    background-color: transparent !important;
   }

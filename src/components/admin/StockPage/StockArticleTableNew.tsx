@@ -2,11 +2,12 @@ import React, { FC, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import api from "../../../API/api"; 
 import Moment from 'moment';
-import { TableContainer, TextField, Table, TableBody, TableCell, TableHead, TableRow, Alert, CircularProgress, Card } from '@mui/material';
+import { TableContainer, TextField, Table, TableBody, TableCell, TableHead, TableRow, Alert, CircularProgress, Card, InputBase, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
+import { ArrowForwardIos, ArrowBackIos, Search } from '@mui/icons-material';
 
 interface StockTableProps {
   stockId: number;
@@ -83,21 +84,22 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
   return (
     <Card style={{padding:"10px"}}>
       <div className='search-box-modal'>
-        <TextField 
-          id="outlined-search" 
-          label="Pretraga" 
-          type="search" 
+        <InputBase
+          id="outlined-search"
+          sx={{ ml: 1, flex: 1 }}
+          placeholder="Pretraga"
+          inputProps={{ 'aria-label': 'Pretraga' }}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              handleSearch();
-            }
-          }}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
         />
-        <Button className='important-button' variant="secondary" onClick={handleSearch}>
-          <i style={{ fontSize: "20px" }} className="bi bi-search" />
-        </Button>
+        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={handleSearch}>
+          <Search />
+        </IconButton>
       </div>
       {isLoading ? (
         <div style={{ display: "flex", justifyContent: "center" }}>

@@ -28,11 +28,11 @@
       script: './serve.sh',
       /* script: 'serve',
       args: ['../build', '-p', '4002'], // Relativna putanja do build direktorija */
-      interpreter: 'none',
+      interpreter: 'serve',
       env: {
         PATH: '/usr/local/bin/',
         PORT: '4002',
-        NODE_ENV: 'production',
+        NODE_ENV: 'production1',
       },
     }],
     deploy: {

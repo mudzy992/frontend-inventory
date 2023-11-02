@@ -25,7 +25,7 @@
   module.exports = {
     apps: [{
       name: 'inventory-frontend',
-      script: '../build -p 4002',
+      script: './deploy-scripts/build -p 4002',
       /* args: [''], */ // Relativna putanja do build direktorija
       interpreter: 'none',
       env: {

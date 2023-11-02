@@ -26,7 +26,7 @@
     apps: [{
       name: 'inventory-frontend',
       script: 'serve',
-      args: ['../build', '-p', '4002'], // Relativna putanja do build direktorija
+      args: ['../build -p 4002'], // Relativna putanja do build direktorija
       interpreter: 'none',
       env: {
         PATH: '/usr/local/bin/',

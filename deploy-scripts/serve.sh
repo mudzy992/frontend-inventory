@@ -1,2 +1,2 @@
 #!/bin/bash
--s ../build -p 4001
+../build -s -p 4001

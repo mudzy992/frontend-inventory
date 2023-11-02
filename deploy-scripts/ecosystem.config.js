@@ -25,14 +25,13 @@
   module.exports = {
     apps: [{
       name: 'inventory-frontend',
-      script: './serve.sh',
-      /* script: 'serve',
-      args: ['../build', '-p', '4002'], // Relativna putanja do build direktorija */
+      script: 'serve',
+      args: ['../build', '-p', '4002'], // Relativna putanja do build direktorija
       interpreter: 'none',
       env: {
         PATH: '/usr/local/bin/',
         PORT: '4002',
-        NODE_ENV: 'production1',
+        NODE_ENV: 'production',
       },
     }],
     deploy: {

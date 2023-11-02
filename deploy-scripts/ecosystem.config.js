@@ -1,4 +1,4 @@
-module.exports = {
+/* module.exports = {
     apps : [{
       name: 'inventory-frontend', // Zamijenite s odgovarajućim imenom za vašu aplikaciju
       script: 'npm',
@@ -20,8 +20,30 @@ module.exports = {
         'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
       }
     }
-  };
+  }; */
   
+  module.exports = {
+    apps: [{
+      name: 'inventory-frontend',
+      script: 'serve',
+      args: ['../build', '-p', '4001'], // Relativna putanja do build direktorija
+      interpreter: 'bash',
+      env: {
+        PATH: '/usr/local/bin/',
+        NODE_ENV: 'production',
+      },
+    }],
+    deploy: {
+      production: {
+        user: 'administrator',
+        host: '77.221.31.121',
+        ref: 'origin/AI-optimizacija',
+        repo: 'https://github.com/mudzy992/frontend-inventory.git',
+        path: '/home/administrator/Documents/GitHub/frontend-inventory/',
+        'post-deploy': 'npm install && pm2 reload deploy-scripts/ecosystem.config.js --env production', // Promenio se path za `ecosystem.config.js`
+      }
+    }
+  };
   
   
   

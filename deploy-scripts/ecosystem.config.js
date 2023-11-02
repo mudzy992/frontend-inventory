@@ -28,7 +28,7 @@
       script: './serve.sh',
       /* script: 'serve',
       args: ['../build', '-p', '4002'], // Relativna putanja do build direktorija */
-      interpreter: 'bash',
+      interpreter: 'none',
       env: {
         PATH: '/usr/local/bin/',
         PORT: '4002',

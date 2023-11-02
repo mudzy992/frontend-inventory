@@ -26,10 +26,11 @@
     apps: [{
       name: 'inventory-frontend',
       script: 'serve',
-      args: ['../build', '-p', '4001'], // Relativna putanja do build direktorija
+      args: ['../build', '-p', '4002'], // Relativna putanja do build direktorija
       interpreter: 'bash',
       env: {
         PATH: '/usr/local/bin/',
+        PORT: '4002',
         NODE_ENV: 'production',
       },
     }],

@@ -4,15 +4,13 @@ import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
 import Paper from '@mui/material/Paper';
-import ArticleByUserData from "../../../data/ArticleByUserData";
-import ArticleByUserType from "../../../types/ArticleByUserType";
 import ApiUserProfileDto from "../../../dtos/ApiUserProfileDto";
-import ResponsibilityType from "../../../types/ResponsibilityType";
-import DebtType from "../../../types/DebtType";
-import DestroyedType from "../../../types/DestroyedType";
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import UserType from "../../../types/UserType";
+import ArticleType from "../../../types/ArticleType";
+import DepartmentByIdType from "../../../types/DepartmentByIdType";
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -27,14 +25,13 @@ interface UserProfilePageProperties {
 interface UserProfilePageState {
     /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
     ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
-    users?: ApiUserProfileDto;
+    user?: UserType;
+    users?: UserType;
     message: string;
-    responsibility: ResponsibilityType[];
-    debt: DebtType[];
-    destroyed: DestroyedType[];
-    articlesByUser: ArticleByUserData[];
+    article: ArticleType[];
     features: FeaturesType[];
     isLoggedIn: boolean;
+    departmentJobs: DepartmentByIdType[];
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -45,35 +42,15 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         super(props);
         this.state = {
             message: "",
-            responsibility: [],
-            debt: [],
-            destroyed: [],
-            articlesByUser: [],
+            article: [],
             features: [],
             isLoggedIn: true,
+            departmentJobs: [],
         }
     }
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
             features: featuresData
-        }))
-    }
-
-    private setResponsibility(responsibilityData: ResponsibilityType[]) {
-        this.setState(Object.assign(this.state, {
-            responsibility: responsibilityData
-        }))
-    }
-
-    private setDebt(debtData: DebtType[]) {
-        this.setState(Object.assign(this.state, {
-            debt: debtData
-        }))
-    }
-
-    private setDestroyed(destroyedData: DestroyedType[]) {
-        this.setState(Object.assign(this.state, {
-            destroyed: destroyedData
         }))
     }
 
@@ -83,9 +60,9 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         }))
     }
 
-    private setArticleByUser(articleByUserData: ArticleByUserType[]) {
+    private setArticleByUser(articleData: ArticleType[]) {
         this.setState(Object.assign(this.state, {
-            articlesByUser: articleByUserData
+            article: articleData
         }))
     }
 
@@ -150,48 +127,26 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                 this.setErrorMessage('')
                 this.setUsers(data)
             })
-        /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
-            .then((res: ApiResponse) => {
-                const debt: DebtType[] = res.data;
-                this.setDebt(debt)
-            })
-        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
-            .then((res: ApiResponse) => {
-                const destroyed: DestroyedType[] = res.data;
-                this.setDestroyed(destroyed)
-            })
-        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
-            .then((res: ApiResponse) => {
-                const responsibility: ResponsibilityType[] = res.data;
-                this.setResponsibility(responsibility)
-            })
-        api('api/article/?join=responsibilities&filter=responsibilities.userId||$eq||'
-            + this.props.match.params.userID +
-            ''
+            api('api/article/?filter=user.userId||$eq||'
+            + this.props.match.params.userID
             , 'get', {}, 'user')
             .then((res: ApiResponse) => {
-                const articleByUser: ArticleByUserType[] = res.data;
+                const articleByUser: ArticleType[] = res.data;
                 this.setArticleByUser(articleByUser)
                 const features: FeaturesType[] = [];
 
                 for (const start of articleByUser) {
-                    for (const articleFeature of start.articleFeature) {
+                    for (const articleFeature of start.stock?.stockFeatures || []) {
                         const value = articleFeature.value;
-                        let name = '';
+                        const articleId = articleFeature.feature?.articleId;
+                        const name = articleFeature.feature?.name;
 
-                        for (const feature of start.features) {
-                            if (feature.featureId === articleFeature.featureId) {
-                                name = feature.name;
-                                break;
-                            }
-                        }
-                        features.push({ name, value });
+                        features.push({ articleId, name, value });
                     }
                 }
                 this.setFeaturesData(features);
-            }
-            )
+            } 
+        )
     }
 
     /* KRAJ GET I MOUNT FUNKCIJA */
@@ -206,27 +161,24 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         }
         return (
             <div>
-                <RoledMainMenu role='user' />
+                <RoledMainMenu role='user' userId={this.state.user?.userId} /> /* ovaj dio oko preusmjeravanja id ne radi kako treba */
                 <Container style={{ marginTop: 20 }}>
                     <Card className="text-white bg-dark">
                         <Card.Header>
                             <Card.Title>
                                 <i className="bi bi-card-checklist" /> {
                                     this.state.users ?
-                                        this.state.users?.surname + ' ' + this.state.users?.forname :
-                                        'Article not found'
+                                        this.state.users.fullname :
+                                        'Kartica korisnika nije pronadjena'
                                 }
                             </Card.Title>
                         </Card.Header>
-                        <Card.Body>
-                            <Card.Text>
-                                {this.printOptionalMessage()}
+                        <Card.Body> {this.printOptionalMessage()}
                                 {
                                     this.state.users ?
                                         (this.renderArticleData(this.state.users)) :
                                         ''
                                 }
-                            </Card.Text>
                         </Card.Body>
                     </Card>
                 </Container>
@@ -235,7 +187,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
     }
 
     private responsibilityArticlesOnUser() {
-        if (this.state.responsibility.length === 0) {
+        if (this.state.users?.articles?.length === 0) {
             return (
                 <div>
                     <b>Zadužena oprema</b><br />
@@ -250,23 +202,21 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
                     <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>#</TableCell>
                                 <TableCell>Naziv</TableCell>
-                                <TableCell>Količina</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell>Datum zaduženja</TableCell>
                                 <TableCell>Serijski broj</TableCell>
+                                <TableCell>Inventoruni broj broj</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.responsibility?.map(ura => (
-                                <TableRow hover>
-                                    <TableCell>{ura.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${ura.userId}/${ura.articleId}/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.article?.name}</Link></TableCell>
-                                    <TableCell>{ura.value}</TableCell>
+                            {this.state.users?.articles?.map((ura, index) => (
+                                <TableRow hover key={index}>
+                                    <TableCell><Link href={`#/user/article/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.stock?.name}</Link></TableCell>
                                     <TableCell>{ura.status}</TableCell>
                                     <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                     <TableCell>{ura.serialNumber}</TableCell>
+                                    <TableCell>{ura.invNumber}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -276,140 +226,51 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         )
     }
 
-    private debtArticlesOnUser() {
-        if (this.state.debt.length === 0) {
-            return (
-                <div>
-                    <b>Razdužena oprema</b><br />
-                    <Alert variant="filled" severity="info">Korisnik nema razdužene opreme</Alert>
-                </div>
-            )
-        }
-        return (
-            <div>
-                <b>Razdužena oprema</b><br />
-                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                    <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>#</TableCell>
-                                <TableCell>Naziv</TableCell>
-                                <TableCell>Količina</TableCell>
-                                <TableCell>Komentar</TableCell>
-                                <TableCell>Datum razdužena</TableCell>
-                                <TableCell>Serijski broj</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.state.debt?.map(debt => (
-                                <TableRow hover>
-                                    <TableCell>{debt.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
-                                    <TableCell>{debt.value}</TableCell>
-                                    <TableCell>{debt.comment}</TableCell>
-                                    <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{debt.serialNumber}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </div>
-        )
-    }
-
-    private destroyedArticlesOnUser() {
-        if (this.state.destroyed.length === 0) {
-            return (
-                <div>
-                    <b>Uništena oprema</b><br />
-                    <Alert variant="filled" severity="info">Korisnik nema otpisane opreme</Alert>
-                </div>
-            )
-        }
-        return (
-            <div>
-                <b>Uništena oprema</b><br />
-                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                    <Table sx={{ minWidth: 700 }} aria-label="custumuzed table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>#</TableCell>
-                                <TableCell>Naziv</TableCell>
-                                <TableCell>Količina</TableCell>
-                                <TableCell>Komentar</TableCell>
-                                <TableCell>Datum uništenja</TableCell>
-                                <TableCell>Serijski broj</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.state.destroyed?.map(destroyed => (
-                                <TableRow hover>
-                                    <TableCell>{destroyed.articleId}</TableCell>
-                                    <TableCell><Link href={`#/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
-                                    <TableCell>{destroyed.value}</TableCell>
-                                    <TableCell>{destroyed.comment}</TableCell>
-                                    <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{destroyed.serialNumber}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </div>
-        )
-    }
-
-    private renderArticleData(user: ApiUserProfileDto) {
+    private renderArticleData(user: UserType) {
         return (
             <Row>
-                <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }}>
-                    <ul className="list-group">
+                <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }} key={user.userId}>
+                    <ul className="list-group"  style={{ borderRadius: '--bs-card-border-radius', overflow: 'hidden' }}>
                         <div>
                             <li className="list-group-item active"><b>Detalji korisnika</b></li>
                             <li className="list-group-item">Ime: {user.surname}</li>
                             <li className="list-group-item">Prezime: {user.forname}</li>
                             <li className="list-group-item">Email: {user.email}</li>
-                            <li className="list-group-item">Sektor: {user.department.title}</li>
-                            <li className="list-group-item">Radno mjest: {user.job.title}</li>
-                            <li className="list-group-item">Lokacija: {user.location.name}</li>
+                            <li className="list-group-item">Sektor: {user.department?.title}</li>
+                            <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
+                            <li className="list-group-item">Lokacija: {user.location?.name}</li>
                         </div>
                     </ul>
                 </Col>
-                <Col xs="12" lg="9" >
-                    <Row>
-                        {this.articlesByUser()}
+                <Col xs="12" lg="9">
+                    <Row >
+                        {this.articles()}
                     </Row>
-                    <Row style={{ padding: 5 }}>
+                   {   <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
                     </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.debtArticlesOnUser()}
-                    </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.destroyedArticlesOnUser()}
-                    </Row>
+                   }
                 </Col>
             </Row>
         );
     }
 
-    private articlesByUser() {
+    private articles() {
+        
         return (
-
-            this.state.articlesByUser.map(artikal => (
-                <div>
-                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:5}}>
-                            <Card bg="light" text="dark" className="mb-2" >
-                                <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                    <Badge pill bg="primary">
-                                        {artikal.category.name}
-                                    </Badge>{<div style={{ fontSize: 11 }}>{artikal.name}</div>}
-                                    <i className={`${artikal.category.imagePath}`} style={{ fontSize: 52 }}></i>
-                                </Card.Body>
-                            </Card>
+            this.state.article.map((artikal) => (
+                
+                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:16}} key={artikal.articleId}>
+                        <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
+                            <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <Badge pill bg="primary">
+                                    {artikal.category?.name}
+                                </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.stock?.name}</div>}
+                                <i className={`${artikal.category?.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
+                            </Card.Body>
+                        </Card>
                     </Col>
-                </div>
+                
             )))
     }
 }

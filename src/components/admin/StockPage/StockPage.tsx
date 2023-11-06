@@ -5,7 +5,6 @@ import FeaturesType from '../../../types/FeaturesType';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
-import StockArticleTable from './StockArticleTable';
 import ArticleInStockTable from './StockArticleTableNew';
 
 interface StockPageProperties {
@@ -57,11 +56,9 @@ interface StockPageState {
         articleId: number | null;
         comment: string;
         serialNumber: string;
-        invBroj: string;
+        invNumber: string;
         status: string;
     };
-    currentPage: number;
-    itemsPerPage: number;
 }
 
 export default class StockPage extends React.Component<StockPageProperties> {
@@ -99,11 +96,9 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 comment: '',
                 serialNumber: '',
                 status: '',
-                invBroj: '',
+                invNumber: '',
                 visible: false,
             },
-            currentPage: Number(),
-            itemsPerPage: 5,
         }
     }
 
@@ -226,6 +221,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
         if (oldProperties.match.params.stockID === this.props.match.params.stockID) {
             return;
         }
+
         this.getStockData();
     }
 
@@ -377,21 +373,14 @@ export default class StockPage extends React.Component<StockPageProperties> {
         )
     }
     
-    private doEditArticle() {
-        console.log("Before edit features:", this.state.editFeature.features);
-    
-        const filteredFeatures = this.state.editFeature.features.filter(feature => feature.use === 1);
-    
-        console.log("After filtering features:", filteredFeatures);
-    
+    private doEditArticle() {  
+        const filteredFeatures = this.state.editFeature.features.filter(feature => feature.use === 1);   
         const editedFeatures = this.state.editFeature.features
             .filter(feature => feature.use === 1)
             .map(feature => ({
                 featureId: feature.featureId,
                 value: feature.value,
             }));
-    
-        console.log("Edited features:", editedFeatures);
     
         const requestBody = {
             name: this.state.editFeature.name,
@@ -422,7 +411,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             comment: this.state.changeStatus.comment,
             serialNumber: this.state.changeStatus.serialNumber,
             status: this.state.changeStatus.status,
-            invNumber: this.state.changeStatus.invBroj,
+            invNumber: this.state.changeStatus.invNumber,
         }, 'administrator')
             .then((res: ApiResponse) => {
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
@@ -588,9 +577,9 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                 <OverlayTrigger
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-invBroj">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>}>
-                                    <Form.Control type='text' id='invBroj' value={this.state.changeStatus.invBroj} isValid required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('invBroj', e.target.value)} />
+                                    overlay={<Tooltip id="tooltip-invNumber">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>}>
+                                    <Form.Control type='text' id='invNumber' value={this.state.changeStatus.invNumber} isValid required
+                                        onChange={(e) => this.setChangeStatusStringFieldState('invNumber', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
                         </Form.Group>

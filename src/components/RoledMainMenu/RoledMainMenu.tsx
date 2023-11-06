@@ -2,7 +2,8 @@ import React from "react";
 import { MainMenu, MainMenuItem } from '../MainMenu/MainMenu'
 
 interface RoledMainMenuProperties {
-    role: 'administrator' | 'user';
+    role: 'administrator' | 'user',
+    userId?: number
 }
 
 export default class RoledMainMenu extends React.Component<RoledMainMenuProperties> {
@@ -17,8 +18,9 @@ export default class RoledMainMenu extends React.Component<RoledMainMenuProperti
         return <MainMenu items={items} />
     }
     getUserItems(): MainMenuItem[] {
+        const {userId} = this.props; // ovaj dio oko preusmjeravanja ID ne radi kako treba
         return [
-            new MainMenuItem("Home", "/"),
+            new MainMenuItem("Naslovna", `/user/profile/${userId}`),
             new MainMenuItem("Log out", "/user/logout/"),
         ]
     }

@@ -12,6 +12,7 @@ import saveAs from 'file-saver';
 import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
+
 interface AdminArticleOnUserPageProperties {
     match: {
         params: {
@@ -169,7 +170,6 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
     /* '&filter=userDetails.userId||$eq||' + this.props.match.params.userID + */
     private getArticleData() {
         api(`api/article/sb/${this.props.match.params.serial}`, 'get', {}, 'administrator')
-
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')

@@ -4,12 +4,6 @@ import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
 import Paper from '@mui/material/Paper';
-import ArticleByUserData from "../../../data/ArticleByUserData";
-import ArticleByUserType from "../../../types/ArticleByUserType";
-import ApiUserDto from "../../../dtos/ApiUserDto";
-import ResponsibilityType from "../../../types/ResponsibilityType";
-import DebtType from "../../../types/DebtType";
-import DestroyedType from "../../../types/DestroyedType";
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
@@ -139,27 +133,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 this.setErrorMessage('')
                 this.setUsers(data)
             })
-        /* Ova dva api su viška za debt i destroy jer sve to imam u api za article po user-u */
-        /* api('api/debt/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                const debt: DebtType[] = res.data;
-                this.setDebt(debt)
-            })
-        api('api/destroyed/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                const destroyed: DestroyedType[] = res.data;
-                this.setDestroyed(destroyed)
-            })
-        api('api/responsibility/?filter=userId||$eq||' + this.props.match.params.userID + '&sort=timestamp,DESC', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                const responsibility: ResponsibilityType[] = res.data;
-                this.setResponsibility(responsibility)
-            }) */
-        /* api('api/departmentJob/?filter=users.userId||$eq||' + this.props.match.params.userID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                const departmentJobs: DepartmentByIdType[] = res.data;
-                this.setDepartmentJobs(departmentJobs)
-            }) */
         api('api/article/?filter=user.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
@@ -286,88 +259,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         )
     }
 
-  /*   private debtArticlesOnUser() {
-        if (this.state.debt.length === 0) {
-            return (
-                <div>
-                    <b>Razdužena oprema</b><br />
-                    <Alert variant="filled" severity="info">Korisnik nema razdužene opreme</Alert>
-                </div>
-            )
-        }
-        return (
-            <div>
-                <b>Razdužena oprema</b><br />
-                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                    <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Naziv</TableCell>
-                                <TableCell>Komentar</TableCell>
-                                <TableCell>Datum razduženja</TableCell>
-                                <TableCell>Serijski broj</TableCell>
-                                <TableCell>#</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.state.debt?.map((debt, index) => (
-                                <TableRow hover key={index}>
-                                    <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${debt.articleId}/${debt.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }}>{debt.article?.name}</Link></TableCell>
-                                    <TableCell>{debt.comment}</TableCell>
-                                    <TableCell>{Moment(debt.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{debt.serialNumber}</TableCell>
-                                    <TableCell>{this.saveFile(debt.document?.path)}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </div>
-        )
-    }
-
-    private destroyedArticlesOnUser() {
-        if (this.state.destroyed.length === 0) {
-            return (
-                <div>
-                    <b>Uništena oprema</b><br />
-                    <Alert variant="filled" severity="info">Korisnik nema otpisane opreme</Alert>
-                </div>
-            )
-        }
-        return (
-            <div>
-                <b>Uništena oprema</b><br />
-                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                    <Table sx={{ minWidth: 700 }} aria-label="custumuzed table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Naziv</TableCell>
-                                <TableCell>Komentar</TableCell>
-                                <TableCell>Datum uništenja</TableCell>
-                                <TableCell>Serijski broj</TableCell>
-                                <TableCell>#</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.state.destroyed?.map((destroyed, index) => (
-                                <TableRow hover key={index}>
-                                    <TableCell><Link href={`#/admin/userArticle/${this.props.match.params.userID}/${destroyed.articleId}/${destroyed.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{destroyed.article?.name}</Link></TableCell>
-                                    <TableCell>{destroyed.comment}</TableCell>
-                                    <TableCell>{Moment(destroyed.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{destroyed.serialNumber}</TableCell>
-                                    <TableCell>{this.saveFile(destroyed.document?.path)}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </div>
-        )
-    } */
-
     private renderArticleData(user: UserType) {
-
         return (
             <Row>
                 <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }} key={user.userId}>
@@ -390,12 +282,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                    {   <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
                     </Row>
-                   /*<Row style={{ padding: 5 }}>
-                        {this.debtArticlesOnUser()}
-                    </Row>
-                    <Row style={{ padding: 5 }}>
-                        {this.destroyedArticlesOnUser()}
-                    </Row> */}
+                   }
                 </Col>
             </Row>
         );

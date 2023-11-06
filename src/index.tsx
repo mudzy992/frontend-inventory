@@ -32,8 +32,8 @@ ReactDOM.render(
     <HashRouter>
       <Switch>
         <Route exact path="/user/login" component={UserLoginPage} />
-        <Route path="/userProfile/:userID" component={UserProfilePage} />
-        <Route path="/userArticle/:userID/:articleId/:serial" component={ArticleOnUserPage} />
+        <Route path="/user/profile/:userID" component={UserProfilePage} />
+        <Route path="/user/article/:serial" component={ArticleOnUserPage} />
 
         <Route exact path="/admin/login" component={AdministratorLoginPage} />
         <Route exact path="/user/" component={UserPage} />

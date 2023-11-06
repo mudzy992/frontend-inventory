@@ -1,0 +1,18 @@
+2023-11-02T18:29:28: 
+2023-11-02T18:29:28: > inventory-frontend@0.1.0 start
+2023-11-02T18:29:28: > react-scripts start
+2023-11-02T18:29:28: 
+2023-11-02T18:29:31: Starting the development server...
+2023-11-02T18:29:31: 
+2023-11-02T18:29:42: Compiled successfully!
+2023-11-02T18:29:42: 
+2023-11-02T18:29:42: You can now view inventory-frontend in the browser.
+2023-11-02T18:29:42: 
+2023-11-02T18:29:42:   Local:            http://localhost:4001
+2023-11-02T18:29:42:   On Your Network:  http://192.168.0.32:4001
+2023-11-02T18:29:42: 
+2023-11-02T18:29:42: Note that the development build is not optimized.
+2023-11-02T18:29:42: To create a production build, use npm run build.
+2023-11-02T18:29:42: 
+2023-11-02T18:29:42: webpack compiled successfully
+2023-11-02T18:29:42: No issues found.

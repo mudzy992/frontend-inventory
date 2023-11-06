@@ -17,8 +17,6 @@ import ArticleType from '../../../types/ArticleType';
 interface ArticleOnUserPageProperties {
     match: {
         params: {
-            userID: number;
-            articleId: number;
             serial: string;
         }
     }
@@ -33,24 +31,22 @@ interface upgradeFeaturesType {
 }
 
 interface ArticleOnUserPageState {
-    user: UserType[];
     userArticle: UserArticleDto[];
     message: string;
-    article: ArticleType[];
-    features: FeaturesType[];
-    articleTimeline: ArticleTimelineType[];
-    upgradeFeature: upgradeFeaturesType[],
+    article: ArticleType;
+    users: UserType[];
     isLoggedIn: boolean;
     errorMessage: string;
     changeStatus: {
-        userId: number;
-        articleId: number;
-        value: number | null;
+        visible: boolean;
+        userId: number | null;
+        articleId: number | null;
         comment: string;
         serialNumber: string;
+        invNumber: string;
         status: string;
-    }
-
+    },
+    upgradeFeature: upgradeFeaturesType[],
 }
 
 export default class ArticleOnUserPage extends React.Component<ArticleOnUserPageProperties> {
@@ -60,22 +56,21 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         super(props);
         this.state = {
             message: "",
-            user: [],
-            features: [],
-            articleTimeline: [],
-            upgradeFeature: [],
-            article: [],
+            users: [],
+            article: {},
             isLoggedIn: true,
             errorMessage: '',
             changeStatus: {
-                userId: 0,
+                userId: Number(),
                 articleId: 0,
-                value: null,
                 comment: '',
                 serialNumber: '',
+                invNumber: '',
                 status: '',
+                visible: false,
             },
             userArticle: [],
+            upgradeFeature: [], 
         }
     }
 
@@ -133,20 +128,16 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
 
     componentDidUpdate(oldProperties: ArticleOnUserPageProperties) {
         /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if (oldProperties.match.params.articleId === this.props.match.params.articleId) {
+        if (oldProperties.match.params.serial === this.props.match.params.serial) {
             return;
         }
         this.getArticleData();
     }
 
     private getArticleData() {
-        api('api/article/?filter=articleId||$eq||' + this.props.match.params.articleId +
-            '&filter=userDetails.userId||$eq||' + this.props.match.params.userID +
-            '&join=userArticles&filter=userArticles.serialNumber||$eq||' + this.props.match.params.serial +
-            '&sort=userArticles.timestamp,DESC', 'get', {}, 'user')
+        api(`api/article/sb/${this.props.match.params.serial}`, 'get', {}, 'user')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
-                    this.setFeaturesData([]);
                     this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                     return;
                 }
@@ -157,65 +148,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 const data: ArticleType[] = res.data;
                 this.setErrorMessage('')
                 this.setArticle(data)
-                /* const features: FeaturesType[] = [];
-
-                for (const start of data) {
-                    for (const articleFeature of start.articleFeature) {
-                        const value = articleFeature.value;
-                        let name = '';
-
-                        for (const feature of start.features) {
-                            if (feature.featureId === articleFeature.featureId) {
-                                name = feature.name;
-                                break;
-                            }
-                        }
-
-                        features.push({ name, value });
-                    }
-                }
-                this.setFeaturesData(features); */
             })
-        api('api/article/?filter=serialNumber||$eq||' + this.props.match.params.serial + '&sort=timestamp,DESC', 'get', {}, 'user')
-            .then((res: ApiResponse) => {
-                if (res.status === 'error') {
-                    this.setFeaturesData([]);
-                    this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                    return;
-                }
-                if (res.status === 'login') {
-                    return this.setLogginState(false);
-                }
-                const data: ArticleType[] = res.data;
-                this.setArticle(data)
-
-                /* const articleTimeline: ArticleTimelineType[] = [];
-                for (const ua of data) {
-                    let status = ua.status;
-                    let serialNumber = ua.serialNumber;
-                    let sapNumber = ua.article?.sapNumber;
-                    let surname = ua.user?.surname;
-                    let forname = ua.user?.forname;
-                    let timestamp = ua.timestamp;
-                    let comment = ua.comment;
-
-                    articleTimeline.push({ surname, forname, status, comment, serialNumber, sapNumber, timestamp })
-                }
-                this.setArticleTimelineData(articleTimeline) */
-            })
-
-        api('api/user/?filter=userId||$eq||' + this.props.match.params.userID, 'get', {}, 'user')
-        .then((res: ApiResponse) => {
-            if (res.status === 'error') {
-                this.setFeaturesData([]);
-                this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                return;
-            }
-            if (res.status === 'login') {
-                return this.setLogginState(false);
-            }
-            this.setUser(res.data)
-        })
 
         api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'user')
         .then((res: ApiResponse) => {
@@ -243,21 +176,19 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
         return (
             <div>
-                <RoledMainMenu role='user' />
+                <RoledMainMenu role='user' userId={this.state.article.userId} /> /* ovaj dio oko preusmjeravanja id ne radi kako treba */
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
                         <Card.Header >
                             <Card.Title >
                                 <Container>
-                                    <Row>
+                                <Row>
                                         <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
-                                        <i className="bi bi-card-checklist" style={{ marginRight: 5 }}/>{
-                                                this.state.article ?
-                                                    this.state.article.map :
-                                                    'Article not found'
-                                            }
-                                            {this.state.article.map(ar => (ar.stock?.name))}
-                                            {this.badgeStatus(this.state.article)}
+                                            
+                                        <i className={this.state.article.category?.imagePath?.toString()} style={{fontSize: 20, marginRight: 5}}/>
+
+                                            {this.state.article.stock?.name}
+                                            {this.badgeStatus(this.state.article)} 
                                         </Col>
                                     </Row>
                                 </Container>
@@ -286,22 +217,23 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         )
     }
 
-    private badgeStatus(article: ArticleType[]) {
-        let stat:any = ""
-        article.map(ua => stat = (ua.status))
-        if (stat === "zaduženo") {
+    private badgeStatus(article: ArticleType) {
+
+        let stat:any = article.status;
+        
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     {stat}
                 </Badge>)
         }
-        if (stat === "razduženo") {
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
             return (
                 <Badge pill bg="warning" text="dark" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     {stat}
                 </Badge>)
         }
-        if (stat === "otpisano") {
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
                 <Badge pill bg="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     {stat}
@@ -310,29 +242,27 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
 
     }
 
-    private userDetails(userDet: UserType[]) {
-        let stat = ""
-        /* userDet.map(ua => stat = (ua.userArticles[ua.userArticles.length - ua.userArticles.length + 0]).status) */
-
-        if (stat === 'razduženo') {
-            return (<Alert variant='info'> Nema podataka o korisniku, oprema razdužena</Alert>)
+    private userDetails(userDet: ArticleType) {
+        let stat = userDet.status
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
+            return (<Alert variant='info'> {LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}</Alert>)
         }
-        if (stat === 'otpisano') {
-            return (<Alert variant='warning'> Nema podataka o korisniku, oprema otpisana</Alert>)
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
+            return (<Alert variant='warning'> {LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}</Alert>)
         }
-        if (stat === 'zaduženo') {
+        if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
                 <Row>
                     <Col>
                         <Card bg="success" text="white" className="mb-2">
-                            <Card.Header>Detalji korisnika</Card.Header>
+                            <Card.Header>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</Card.Header>
                             <ListGroup variant="flush" >
-                            <div><ListGroup.Item>Ime: {userDet.map(usr => (usr.surname))}</ListGroup.Item>
-                                    <ListGroup.Item>Prezime: {userDet.map(usr => (usr.forname))}</ListGroup.Item>
-                                    <ListGroup.Item>Email: {userDet.map(usr => (usr.email))}</ListGroup.Item>
-                                    <ListGroup.Item>Sektor: {userDet.map(usr => (usr.department?.title))}</ListGroup.Item>
-                                    <ListGroup.Item>Radno mjesto: {userDet.map(usr => (usr.job?.title))}</ListGroup.Item>
-                                    <ListGroup.Item>Lokacija: {userDet.map(usr => (usr.location?.name))}</ListGroup.Item>
+                                <div>  
+                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListGroup.Item>
+                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListGroup.Item>
                                 </div>
                             </ListGroup>
                         </Card>
@@ -348,9 +278,9 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                 <Row>
                     <Col>
                         <Card bg="dark" text="light" className="mb-3">
-                            <Card.Header style={{backgroundColor:"#00695C", borderBottomLeftRadius:"0.25rem", borderBottomRightRadius:"0.25rem"}}>
-                                {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
-                            </Card.Header>
+                        <Alert variant="info">
+                            Artikal nema dostupnih nadogradnji.
+                        </Alert>
                         </Card>
                     </Col>
                 </Row>
@@ -386,25 +316,29 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
     }
 
-    renderArticleData(article: ArticleType[]) {
+    renderArticleData(article: ArticleType) {
         return (
             <Row>
                 <Col xs="12" lg="8">
                     <Row>
-                        <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: "center", display: "flex" }}>
-                            <i className={`${article.map(cat => (cat.category?.imagePath))}`} style={{ fontSize: 150 }}></i>
+                    <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: "center", display: "flex" }}>
+                            <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
                         </Col>
                         <Col xs="12" lg="8" sm="8">
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header>Detalji opreme</Card.Header>
                                 <ListGroup variant="flush" >
-                                    {this.state.features.map(feature => (
-                                        <ListGroup.Item>
-                                            <b>{feature.name}:</b> {feature.value}
-                                        </ListGroup.Item>
-                                    ), this)}
-                                    <ListGroup.Item>
-                                            <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.article.map(art => (art.serialNumber))}</ListGroup.Item> 
+                                        {this.state.article.stock?.stockFeatures?.map((artFeature, index) => (
+                                            <ListGroup.Item key={index}>
+                                                <b>{artFeature.feature?.name}:</b> {artFeature.value}
+                                            </ListGroup.Item>
+                                        ))}
+                                            <ListGroup.Item>
+                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.article.serialNumber}
+                                            </ListGroup.Item> 
+                                            <ListGroup.Item>
+                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.article.invNumber}
+                                            </ListGroup.Item> 
                                 </ListGroup>
                             </Card>
                             {this.upgradeFeature()}
@@ -415,7 +349,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header>Detaljan opis</Card.Header>
-                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.map(desc => (desc.stock?.description))}</Card.Body>
+                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.stock?.description}</Card.Body>
                             </Card>
                         </Col>
                     </Row>
@@ -431,19 +365,19 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                                 <TableCell>Status</TableCell>
                                                 <TableCell>Komentar</TableCell>
                                                 <TableCell>Serijski broj</TableCell>
-                                                <TableCell>SAP broj</TableCell>
+                                                <TableCell>Inventurni broj</TableCell>
                                                 <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {this.state.article?.map(articleTimeline => (
+                                        {article.articleTimelines?.map(timeline => (
                                                 <TableRow hover>
-                                                    <TableCell>{articleTimeline.user?.fullname}</TableCell>
-                                                    <TableCell>{articleTimeline.status}</TableCell>
-                                                    <TableCell>{articleTimeline.comment}</TableCell>
-                                                    <TableCell>{articleTimeline.serialNumber}</TableCell>
-                                                    <TableCell>{articleTimeline.stock?.sapNumber}</TableCell>
-                                                    <TableCell >{Moment(articleTimeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                                    <TableCell>{timeline.user?.fullname}</TableCell>
+                                                    <TableCell>{timeline.status}</TableCell>
+                                                    <TableCell>{timeline.comment}</TableCell>
+                                                    <TableCell>{timeline.serialNumber}</TableCell>
+                                                    <TableCell>{timeline.invNumber}</TableCell>
+                                                    <TableCell >{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -454,7 +388,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                     </Row>
                 </Col>
                 <Col sm="12" xs="12" lg="4" >
-                    {this.userDetails(this.state.user)}
+                        {this.userDetails(article)}
                     <Row>
                         <Col>
                             <Card bg="light" text="dark" className=" mb-2">
@@ -466,9 +400,9 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                    <div>
-                                        <ListGroup.Item>Status: <b>{article.map(nesto => (nesto.status))} </b></ListGroup.Item>
-                                        <ListGroup.Item>Datum akcije:  {article.map(nesto => (Moment(nesto.timestamp)).format('DD.MM.YYYY. - HH:mm'))} </ListGroup.Item>
+                                <div>
+                                        <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
+                                        <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
                                     </div>
                                 </ListGroup>
                             </Card>

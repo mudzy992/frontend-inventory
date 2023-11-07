@@ -161,7 +161,7 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
         }
         return (
             <div>
-                <RoledMainMenu role='user' userId={this.state.user?.userId} /> /* ovaj dio oko preusmjeravanja id ne radi kako treba */
+                <RoledMainMenu role='user' userId={this.props.match.params.userID} /> 
                 <Container style={{ marginTop: 20 }}>
                     <Card className="text-white bg-dark">
                         <Card.Header>

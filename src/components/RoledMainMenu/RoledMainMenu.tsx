@@ -15,14 +15,14 @@ export default class RoledMainMenu extends React.Component<RoledMainMenuProperti
             case 'user': items = this.getUserItems(); break;
         }
 
-        return <MainMenu items={items} />
+        return <MainMenu items={items} userId={this.props.userId} />
     }
     getUserItems(): MainMenuItem[] {
-        const {userId} = this.props; // ovaj dio oko preusmjeravanja ID ne radi kako treba
+        const { userId } = this.props;
         return [
             new MainMenuItem("Naslovna", `/user/profile/${userId}`),
             new MainMenuItem("Log out", "/user/logout/"),
-        ]
+        ];
     }
     getAdministratorItems(): MainMenuItem[] {
         return [

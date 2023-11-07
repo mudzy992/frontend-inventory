@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Button, Dropdown } from "react-bootstrap";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -7,13 +7,6 @@ import { Link } from "@mui/material";
 import api from "../../../API/api";
 import { ApiConfig } from "../../../config/api.config";
 import Moment from 'moment';
-
-interface ArticleType {
-  articleId: number;
-  name: string;
-  excerpt: string;
-  sapNumber: string;
-}
 
 interface ArticleTimelineType {
   articleTimelineId: number;

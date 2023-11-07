@@ -5,8 +5,6 @@ import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
 import { Link, } from "@mui/material";
-import ArticleTimelineType from '../../../types/ArticleTimelineType';
-import Paper from '@mui/material/Paper';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';

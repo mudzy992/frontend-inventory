@@ -5,11 +5,7 @@ import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell } from "@mui/material";
 import Moment from 'moment';
-import FeaturesType from '../../../types/FeaturesType';
-import ArticleTimelineType from '../../../types/ArticleTimelineType';
-import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import UserType from '../../../types/UserType';
 import { LangBa } from '../../../config/lang.ba';
 import ArticleType from '../../../types/ArticleType';
 
@@ -31,21 +27,10 @@ interface upgradeFeaturesType {
 }
 
 interface ArticleOnUserPageState {
-    userArticle: UserArticleDto[];
     message: string;
     article: ArticleType;
-    users: UserType[];
     isLoggedIn: boolean;
     errorMessage: string;
-    changeStatus: {
-        visible: boolean;
-        userId: number | null;
-        articleId: number | null;
-        comment: string;
-        serialNumber: string;
-        invNumber: string;
-        status: string;
-    },
     upgradeFeature: upgradeFeaturesType[],
 }
 
@@ -56,20 +41,9 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         super(props);
         this.state = {
             message: "",
-            users: [],
             article: {},
             isLoggedIn: true,
             errorMessage: '',
-            changeStatus: {
-                userId: Number(),
-                articleId: 0,
-                comment: '',
-                serialNumber: '',
-                invNumber: '',
-                status: '',
-                visible: false,
-            },
-            userArticle: [],
             upgradeFeature: [], 
         }
     }
@@ -89,30 +63,6 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
     private setArticle(articleData: ArticleType[]) {
         this.setState(Object.assign(this.state, {
             article: articleData
-        }))
-    }
-
-    private setUserArticle(userArticleData: UserArticleDto[]) {
-        this.setState(Object.assign(this.state, {
-            userArticle: userArticleData
-        }))
-    }
-    
-    private setUser(userData: UserType[]) {
-        this.setState(Object.assign(this.state, {
-            user: userData,
-        }));
-    }
-
-    private setFeaturesData(featuresData: FeaturesType[]) {
-        this.setState(Object.assign(this.state, {
-            features: featuresData
-        }))
-    }
-
-    private setArticleTimelineData(articleTimelineData: ArticleTimelineType[]) {
-        this.setState(Object.assign(this.state, {
-            articleTimeline: articleTimelineData
         }))
     }
 
@@ -176,7 +126,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
         }
         return (
             <div>
-                <RoledMainMenu role='user' userId={this.state.article.userId} /> /* ovaj dio oko preusmjeravanja id ne radi kako treba */
+                <RoledMainMenu role='user' userId={this.state.article ? this.state.article.userId : undefined} /> 
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
                         <Card.Header >
@@ -184,9 +134,7 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 <Container>
                                 <Row>
                                         <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
-                                            
                                         <i className={this.state.article.category?.imagePath?.toString()} style={{fontSize: 20, marginRight: 5}}/>
-
                                             {this.state.article.stock?.name}
                                             {this.badgeStatus(this.state.article)} 
                                         </Col>
@@ -353,9 +301,31 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                             </Card>
                         </Col>
                     </Row>
-
+                    </Col>
+                    <Col sm="12" xs="12" lg="4" >
+                        {this.userDetails(article)}
                     <Row>
                         <Col>
+                            <Card bg="light" text="dark" className=" mb-2">
+                                <Card.Header>
+                                    <Row>
+                                        <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+                                            Status
+                                        </Col>
+                                    </Row>
+                                </Card.Header>
+                                <ListGroup variant="flush">
+                                <div>
+                                        <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
+                                        <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
+                                    </div>
+                                </ListGroup>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Col>
+
+                        <Col sm="12" xs="12" lg="12">
                             <Card className="mb-3">
                                 <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
                                     <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
@@ -385,31 +355,9 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                                 </TableContainer>
                             </Card>
                         </Col>
-                    </Row>
-                </Col>
-                <Col sm="12" xs="12" lg="4" >
-                        {this.userDetails(article)}
-                    <Row>
-                        <Col>
-                            <Card bg="light" text="dark" className=" mb-2">
-                                <Card.Header>
-                                    <Row>
-                                        <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                                            Status
-                                        </Col>
-                                    </Row>
-                                </Card.Header>
-                                <ListGroup variant="flush">
-                                <div>
-                                        <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
-                                        <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
-                                    </div>
-                                </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
-                    
-                </Col>
+
+                
+                
             </Row>
         );
     }

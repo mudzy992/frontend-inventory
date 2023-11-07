@@ -21,9 +21,11 @@ export class MainMenuItem {
 
 interface MainMenuProperties {
     items: MainMenuItem[];
+    userId?: number;
 }
 interface MainMenuState {
     items: MainMenuItem[];
+    userId?: number;
 }
 
 export class MainMenu extends React.Component<MainMenuProperties> {
@@ -43,6 +45,12 @@ export class MainMenu extends React.Component<MainMenuProperties> {
         })
     }
 
+    setUserId(userID: number) {
+        this.setState({
+            userId: userID
+        })
+    }
+
     render() {
         return (
             <Navbar
@@ -53,7 +61,7 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                 collapseOnSelect
             >
                 <Container>
-                    <Navbar.Brand  href="#"> <i className="bi bi-shop" /> Inventory Database!</Navbar.Brand>
+                    <Navbar.Brand  href={`#/user/profile/${this.props.userId}`}> <i className="bi bi-shop" /> Inventory Database!</Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className='me-auto' >

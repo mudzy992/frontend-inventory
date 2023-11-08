@@ -61,7 +61,7 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                 collapseOnSelect
             >
                 <Container>
-                    <Navbar.Brand  href={`#/user/profile/${this.props.userId}`}> <i className="bi bi-shop" /> Inventory Database!</Navbar.Brand>
+                    <Navbar.Brand href={this.getNavbarBrandHref()}> <i className="bi bi-shop" /> Inventory Database!</Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className='me-auto' >
@@ -84,6 +84,14 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                     {item.text}
             </Link>
         );
+    }
+
+    getNavbarBrandHref() {
+        if (this.props.userId === undefined) {
+            return "#"; // Vraća # ako je uloga administrator ili userId nije definisan
+        } else {
+            return `#/user/profile/${this.props.userId}`; // Vraća odgovarajući URL za ulogu user i definisan userId
+        }
     }
 }
 

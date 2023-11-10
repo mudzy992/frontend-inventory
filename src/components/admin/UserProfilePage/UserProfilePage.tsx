@@ -305,7 +305,10 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         return(
             <Card>
                 <List
-                sx={{  bgcolor: 'background.paper' }}
+                sx={{
+                    bgcolor: 'background.paper',
+                    
+                }}
                 component="nav"
                 aria-labelledby="nested-list-subheader"
                 subheader={
@@ -325,7 +328,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                         <ListItemText>{categoryName}</ListItemText> {this.state.open === categoryName ? <ExpandLess /> : <ExpandMore />}
                                     </ListItemButton>
                                     <Collapse in={this.state.open === categoryName} timeout="auto" unmountOnExit>
-                                            <List component="div" disablePadding>
+                                            <List component="div" disablePadding
+                                            sx={{
+                                                maxHeight:300,
+                                                overflow: 'auto'
+                                            }}
+                                            >
                                             {categoryArticles.map(artikal => (
                                                 <ListItemButton key={artikal.articleId} sx={{ pl: 4 }}>
                                                     <ListItemIcon>

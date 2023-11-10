@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import ArticleType from "../../../types/ArticleType";
 import UserType from "../../../types/UserType";
+import { ExpandLess, ExpandMore, StarBorder } from "@mui/icons-material";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -32,6 +33,7 @@ interface AdminUserProfilePageState {
     features: FeaturesType[];
     isLoggedIn: boolean;
     departmentJobs: DepartmentByIdType[];
+    open: string | null;
 }
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
@@ -46,6 +48,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             features: [],
             isLoggedIn: true,
             departmentJobs: [],
+            open: null,
         }
     }
     private setFeaturesData(featuresData: FeaturesType[]) {
@@ -85,6 +88,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             departmentJobs: departmentJobsData
         }))
     }
+
+    handleClick = (categoryName: string) => {
+        this.setState((prevState: AdminUserProfilePageState) => ({
+            open: prevState.open === categoryName ? null : categoryName,
+        }));
+    };
 
     /* KRAJ SET FUNCKIJA */
 
@@ -277,7 +286,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 </Col>
                 <Col xs="12" lg="9">
                     <Row >
-                        {this.articles()}
+                        {/* {this.articles()} */}
+                        {this.artikliulisti()} 
                     </Row>
                    {   <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
@@ -286,6 +296,53 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 </Col>
             </Row>
         );
+    }
+
+
+    private artikliulisti() {
+        const uniqueCategories = Array.from(new Set(this.state.article.map(artikal => artikal.category?.name)));
+
+        return(
+            <Card>
+                <List
+                sx={{  bgcolor: 'background.paper' }}
+                component="nav"
+                aria-labelledby="nested-list-subheader"
+                subheader={
+                    <ListSubheader component="div" id="nested-list-subheader">
+                    Zadužena oprema
+                    </ListSubheader>
+                    }>
+                        {
+                            uniqueCategories.map(categoryName => {
+                                const categoryArticles = this.state.article.filter(artikal => artikal.category?.name === categoryName);
+
+                                return (
+                                    <><ListItemButton sx={{ width: '100%'}} onClick={() => categoryName && this.handleClick(categoryName)}>
+                                        <ListItemIcon>
+                                            <i className={categoryArticles[0]?.category?.imagePath} style={{ fontSize: 16 }} />
+                                        </ListItemIcon>
+                                        <ListItemText>{categoryName}</ListItemText> {this.state.open === categoryName ? <ExpandLess /> : <ExpandMore />}
+                                    </ListItemButton>
+                                    <Collapse in={this.state.open === categoryName} timeout="auto" unmountOnExit>
+                                            <List component="div" disablePadding>
+                                            {categoryArticles.map(artikal => (
+                                                <ListItemButton key={artikal.articleId} sx={{ pl: 4 }}>
+                                                    <ListItemIcon>
+                                                    <i className={categoryArticles[0]?.category?.imagePath} style={{ fontSize: 16 }} />
+                                                    </ListItemIcon>
+                                                    <ListItemText>{artikal.serialNumber}</ListItemText>
+                                                </ListItemButton>
+                                            ))}
+                                            </List>
+                                    </Collapse></>
+                                );
+                            })
+                        }
+                </List>
+            </Card>
+        )
+        
     }
 
     private articles() {

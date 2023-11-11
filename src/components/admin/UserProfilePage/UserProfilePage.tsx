@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, ThemeProvider, Tab, Nav, Form } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
@@ -13,6 +13,7 @@ import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import ArticleType from "../../../types/ArticleType";
 import UserType from "../../../types/UserType";
 import { ExpandLess, ExpandMore, StarBorder } from "@mui/icons-material";
+import "./style.css";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -176,10 +177,37 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             );
         }
         return (
+            <ThemeProvider
+            fluid
+                breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
+                minBreakpoint="xxs">
             <div>
                 <RoledMainMenu role='administrator' />
-                <Container style={{ marginTop: 20 }}>
+                <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
+                    <Tab.Container id="left-tabs-example" defaultActiveKey="profile">
+                        <Row>
+                            <Col lg={2} xs={2}>
+                                <Nav variant='pills' className="nav-pills">
+                                    <Nav.Item style={{padding:5}}>
+                                        <Nav.Link eventKey="profile"> <i className="bi bi-person-fill" /> Profile</Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item style={{padding:5}}>
+                                        <Nav.Link eventKey="articles"> <i className="bi bi-box-fill" /> Zaduženi artikli</Nav.Link>
+                                    </Nav.Item>
+                                </Nav>
+                            </Col>
+                            <Col lg={10} xs={10}>
+                                <Tab.Content>
+                                {this.printOptionalMessage()}
+                                    <Tab.Pane eventKey="profile">{this.state.users ? (this.userData(this.state.users)): ''}</Tab.Pane>
+                                    <Tab.Pane eventKey="articles">{this.artikli()}</Tab.Pane>
+                                </Tab.Content>
+                            </Col>
+                        </Row>
+                    </Tab.Container>
+                    </Card>
+                   {/* <Card className="text-white bg-dark">
                         <Card.Header>
                             <Card.Title>
                                 <i className="bi bi-card-checklist" /> {
@@ -189,16 +217,16 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                 }
                             </Card.Title>
                         </Card.Header>
-                        <Card.Body> {this.printOptionalMessage()}
+                         <Card.Body> {this.printOptionalMessage()}
                                 {
                                     this.state.users ?
                                         (this.renderArticleData(this.state.users)) :
                                         ''
                                 }
                         </Card.Body>
-                    </Card>
+                    </Card> */}
                 </Container>
-            </div>
+            </div></ThemeProvider>
         )
     }
 
@@ -270,6 +298,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 
     private renderArticleData(user: UserType) {
         return (
+
             <Row>
                 <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }} key={user.userId}>
                     <ul className="list-group"  style={{ borderRadius: '--bs-card-border-radius', overflow: 'hidden' }}>
@@ -287,27 +316,100 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 <Col xs="12" lg="9">
                     <Row >
                         {/* {this.articles()} */}
-                        {this.artikliulisti()} 
+                        {this.artikli()} 
                     </Row>
-                   {   <Row style={{ padding: 5 }}>
+                   <Row style={{ padding: 5 }}>
                         {this.responsibilityArticlesOnUser()}
                     </Row>
-                   }
                 </Col>
             </Row>
         );
     }
 
+    private userData(user: UserType){
+        const inicijali = `${user.surname?.charAt(0)}${user.forname?.charAt(0)}`;
+        return (
+            <Container fluid>
+            <Row>
+                <Col style={{display:"flex", flexDirection:"column", alignItems:"center",backgroundColor:"#3B5360"}} lg={3} xs={3}>
+                    <Avatar style={{fontSize:"80px", height:"150px", width:"150px", marginTop:"10px"}}>{inicijali}</Avatar>
+                    <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
+                    <div style={{fontSize:"14px"}}>{user.email}</div>
+                    <div style={{fontSize:"14px"}}>{user.job?.title}</div>
+                    <div style={{fontSize:"12px", marginTop:"20px", display:"flex", flexWrap:"wrap", flexDirection:"column", width:"100%"}}>
+                        <div>
+                        <i className="bi bi-calendar3" /> Posljednja prijava: {Moment(user.registrationDate).format('DD.MM.YYYY. - HH:mm')}
+                        </div>
+                        <div style={{marginBottom:"5px"}}>
+                        <i className="bi bi-award" /> Status: {user.status}
+                        </div>
+                    </div>
+                    
+                </Col>
+                <Col lg={9} xs={9} style={{marginTop:"10px"}}>
+                    <Form>
+                        <Row className="mb-3">
+                            <Form.Group as={Col} lg="6">
+                                <Form.Label>Ime</Form.Label>
+                                <Form.Control value={`${user.surname}`}></Form.Control>
+                            </Form.Group>
+                            <Form.Group as={Col} lg="6">
+                                <Form.Label>Prezime</Form.Label>
+                                <Form.Control value={`${user.forname}`}></Form.Control>
+                            </Form.Group>
+                        </Row>
+                        <Row className="mb-3">
+                            <Form.Group as={Col} lg="4">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control value={`${user.email}`}></Form.Control>
+                            </Form.Group>
+                            <Form.Group as={Col} lg="4">
+                                <Form.Label>Telefon</Form.Label>
+                                <Form.Control value={`${user.telephone}`}></Form.Control>
+                            </Form.Group>
+                            <Form.Group as={Col} lg="4">
+                                <Form.Label>Telefon/lokal</Form.Label>
+                                <Form.Control value={`${user.localNumber}`}></Form.Control>
+                            </Form.Group>
+                        </Row>
+                        <Row className="mb-3">
+                            <Form.Group as={Col} lg="4">
+                                <Form.Label>Sektor</Form.Label>
+                                <Form.Control value={`${user.department?.title}`}></Form.Control>
+                            </Form.Group>
+                            <Form.Group as={Col} lg="4">
+                                <Form.Label>Radno mjesto</Form.Label>
+                                <Form.Control value={`${user.job?.title}`}></Form.Control>
+                            </Form.Group>
+                            <Form.Group as={Col} lg="4">
+                                <Form.Label>Lokacija</Form.Label>
+                                <Form.Control value={`${user.location?.name}`}></Form.Control>
+                            </Form.Group>
+                        </Row>
+                        <Row className="mb-3">
+                            <Form.Group as={Col} lg="2">
+                                <Form.Label>Status</Form.Label>
+                                <Form.Control value={`${user.status}`}></Form.Control>
+                            </Form.Group>                     
+                        </Row>
+                    </Form>
+                    <div style={{display:"flex", flexDirection:"column", alignItems:"center", marginBottom:"15px"}}><Button style={{width:"95%"}}>Uredi</Button> </div>
+                </Col>
+            </Row>
+         </Container>
+        )
+    }
 
-    private artikliulisti() {
+
+    private artikli() {
         const uniqueCategories = Array.from(new Set(this.state.article.map(artikal => artikal.category?.name)));
 
         return(
-            <Card>
+         
                 <List
                 sx={{
                     bgcolor: 'background.paper',
-                    
+                    color:"black"
                 }}
                 component="nav"
                 aria-labelledby="nested-list-subheader"
@@ -348,7 +450,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             })
                         }
                 </List>
-            </Card>
+          
         )
         
     }

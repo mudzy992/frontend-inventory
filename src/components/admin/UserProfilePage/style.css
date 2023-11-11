@@ -1,0 +1,33 @@
+/* Za md i xs ekrane, postavi min-width na auto */
+@media (max-width: 991.98px) {
+    .nav-link.active {
+      min-width: auto !important;
+    }
+    .nav{
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+    }
+  }
+  
+  /* Za lg ekrane, postavi min-width na minimalno 150px */
+  @media (min-width: 992px) {
+    /* .nav-link.active {
+      min-width: 200px !important;
+    } */
+    .nav {
+        display: flex;
+        flex-direction: column;
+    }
+  }
+  
+  /* Ostali stilovi za .nav-link.active */
+  .nav-link.active {
+    background-color: #537188 !important; 
+    color: white !important;
+  }
+
+  .nav {
+    white-space: nowrap !important;
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* Internet Explorer 11 */
+  }

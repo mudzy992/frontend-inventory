@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, Col, Container, Row, Badge, Button, OverlayTrigger, Tooltip, ThemeProvider, Tab, Nav, Form } from 'react-bootstrap';
+import { Card, Col, Container, Row, Button, OverlayTrigger, Tooltip, ThemeProvider, Tab, Nav, Form } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar, FormControl, InputLabel, Input, TextField, Box, colors, Badge, InputAdornment, IconButton, FormHelperText } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import ArticleType from "../../../types/ArticleType";
 import UserType from "../../../types/UserType";
-import { ExpandLess, ExpandMore, StarBorder } from "@mui/icons-material";
+import { ColorLensOutlined, ExpandLess, ExpandMore, StarBorder, Visibility, VisibilityOff } from "@mui/icons-material";
 import "./style.css";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -35,7 +35,23 @@ interface AdminUserProfilePageState {
     isLoggedIn: boolean;
     departmentJobs: DepartmentByIdType[];
     open: string | null;
+    showPassword: boolean;
+    editUser:{
+        forname: string;
+        surname: string;
+        email: string;
+        password: string;
+        localNumber: number;
+        telephone: string;
+        jobId: number;
+        departmentId: number;
+        locationId: number;
+        status: string;
+        passwordHash: string;
+        
+    }
 }
+
 
 /* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
 export default class AdminUserProfilePage extends React.Component<AdminUserProfilePageProperties> {
@@ -50,8 +66,24 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             isLoggedIn: true,
             departmentJobs: [],
             open: null,
+            showPassword: false,
+            editUser: {
+                forname: "",
+                surname: "",
+                email: "",
+                password: "",
+                localNumber: Number(),
+                telephone: "",
+                jobId: Number(),
+                departmentId: Number(),
+                locationId: Number(),
+                status: "",
+                passwordHash: "",
+                
+            }
         }
     }
+    
     private setFeaturesData(featuresData: FeaturesType[]) {
         this.setState(Object.assign(this.state, {
             features: featuresData
@@ -89,6 +121,32 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             departmentJobs: departmentJobsData
         }))
     }
+
+    private setEditUserStringFieldState(fieldName: string, newValue: string) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.editUser, {
+                [fieldName]: newValue,
+            })))
+    }
+
+    private setEditUserNumberFieldState(fieldName: string, newValue: any) {
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state.editUser, {
+                [fieldName]: (newValue === 'null') ? null : Number(newValue),
+            })))
+    }
+
+    /* HANDLE FUNKCIJE */
+
+    handleClickShowPassword = () => {
+        this.setState((prevState: AdminUserProfilePageState) => ({
+          showPassword: !prevState.showPassword,
+        }));
+      };
+    
+      handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+      };
 
     handleClick = (categoryName: string) => {
         this.setState((prevState: AdminUserProfilePageState) => ({
@@ -184,47 +242,33 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             <div>
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
-                    <Card className="text-white bg-dark">
-                    <Tab.Container id="left-tabs-example" defaultActiveKey="profile">
-                        <Row>
-                            <Col lg={2} xs={2}>
-                                <Nav variant='pills' className="nav-pills">
-                                    <Nav.Item style={{padding:5}}>
-                                        <Nav.Link eventKey="profile"> <i className="bi bi-person-fill" /> Profile</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item style={{padding:5}}>
-                                        <Nav.Link eventKey="articles"> <i className="bi bi-box-fill" /> Zaduženi artikli</Nav.Link>
-                                    </Nav.Item>
-                                </Nav>
-                            </Col>
-                            <Col lg={10} xs={10}>
-                                <Tab.Content>
-                                {this.printOptionalMessage()}
-                                    <Tab.Pane eventKey="profile">{this.state.users ? (this.userData(this.state.users)): ''}</Tab.Pane>
-                                    <Tab.Pane eventKey="articles">{this.artikli()}</Tab.Pane>
-                                </Tab.Content>
-                            </Col>
-                        </Row>
-                    </Tab.Container>
+                    <Card className="text-white bg-dark" >
+                        
+                            <Tab.Container id="left-tabs-example" defaultActiveKey="profile">
+                                <Row>
+                                    <Col lg={2} xs={2}>
+                                    <Card.Body>
+                                        <Nav variant='pills' className="nav-pills">
+                                            <Nav.Item >
+                                                <Nav.Link eventKey="profile"> <i className="bi bi-person-fill" /> Profile</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item >
+                                                <Nav.Link eventKey="articles"> <i className="bi bi-box-fill" /> Zaduženi artikli</Nav.Link>
+                                            </Nav.Item>
+                                        </Nav>
+                                        </Card.Body>
+                                    </Col>
+                                    <Col lg={10} xs={10}>
+                                        <Tab.Content>
+                                        {this.printOptionalMessage()}
+                                            <Tab.Pane eventKey="profile">{this.state.users ? (this.userData(this.state.users)): ''}</Tab.Pane>
+                                            <Tab.Pane eventKey="articles">{this.articles()}</Tab.Pane>
+                                        </Tab.Content>
+                                    </Col>
+                                </Row>
+                            </Tab.Container>
+                        
                     </Card>
-                   {/* <Card className="text-white bg-dark">
-                        <Card.Header>
-                            <Card.Title>
-                                <i className="bi bi-card-checklist" /> {
-                                    this.state.users ?
-                                        this.state.users.fullname :
-                                        'Kartica korisnika nije pronadjena'
-                                }
-                            </Card.Title>
-                        </Card.Header>
-                         <Card.Body> {this.printOptionalMessage()}
-                                {
-                                    this.state.users ?
-                                        (this.renderArticleData(this.state.users)) :
-                                        ''
-                                }
-                        </Card.Body>
-                    </Card> */}
                 </Container>
             </div></ThemeProvider>
         )
@@ -253,85 +297,15 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 <Button size='sm' style={{backgroundColor:"#3A6351"}} onClick={() => savedFile(docPath)}>
                 <i className="bi bi-file-earmark-text" style={{ fontSize: 20, color:"white" }}/></Button>
             )
-    }
-}
-
-    private responsibilityArticlesOnUser() {
-        if (this.state.users?.articles?.length === 0) {
-            return (
-                <div>
-                    <b>Zadužena oprema</b><br />
-                    <Alert variant="filled" severity="info">Korisnik nema zadužene opreme</Alert>
-                </div>
-            )
         }
-        return (
-            <div>
-                <b>Zadužena oprema</b><br />
-                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Naziv</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Datum zaduženja</TableCell>
-                                <TableCell>Serijski broj</TableCell>
-                                <TableCell>#</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.state.users?.articles?.map((ura, index) => (
-                                <TableRow hover key={index}>
-                                    <TableCell><Link href={`#/admin/user/${ura.serialNumber}`} style={{ textDecoration: 'none', fontWeight: 'bold' }} >{ura.stock?.name}</Link></TableCell>
-                                    <TableCell>{ura.status}</TableCell>
-                                    <TableCell>{Moment(ura.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{ura.serialNumber}</TableCell>
-                                    <TableCell>{this.saveFile(ura.documents?.map(docpath => (docpath.path)))}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </div>
-        )
-    }
-
-    private renderArticleData(user: UserType) {
-        return (
-
-            <Row>
-                <Col xs="12" lg="3" style={{ backgroundColor: "", padding: 5, paddingLeft: 5 }} key={user.userId}>
-                    <ul className="list-group"  style={{ borderRadius: '--bs-card-border-radius', overflow: 'hidden' }}>
-                        <div>
-                            <li className="list-group-item active"><b>Detalji korisnika</b></li>
-                            <li className="list-group-item">Ime: {user.surname}</li>
-                            <li className="list-group-item">Prezime: {user.forname}</li>
-                            <li className="list-group-item">Email: {user.email}</li>
-                            <li className="list-group-item">Sektor: {user.department?.title}</li>
-                            <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
-                            <li className="list-group-item">Lokacija: {user.location?.name}</li>
-                        </div>
-                    </ul>
-                </Col>
-                <Col xs="12" lg="9">
-                    <Row >
-                        {/* {this.articles()} */}
-                        {this.artikli()} 
-                    </Row>
-                   <Row style={{ padding: 5 }}>
-                        {this.responsibilityArticlesOnUser()}
-                    </Row>
-                </Col>
-            </Row>
-        );
     }
 
     private userData(user: UserType){
         const inicijali = `${user.surname?.charAt(0)}${user.forname?.charAt(0)}`;
         return (
-            <Container fluid>
+            <Container fluid style={{borderRadius:"2px"}}>
             <Row>
-                <Col style={{display:"flex", flexDirection:"column", alignItems:"center",backgroundColor:"#3B5360"}} lg={3} xs={3}>
+                <Col className="mb" style={{display:"flex", flexDirection:"column", alignItems:"center",backgroundColor:"#3B5360", color:'white'}} lg={3} xs={3}>
                     <Avatar style={{fontSize:"80px", height:"150px", width:"150px", marginTop:"10px"}}>{inicijali}</Avatar>
                     <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
                     <div style={{fontSize:"14px"}}>{user.email}</div>
@@ -344,69 +318,121 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         <i className="bi bi-award" /> Status: {user.status}
                         </div>
                     </div>
-                    
                 </Col>
-                <Col lg={9} xs={9} style={{marginTop:"10px"}}>
-                    <Form>
-                        <Row className="mb-3">
-                            <Form.Group as={Col} lg="6">
-                                <Form.Label>Ime</Form.Label>
-                                <Form.Control value={`${user.surname}`}></Form.Control>
-                            </Form.Group>
-                            <Form.Group as={Col} lg="6">
-                                <Form.Label>Prezime</Form.Label>
-                                <Form.Control value={`${user.forname}`}></Form.Control>
-                            </Form.Group>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Group as={Col} lg="4">
-                                <Form.Label>Email</Form.Label>
-                                <Form.Control value={`${user.email}`}></Form.Control>
-                            </Form.Group>
-                            <Form.Group as={Col} lg="4">
-                                <Form.Label>Telefon</Form.Label>
-                                <Form.Control value={`${user.telephone}`}></Form.Control>
-                            </Form.Group>
-                            <Form.Group as={Col} lg="4">
-                                <Form.Label>Telefon/lokal</Form.Label>
-                                <Form.Control value={`${user.localNumber}`}></Form.Control>
-                            </Form.Group>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Group as={Col} lg="4">
-                                <Form.Label>Sektor</Form.Label>
-                                <Form.Control value={`${user.department?.title}`}></Form.Control>
-                            </Form.Group>
-                            <Form.Group as={Col} lg="4">
-                                <Form.Label>Radno mjesto</Form.Label>
-                                <Form.Control value={`${user.job?.title}`}></Form.Control>
-                            </Form.Group>
-                            <Form.Group as={Col} lg="4">
-                                <Form.Label>Lokacija</Form.Label>
-                                <Form.Control value={`${user.location?.name}`}></Form.Control>
-                            </Form.Group>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Group as={Col} lg="2">
-                                <Form.Label>Status</Form.Label>
-                                <Form.Control value={`${user.status}`}></Form.Control>
-                            </Form.Group>                     
-                        </Row>
+                <Col lg={9} xs={9} className="text-dark bg-white" style={{borderTopRightRadius:"5px", borderBottomRightRadius:"5px"}}>
+                    <Form style={{marginTop:'45px'}}>
+                    <Box
+                        component="form"
+                        sx={{
+                            '& > :not(style)': { m: 1 },
+                        }}
+                        noValidate
+                        autoComplete="off"
+                        >
+                             <Row>
+                                <Col lg={6} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-ime" label="Ime" variant="outlined" value={user.surname} onChange={(e) => this.setEditUserStringFieldState('surname', e.target.value)}/>
+                                </Col>
+                                <Col lg={6} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-prezime" label="Prezime" variant="outlined" value={user.forname} onChange={(e) => this.setEditUserStringFieldState('forname', e.target.value)}/>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-email" label="Email" variant="outlined" value={user.email} onChange={(e) => this.setEditUserStringFieldState('email', e.target.value)}/>
+                                </Col>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-telephone" label="Telefon" variant="outlined" value={user.telephone} onChange={(e) => this.setEditUserStringFieldState('telephone', e.target.value)}/>
+                                </Col>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-localnumber" label="Telefon/lokal" variant="outlined" value={user.localNumber} onChange={(e) => this.setEditUserNumberFieldState('localNumber', e.target.value)}/>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-email" label="Sektor/odjeljenje" variant="outlined" value={user.department?.title} onChange={(e) => this.setEditUserNumberFieldState('departmentId', e.target.value)}/>
+                                </Col>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-telephone" label="Radno mjesto" variant="outlined" value={user.job?.title} onChange={(e) => this.setEditUserNumberFieldState('jobId', e.target.value)}/>
+                                </Col>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-localnumber" label="Lokacija" variant="outlined" value={user.location?.name} onChange={(e) => this.setEditUserNumberFieldState('locationId', e.target.value)}/>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-email" label="Status" variant="outlined" value={user.status} onChange={(e) => this.setEditUserStringFieldState('status', e.target.value)}/>
+                                </Col>
+                                <Col lg={4} xs={12} className="mb-3">
+                                <FormControl fullWidth variant="outlined">
+                                    <InputLabel htmlFor="outlined-adornment-password">Lozinka</InputLabel>
+                                    <Input
+                                        onChange={(e) => this.setEditUserStringFieldState('passwordHash', e.target.value)}
+                                        id="outlined-adornment-password"
+                                        type={this.state.showPassword ? 'text' : 'password'}
+                                        endAdornment={
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={this.handleClickShowPassword}
+                                            onMouseDown={this.handleMouseDownPassword}
+                                            edge="end"
+                                            >
+                                            {this.state.showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                        }
+                                    />
+                                    </FormControl>
+                                   {/*  <TextField fullWidth  id="form-passwordHash" label="Status"  /> */}
+                                </Col>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col lg={12} xs={12} style={{display:"flex", justifyContent:'flex-end'}} className="mb-3">
+                                 <Button onClick={() => this.doEditUser()}>Snimi izmjene</Button>
+                                </Col>
+                            </Row>
+                        </Box>
                     </Form>
-                    <div style={{display:"flex", flexDirection:"column", alignItems:"center", marginBottom:"15px"}}><Button style={{width:"95%"}}>Uredi</Button> </div>
                 </Col>
             </Row>
          </Container>
         )
     }
 
+    private doEditUser(){
+        api('api/user/edit/' + this.props.match.params.userID, 'patch', {
+            forname: this.state.editUser.forname,
+            surname: this.state.editUser.surname,
+            email: this.state.editUser.email,
+            passwordHash: this.state.editUser.passwordHash,
+            localNumber: this.state.editUser.localNumber,
+            telephone: this.state.editUser.telephone,
+            jobId: this.state.editUser.jobId,
+            departmentId: this.state.editUser.departmentId,
+            locationId: this.state.editUser.locationId,
+            status: this.state.editUser.status,
+        }, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'login') {
+                    this.setLogginState(false)
+                    return
+                }
+                this.getUserData()
+            })
+    }
 
-    private artikli() {
+
+    private articles() {
         const uniqueCategories = Array.from(new Set(this.state.article.map(artikal => artikal.category?.name)));
-
         return(
-         
-                <List
+            <List
                 sx={{
                     bgcolor: 'background.paper',
                     color:"black"
@@ -414,63 +440,60 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 component="nav"
                 aria-labelledby="nested-list-subheader"
                 subheader={
-                    <ListSubheader component="div" id="nested-list-subheader">
+                <ListSubheader component="div" id="nested-list-subheader">
                     Zadužena oprema
-                    </ListSubheader>
-                    }>
-                        {
-                            uniqueCategories.map(categoryName => {
-                                const categoryArticles = this.state.article.filter(artikal => artikal.category?.name === categoryName);
-
-                                return (
-                                    <><ListItemButton sx={{ width: '100%'}} onClick={() => categoryName && this.handleClick(categoryName)}>
-                                        <ListItemIcon>
-                                            <i className={categoryArticles[0]?.category?.imagePath} style={{ fontSize: 16 }} />
-                                        </ListItemIcon>
-                                        <ListItemText>{categoryName}</ListItemText> {this.state.open === categoryName ? <ExpandLess /> : <ExpandMore />}
-                                    </ListItemButton>
-                                    <Collapse in={this.state.open === categoryName} timeout="auto" unmountOnExit>
-                                            <List component="div" disablePadding
-                                            sx={{
-                                                maxHeight:300,
-                                                overflow: 'auto'
-                                            }}
-                                            >
-                                            {categoryArticles.map(artikal => (
-                                                <ListItemButton key={artikal.articleId} sx={{ pl: 4 }}>
-                                                    <ListItemIcon>
-                                                    <i className={categoryArticles[0]?.category?.imagePath} style={{ fontSize: 16 }} />
-                                                    </ListItemIcon>
-                                                    <ListItemText>{artikal.serialNumber}</ListItemText>
-                                                </ListItemButton>
-                                            ))}
-                                            </List>
-                                    </Collapse></>
-                                );
-                            })
-                        }
-                </List>
-          
+                </ListSubheader>
+            }>
+                {uniqueCategories.map(categoryName => {
+                    const categoryArticles = this.state.article.filter(artikal => artikal.category?.name === categoryName);
+                        return (
+                            <><ListItemButton sx={{ width: '100%'}} onClick={() => categoryName && this.handleClick(categoryName)}>
+                                <ListItemIcon>
+                                    <i className={categoryArticles[0]?.category?.imagePath} style={{ fontSize: 16 }} />
+                                </ListItemIcon>
+                                <ListItemText>{categoryName}</ListItemText> {this.state.open === categoryName ? <ExpandLess /> : <ExpandMore />}
+                            </ListItemButton>
+                            <Collapse in={this.state.open === categoryName} timeout="auto" unmountOnExit>
+                                <List component="div" disablePadding
+                                    sx={{
+                                        maxHeight:300,
+                                        overflow: 'auto'
+                                    }}
+                                    >
+                                    <ListItemText>
+                                        <TableContainer component={Paper}> 
+                                            <Table>
+                                                <TableHead>
+                                                    <TableCell>Naziv</TableCell>
+                                                    <TableCell>Serijski broj</TableCell>
+                                                    <TableCell>Inventurni broj</TableCell>
+                                                    <TableCell>Dokument</TableCell>
+                                                </TableHead>
+                                                {categoryArticles.map(artikal => (
+                                                    <TableBody>
+                                                        <TableCell>
+                                                            {artikal.stock?.name}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {artikal.serialNumber}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {artikal.invNumber}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {this.saveFile(artikal.documents ? artikal.documents[0]?.path : 'N/A')}
+                                                        </TableCell>
+                                                    </TableBody>
+                                                ))}
+                                            </Table>
+                                        </TableContainer>
+                                    </ListItemText>
+                                </List>
+                            </Collapse></>
+                        );
+                    })
+                }
+            </List>
         )
-        
-    }
-
-    private articles() {
-        
-        return (
-            this.state.article.map((artikal) => (
-                
-                    <Col lg="3" xs="6" style={{paddingTop: 5, paddingLeft:16}} key={artikal.articleId}>
-                        <Card  text="dark" className="mb-3" style={{backgroundColor:"#316B83"}}>
-                            <Card.Body style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                <Badge pill bg="primary">
-                                    {artikal.category?.name}
-                                </Badge>{<div style={{ fontSize: 11, color:"white" }}>{artikal.stock?.name}</div>}
-                                <i className={`${artikal.category?.imagePath}`} style={{ fontSize: 52, color:"white" }}/>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                
-            )))
     }
 }

@@ -5,7 +5,7 @@ import Moment from 'moment';
 import { Table, TableContainer, TableHead, TableBody, TableCell, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar, FormControl, InputLabel, TextField, Box, InputAdornment, IconButton, Select, MenuItem, OutlinedInput } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
@@ -384,24 +384,23 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 <RoledMainMenu role='administrator' />
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark" >
-                        
                             <Tab.Container id="left-tabs-example" defaultActiveKey="profile">
                                 <Row>
                                     <Col lg={2} xs={2}>
-                                    <Card.Body>
-                                        <Nav variant='pills' className="nav-pills">
-                                            <Nav.Item >
-                                                <Nav.Link eventKey="profile"> <i className="bi bi-person-fill" /> Profile</Nav.Link>
-                                            </Nav.Item>
-                                            <Nav.Item >
-                                                <Nav.Link eventKey="articles"> <i className="bi bi-box-fill" /> Zaduženi artikli</Nav.Link>
-                                            </Nav.Item>
-                                        </Nav>
+                                        <Card.Body>
+                                            <Nav variant='pills' className="nav-pills">
+                                                <Nav.Item >
+                                                    <Nav.Link eventKey="profile"> <i className="bi bi-person-fill" /> Profile</Nav.Link>
+                                                </Nav.Item>
+                                                <Nav.Item >
+                                                    <Nav.Link eventKey="articles"> <i className="bi bi-box-fill" /> Zaduženi artikli</Nav.Link>
+                                                </Nav.Item>
+                                            </Nav>
                                         </Card.Body>
                                     </Col>
                                     <Col lg={10} xs={10}>
                                         <Tab.Content>
-                                        {this.printOptionalMessage()}
+                                            {this.printOptionalMessage()}
                                             <Tab.Pane eventKey="profile">{this.state.users ? (this.userData(this.state.users)): ''}</Tab.Pane>
                                             <Tab.Pane eventKey="articles">{this.articles()}</Tab.Pane>
                                         </Tab.Content>
@@ -443,24 +442,52 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 
     private userData(user: UserType){
         const inicijali = `${user.surname?.charAt(0)}${user.forname?.charAt(0)}`;
+
+        let lastActivityText;
+        if(user.lastLoginDate){
+            const currentDateTime = new Date();
+            const lastLoginDateTime = new Date(user.lastLoginDate);
+            if (!isNaN(currentDateTime.getTime()) && !isNaN(lastLoginDateTime.getTime())) {
+                const timeDifference = currentDateTime.getTime() - lastLoginDateTime.getTime();
+                const minutesDifference = Math.floor(timeDifference / (1000*60));
+                const hoursDifference = Math.floor(timeDifference / (1000*60*60));
+                const dayDifference = Math.floor(timeDifference / (1000*60*60*24));
+                if (minutesDifference < 1) {
+                    lastActivityText = `Posljednja aktivnost: prije manje od minut!`
+                }else if(minutesDifference < 60) {
+                    lastActivityText = `Posljednja aktivnost: prije ${minutesDifference} minuta`
+                } else if (hoursDifference < 60) {
+                    lastActivityText = `Posljednja aktivnot: prije ${hoursDifference} sati i ${minutesDifference % 60} minuta`
+                } else {
+                    lastActivityText = `Posljednja aktivnost: prije ${dayDifference} dana i ${hoursDifference % 24} sati`
+                }
+            } else {
+                lastActivityText = 'Neispravan datum i vrijeme!'
+            }
+        } else {
+            lastActivityText = 'Nema prijava!'
+        }
+        
         return (
-            <Container fluid style={{borderRadius:"2px"}}>
+            <Container fluid>
             <Row>
-                <Col className="mb" style={{display:"flex", flexDirection:"column", alignItems:"center",backgroundColor:"#3B5360", color:'white'}} lg={3} xs={3}>
-                    <Avatar style={{fontSize:"80px", height:"150px", width:"150px", marginTop:"10px"}}>{inicijali}</Avatar>
-                    <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
-                    <div style={{fontSize:"14px"}}>{user.email}</div>
-                    <div style={{fontSize:"14px"}}>{user.job?.title}</div>
-                    <div style={{fontSize:"12px", marginTop:"20px", display:"flex", flexWrap:"wrap", flexDirection:"column", width:"100%"}}>
-                        <div>
-                        <i className="bi bi-calendar3" /> Posljednja aktivnost: {Moment(user.lastLoginDate).format('DD.MM.YYYY. - HH:mm')}
-                        </div>
-                        <div style={{marginBottom:"5px"}}>
-                        <i className="bi bi-award" /> Status: {user.status}
+                <Col className="user-container" lg={3} xs={3}>
+                    <div className="mb-3 user-container details">
+                        <Avatar className="avatar">{inicijali}</Avatar>
+                        <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
+                        <div style={{fontSize:"14px"}}>{user.email}</div>
+                        <div style={{fontSize:"14px"}}>{user.job?.title}</div>
+                        <div className="activity-status">
+                            <div>
+                                <i className="bi bi-calendar3" /> {lastActivityText}
+                            </div>
+                            <div style={{marginBottom:"5px"}}>
+                                <i className="bi bi-award" /> Status: {user.status}
+                            </div>
                         </div>
                     </div>
                 </Col>
-                <Col lg={9} xs={9} className="text-dark bg-white" style={{borderTopRightRadius:"5px", borderBottomRightRadius:"5px"}}>
+                <Col lg={9} xs={9} className="text-dark bg-white card-radius-container">
                     <Form style={{marginTop:'45px'}}>
                     <Box
                         component="form"
@@ -666,7 +693,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                                             {artikal.stock?.name}
                                                         </TableCell>
                                                         <TableCell>
-                                                            {artikal.serialNumber}
+                                                            <Link to={`/admin/user/${artikal.serialNumber}`}>{artikal.serialNumber}</Link>
                                                         </TableCell>
                                                         <TableCell>
                                                             {artikal.invNumber}

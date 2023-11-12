@@ -1,6 +1,6 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Stack, Tooltip } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
@@ -12,7 +12,8 @@ import saveAs from 'file-saver';
 import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
-
+import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
+import "./article.on.user.page.css";
 interface AdminArticleOnUserPageProperties {
     match: {
         params: {
@@ -22,13 +23,13 @@ interface AdminArticleOnUserPageProperties {
 }
 
 interface upgradeFeaturesType {
+    upgradeFeatureId: number;
     name: string;
     value: string;
     serialNumber: string;
     comment: string;
     timestamp: string;
 }
-
 
 interface AdminArticleOnUserPageState {
     userArticle: UserArticleDto[];
@@ -37,6 +38,7 @@ interface AdminArticleOnUserPageState {
     users: UserType[];
     isLoggedIn: boolean;
     errorMessage: string;
+    expandedCards: boolean[];
     changeStatus: {
         visible: boolean;
         userId: number | null;
@@ -57,9 +59,10 @@ interface AdminArticleOnUserPageState {
 
 }
 
-export default class AdminArticleOnUserPage extends React.Component<AdminArticleOnUserPageProperties> {
-    state: AdminArticleOnUserPageState;
-
+export default class AdminArticleOnUserPage extends React.Component<
+  AdminArticleOnUserPageProperties,
+  AdminArticleOnUserPageState
+> {
     constructor(props: Readonly<AdminArticleOnUserPageProperties>) {
         super(props);
         this.state = {
@@ -68,6 +71,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
             article: {},
             isLoggedIn: true,
             errorMessage: '',
+            expandedCards: new Array(2).fill(false),
             changeStatus: {
                 userId: Number(),
                 articleId: 0,
@@ -155,9 +159,17 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         }))
     }
 
+    private toggleExpand = (index: number) => {
+        this.setState((prevState) => {
+          const expandedCards = [...prevState.expandedCards];
+          expandedCards[index] = !expandedCards[index];
+          return { expandedCards };
+        });
+      };
+      
     componentDidMount() {
         this.getArticleData()
-        this.getUpgradeFeatureBySerialNumber()
+        this.getUpgradeFeature()
     }
 
     componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
@@ -191,7 +203,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         )
     }
 
-    private getUpgradeFeatureBySerialNumber () {
+    private getUpgradeFeature () {
         api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             this.setUpgradeFeature(res.data)
@@ -207,7 +219,7 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         }, 'administrator')
         .then((res: ApiResponse) => {
             this.setUpgradeModalVisibleState(false)
-            this.getUpgradeFeatureBySerialNumber()
+            this.getUpgradeFeature()
             this.getArticleData()
         })
     }
@@ -523,13 +535,11 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
                         <Card bg="success" text="white" className="mb-2">
                             <Card.Header>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</Card.Header>
                             <ListGroup variant="flush" >
-                                <div>  
                                 <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListGroup.Item>
                                     <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListGroup.Item>
-                                </div>
                             </ListGroup>
                         </Card>
                     </Col>
@@ -538,33 +548,44 @@ export default class AdminArticleOnUserPage extends React.Component<AdminArticle
         }
     }
 
-    private saveFile (docPath: any) {
-            if(!docPath) {
-                return (<div>
-                <Link >
-                    <OverlayTrigger 
-                    placement="top"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={
-                    <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                    }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
-                    </Link></div> )
-            }
-            if (docPath) {
-                const savedFile = (docPath:any) => {
-                    saveAs(
-                        ApiConfig.TEMPLATE_PATH + docPath,
-                        docPath
-                    );
-                }
-                return (
-                    <Link onClick={() => savedFile(docPath)}>
-                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
-                    </Link>
-                )
+private saveFile (docPath: any) {
+        if(!docPath) {
+            return (<div>
+            <Link >
+                <OverlayTrigger 
+                placement="top"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
+                }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
+                </Link></div> )
         }
+        if (docPath) {
+            const savedFile = (docPath:any) => {
+                saveAs(
+                    ApiConfig.TEMPLATE_PATH + docPath,
+                    docPath
+                );
+            }
+            return (
+                <Link onClick={() => savedFile(docPath)}>
+                <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
+                </Link>
+            )
     }
-      
+}
+
+
+private doDeleteUpgradeFeature(upgradeFeatureId: number) {
+    api('api/upgradeFeature/delete/' + upgradeFeatureId, 'delete', {}, 'administrator')
+    .then((res: ApiResponse) => {
+        if (res.status === "login") {
+            this.setLogginState(false);
+            return
+        }
+        this.getUpgradeFeature();
+    })
+}
 
 private upgradeFeature() {
     if (this.state.upgradeFeature.length === 0) {
@@ -603,15 +624,30 @@ private upgradeFeature() {
                             </Card.Header>
                         <ListGroup variant="flush" >
                         {this.state.upgradeFeature.map((uf, index) => (
-                                <ListGroup.Item key={index} style={{ display: "flex", alignItems: "center"}}>
-                                    <b style={{marginRight:"3px"}}>{uf.name}: </b> {uf.value}
-                                    <OverlayTrigger 
-                                        placement="top"
-                                        delay={{ show: 250, hide: 400 }}
-                                        overlay={
-                                    <Tooltip id="tooltip-kolicina">{uf.comment} <b>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE}</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}</Tooltip>
-                                    }>
-                                    <Badge bg='success' pill style={{marginLeft:"5px", fontSize:"11px"}}>?</Badge></OverlayTrigger>
+                                <ListGroup.Item key={index} >
+                                    <Stack direction='horizontal' gap={3}>
+                                    <div className='p-1 '> 
+                                            <OverlayTrigger
+                                                placement="top"
+                                                delay={{ show: 250, hide: 400 }}
+                                                overlay={
+                                            <Tooltip id="tooltip-kolicina">{uf.comment} <b>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE}</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}</Tooltip>
+                                            }>
+                                            <i style={{color:"darkgreen"}} className="bi bi-info-circle-fill"/>
+                                            </OverlayTrigger>
+                                        </div>
+                                        <div className='p'><b>{uf.name}: </b> {uf.value}</div>
+                                        
+                                        <div className='p-2 ms-auto'>
+                                            <Link onClick={e => (this.doDeleteUpgradeFeature(uf.upgradeFeatureId))} style={{cursor:'pointer'}}> <i style={{ color:"darkred"}} className="bi bi-trash3-fill"/></Link>
+                                        </div>
+
+                                        
+                                    </Stack>
+                                    
+
+                                    
+
                                 </ListGroup.Item>
                             ), this)}
                         </ListGroup>
@@ -623,6 +659,10 @@ private upgradeFeature() {
 }
 
     renderArticleData(article: ArticleType) {
+        const { expandedCards } = this.state;
+
+        
+
         return (
             <Row>
                 <Col xs="12" lg="8">
@@ -637,7 +677,7 @@ private upgradeFeature() {
                                         <Card.Header style={{backgroundColor:"#263238"}}>
                                             {LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.CARD_HEADER}
                                             </Card.Header>
-                                        <ListGroup variant="flush" >
+                                        <ListGroup className={`kartica-wrapper ${expandedCards[0] ? 'kartica-expanded' : ''}`} variant="flush" >
                                         {this.state.article.stock?.stockFeatures?.map((artFeature, index) => (
                                             <ListGroup.Item key={index}>
                                                 <b>{artFeature.feature?.name}:</b> {artFeature.value}
@@ -648,9 +688,19 @@ private upgradeFeature() {
                                             </ListGroup.Item> 
                                             <ListGroup.Item>
                                                 <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.article.invNumber}
-                                            </ListGroup.Item> 
+                                            </ListGroup.Item>
+                                            <ListGroup.Item>
+                                            </ListGroup.Item>
                                         </ListGroup>
+                                        <div className='moreLess'>
+                                            {this.state.article.stock?.stockFeatures ? this.state.article.stock?.stockFeatures.length > 4 && (
+                                                <Link className='linkStyle' onClick={() => this.toggleExpand(0)}>
+                                                    {expandedCards[0] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
+                                              </Link>
+                                            ):""}
+                                        </div>
                                     </Card>
+                                    
                                 </Col>
                             </Row>
                             {this.upgradeFeature()}
@@ -661,8 +711,17 @@ private upgradeFeature() {
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header style={{backgroundColor:"#263238"}}>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</Card.Header>
-                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>
-                                    {article.stock?.description}</Card.Body>
+                                <Card.Body className={`kartica-wrapper description ${expandedCards[1] ? 'kartica-expanded' : ''}`}>
+                                    {article.stock?.description}
+                                </Card.Body>
+                                <div className='moreLess'>
+                                    {article.stock?.description ? article.stock?.description.length > 100 && (
+                                        <Link className='linkStyle' onClick={() => this.toggleExpand(1)}>
+                                            {expandedCards[1] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
+                                        </Link>
+                                    ):""}
+                                </div>
+                                
                             </Card>
                         </Col>
                     </Row>
@@ -712,10 +771,8 @@ private upgradeFeature() {
                                     </Row>
                                 </Card.Header>
                                 <ListGroup variant="flush">
-                                    <div>
-                                        <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
-                                        <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
-                                    </div>
+                                    <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
+                                    <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
                                 </ListGroup>
                             </Card>
                         </Col>
@@ -724,14 +781,12 @@ private upgradeFeature() {
                         <Col>
                             <Card className="text-dark bg-light mb-2" >
                                 <Card.Header>U skladištu</Card.Header>
-                                 <ListGroup variant="flush" >
-                                            <div key="stock-stanje">
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListGroup.Item>
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListGroup.Item>
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListGroup.Item>
-                                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                            </div>
-                                </ListGroup>
+                                    <ListGroup variant="flush" >
+                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListGroup.Item>
+                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListGroup.Item>
+                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListGroup.Item>
+                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                    </ListGroup>
                             </Card>
                         </Col>
                     </Row>

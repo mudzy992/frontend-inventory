@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Col, Container, Row, Button, OverlayTrigger, Tooltip, ThemeProvider, Tab, Nav, Form } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar, FormControl, InputLabel, Input, TextField, Box, colors, Badge, InputAdornment, IconButton, FormHelperText, Select, MenuItem, OutlinedInput } from "@mui/material";
+import { Table, TableContainer, TableHead, TableBody, TableCell, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar, FormControl, InputLabel, TextField, Box, InputAdornment, IconButton, Select, MenuItem, OutlinedInput } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import ArticleType from "../../../types/ArticleType";
 import UserType from "../../../types/UserType";
-import { ColorLensOutlined, ExpandLess, ExpandMore, StarBorder, Visibility, VisibilityOff } from "@mui/icons-material";
+import { ExpandLess, ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material";
 import "./style.css";
 import LocationType from "../../../types/LocationType";
 import DepartmentType from "../../../types/DepartmentType";
@@ -526,12 +526,12 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             <Row>
                                 <Col lg={4} xs={12} className="mb-3">
                                     <FormControl fullWidth>
-                                        <InputLabel id="form-select-location-label">Radno mjesto</InputLabel>
+                                        <InputLabel id="form-select-location-label">Lokacija</InputLabel>
                                         <Select
                                             labelId="form-select-location-label"
                                             id="form-select-location"
                                             value={this.state.editUser.locationId.toString()}
-                                            label="Radno mjesto"
+                                            label="Lokacija"
                                             onChange={e => {this.setEditUserNumberFieldState('locationId', e.target.value)}}>
                                                 {this.state.location.map((location, index) => (
                                                     <MenuItem key={index} value={location.locationId?.toString()}>{location.name}</MenuItem>
@@ -548,35 +548,34 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                             value={this.state.editUser.status.toString()}
                                             label="Status"
                                             onChange={e => {this.setEditUserStringFieldState('status', e.target.value)}}>
-                                                    <MenuItem key="status-act" value="aktivan">Aktivan</MenuItem>
-                                                    <MenuItem key="status-deact" value="neaktivan">Neaktivan</MenuItem>
+                                                    <MenuItem key="aktivan" value="aktivan">Aktivan</MenuItem>
+                                                    <MenuItem key="neaktivan" value="neaktivan">Neaktivan</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Col>
                                 <Col lg={4} xs={12} className="mb-3">
-                                <FormControl fullWidth variant="outlined">
-                                    <InputLabel htmlFor="outlined-adornment-password-label">Lozinka</InputLabel>
-                                    <OutlinedInput
-                                        onChange={(e) => this.setEditUserStringFieldState('passwordHash', e.target.value)}
-                                        label="outlined-adornment-password-label"
-                                        id="outlined-adornment-password"
-                                        type={this.state.showPassword ? 'text' : 'password'}
-                                        value={this.state.editUser.passwordHash}
-                                        endAdornment={
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                            aria-label="prikaži lozinku"
-                                            onClick={this.handleClickShowPassword}
-                                            onMouseDown={this.handleMouseDownPassword}
-                                            edge="end"
-                                            >
-                                            {this.state.showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                        }
-                                    />
+                                    <FormControl fullWidth variant="outlined">
+                                        <InputLabel htmlFor="outlined-adornment-password-label">Lozinka</InputLabel>
+                                        <OutlinedInput
+                                            onChange={(e) => this.setEditUserStringFieldState('passwordHash', e.target.value)}
+                                            label="outlined-adornment-password-label"
+                                            id="outlined-adornment-password"
+                                            type={this.state.showPassword ? 'text' : 'password'}
+                                            value={this.state.editUser.passwordHash}
+                                            endAdornment={
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                aria-label="prikaži lozinku"
+                                                onClick={this.handleClickShowPassword}
+                                                onMouseDown={this.handleMouseDownPassword}
+                                                edge="end"
+                                                >
+                                                {this.state.showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                            }
+                                        />
                                     </FormControl>
-                                   {/*  <TextField fullWidth  id="form-passwordHash" label="Status"  /> */}
                                 </Col>
                                 
                             </Row>

@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Col, Container, Row, Button, OverlayTrigger, Tooltip, ThemeProvider, Tab, Nav, Form } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
-import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar, FormControl, InputLabel, Input, TextField, Box, colors, Badge, InputAdornment, IconButton, FormHelperText } from "@mui/material";
+import { Alert, Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar, FormControl, InputLabel, Input, TextField, Box, colors, Badge, InputAdornment, IconButton, FormHelperText, Select, MenuItem, OutlinedInput } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
 import { Redirect } from 'react-router-dom';
@@ -14,6 +14,9 @@ import ArticleType from "../../../types/ArticleType";
 import UserType from "../../../types/UserType";
 import { ColorLensOutlined, ExpandLess, ExpandMore, StarBorder, Visibility, VisibilityOff } from "@mui/icons-material";
 import "./style.css";
+import LocationType from "../../../types/LocationType";
+import DepartmentType from "../../../types/DepartmentType";
+import JobType from "../../../types/JobType";
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface AdminUserProfilePageProperties {
@@ -22,6 +25,19 @@ interface AdminUserProfilePageProperties {
             userID: number;
         }
     }
+}
+
+interface LocationDto {
+    locationId: number;
+    name: string;
+    code: string;
+    parentLocationId: number;
+}
+
+interface JobBaseType {
+    jobId: number;
+    title: string;
+    jobCode: string;
 }
 
 interface AdminUserProfilePageState {
@@ -41,15 +57,17 @@ interface AdminUserProfilePageState {
         surname: string;
         email: string;
         password: string;
-        localNumber: number;
+        localNumber: string;
         telephone: string;
         jobId: number;
         departmentId: number;
         locationId: number;
         status: string;
         passwordHash: string;
-        
-    }
+    },
+    location: LocationType[];
+    department: DepartmentType[];
+    job: JobType[];
 }
 
 
@@ -72,15 +90,17 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 surname: "",
                 email: "",
                 password: "",
-                localNumber: Number(),
+                localNumber:"",
                 telephone: "",
                 jobId: Number(),
                 departmentId: Number(),
                 locationId: Number(),
                 status: "",
-                passwordHash: "",
-                
-            }
+                passwordHash: "", 
+            },
+            location: [],
+            department: [],
+            job: [],
         }
     }
     
@@ -116,10 +136,47 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         this.setState(newState);
     }
 
-    private setDepartmentJobs(departmentJobsData: DepartmentByIdType[]) {
+    private setLocation(location: LocationDto[]) {
+        const locData: LocationType[] = location.map(details => {
+            return {
+                locationId: details.locationId,
+                code: details.code,
+                name: details.name,
+                parentLocationId: details.parentLocationId,
+            }
+        })
         this.setState(Object.assign(this.state, {
-            departmentJobs: departmentJobsData
+            location: locData,
         }))
+    }
+
+    private setDepartment(department: DepartmentType) {
+        this.setState(Object.assign(this.state, {
+            department: department,
+        }))
+    }
+
+    private setJob(job: JobType) {
+        this.setState(Object.assign(this.state, {
+            job: job,
+        }))
+    }
+
+    private async addJobDepartmentChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        this.setEditUserNumberFieldState('departmentId', event.target.value);
+
+        const jobs = await this.getJobsByDepartmentId(this.state.editUser.departmentId);
+        const stateJobs = jobs.map(job => ({
+            jobId: job.jobId,
+            title: job.title,
+            jobCode: job.jobCode
+        }));
+
+        this.setState(Object.assign(this.state,
+            Object.assign(this.state, {
+                job: stateJobs,
+            }),
+        ));
     }
 
     private setEditUserStringFieldState(fieldName: string, newValue: string) {
@@ -160,7 +217,25 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     componentDidMount() {
         /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
         this.getUserData()
+            .then(() => {
+                // Nakon što se getUserData završi, možete sigurno pristupiti this.state.users
+                this.getData();
+                this.getArticleData()
+                this.getJobsByDepartmentId(this.state.users?.departmentId ?? 0)
+                    .then(jobs => {
+                        this.setState({ job: jobs });
+    
+                        // Ako je trenutni department isti kao početni, ažurirajte state još jednom
+                        if (this.state.users?.departmentId === this.state.editUser.departmentId) {
+                            this.setState({ job: jobs });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Greška prilikom dohvaćanja radnih mesta:', error);
+                    });
+            });
     }
+    
 
     componentDidUpdate() {
         /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
@@ -185,23 +260,33 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
     3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
     private getUserData() {
-        api('api/user/' + this.props.match.params.userID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                /* Nakon što se izvrši ruta, šta onda */
-                if (res.status === 'error') {
-                    this.setUsers(undefined);
-                    this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                    return;
-                }
-                if (res.status === 'login') {
-                    return this.setLogginState(false);
-                }
+        return new Promise<void>((resolve) => {
+            api('api/user/' + this.props.match.params.userID, 'get', {}, 'administrator')
+                .then((res: ApiResponse) => {
+                    if (res.status === 'error') {
+                        this.setUsers(undefined);
+                        this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                        resolve();
+                        return;
+                    }
+                    if (res.status === 'login') {
+                        this.setLogginState(false);
+                        resolve();
+                        return;
+                    }
+    
+                    const data: UserType = res.data;
+                    this.setErrorMessage('');
+                    this.setUsers(data);
+                    this.putUserDetailsInState(res.data);
+                    resolve();
+                });
+        });
+        
+    }
 
-                const data: UserType = res.data;
-                this.setErrorMessage('')
-                this.setUsers(data)
-            })
-        api('api/article/?filter=user.userId||$eq||'
+    private getArticleData(){
+            api('api/article/?filter=user.userId||$eq||'
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -222,6 +307,62 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             }
         )
     }
+
+    private getData(){
+        api('api/location?sort=name,ASC', 'get', {}, 'administrator')
+        .then(async (res: ApiResponse) => {
+            if(res.status === 'error') {
+                this.setErrorMessage('Greška prilikom hvatanja lokacija')
+            }
+            if(res.status === 'login') {
+                return this.setLogginState(false)
+            }
+            this.setLocation(res.data)
+        })
+
+        api('api/department?sort=title,ASC', 'get', {}, 'administrator')
+        .then(async (res: ApiResponse) => {
+            if(res.status === 'error') {
+                this.setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
+            }
+            this.setDepartment(res.data)
+        })
+    }
+
+    private async getJobsByDepartmentId(departmentId: number): Promise<JobBaseType[]> {
+        return new Promise(resolve => {
+            api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/&sort=title,ASC', 'get', {}, 'administrator')
+            .then((res : ApiResponse) => {
+            if(res.status === 'error') {
+                this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+            }
+
+            /* this.setJob(res.data) */
+
+            const jobs: JobBaseType[] = res.data.map((item: any) => ({
+                jobId: item.jobId,
+                title: item.title,
+                jobCode: item.jobCode
+            }))
+            resolve(jobs)
+        })
+    })      
+    }
+
+
+    private async putUserDetailsInState(user: UserType){
+        this.setEditUserStringFieldState('forname', String(user.forname))
+        this.setEditUserStringFieldState('surname', String(user.surname))
+        this.setEditUserStringFieldState('email', String(user.email))
+        this.setEditUserStringFieldState('passwordHash', String(user.passwordHash))
+        this.setEditUserStringFieldState('localNumber', String(user.localNumber))
+        this.setEditUserStringFieldState('telephone', String(user.telephone))
+        this.setEditUserNumberFieldState('jobId', Number(user.jobId))
+        this.setEditUserNumberFieldState('departmentId', Number(user.departmentId))
+        this.setEditUserNumberFieldState('locationId', Number(user.locationId))
+        this.setEditUserStringFieldState('status', String(user.status))
+    }
+    
 
     /* KRAJ GET I MOUNT FUNKCIJA */
 
@@ -312,7 +453,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                     <div style={{fontSize:"14px"}}>{user.job?.title}</div>
                     <div style={{fontSize:"12px", marginTop:"20px", display:"flex", flexWrap:"wrap", flexDirection:"column", width:"100%"}}>
                         <div>
-                        <i className="bi bi-calendar3" /> Posljednja prijava: {Moment(user.registrationDate).format('DD.MM.YYYY. - HH:mm')}
+                        <i className="bi bi-calendar3" /> Posljednja aktivnost: {Moment(user.lastLoginDate).format('DD.MM.YYYY. - HH:mm')}
                         </div>
                         <div style={{marginBottom:"5px"}}>
                         <i className="bi bi-award" /> Status: {user.status}
@@ -331,51 +472,100 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         >
                              <Row>
                                 <Col lg={6} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-ime" label="Ime" variant="outlined" value={user.surname} onChange={(e) => this.setEditUserStringFieldState('surname', e.target.value)}/>
+                                    <TextField fullWidth  id="form-ime" label="Ime" variant="outlined" value={this.state.editUser.surname} onChange={(e) => this.setEditUserStringFieldState('surname', e.target.value)}/>
                                 </Col>
                                 <Col lg={6} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-prezime" label="Prezime" variant="outlined" value={user.forname} onChange={(e) => this.setEditUserStringFieldState('forname', e.target.value)}/>
+                                    <TextField fullWidth  id="form-prezime" label="Prezime" variant="outlined" value={this.state.editUser.forname} onChange={(e) => this.setEditUserStringFieldState('forname', e.target.value)}/>
                                 </Col>
                             </Row>
                             <Row>
                                 <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-email" label="Email" variant="outlined" value={user.email} onChange={(e) => this.setEditUserStringFieldState('email', e.target.value)}/>
+                                    <TextField fullWidth  id="form-email" label="Email" variant="outlined" value={this.state.editUser.email} onChange={(e) => this.setEditUserStringFieldState('email', e.target.value)}/>
                                 </Col>
                                 <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-telephone" label="Telefon" variant="outlined" value={user.telephone} onChange={(e) => this.setEditUserStringFieldState('telephone', e.target.value)}/>
+                                    <TextField fullWidth  id="form-telephone" label="Telefon" variant="outlined" value={this.state.editUser.telephone} onChange={(e) => this.setEditUserStringFieldState('telephone', e.target.value)}/>
                                 </Col>
                                 <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-localnumber" label="Telefon/lokal" variant="outlined" value={user.localNumber} onChange={(e) => this.setEditUserNumberFieldState('localNumber', e.target.value)}/>
+                                    <TextField fullWidth  id="form-localnumber" label="Telefon/lokal" variant="outlined" value={this.state.editUser.localNumber} onChange={(e) => this.setEditUserStringFieldState('localNumber', e.target.value)}/>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col lg={6} xs={12} className="mb-3">
+                                    <FormControl fullWidth>
+                                        <InputLabel id="form-select-department-label">Sektor/odjeljenje</InputLabel>
+                                        <Select
+                                            labelId="form-select-department-label"
+                                            id="form-select-department"
+                                            value={this.state.editUser.departmentId.toString()}
+                                            label="Sektor/odjeljenje"
+                                            onChange={e => {this.setEditUserNumberFieldState('departmentId', e.target.value); this.addJobDepartmentChange(e as any)}}>
+                                                {this.state.department.map((department, index) => (
+                                                    <MenuItem key={index} value={department.departmentId?.toString()}>{department.title}</MenuItem>
+                                                ))}
+                                        </Select>
+                                    </FormControl>
+                                </Col>
+                                <Col lg={6} xs={12} className="mb-3">
+                                    <FormControl fullWidth>
+                                        <InputLabel id="form-select-job-label">Radno mjesto</InputLabel>
+                                        <Select
+                                            labelId="form-select-job-label"
+                                            id="form-select-job"
+                                            value={this.state.editUser.jobId.toString()}
+                                            label="Radno mjesto"
+                                            onChange={e => {this.setEditUserNumberFieldState('jobId', e.target.value)}}>
+                                                {this.state.job.map((job, index) => (
+                                                    <MenuItem key={index} value={job.jobId?.toString()}>{job.title}</MenuItem>
+                                                ))}
+                                        </Select>
+                                    </FormControl>
                                 </Col>
                             </Row>
 
                             <Row>
                                 <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-email" label="Sektor/odjeljenje" variant="outlined" value={user.department?.title} onChange={(e) => this.setEditUserNumberFieldState('departmentId', e.target.value)}/>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="form-select-location-label">Radno mjesto</InputLabel>
+                                        <Select
+                                            labelId="form-select-location-label"
+                                            id="form-select-location"
+                                            value={this.state.editUser.locationId.toString()}
+                                            label="Radno mjesto"
+                                            onChange={e => {this.setEditUserNumberFieldState('locationId', e.target.value)}}>
+                                                {this.state.location.map((location, index) => (
+                                                    <MenuItem key={index} value={location.locationId?.toString()}>{location.name}</MenuItem>
+                                                ))}
+                                        </Select>
+                                    </FormControl>
                                 </Col>
                                 <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-telephone" label="Radno mjesto" variant="outlined" value={user.job?.title} onChange={(e) => this.setEditUserNumberFieldState('jobId', e.target.value)}/>
-                                </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-localnumber" label="Lokacija" variant="outlined" value={user.location?.name} onChange={(e) => this.setEditUserNumberFieldState('locationId', e.target.value)}/>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-email" label="Status" variant="outlined" value={user.status} onChange={(e) => this.setEditUserStringFieldState('status', e.target.value)}/>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="form-select-status-label">Status</InputLabel>
+                                        <Select
+                                            labelId="form-select-status-label"
+                                            id="form-select-status"
+                                            value={this.state.editUser.status.toString()}
+                                            label="Status"
+                                            onChange={e => {this.setEditUserStringFieldState('status', e.target.value)}}>
+                                                    <MenuItem key="status-act" value="aktivan">Aktivan</MenuItem>
+                                                    <MenuItem key="status-deact" value="neaktivan">Neaktivan</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                 </Col>
                                 <Col lg={4} xs={12} className="mb-3">
                                 <FormControl fullWidth variant="outlined">
-                                    <InputLabel htmlFor="outlined-adornment-password">Lozinka</InputLabel>
-                                    <Input
+                                    <InputLabel htmlFor="outlined-adornment-password-label">Lozinka</InputLabel>
+                                    <OutlinedInput
                                         onChange={(e) => this.setEditUserStringFieldState('passwordHash', e.target.value)}
+                                        label="outlined-adornment-password-label"
                                         id="outlined-adornment-password"
                                         type={this.state.showPassword ? 'text' : 'password'}
+                                        value={this.state.editUser.passwordHash}
                                         endAdornment={
                                         <InputAdornment position="end">
                                             <IconButton
-                                            aria-label="toggle password visibility"
+                                            aria-label="prikaži lozinku"
                                             onClick={this.handleClickShowPassword}
                                             onMouseDown={this.handleMouseDownPassword}
                                             edge="end"
@@ -388,9 +578,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                     </FormControl>
                                    {/*  <TextField fullWidth  id="form-passwordHash" label="Status"  /> */}
                                 </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    
-                                </Col>
+                                
                             </Row>
 
                             <Row>
@@ -406,28 +594,32 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         )
     }
 
-    private doEditUser(){
-        api('api/user/edit/' + this.props.match.params.userID, 'patch', {
-            forname: this.state.editUser.forname,
-            surname: this.state.editUser.surname,
-            email: this.state.editUser.email,
-            passwordHash: this.state.editUser.passwordHash,
-            localNumber: this.state.editUser.localNumber,
-            telephone: this.state.editUser.telephone,
-            jobId: this.state.editUser.jobId,
-            departmentId: this.state.editUser.departmentId,
-            locationId: this.state.editUser.locationId,
-            status: this.state.editUser.status,
-        }, 'administrator')
+    private doEditUser() {
+        try {
+            api('api/user/edit/' + this.props.match.params.userID, 'patch', {
+                forname: this.state.editUser.forname,
+                surename: this.state.editUser.surname,
+                email: this.state.editUser.email,
+                password: this.state.editUser.passwordHash,
+                localNumber: this.state.editUser.localNumber,
+                telephone: this.state.editUser.telephone,
+                jobId: this.state.editUser.jobId,
+                departmentId: this.state.editUser.departmentId,
+                locationId: this.state.editUser.locationId,
+                status: this.state.editUser.status,
+            }, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
-                    this.setLogginState(false)
-                    return
+                    this.setLogginState(false);
+                    return;
                 }
-                this.getUserData()
-            })
+                this.getUserData();
+            });
+        } catch (error) {
+            // Ovde možete obraditi grešku kako želite, npr. ispisivanjem u konzoli ili prikazivanjem korisniku
+            console.error('Greška prilikom izvršavanja API poziva:', error);
+        }
     }
-
 
     private articles() {
         const uniqueCategories = Array.from(new Set(this.state.article.map(artikal => artikal.category?.name)));

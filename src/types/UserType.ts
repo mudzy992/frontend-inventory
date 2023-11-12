@@ -12,6 +12,7 @@ export default class UserType {
     fullname?: string;
     localNumber?: string;
     telephone?: string;
+    passwordHash?: string;
     email?: string;
     jobId?: number;
     departmentId?: number;

@@ -640,14 +640,8 @@ private upgradeFeature() {
                                         
                                         <div className='p-2 ms-auto'>
                                             <Link onClick={e => (this.doDeleteUpgradeFeature(uf.upgradeFeatureId))} style={{cursor:'pointer'}}> <i style={{ color:"darkred"}} className="bi bi-trash3-fill"/></Link>
-                                        </div>
-
-                                        
+                                        </div>                                     
                                     </Stack>
-                                    
-
-                                    
-
                                 </ListGroup.Item>
                             ), this)}
                         </ListGroup>
@@ -660,9 +654,6 @@ private upgradeFeature() {
 
     renderArticleData(article: ArticleType) {
         const { expandedCards } = this.state;
-
-        
-
         return (
             <Row>
                 <Col xs="12" lg="8">

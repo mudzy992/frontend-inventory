@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import api from "../../../API/api"; 
 import Moment from 'moment';
 import { Link } from 'react-router-dom';
-import { TableContainer, Table, TableBody, TableCell, TableHead,TableRow, Alert, CircularProgress, IconButton, InputBase, Paper} from '@mui/material';
+import { TableContainer, Table, TableBody, TableCell, TableHead,TableRow, Alert, CircularProgress, IconButton, InputBase} from '@mui/material';
 import { ArrowForwardIos, ArrowBackIos, Search } from '@mui/icons-material';
 import { CgMoreO } from "@react-icons/all-files/cg/CgMoreO";
 import './ArticleModal.css';
@@ -115,7 +115,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
         <div style={{display:"flex", justifyContent:"center"}}><CircularProgress /></div>
       ) : userArticleData && userArticleData.length > 0 ? (
         <TableContainer >
-        <Table sx={{ minWidth: 650 }} aria-label="caption table">
+        <Table sx={{ minWidth: 650 }} size={'small'} aria-label="caption table">
           <TableHead>
             <TableRow>
               <TableCell>Korisnik</TableCell>

@@ -6,7 +6,6 @@ import ArticleModal from "./ArticleModal";
 import { Card} from "@mui/material";
 import { IoPeopleCircleOutline } from "@react-icons/all-files/io5/IoPeopleCircleOutline";
 import { MRT_Localization_SR_LATN_RS } from 'material-react-table/locales/sr-Latn-RS';
-import { DensityMedium } from "@mui/icons-material";
 
 
 interface ArticleType {
@@ -46,7 +45,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   const valueStatus = (valueAvailabele: number, valueOnConcract: number) => {
     if(valueAvailabele === 0 || valueAvailabele < valueOnConcract) {
-      return <Badge bg="warning"> nema na stanju</Badge>
+      return <Badge bg="danger"> nema na stanju</Badge>
     } else {
       return <Badge bg="success">Dostupno: {valueAvailabele}</Badge>
     }
@@ -76,6 +75,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const columns = useMemo<MRT_ColumnDef[]>(
     () => [
       {
+        size:350,
         accessorKey: "name",
         header: "Naziv opreme",
         Cell: ({ cell }) => cell.getValue<string>(),
@@ -102,8 +102,6 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         header: "Zaduženja",
         Cell: ({ cell }) => (
           <Button
-            variant="contained"
-            color="primary"
             className="btn-sm"
             onClick={() => {
               const stockId = cell.getValue<number>();
@@ -121,8 +119,6 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         header: "Detalji opreme",
         Cell: ({ cell }) => (
           <Button
-            variant="contained"
-            color="primary"
             className="btn-sm"
             onClick={() => {
               const stockId = cell.getValue<number>();
@@ -145,10 +141,13 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     <>
     <Card>
       <MaterialReactTable
-        columns={columns}
-        enableDensityToggle={true}
-        data={data}
-        localization={MRT_Localization_SR_LATN_RS}
+      columns={columns}
+      data={data}
+      enableSorting={false}
+      enableFilters={false}
+      enableColumnActions={false}
+      localization={MRT_Localization_SR_LATN_RS}
+      initialState={{ density: "compact" }}
       />
      
     </Card>

@@ -109,7 +109,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
         </div>
       ) : userArticleData && userArticleData.length > 0 ? (
         <TableContainer>
-          <Table sx={{ minWidth: 650 }} aria-label="caption table">
+          <Table sx={{ minWidth: 650 }} size={'small'} aria-label="caption table">
             <TableHead>
               <TableRow>
                 <TableCell>Korisnik</TableCell>

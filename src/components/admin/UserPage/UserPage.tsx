@@ -53,7 +53,7 @@ function UserTable(row:UserType[]){
         ];
     return(
         <ThemeProvider theme={theme}>
-        <Box sx={{ height: 600, width: '100%', }}>
+        <Box sx={{ height: 531, width: '100%', }}>
             <DataGrid
                 getRowId={(row) => row.userId}
                 columns={kolone}
@@ -65,6 +65,7 @@ function UserTable(row:UserType[]){
                 style={{backgroundColor:"white"}}
                 disableColumnFilter
                 disableColumnMenu
+                rowHeight={38}
                 components={{ 
                     Toolbar: GridToolbar,
                  }}

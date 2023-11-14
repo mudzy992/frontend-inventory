@@ -75,7 +75,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const columns = useMemo<MRT_ColumnDef[]>(
     () => [
       {
-        size:350,
+        size:400,
         accessorKey: "name",
         header: "Naziv opreme",
         Cell: ({ cell }) => cell.getValue<string>(),
@@ -141,13 +141,14 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     <>
     <Card>
       <MaterialReactTable
-      columns={columns}
-      data={data}
-      enableSorting={false}
-      enableFilters={false}
-      enableColumnActions={false}
-      localization={MRT_Localization_SR_LATN_RS}
-      initialState={{ density: "compact" }}
+        columns={columns}
+        data={data}
+        enableSorting={false}
+        enableFilters={false}
+        enableColumnActions={false}
+        enableDensityToggle={false}
+        localization={MRT_Localization_SR_LATN_RS}
+        initialState={{ density: "compact" }}
       />
      
     </Card>

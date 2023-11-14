@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import api from "../../../API/api"; 
 import Moment from 'moment';
-import { TableContainer, Table, TableBody, TableCell, TableHead, TableRow, Alert, CircularProgress, Card, InputBase, IconButton } from '@mui/material';
+import { TableContainer, Table, TableBody, TableCell, TableHead, TableRow, Alert, CircularProgress, Card, InputBase, IconButton, FormControl, InputLabel, OutlinedInput, InputAdornment } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ApiConfig } from '../../../config/api.config';
@@ -85,24 +85,29 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
 
   return (
     <Card style={{padding:"10px"}}>
-      <div className='search-box-modal'>
-        <InputBase
-          id="outlined-search"
-          sx={{ ml: 1, flex: 1 }}
-          placeholder="Pretraga"
-          inputProps={{ 'aria-label': 'Pretraga' }}
-          value={searchQuery}
+      <FormControl className='search-box-modal'>
+            <InputLabel htmlFor="pretraga-outlined">Pretraga</InputLabel>
+            <OutlinedInput
+              id="pretraga-outlined"
+              value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   handleSearch();
                 }
               }}
-        />
-        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={handleSearch}>
-          <Search />
-        </IconButton>
-      </div>
+              endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                onClick={handleSearch}
+                >
+                  <Search />
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Pretraga"
+            />
+          </FormControl>
       {isLoading ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />

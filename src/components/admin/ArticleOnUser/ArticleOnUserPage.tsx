@@ -3,7 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Stack, Tooltip } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link } from "@mui/material";
+import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Autocomplete, TextField, AutocompleteChangeReason, AutocompleteChangeDetails } from "@mui/material";
 import Moment from 'moment';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
@@ -410,6 +410,24 @@ export default class AdminArticleOnUserPage extends React.Component<
         let stat = article.status;
         const artiName = article.stock?.name;
         const userFullName: any = article.user?.fullname;
+        const usersCopy = [...this.state.users];
+        usersCopy.sort((a, b) => {
+            // Provjerite da li su fullname definirani prije poređenja
+            const fullnameA = a.fullname || '';
+            const fullnameB = b.fullname || '';
+            return fullnameA.localeCompare(fullnameB);
+          });
+        const sortedUsers = usersCopy.map(user => ({
+            userId: user.userId,
+            fullname: user.fullname
+        }))
+
+        enum MyAutocompleteChangeReason {
+            SelectOption = 'select-option',
+            CreateOption = 'create-option',
+            // dodajte druge vrednosti ako su potrebne
+        }
+
 
         if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
@@ -434,7 +452,24 @@ export default class AdminArticleOnUserPage extends React.Component<
                                 <h6>{ModalMessageArticleOnUser(artiName, userFullName)}</h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.NEW_OBLIGATE_LABEL} className="mb-3">
+                            <Autocomplete
+                                className='mb-3'
+                                disablePortal
+                                id="pick-the-user"
+                                onChange={(event, value, reason) => {
+                                    if (reason === 'selectOption' && typeof value === 'string') {
+                                        const selectedUser = this.state.users.find(user => user.fullname === value);
+                                        if (selectedUser) {
+                                            const userId = selectedUser.userId;
+                                            this.setChangeStatusNumberFieldState('userId', userId || null);
+                                        }
+                                    }
+                                }}
+                                options={this.state.users.map((option) => option.fullname)}
+                                renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
+                            />
+
+                                {/* <FloatingLabel label={LangBa.ARTICLE_ON_USER.NEW_OBLIGATE_LABEL} className="mb-3">
                                     <Form.Select placeholder={LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER} id='userId' required
                                         onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                         <option value=''>{LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER}</option>
@@ -442,7 +477,7 @@ export default class AdminArticleOnUserPage extends React.Component<
                                             <option key={users.userId} value={Number(users.userId)}>{users.forname} {users.surname}</option>
                                         ))}
                                     </Form.Select>
-                                </FloatingLabel>
+                                </FloatingLabel> */}
                             </Form.Group>
                             <Form.Group className="mb-3">             
                                 <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">

@@ -6,6 +6,7 @@ import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
 import ArticleInStockTable from './StockArticleTableNew';
+import { Autocomplete, TextField } from '@mui/material';
 
 interface StockPageProperties {
     match: {
@@ -526,7 +527,23 @@ export default class StockPage extends React.Component<StockPageProperties> {
                     </Modal.Header>
                     <Modal.Body>
                         <Form.Group className='was-validated'>
-                            <FloatingLabel label="Novo zaduženje na korisnika" className="mb-3">
+                            <Autocomplete
+                                className='mb-3'
+                                disablePortal
+                                id="pick-the-user"
+                                onChange={(event, value, reason) => {
+                                    if (reason === 'selectOption' && typeof value === 'string') {
+                                        const selectedUser = this.state.users.find(user => user.fullname === value);
+                                        if (selectedUser) {
+                                            const userId = selectedUser.userId;
+                                            this.setChangeStatusNumberFieldState('userId', userId || null);
+                                        }
+                                    }
+                                }}
+                                options={this.state.users.map((option) => option.fullname)}
+                                renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
+                            />
+                            {/* <FloatingLabel label="Novo zaduženje na korisnika" className="mb-3">
                                 <Form.Select placeholder='izaberi korisnika' id='userId' required
                                     onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
                                     <option value=''>izaberi korisnika</option>
@@ -534,7 +551,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                         <option value={users.userId.toString()}>{users.forname} {users.surname}</option>
                                     ))}
                                 </Form.Select>
-                            </FloatingLabel>
+                            </FloatingLabel> */}
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <FloatingLabel label="Kolicina" className="mb-3">

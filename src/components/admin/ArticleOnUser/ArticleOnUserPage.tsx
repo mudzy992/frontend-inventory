@@ -336,6 +336,8 @@ export default class AdminArticleOnUserPage extends React.Component<
                                         ''
                                 }
 
+                                
+
                                 <Alert variant="danger"
                                     style={{ marginTop: 15 }}
                                     className={this.state.errorMessage ? '' : 'd-none'}>

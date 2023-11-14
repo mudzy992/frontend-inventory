@@ -1,11 +1,12 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { Button } from "react-bootstrap";
+import { Badge, Button } from "react-bootstrap";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
 import { Card} from "@mui/material";
 import { IoPeopleCircleOutline } from "@react-icons/all-files/io5/IoPeopleCircleOutline";
 import { MRT_Localization_SR_LATN_RS } from 'material-react-table/locales/sr-Latn-RS';
+import { DensityMedium } from "@mui/icons-material";
 
 
 interface ArticleType {
@@ -13,6 +14,8 @@ interface ArticleType {
   name: string;
   excerpt: string;
   sapNumber: string;
+  valueOnContract: number;
+  valueAvailable: number;
   articles?: [
 
   ]
@@ -40,6 +43,14 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     setSelectedStockId(stockId);
     handleShowModal();
   };
+
+  const valueStatus = (valueAvailabele: number, valueOnConcract: number) => {
+    if(valueAvailabele === 0 || valueAvailabele < valueOnConcract) {
+      return <Badge bg="warning"> nema na stanju</Badge>
+    } else {
+      return <Badge bg="success">Dostupno: {valueAvailabele}</Badge>
+    }
+  }
 
   useEffect(() => {
     // Pozovite funkciju za dohvaćanje podataka o artiklima
@@ -70,16 +81,22 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
-        accessorKey: "excerpt",
-        header: "Opis opreme",
-        Cell: ({ cell }) => cell.getValue<string>(),
+       
+        accessorKey: "valueAvailable",
+        header: "Stanje",
+        Cell: ({ row }) => {
+          const { valueAvailable, valueOnContract } = row.original as ArticleType;
+          return valueStatus(valueAvailable, valueOnContract);
+        },
       },
       {
+      
         accessorKey: "sapNumber",
         header: "SAP broj",
         Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
+       
         accessorKey: "stockId",
         key: "stockId1",
         header: "Zaduženja",
@@ -98,6 +115,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         ),
       },
        {
+        
         accessorKey: "stockId",
         key: "articleId2",
         header: "Detalji opreme",
@@ -122,13 +140,13 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   if (errorMessage) {
     return <div>{errorMessage}</div>;
   }
-
+    
   return (
     <>
     <Card>
-      
       <MaterialReactTable
         columns={columns}
+        enableDensityToggle={true}
         data={data}
         localization={MRT_Localization_SR_LATN_RS}
       />

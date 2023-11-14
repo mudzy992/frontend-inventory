@@ -13,7 +13,6 @@ interface ArticleType {
   name: string;
   excerpt: string;
   sapNumber: string;
-  valueOnContract: number;
   valueAvailable: number;
   articles?: [
 
@@ -43,8 +42,8 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     handleShowModal();
   };
 
-  const valueStatus = (valueAvailabele: number, valueOnConcract: number) => {
-    if(valueAvailabele === 0 || valueAvailabele < valueOnConcract) {
+  const valueStatus = (valueAvailabele: number) => {
+    if(valueAvailabele === 0) {
       return <Badge bg="danger"> nema na stanju</Badge>
     } else {
       return <Badge bg="success">Dostupno: {valueAvailabele}</Badge>
@@ -85,8 +84,8 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         accessorKey: "valueAvailable",
         header: "Stanje",
         Cell: ({ row }) => {
-          const { valueAvailable, valueOnContract } = row.original as ArticleType;
-          return valueStatus(valueAvailable, valueOnContract);
+          const { valueAvailable } = row.original as ArticleType;
+          return valueStatus(valueAvailable);
         },
       },
       {

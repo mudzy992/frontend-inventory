@@ -20,7 +20,7 @@ module.exports = {
         host : '77.221.31.121',
         ref  : 'origin/Novi-dizaj-userprofila', 
         repo : 'https://github.com/mudzy992/frontend-inventory.git',
-        path : '/home/administrator/Documents/GitHub/frontend-inventory/', 
+        path : '/home/administrator/Documents/GitHub/frontend-inventory/', #update
         'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
       } 
     }

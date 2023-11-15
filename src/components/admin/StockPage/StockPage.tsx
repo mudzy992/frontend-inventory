@@ -418,6 +418,16 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 this.setModalVisibleState(false)
                 this.getStockData()
+                /* Očistiti listu nakon dodavanja, kako bi polja na sljedećoj izmjeni bila prazna */
+                this.setState({
+                changeStatus: {
+                    userId: Number(),
+                    comment: '',
+                    serialNumber: '',
+                    status: '',
+                    invNumber: '',
+            }
+        });
             })
     }
 

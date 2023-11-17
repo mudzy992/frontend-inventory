@@ -198,6 +198,10 @@ export default class AdminArticleOnUserPage extends React.Component<
 
         api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
+
                 this.setUsers(res.data)
             }
         )
@@ -206,6 +210,9 @@ export default class AdminArticleOnUserPage extends React.Component<
     private getUpgradeFeature () {
         api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
+            if (res.status === 'login') {
+                return this.setLogginState(false);
+            }
             this.setUpgradeFeature(res.data)
         })
     }
@@ -218,6 +225,9 @@ export default class AdminArticleOnUserPage extends React.Component<
             articleId: this.state.article.articleId,
         }, 'administrator')
         .then((res: ApiResponse) => {
+            if (res.status === 'login') {
+                return this.setLogginState(false);
+            }
             this.setUpgradeModalVisibleState(false)
             this.getUpgradeFeature()
             this.getArticleData()

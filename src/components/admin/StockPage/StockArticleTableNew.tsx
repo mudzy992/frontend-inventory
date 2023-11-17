@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import api from "../../../API/api"; 
 import Moment from 'moment';
 import { TableContainer, Table, TableBody, TableCell, TableHead, TableRow, Alert, CircularProgress, Card, InputBase, IconButton, FormControl, InputLabel, OutlinedInput, InputAdornment } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
@@ -31,6 +31,7 @@ interface ResponsibilityArticleBaseType {
 const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
   const [userArticleData, setUserArticleData] = useState<ResponsibilityArticleBaseType[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
@@ -40,17 +41,19 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
     setIsLoading(true);
     api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, 'get', {}, 'administrator')
       .then((res) => {
+        if(res.status === 'login') {
+          setIsLoading(false);
+          return;
+        }
         if (res.status === 'error') {
           console.error('Greška prilikom dohvaćanja dodatnih podataka:', res.data);
         } else {
           setUserArticleData(res.data.results as ResponsibilityArticleBaseType[]);
           setTotalResults(res.data.total); // Postavite ukupan broj rezultata
-          console.log(res.data.results)
         }
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error('Greška pri dohvaćanju podataka:', error);
         setIsLoading(false);
       });
   }, [stockId, itemsPerPage, currentPage, searchQuery]);
@@ -59,6 +62,10 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
     setIsLoading(true);
     api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, 'get', {}, 'administrator')
       .then((res) => {
+        if(res.status === 'login') {
+          setIsLoading(false);
+          return;
+        } 
         if (res.status === 'error') {
           console.error('Greška prilikom pretrage:', res.data);
         } else {
@@ -68,7 +75,6 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error('Greška pri dohvaćanju podataka:', error);
         setIsLoading(false);
       });
   };
@@ -80,6 +86,12 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
   const saveFile = (path: string) => {
     saveAs(ApiConfig.TEMPLATE_PATH + path, path);
   };
+
+  if(isLoggedIn === false) {
+    return (
+      <Redirect to='admin/login' />
+    )
+  }
 
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
@@ -165,9 +177,6 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                       </Link>
                     </div>
                   )}
-
-
-
                   </TableCell>
                 </TableRow>
               ))}

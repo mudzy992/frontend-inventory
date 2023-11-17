@@ -265,15 +265,18 @@ export default class AddUserPage extends React.Component<{}>{
         return new Promise(resolve => {
             api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/&sort=title,ASC', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
-            if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
-            }
+                if(res.status === 'login') {
+                    return this.setLogginState(false)
+                }
+                if(res.status === 'error') {
+                    this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+                }
 
-            const jobs: JobBaseType[] = res.data.map((item: any) => ({
-                jobId: item.jobId,
-                title: item.title,
-                jobCode: item.jobCode
-            }))
+                const jobs: JobBaseType[] = res.data.map((item: any) => ({
+                    jobId: item.jobId,
+                    title: item.title,
+                    jobCode: item.jobCode
+                }))
             resolve(jobs)
         })
     })      
@@ -307,25 +310,14 @@ export default class AddUserPage extends React.Component<{}>{
             
         }, 'administrator')
         .then(async (res: ApiResponse) => {
-            if(res.data.statusCode === 201) {
-                this.setErrorMessage('Korisnik dodan')
-                this.clearFormFields();
+            if(res.status === 'login') {
+                return this.setLogginState(false)
             }
             
             if(res.status === 'ok') {
                 this.setErrorMessage('Korisnik dodan')
                 this.clearFormFields()
             }
-
-/*             if (res.status === "login") {
-                this.setLogginState(false);
-                return;
-            }
-
-            if (res.status === "error") {
-                this.setAddModalStringFieldState('message', JSON.stringify(res.data));
-                return;
-            } */
         });
     }
     /* Kraj dodatnih funkcija */
@@ -526,7 +518,5 @@ export default class AddUserPage extends React.Component<{}>{
             </Card>  
             </div>
         )
-    }
-
-    
+    }    
 }

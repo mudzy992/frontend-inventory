@@ -3,6 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
 import MuiAlert from '@mui/material/Alert';
 import { Snackbar, Stack } from '@mui/material';
+import { Redirect } from 'react-router-dom';
 
 interface DepartmentType {
     departmentId: number;
@@ -33,6 +34,7 @@ interface AddDepartmentJobLocationState {
     departmentBase: DepartmentType[];
     jobBase: JobType[];
     locationBase: LocationType[];
+    isLoggedIn: boolean;
     add: {
         departmentJobLocation: {
             departmentId: number;
@@ -53,6 +55,7 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
             departmentBase:[],
             jobBase: [],
             locationBase: [],
+            isLoggedIn: true,
             add: {
                 departmentJobLocation: {
                     departmentId: 0,
@@ -79,6 +82,12 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
     private setErrorMessage(message: string) {
         this.setState(Object.assign(this.state.error, {
             message: message,
+        }));
+    }
+
+    private setLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state.error, {
+            isLoggedIn: isLoggedIn,
         }));
     }
 
@@ -117,7 +126,11 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
     private getData() {
         api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
                 return;
             }   
@@ -126,7 +139,11 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
 
         api('api/job?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja radnih mjesta.');
                 return;
             }   
@@ -135,7 +152,11 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
 
         api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja lokacija.');
                 return;
             }   
@@ -158,7 +179,11 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
     private doAddDepartmentJobLocation() {
         api('api/departmentJob/', 'post', this.state.add.departmentJobLocation, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja, pripadajućeg radnog mjesta te lokacije.');
                 return;
             }
@@ -239,6 +264,11 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
     /* RENDERER */
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return(
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
                 <Container style={{ marginTop:15}}>

@@ -4,12 +4,10 @@ import {Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Mod
 import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
-import { Link, } from "@mui/material";
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import saveAs from 'file-saver';
-import { ApiConfig } from '../../../config/api.config';
 import ArticleTable from './ArticleTable';
 import ArticleType from '../../../types/ArticleType';
+import { Redirect } from 'react-router-dom';
 
 interface ArticlePageProperties {
     match: {
@@ -33,6 +31,7 @@ interface ArticlePageState {
     article: ArticleType;
     feature: FeaturesType[];
     users: userData[];
+    isLoggedIn: boolean;
     editFeature: {
         visible:boolean;
         categoryId: number;
@@ -75,6 +74,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             article: {},
             feature: [],
             users: [],
+            isLoggedIn: true,
             editFeature: {
                 visible: false,
                 categoryId: 0,
@@ -205,6 +205,13 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             })))
     }
 
+    private setLogginState(isLoggedIn: boolean) {
+        const newState = Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        });
+        this.setState(newState);
+    }
+
     componentDidMount() {
         this.getArticleData()
     }
@@ -237,6 +244,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         return new Promise(resolve => {
             api('/api/feature/?filter=categoryId||$eq||' + this.state.editFeature.categoryId + '/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => { 
+                if(res.status === 'login') {
+                    this.setLogginState(false)
+                    return;
+                }
                 const features: FeatureBaseType[] = res.data.map((item: any) => ({
                     featureId: item.featureId,
                     name: item.name,
@@ -327,6 +338,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     private getArticleData() {
         api('api/article/' + this.props.match.params.articleID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setLogginState(false)
+                    return;
+                }
                 if (res.status === 'error') {
                     this.setArticles(undefined);
                     this.setFeaturesData([]);
@@ -365,6 +380,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     private async getUsers(){
         api('/api/user/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setLogginState(false)
+                    return;
+                }
                 this.setUsers(res.data)
             }
         )
@@ -394,6 +413,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 })),
         }, 'administrator')
         .then((res: ApiResponse) => {
+            if(res.status === 'login') {
+                this.setLogginState(false)
+                return;
+            }
             /* Hvatati grešku ako korisnik nema pravo da mjenja status */
             this.setEditFeatureModalVisibleState(false)
             this.getArticleData()
@@ -410,6 +433,10 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             invNumber: this.state.changeStatus.invNumber,
         }, 'administrator')
             .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setLogginState(false)
+                    return;
+                }
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 this.setModalVisibleState(false)
                 this.getArticleData()
@@ -434,6 +461,11 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     render() {
+        if(this.state.isLoggedIn === false){
+            return (
+                <Redirect to='admin/login'/>
+            )
+        }
         return (
             <div>
                 <RoledMainMenu role='administrator' />
@@ -462,8 +494,6 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                             <Button className="btn" size='sm' onClick={() => this.showEditFeatureModal()} ><i className="bi bi-pencil-square"/> Izmjeni</Button> 
                                         </Col>
                                 </Row>
-                                
-                            
                             </Card.Title>
                         </Card.Header>
                         <Card.Body>
@@ -518,91 +548,88 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             )
         }
         if (status > 0) {
-            
-            return (
-                
-                    
-                    <div><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Kartica zaduženja</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form.Group className='was-validated'>
-                            <FloatingLabel label="Novo zaduženje na korisnika" className="mb-3">
-                                <Form.Select placeholder='izaberi korisnika' id='userId' required
-                                    onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
-                                    <option value=''>izaberi korisnika</option>
-                                    {this.state.users.map(users => (
-                                        <option value={users.userId.toString()}>{users.forname} {users.surname}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <FloatingLabel label="Kolicina" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>}>
-                                    <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
-                            <Form.Text></Form.Text>
-                        </Form.Group>
+            return (                    
+                <div><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Kartica zaduženja</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className='was-validated'>
+                        <FloatingLabel label="Novo zaduženje na korisnika" className="mb-3">
+                            <Form.Select placeholder='izaberi korisnika' id='userId' required
+                                onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
+                                <option value=''>izaberi korisnika</option>
+                                {this.state.users.map(users => (
+                                    <option value={users.userId.toString()}>{users.forname} {users.surname}</option>
+                                ))}
+                            </Form.Select>
+                        </FloatingLabel>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <FloatingLabel label="Kolicina" className="mb-3">
+                            <OverlayTrigger
+                                placement="top"
+                                delay={{ show: 250, hide: 400 }}
+                                overlay={<Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>}>
+                                <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
+                        <Form.Text></Form.Text>
+                    </Form.Group>
 
-                        <Form.Group className='was-validated'>
-                            <FloatingLabel label="Status" className="mb-3">
-                                <Form.Select id="status" required
-                                    onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
-                                    <option value=''> izaberi status</option>
-                                    <option value='zaduženo'>
-                                        zaduženo
-                                    </option>
-                                    <option value='razduženo'>
-                                        razduženo
-                                    </option>
-                                    <option value='otpisano'>
-                                        otpisano
-                                    </option>
-                                </Form.Select>
-                            </FloatingLabel>
-                        </Form.Group>
-                        <Form.Group className='was-validated'>
-                            <FloatingLabel label="Serijski broj" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-serialNumber">U ovom koraku se dodjeljuje korisniku oprema po serijskom broju. Serijski broj se kasnije ne može mjenjati.</Tooltip>}>
-                                    <Form.Control type='text' id='serialNumber' required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                            <FloatingLabel label="Inventurni broj" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-invNumber">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>}>
-                                    <Form.Control type='text' id='invNumber' value={this.state.changeStatus.invNumber} isValid required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('invNumber', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                        </Form.Group>
-                        <Form.Group className='was-validated'>
-                            <FloatingLabel label="Komentar" className="mb-3">
-                                <Form.Control
-                                    id="comment"
-                                    as="textarea"
-                                    rows={3}
-                                    placeholder="(neobavezno)"
-                                    style={{ height: '100px' }}
-                                    onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
-                                    required
-                                    isValid /></FloatingLabel>
-                        </Form.Group>
-                        <Modal.Footer>
-                            <Button variant="primary" onClick={() => this.changeStatus()}> Sačuvaj
-                            </Button>
-                        </Modal.Footer>
-                    </Modal.Body>
-                </Modal></div>
+                    <Form.Group className='was-validated'>
+                        <FloatingLabel label="Status" className="mb-3">
+                            <Form.Select id="status" required
+                                onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
+                                <option value=''> izaberi status</option>
+                                <option value='zaduženo'>
+                                    zaduženo
+                                </option>
+                                <option value='razduženo'>
+                                    razduženo
+                                </option>
+                                <option value='otpisano'>
+                                    otpisano
+                                </option>
+                            </Form.Select>
+                        </FloatingLabel>
+                    </Form.Group>
+                    <Form.Group className='was-validated'>
+                        <FloatingLabel label="Serijski broj" className="mb-3">
+                            <OverlayTrigger
+                                placement="top"
+                                delay={{ show: 250, hide: 400 }}
+                                overlay={<Tooltip id="tooltip-serialNumber">U ovom koraku se dodjeljuje korisniku oprema po serijskom broju. Serijski broj se kasnije ne može mjenjati.</Tooltip>}>
+                                <Form.Control type='text' id='serialNumber' required
+                                    onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
+                            </OverlayTrigger>
+                        </FloatingLabel>
+                        <FloatingLabel label="Inventurni broj" className="mb-3">
+                            <OverlayTrigger
+                                placement="top"
+                                delay={{ show: 250, hide: 400 }}
+                                overlay={<Tooltip id="tooltip-invNumber">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>}>
+                                <Form.Control type='text' id='invNumber' value={this.state.changeStatus.invNumber} isValid required
+                                    onChange={(e) => this.setChangeStatusStringFieldState('invNumber', e.target.value)} />
+                            </OverlayTrigger>
+                        </FloatingLabel>
+                    </Form.Group>
+                    <Form.Group className='was-validated'>
+                        <FloatingLabel label="Komentar" className="mb-3">
+                            <Form.Control
+                                id="comment"
+                                as="textarea"
+                                rows={3}
+                                placeholder="(neobavezno)"
+                                style={{ height: '100px' }}
+                                onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
+                                required
+                                isValid /></FloatingLabel>
+                    </Form.Group>
+                    <Modal.Footer>
+                        <Button variant="primary" onClick={() => this.changeStatus()}> Sačuvaj
+                        </Button>
+                    </Modal.Footer>
+                </Modal.Body>
+            </Modal></div>
             )
         }
 
@@ -617,35 +644,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
     }
 
-    private saveFile (docPath: any) {
-            if(!docPath) {
-                return (<div>
-                <Link >
-                    <OverlayTrigger 
-                    placement="top"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={
-                    <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                    }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
-                    </Link></div> )
-            }
-            if (docPath) {
-                const savedFile = (docPath:any) => {
-                    saveAs(
-                        ApiConfig.TEMPLATE_PATH + docPath,
-                        docPath
-                    );
-                }
-                return (
-                    <Link onClick={() => savedFile(docPath)}>
-                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
-                    </Link>
-                )
-        }
-    }
-
     renderArticleData(article: ArticleType) {
-        
         return (
             <><Row>
                 <Col xs="12" lg="8">
@@ -812,12 +811,12 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                 </Col>
             </Row>
             <Row>
-                        <Col>
-                            <Card className="mb-3">
-                                <ArticleTable articleId={this.props.match.params.articleID} />
-                            </Card>
-                        </Col>
-                    </Row></>
+            <Col>
+                <Card className="mb-3">
+                    <ArticleTable articleId={this.props.match.params.articleID} />
+                </Card>
+            </Col>
+        </Row></>
         );
     }
 }

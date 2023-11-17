@@ -3,6 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
 import MuiAlert from '@mui/material/Alert';
 import { Snackbar, Stack } from '@mui/material';
+import { Redirect } from 'react-router-dom';
 
 
 interface JobType {
@@ -18,6 +19,7 @@ interface AddJobState {
         visible: boolean;
     };
     jobBase: JobType[];
+    isLoggedIn: boolean;
     add: {
         job: {
             title: string;
@@ -35,6 +37,7 @@ export default class AddJob extends React.Component<{}> {
             error: {
                 visible: false,
             },
+            isLoggedIn: true,
             jobBase: [],
             add: {
                 job: {
@@ -64,6 +67,12 @@ export default class AddJob extends React.Component<{}> {
         }));
     }
 
+    private setLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state.error, {
+            isLoggedIn: isLoggedIn,
+        }));
+    }
+
     private setJobData(jobData: JobType[]) {
         this.setState(Object.assign(this.state, {
             jobBase: jobData,
@@ -87,7 +96,11 @@ export default class AddJob extends React.Component<{}> {
     private getJobs() {
         api('api/job?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja radnih mjesta.');
                 return;
             }   
@@ -112,7 +125,11 @@ export default class AddJob extends React.Component<{}> {
     private doAddJob() {
         api('api/job/', 'post', this.state.add.job, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja radnog mjesta.');
                 return;
             }
@@ -183,6 +200,11 @@ export default class AddJob extends React.Component<{}> {
     /* RENDERER */
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return(
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
                 <Container style={{ marginTop:15}}>

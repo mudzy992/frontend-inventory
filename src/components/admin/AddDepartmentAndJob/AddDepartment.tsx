@@ -3,6 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
 import MuiAlert from '@mui/material/Alert';
 import { Snackbar, Stack } from '@mui/material';
+import { Redirect } from 'react-router-dom';
 
 interface DepartmentType {
     departmentId: number;
@@ -18,6 +19,7 @@ interface AddDepartmentState {
         visible: boolean;
     };
     departmentBase: DepartmentType[];
+    isLoggedIn: boolean;
     add: {
         department: {
             title: string;
@@ -37,6 +39,7 @@ export default class AddDepartment extends React.Component<{}> {
                 visible: false,
             },
             departmentBase:[],
+            isLoggedIn: true,
             add: {
                 department: {
                     title: '',
@@ -66,6 +69,12 @@ export default class AddDepartment extends React.Component<{}> {
         }));
     }
 
+    private setIsLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state.error, {
+            isLoggedIn: isLoggedIn,
+        }));
+    }
+
     private setDepartmentData(departmentData: DepartmentType[]) {
         this.setState(Object.assign(this.state, {
             departmentBase: departmentData,
@@ -87,7 +96,11 @@ export default class AddDepartment extends React.Component<{}> {
     private getDepartments() {
         api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
                 return;
             }   
@@ -111,7 +124,11 @@ export default class AddDepartment extends React.Component<{}> {
     private doAddDepartment() {
         api('api/department/', 'post', this.state.add.department, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error" ) {
                 this.setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja.');
                 return;
             }
@@ -199,11 +216,15 @@ export default class AddDepartment extends React.Component<{}> {
     /* RENDERER */
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return (
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
                 <Container style={{ marginTop:15}}>
                     {this.renderData()}
-                    
                 </Container>
             </div>
         )

@@ -5,10 +5,12 @@ import CategoryType from '../../../types/CategoryType';
 import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import { List, ListItemButton, ListItemText, ListSubheader } from '@mui/material';
 import AdminMenu from '../AdminMenu/AdminMenu';
+import { Redirect } from 'react-router-dom';
 
 interface AddFeatureState {
     categories: CategoryType[];
     message: string;
+    isLoggedIn: boolean;
     addNewFeature: {
         name: string;
         categoryId: number;
@@ -32,6 +34,7 @@ export default class AddFeaturePage extends React.Component<{}> {
         this.state = {
             categories: [],
             message: '',
+            isLoggedIn: true,
             addNewFeature: {
                 name: '',
                 categoryId: 0,
@@ -65,6 +68,12 @@ export default class AddFeaturePage extends React.Component<{}> {
         }));
     }
 
+    private setLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        }));
+    }
+
     private setCategoryData(category: CategoryType) {
         this.setState(Object.assign(this.state, {
             categories: category
@@ -93,6 +102,10 @@ export default class AddFeaturePage extends React.Component<{}> {
     private getCategories() {
         api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
         .then((res : ApiResponse) => {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return;
+            }
             this.setCategoryData(res.data)
         })
     }
@@ -101,10 +114,13 @@ export default class AddFeaturePage extends React.Component<{}> {
         return new Promise(resolve => {
             api('api/feature/?filter=categoryId||$eq||' + categoryId + '/', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
-            if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
-            }
-
+                if(res.status === 'login') {
+                    this.setLoggedInStatus(false);
+                    return;
+                }
+                if(res.status === 'error') {
+                    this.setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
+                }
             const features: FeatureBaseType[] = res.data.map((item: any) => ({
                 featureId: item.featureId,
                 name: item.name
@@ -144,6 +160,10 @@ export default class AddFeaturePage extends React.Component<{}> {
             name: this.state.addNewFeature.name,
         }, 'administrator')
         .then(async (res: ApiResponse) => {
+            if(res.status === 'login') {
+                this.setLoggedInStatus(false);
+                return;
+            }
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom dodavanja nove osobine. Provjerite da li se osobina već nalazi u listi iznad. Osvježite ili pokušajte ponovo kasnije')
                 return
@@ -222,6 +242,11 @@ export default class AddFeaturePage extends React.Component<{}> {
     /* RENDER */
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return (
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
                 <RoledMainMenu role="administrator" />

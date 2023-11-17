@@ -4,6 +4,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
 import MuiAlert from '@mui/material/Alert';
+import { Redirect } from 'react-router-dom';
 
 interface DepartmentType {
     departmentId: number;
@@ -31,6 +32,7 @@ interface AddDepartmentAndJobState {
     departmentBase: DepartmentType[];
     jobBase: JobType[];
     locationBase: LocationType[];
+    isLoggedIn: boolean;
     add: {
         department: {
             title: string;
@@ -64,6 +66,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
             departmentBase:[],
             jobBase: [],
             locationBase: [],
+            isLoggedIn: true,
             add: {
                 department: {
                     title: '',
@@ -128,6 +131,12 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
         }));
     }
 
+    private setIsLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        }));
+    }
+
     private setDepartmentData(departmentData: DepartmentType[]) {
         this.setState(Object.assign(this.state, {
             departmentBase: departmentData,
@@ -151,7 +160,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     private getDepartments() {
         api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
                 return;
             }   
@@ -160,7 +173,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
 
         api('api/job?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja radnih mjesta.');
                 return;
             }   
@@ -169,7 +186,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
 
         api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja lokacija.');
                 return;
             }   
@@ -193,7 +214,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     private doAddDepartment() {
         api('api/department/', 'post', this.state.add.department, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja.');
                 return;
             }
@@ -205,7 +230,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     private doAddJob() {
         api('api/job/', 'post', this.state.add.job, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja radnog mjesta.');
                 return;
             }
@@ -217,7 +246,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     private doAddLocation() {
         api('api/location/', 'post', this.state.add.location, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja lokacije.');
                 return;
             }
@@ -229,7 +262,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     private doAddDepartmentJobLocation() {
         api('api/departmentJob/', 'post', this.state.add.departmentJobLocation, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja, pripadajućeg radnog mjesta te lokacije.');
                 return;
             }
@@ -475,6 +512,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     /* RENDERER */
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return (
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
                 <RoledMainMenu role="administrator" />

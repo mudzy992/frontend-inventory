@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Card, Col, Container, Row } from 'react-bootstrap';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Redirect, useParams } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
@@ -51,6 +51,7 @@ interface CategoryType {
 
 const CategoryPage: React.FC = () => {
   const { categoryID } = useParams<{ categoryID: string }>();
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [state, setState] = useState<CategoryPageState>({
     subCategory: [],
     message: '',
@@ -76,6 +77,10 @@ const CategoryPage: React.FC = () => {
   const getCategoriesData = () => {
     api(`api/category/${categoryID}`, 'get', {}, 'administrator').then(
       (res: ApiResponse) => {
+        if(res.status === 'login') {
+          setIsLoggedIn(false)
+          return;
+        }
         if (res.status === 'error') {
           return setErrorMessage(
             'Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije'
@@ -176,6 +181,11 @@ const CategoryPage: React.FC = () => {
     return <Tabela categoryId={categoryID} />;
   };
   
+  if(isLoggedIn === false) {
+    return (
+      <Redirect to="/admin/login" />
+    )
+  }
 
   return (
     <div>

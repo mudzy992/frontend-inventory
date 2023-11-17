@@ -6,6 +6,7 @@ import ArticleModal from "./ArticleModal";
 import { Card} from "@mui/material";
 import { IoPeopleCircleOutline } from "@react-icons/all-files/io5/IoPeopleCircleOutline";
 import { MRT_Localization_SR_LATN_RS } from 'material-react-table/locales/sr-Latn-RS';
+import { Redirect } from "react-router-dom";
 
 
 interface ArticleType {
@@ -25,6 +26,7 @@ interface TabelaProps {
 
 const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const [data, setData] = useState<ArticleType[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false); // Dodajte state za prikaz moda
   const [selectedStockId, setSelectedStockId] = useState<number | null>(null);
@@ -57,6 +59,11 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         const response = await api(`api/stock/c/${categoryId}`, 'get', {}, 'administrator');
         if (response.status === 'error') {
           setErrorMessage('Greška prilikom učitavanja artikala. Osvježite stranicu ili pokušajte ponovo kasnije.');
+          return;
+        }
+
+        if(response.status === 'login') {
+          setIsLoggedIn(false);
           return;
         }
 
@@ -134,6 +141,12 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   if (errorMessage) {
     return <div>{errorMessage}</div>;
+  }
+
+  if(isLoggedIn === false) {
+    return (
+      <Redirect to="/admin/login" />
+    )
   }
     
   return (

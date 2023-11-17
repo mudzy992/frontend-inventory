@@ -289,6 +289,10 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             + this.props.match.params.userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
+
                 const articleByUser: ArticleType[] = res.data;
                 this.setArticleByUser(articleByUser)
                 const features: FeaturesType[] = [];
@@ -324,6 +328,9 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
             }
+            if (res.status === 'login') {
+                return this.setLogginState(false);
+            }
             this.setDepartment(res.data)
         })
     }
@@ -334,6 +341,9 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             .then((res : ApiResponse) => {
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+            }
+            if (res.status === 'login') {
+                return this.setLogginState(false);
             }
 
             /* this.setJob(res.data) */

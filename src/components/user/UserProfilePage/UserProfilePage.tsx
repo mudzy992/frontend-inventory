@@ -131,6 +131,9 @@ export default class UserProfilePage extends React.Component<UserProfilePageProp
             + this.props.match.params.userID
             , 'get', {}, 'user')
             .then((res: ApiResponse) => {
+                if (res.status === 'login') {
+                    return this.setLogginState(false);
+                }
                 const articleByUser: ArticleType[] = res.data;
                 this.setArticleByUser(articleByUser)
                 const features: FeaturesType[] = [];

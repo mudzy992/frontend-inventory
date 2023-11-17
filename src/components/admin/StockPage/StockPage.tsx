@@ -7,6 +7,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
 import ArticleInStockTable from './StockArticleTableNew';
 import { Autocomplete, TextField } from '@mui/material';
+import { Redirect } from 'react-router-dom';
 
 interface StockPageProperties {
     match: {
@@ -32,6 +33,7 @@ interface StockPageState {
     stock: StockType;
     feature: FeaturesType[];
     users: userData[];
+    isLoggedIn: boolean;
     editFeature: {
         visible:boolean;
         categoryId: number;
@@ -72,6 +74,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             stock: {},
             feature: [],
             users: [],
+            isLoggedIn: true,
             editFeature: {
                 visible: false,
                 categoryId: 0,
@@ -191,6 +194,12 @@ export default class StockPage extends React.Component<StockPageProperties> {
         }));
     }
 
+    private setIsLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        }));
+    }
+
     private setEditFeatureModalVisibleState(newState: boolean) {
         this.setState(Object.assign(this.state,
             Object.assign(this.state.editFeature, {
@@ -258,7 +267,11 @@ export default class StockPage extends React.Component<StockPageProperties> {
         return new Promise(resolve => {
             api('/api/feature/?filter=categoryId||$eq||' + this.state.editFeature.categoryId + '/', 'get', {}, 'administrator')
             /* api('/api/feature/?join=stockFeatures&filter=stockFeatures.stockId||$eq||' + this.props.match.params.stockID + '/', 'get', {}, 'administrator') */
-            .then((res: ApiResponse) => { 
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setIsLoggedInStatus(false)
+                    return;
+                } 
                 const features: FeatureBaseType[] = res.data.map((item: any) => ({
                     featureId: item.featureId,
                     name: item.name,
@@ -350,6 +363,10 @@ export default class StockPage extends React.Component<StockPageProperties> {
     private getStockData() {
         api('api/stock/' + this.props.match.params.stockID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setIsLoggedInStatus(false)
+                    return;
+                } 
                 if (res.status === 'error') {
                     this.setStocks(undefined);
                     this.setFeaturesData([]);
@@ -369,13 +386,16 @@ export default class StockPage extends React.Component<StockPageProperties> {
     private async getUsers(){
         api('/api/user/', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setIsLoggedInStatus(false)
+                    return;
+                } 
                 this.setUsers(res.data)
             }
         )
     }
     
     private doEditArticle() {  
-        const filteredFeatures = this.state.editFeature.features.filter(feature => feature.use === 1);   
         const editedFeatures = this.state.editFeature.features
             .filter(feature => feature.use === 1)
             .map(feature => ({
@@ -398,6 +418,10 @@ export default class StockPage extends React.Component<StockPageProperties> {
         api('api/stock/' + this.props.match.params.stockID, 'put', requestBody, 'administrator')
             .then((res: ApiResponse) => {
                 /* Hvatati grešku ako korisnik nema pravo da mijenja status */
+                if(res.status === 'login') {
+                    this.setIsLoggedInStatus(false)
+                    return;
+                } 
                 this.setEditFeatureModalVisibleState(false);
                 this.getStockData();
             });
@@ -415,6 +439,10 @@ export default class StockPage extends React.Component<StockPageProperties> {
             invNumber: this.state.changeStatus.invNumber,
         }, 'administrator')
             .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setIsLoggedInStatus(false)
+                    return;
+                } 
                 /* Hvatati grešku ako korisnik nema pravo da mjenja status */
                 this.setModalVisibleState(false)
                 this.getStockData()
@@ -449,6 +477,11 @@ export default class StockPage extends React.Component<StockPageProperties> {
     }
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return (
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
                 <RoledMainMenu role='administrator' />
@@ -643,7 +676,6 @@ export default class StockPage extends React.Component<StockPageProperties> {
     }
 
     renderStockData(article: StockType) {
-        
         return (
             <><Row>
                 <Col xs="12" lg="8">

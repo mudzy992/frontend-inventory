@@ -324,40 +324,36 @@ export default class ArticleOnUserPage extends React.Component<ArticleOnUserPage
                         </Col>
                     </Row>
                 </Col>
-
-                        <Col sm="12" xs="12" lg="12">
-                            <Card className="mb-3">
-                                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Korisnik</TableCell>
-                                                <TableCell>Status</TableCell>
-                                                <TableCell>Komentar</TableCell>
-                                                <TableCell>Serijski broj</TableCell>
-                                                <TableCell>Inventurni broj</TableCell>
-                                                <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
+                    <Col sm="12" xs="12" lg="12">
+                        <Card className="mb-3">
+                            <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
+                                <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Korisnik</TableCell>
+                                            <TableCell>Status</TableCell>
+                                            <TableCell>Komentar</TableCell>
+                                            <TableCell>Serijski broj</TableCell>
+                                            <TableCell>Inventurni broj</TableCell>
+                                            <TableCell sortDirection='desc'>Datum i vrijeme akcije</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                    {article.articleTimelines?.map(timeline => (
+                                            <TableRow hover>
+                                                <TableCell>{timeline.user?.fullname}</TableCell>
+                                                <TableCell>{timeline.status}</TableCell>
+                                                <TableCell>{timeline.comment}</TableCell>
+                                                <TableCell>{timeline.serialNumber}</TableCell>
+                                                <TableCell>{timeline.invNumber}</TableCell>
+                                                <TableCell >{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                             </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                        {article.articleTimelines?.map(timeline => (
-                                                <TableRow hover>
-                                                    <TableCell>{timeline.user?.fullname}</TableCell>
-                                                    <TableCell>{timeline.status}</TableCell>
-                                                    <TableCell>{timeline.comment}</TableCell>
-                                                    <TableCell>{timeline.serialNumber}</TableCell>
-                                                    <TableCell>{timeline.invNumber}</TableCell>
-                                                    <TableCell >{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Card>
-                        </Col>
-
-                
-                
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Card>
+                    </Col>
             </Row>
         );
     }

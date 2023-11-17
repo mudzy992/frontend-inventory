@@ -89,7 +89,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
 
   if(isLoggedIn === false) {
     return (
-      <Redirect to='admin/login' />
+      <Redirect to='/admin/login' />
     )
   }
 

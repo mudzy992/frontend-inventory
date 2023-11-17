@@ -182,7 +182,7 @@ export default class UserPage extends React.Component {
         /* kraj provjera */
         if (this.state.isLoggedIn === false) {
             return (
-                <Redirect to="/user/login" />
+                <Redirect to="/admin/login" />
             );
         }
         return (

@@ -51,14 +51,52 @@ interface CategoryType {
 
 const CategoryPage: React.FC = () => {
   const { categoryID } = useParams<{ categoryID: string }>();
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [state, setState] = useState<CategoryPageState>({
     subCategory: [],
     message: '',
     stocks: [],
   });
 
-  useEffect(() => {
+    useEffect(() => {
+    const getCategoriesData = async () => {
+      try {
+        const response = await api(`api/category/${categoryID}`, 'get', {}, 'administrator');
+        
+        if (response.status === 'login') {
+          setIsLoggedIn(false);
+          return;
+        }
+
+        if (response.status === 'error') {
+          return setErrorMessage(
+            'Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije'
+          );
+        }
+
+        const categoryData: CategoryType = {
+          categoryId: response.data.categoryId,
+          name: response.data.name,
+          imagePath: response.data.imagePath,
+          stocks: response.data.stocks,
+        };
+
+        setCategoryData(categoryData);
+
+        const subcategories: CategoryType[] = response.data.categories.map(
+          (category: CategoryDto) => ({
+            categoryId: category.categoryId,
+            name: category.name,
+            imagePath: category.imagePath,
+            stocks: category.stocks,
+          })
+        );
+        setSubcategories(subcategories);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     getCategoriesData();
   }, [categoryID]);
 
@@ -72,41 +110,6 @@ const CategoryPage: React.FC = () => {
 
   const setSubcategories = (subcategories: CategoryType[]) => {
     setState((prevState) => ({ ...prevState, subCategory: subcategories }));
-  };
-
-  const getCategoriesData = () => {
-    api(`api/category/${categoryID}`, 'get', {}, 'administrator').then(
-      (res: ApiResponse) => {
-        if(res.status === 'login') {
-          setIsLoggedIn(false)
-          return;
-        }
-        if (res.status === 'error') {
-          return setErrorMessage(
-            'Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije'
-          );
-        }
-
-        const categoryData: CategoryType = {
-          categoryId: res.data.categoryId,
-          name: res.data.name,
-          imagePath: res.data.imagePath,
-          stocks: res.data.stocks,
-        };
-
-        setCategoryData(categoryData);
-
-        const subcategories: CategoryType[] = res.data.categories.map(
-          (category: CategoryDto) => ({
-            categoryId: category.categoryId,
-            name: category.name,
-            imagePath: category.imagePath,
-            stocks: category.stocks,
-          })
-        );
-        setSubcategories(subcategories);
-      }
-    );
   };
 
   const printErrorMessage = () => {

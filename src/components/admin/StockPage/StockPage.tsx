@@ -569,44 +569,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
                         <Modal.Title>Kartica zaduženja</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form.Group className='was-validated'>
-                            <Autocomplete
-                                className='mb-3'
-                                disablePortal
-                                id="pick-the-user"
-                                onChange={(event, value, reason) => {
-                                    if (reason === 'selectOption' && typeof value === 'string') {
-                                        const selectedUser = this.state.users.find(user => user.fullname === value);
-                                        if (selectedUser) {
-                                            const userId = selectedUser.userId;
-                                            this.setChangeStatusNumberFieldState('userId', userId || null);
-                                        }
-                                    }
-                                }}
-                                options={this.state.users.map((option) => option.fullname)}
-                                renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
-                            />
-                            {/* <FloatingLabel label="Novo zaduženje na korisnika" className="mb-3">
-                                <Form.Select placeholder='izaberi korisnika' id='userId' required
-                                    onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
-                                    <option value=''>izaberi korisnika</option>
-                                    {this.state.users.map(users => (
-                                        <option value={users.userId.toString()}>{users.forname} {users.surname}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel> */}
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <FloatingLabel label="Kolicina" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>}>
-                                    <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
-                            <Form.Text></Form.Text>
-                        </Form.Group>
-
-                        <Form.Group className='was-validated'>
+                    <Form.Group className='was-validated'>
                             <FloatingLabel label="Status" className="mb-3">
                                 <Form.Select id="status" required
                                     onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
@@ -622,6 +585,34 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                     </option>
                                 </Form.Select>
                             </FloatingLabel>
+                        </Form.Group>
+                        <Form.Group className='was-validated'>
+                            <Autocomplete
+                                className='mb-3'
+                                disablePortal
+                                id="pick-the-user"
+                                disabled={this.state.changeStatus === 'razduženo' || this.state.changeStatus === 'otpisano'}
+                                onChange={(event, value, reason) => {
+                                    if (reason === 'selectOption' && typeof value === 'string') {
+                                        const selectedUser = this.state.users.find(user => user.fullname === value);
+                                        if (selectedUser) {
+                                            const userId = selectedUser.userId;
+                                            this.setChangeStatusNumberFieldState('userId', userId || null);
+                                        }
+                                    }
+                                }}
+                                options={this.state.users.map((option) => option.fullname)}
+                                renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <FloatingLabel label="Kolicina" className="mb-3">
+                                <OverlayTrigger
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={<Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>}>
+                                    <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
+                            <Form.Text></Form.Text>
                         </Form.Group>
                         <Form.Group className='was-validated'>
                             <FloatingLabel label="Serijski broj" className="mb-3">

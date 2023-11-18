@@ -1,7 +1,8 @@
 import React from "react";
 import { Card, Col, Container, Row, Button, OverlayTrigger, Tooltip, ThemeProvider, Tab, Nav, Form } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
-import { Table, TableContainer, TableHead, TableBody, TableCell, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, Collapse, Avatar, FormControl, InputLabel, TextField, Box, InputAdornment, IconButton, Select, MenuItem, OutlinedInput } from "@mui/material";
+import { Table, TableContainer, TableHead, TableBody, TableCell, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, 
+            Collapse, Avatar, FormControl, InputLabel, TextField, Box, InputAdornment, IconButton, Select, MenuItem, OutlinedInput } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
 import { Link, Redirect } from 'react-router-dom';

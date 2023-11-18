@@ -171,9 +171,6 @@ StockPageState
                     features: updatedFeatures,
                 }
             };
-        }, () => {
-            // Ovde možete obaviti dodatne akcije koje zavise od ažuriranog stanja
-            console.log("Stanje je features je ažurirano.", this.state);
         });
     }
     

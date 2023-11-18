@@ -163,7 +163,6 @@ export default class AddUserPage extends React.Component<{}>{
 
     private async showDepartmentModal() {
         this.setDepartmentModalVisibleState(true)
-        console.log(this.state.modal.department.visible)
     }
 
     private setDepartmentModalVisibleState(newState: boolean) {

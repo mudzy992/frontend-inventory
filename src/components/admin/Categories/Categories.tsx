@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Card, Col, Container, Row } from 'react-bootstrap';
 import { Link, Redirect, useParams } from 'react-router-dom';
-import api, { ApiResponse } from '../../../API/api';
+import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import Tabela from './TableFunction';
@@ -93,7 +93,9 @@ const CategoryPage: React.FC = () => {
         );
         setSubcategories(subcategories);
       } catch (error) {
-        console.log(error);
+        return setErrorMessage(
+          'Greška prilikom učitavanja pod-kategorije. Osvježite ili pokušajte ponovo kasnije. Greška: ' + error
+        );
       }
     };
 

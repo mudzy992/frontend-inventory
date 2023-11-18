@@ -1,8 +1,8 @@
-.kartica-wrapper {
+  .kartica-wrapper {
     overflow: hidden;
     border-bottom-left-radius:5px; 
     border-bottom-right-radius:5px; 
-    max-height: 250px;
+    max-height: 300px;
     
   }
 

@@ -6,8 +6,9 @@ import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
 import ArticleInStockTable from './StockArticleTableNew';
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, Link, ListItem, TextField } from '@mui/material';
 import { Redirect } from 'react-router-dom';
+import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
 
 interface StockPageProperties {
     match: {
@@ -34,6 +35,7 @@ interface StockPageState {
     feature: FeaturesType[];
     users: userData[];
     isLoggedIn: boolean;
+    expandedCards: boolean[];
     editFeature: {
         visible:boolean;
         categoryId: number;
@@ -64,9 +66,10 @@ interface StockPageState {
     };
 }
 
-export default class StockPage extends React.Component<StockPageProperties> {
-    state: StockPageState;
-
+export default class StockPage extends React.Component<
+StockPageProperties,
+StockPageState
+> {
     constructor(props: Readonly<StockPageProperties>) {
         super(props);
         this.state = {
@@ -75,6 +78,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
             feature: [],
             users: [],
             isLoggedIn: true,
+            expandedCards: new Array(2).fill(false),
             editFeature: {
                 visible: false,
                 categoryId: 0,
@@ -221,6 +225,14 @@ export default class StockPage extends React.Component<StockPageProperties> {
                 [fieldName]: (newValue === 'null') ? null : Number(newValue),
             })))
     }
+
+    private toggleExpand = (index: number) => {
+        this.setState((prevState) => {
+          const expandedCards = [...prevState.expandedCards];
+          expandedCards[index] = !expandedCards[index];
+          return { expandedCards };
+        });
+      };
 
     componentDidMount() {
         this.getStockData()
@@ -454,7 +466,9 @@ export default class StockPage extends React.Component<StockPageProperties> {
                     serialNumber: '',
                     status: '',
                     invNumber: '',
-            }
+                    visible: false,
+                    articleId: null
+                }
         });
             })
     }
@@ -591,7 +605,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                 className='mb-3'
                                 disablePortal
                                 id="pick-the-user"
-                                disabled={this.state.changeStatus === 'razduženo' || this.state.changeStatus === 'otpisano'}
+                                disabled={this.state.changeStatus.status === 'razduženo' || this.state.changeStatus.status === 'otpisano'}
                                 onChange={(event, value, reason) => {
                                     if (reason === 'selectOption' && typeof value === 'string') {
                                         const selectedUser = this.state.users.find(user => user.fullname === value);
@@ -667,6 +681,7 @@ export default class StockPage extends React.Component<StockPageProperties> {
     }
 
     renderStockData(article: StockType) {
+        const { expandedCards } = this.state;
         return (
             <><Row>
                 <Col xs="12" lg="8">
@@ -776,13 +791,22 @@ export default class StockPage extends React.Component<StockPageProperties> {
                                         </Modal.Body>
                                     </Modal>
                                 </Card.Header>
-                                <ListGroup variant="flush">
+
+                                <ListGroup className={`kartica-wrapper ${expandedCards[0] ? 'kartica-expanded' : ''}`} variant="flush" >
                                 {article.stockFeatures && article.stockFeatures.map(feature => (
                                         <ListGroup.Item key={feature.feature?.name}>
                                             <b>{feature.feature?.name}:</b> {feature.value}
                                         </ListGroup.Item>
                                 ))}
+                                <ListGroup.Item></ListGroup.Item>
                                 </ListGroup>
+                                <div className='moreLess'>
+                                    {article.stockFeatures ? article.stockFeatures.length > 4 && (
+                                        <Link className='linkStyle' onClick={() => this.toggleExpand(0)}>
+                                            {expandedCards[0] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
+                                        </Link>
+                                    ):""}
+                                </div>
                             </Card>
                         </Col>
                     </Row>
@@ -790,7 +814,16 @@ export default class StockPage extends React.Component<StockPageProperties> {
                         <Col xs="12" lg="12" sm="12">
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header style={{ backgroundColor: "#263238" }}>Detaljan opis</Card.Header>
-                                <Card.Body style={{ borderRadius: "0 0 calc(.25rem - 1px) calc(.25rem - 1px)", background: "white", color: "black" }}>{article.description}</Card.Body>
+                                <Card.Body className={`kartica-wrapper description ${expandedCards[1] ? 'kartica-expanded' : ''}`}>
+                                    {article.description}
+                                </Card.Body>
+                                <div className='moreLess'>
+                                    {article.description ? article.description.length > 100 && (
+                                        <Link className='linkStyle' onClick={() => this.toggleExpand(1)}>
+                                            {expandedCards[1] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
+                                        </Link>
+                                    ):""}
+                                </div>
                             </Card>
                         </Col>
                     </Row>

@@ -41,3 +41,39 @@
   color: darkRed !important;
   font-weight: bold !important;
   }
+
+  .kartica-wrapper {
+    overflow: hidden;
+    border-bottom-left-radius:5px; 
+    border-bottom-right-radius:5px; 
+    max-height: 180px !important;
+    
+  }
+
+  .description {
+    background-color: white;
+    color: black !important;
+    max-height: 150px;
+  }
+  
+  .kartica-expanded {
+    max-height: none;
+  }
+
+  .moreLess {
+    background: linear-gradient(transparent, white); 
+    height: 35px;
+    margin-top: -35px; 
+    border-bottom-left-radius:5px; 
+    border-bottom-right-radius:5px; 
+    position:relative;
+  }
+
+  .linkStyle {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    color: black !important;
+    
+    position: relative;
+  }

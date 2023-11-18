@@ -554,6 +554,23 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                     <Modal.Title>Kartica zaduženja</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                <Form.Group className='was-validated'>
+                        <FloatingLabel label="Status" className="mb-3">
+                            <Form.Select id="status" required
+                                onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
+                                <option value=''> izaberi status</option>
+                                <option value='zaduženo'>
+                                    zaduženo
+                                </option>
+                                <option value='razduženo'>
+                                    razduženo
+                                </option>
+                                <option value='otpisano'>
+                                    otpisano
+                                </option>
+                            </Form.Select>
+                        </FloatingLabel>
+                    </Form.Group>
                     <Form.Group className='was-validated'>
                         <FloatingLabel label="Novo zaduženje na korisnika" className="mb-3">
                             <Form.Select placeholder='izaberi korisnika' id='userId' required
@@ -573,25 +590,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
                                 overlay={<Tooltip id="tooltip-kolicina">Zadana vrijednost zaduženja ove opreme je 1 KOM</Tooltip>}>
                                 <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
                         <Form.Text></Form.Text>
-                    </Form.Group>
-
-                    <Form.Group className='was-validated'>
-                        <FloatingLabel label="Status" className="mb-3">
-                            <Form.Select id="status" required
-                                onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
-                                <option value=''> izaberi status</option>
-                                <option value='zaduženo'>
-                                    zaduženo
-                                </option>
-                                <option value='razduženo'>
-                                    razduženo
-                                </option>
-                                <option value='otpisano'>
-                                    otpisano
-                                </option>
-                            </Form.Select>
-                        </FloatingLabel>
-                    </Form.Group>
+                    </Form.Group>                    
                     <Form.Group className='was-validated'>
                         <FloatingLabel label="Serijski broj" className="mb-3">
                             <OverlayTrigger

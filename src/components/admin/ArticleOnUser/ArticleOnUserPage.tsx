@@ -420,24 +420,6 @@ export default class AdminArticleOnUserPage extends React.Component<
         let stat = article.status;
         const artiName = article.stock?.name;
         const userFullName: any = article.user?.fullname;
-        const usersCopy = [...this.state.users];
-        usersCopy.sort((a, b) => {
-            // Provjerite da li su fullname definirani prije poređenja
-            const fullnameA = a.fullname || '';
-            const fullnameB = b.fullname || '';
-            return fullnameA.localeCompare(fullnameB);
-          });
-        const sortedUsers = usersCopy.map(user => ({
-            userId: user.userId,
-            fullname: user.fullname
-        }))
-
-        enum MyAutocompleteChangeReason {
-            SelectOption = 'select-option',
-            CreateOption = 'create-option',
-            // dodajte druge vrednosti ako su potrebne
-        }
-
 
         if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
@@ -462,45 +444,6 @@ export default class AdminArticleOnUserPage extends React.Component<
                                 <h6>{ModalMessageArticleOnUser(artiName, userFullName)}</h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
-                            <Autocomplete
-                                className='mb-3'
-                                disablePortal
-                                id="pick-the-user"
-                                onChange={(event, value, reason) => {
-                                    if (reason === 'selectOption' && typeof value === 'string') {
-                                        const selectedUser = this.state.users.find(user => user.fullname === value);
-                                        if (selectedUser) {
-                                            const userId = selectedUser.userId;
-                                            this.setChangeStatusNumberFieldState('userId', userId || null);
-                                        }
-                                    }
-                                }}
-                                options={this.state.users.map((option) => option.fullname)}
-                                renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
-                            />
-
-                                {/* <FloatingLabel label={LangBa.ARTICLE_ON_USER.NEW_OBLIGATE_LABEL} className="mb-3">
-                                    <Form.Select placeholder={LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER} id='userId' required
-                                        onChange={(e) => this.setChangeStatusNumberFieldState('userId', e.target.value)}>
-                                        <option value=''>{LangBa.ARTICLE_ON_USER.FORM_SELECT_USER_PLACEHOLDER}</option>
-                                        {this.state.users.map(users => (
-                                            <option key={users.userId} value={Number(users.userId)}>{users.forname} {users.surname}</option>
-                                        ))}
-                                    </Form.Select>
-                                </FloatingLabel> */}
-                            </Form.Group>
-                            <Form.Group className="mb-3">             
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
-                                <OverlayTrigger 
-                                placement="top"
-                                delay={{ show: 250, hide: 400 }}
-                                overlay={
-                                <Tooltip id="tooltip-kolicina">{LangBa.ARTICLE_ON_USER.TOOLTIP_DEFAULT_VALUE}</Tooltip>
-                                }>
-                                <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
-                                <Form.Text></Form.Text> 
-                            </Form.Group>
-                            <Form.Group className='was-validated'>
                                 <FloatingLabel label="Status" className="mb-3">
                                     <Form.Select id="status"
                                         onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)} required>
@@ -517,6 +460,37 @@ export default class AdminArticleOnUserPage extends React.Component<
                                     </Form.Select>
                                 </FloatingLabel>
                             </Form.Group>
+                            <Form.Group className='was-validated'>
+                                <Autocomplete
+                                    className='mb-3'
+                                    disablePortal
+                                    id="pick-the-user"
+                                    disabled={this.state.changeStatus.status === 'razduženo' || this.state.changeStatus.status === 'otpisano'}
+                                    onChange={(event, value, reason) => {
+                                        if (reason === 'selectOption' && typeof value === 'string') {
+                                            const selectedUser = this.state.users.find(user => user.fullname === value);
+                                            if (selectedUser) {
+                                                const userId = selectedUser.userId;
+                                                this.setChangeStatusNumberFieldState('userId', userId || null);
+                                            }
+                                        }
+                                    }}
+                                    options={this.state.users.map((option) => option.fullname)}
+                                    renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">             
+                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
+                                <OverlayTrigger 
+                                placement="top"
+                                delay={{ show: 250, hide: 400 }}
+                                overlay={
+                                <Tooltip id="tooltip-kolicina">{LangBa.ARTICLE_ON_USER.TOOLTIP_DEFAULT_VALUE}</Tooltip>
+                                }>
+                                <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
+                                <Form.Text></Form.Text> 
+                            </Form.Group>
+                            
                             <Form.Group>
                                 <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_SERIALNUMBER} className="mb-3">
                                     <OverlayTrigger 
@@ -721,12 +695,16 @@ private upgradeFeature() {
                                                 <b>{artFeature.feature?.name}:</b> {artFeature.value}
                                             </ListGroup.Item>
                                         ))}
+                                        <ListGroup.Item>
+                                                <b>Komentar: </b>{this.state.article.comment}
+                                            </ListGroup.Item>
                                             <ListGroup.Item>
                                                 <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.article.serialNumber}
                                             </ListGroup.Item> 
                                             <ListGroup.Item>
                                                 <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.article.invNumber}
                                             </ListGroup.Item>
+                                            
                                             <ListGroup.Item>
                                             </ListGroup.Item>
                                         </ListGroup>

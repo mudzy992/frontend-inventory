@@ -64,7 +64,7 @@ export default class DocumentsPage extends React.Component<{}> {
     handleClick = (event: { currentTarget: any; }, documentsId: number) => {
         this.setState({
             anchorEl: event.currentTarget,
-            openedMenuId: documentsId, // Store the ID of the clicked document
+            openedMenuId: documentsId, 
         });
     };
     

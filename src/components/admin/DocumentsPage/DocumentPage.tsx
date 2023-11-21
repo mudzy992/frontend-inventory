@@ -205,6 +205,7 @@ export default class DocumentsPage extends React.Component<{}> {
                                     'aria-labelledby': `basic-button-${document.documentsId}`,
                                 }}
                             >
+                                /* Napraviti funkciju za generisanje fajlova */
                                 <MenuItem onClick={this.handleClose} style={{fontSize:"12px"}}><i className="bi bi-file-earmark-word" style={{ color: 'darkBlue', fontSize:"18px", marginRight:'3px' }} /> WORD/RAW</MenuItem>
                                 <MenuItem style={{fontSize:"12px"}} onClick={document.signed_path ? this.handleClose : undefined}>
                                     {document.signed_path ? (

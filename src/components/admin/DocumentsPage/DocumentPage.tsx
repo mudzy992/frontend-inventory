@@ -72,24 +72,36 @@ export default class DocumentsPage extends React.Component<{}> {
         this.setState({ anchorEl: null, openedMenuId: null });
     };
 
-    handleFileUpload(event: React.ChangeEvent<HTMLInputElement>, documentId: number): void {
-        const file = event.target.files && event.target.files[0];
+    handleFileUpload(event: React.FormEvent<HTMLInputElement>, documentId: number): void {
+        const input = event.currentTarget as HTMLInputElement;
+        const files = input.files;
     
-        if (file) {
-            // Implementirajte logiku za poziv servisa za prijenos datoteke
-            api(`api/document/${documentId}/upload`, 'post', file, 'administrator')
+        if (files && files.length > 0) {
+            const file = files[0];
+    
+            const formData = new FormData();
+            formData.append('file', file);
+        
+            api(`api/document/${documentId}/upload`, 'post', formData, 'administrator', { useMultipartFormData: true })
                 .then((res: ApiResponse) => {
-                    // Obradite odgovor ako je potrebno
+                    
                 })
-                .catch((error) => {
-                    console.error(error);
-                    // Obradite grešku ako je potrebno
+                .catch((error) => {    
+                    if (error.response) {
+                        console.error('Response data:', error.response.data);
+                        console.error('Response status:', error.response.status);
+                        console.error('Response headers:', error.response.headers);
+                    } else if (error.request) {
+                        console.error('Request data:', error.request);
+                    } else {
+                        console.error('Error message:', error.message);
+                    }
                 });
         }
+        this.getDocumentsData()
         this.handleClose();
     }
     
-
     /* KRAJ SET FUNCKIJA */
 
     render() {
@@ -193,16 +205,33 @@ export default class DocumentsPage extends React.Component<{}> {
                                     'aria-labelledby': `basic-button-${document.documentsId}`,
                                 }}
                             >
-                                <MenuItem onClick={this.handleClose}><i className="bi bi-file-earmark-word">{document.path}</i></MenuItem>
-                                <MenuItem onClick={this.handleClose}><i className="bi bi-file-earmark-pdf">{document.signed_path}</i></MenuItem>
-                                <MenuItem onClick={this.handleClose}>
-           
-                                        <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                <MenuItem onClick={this.handleClose} style={{fontSize:"12px"}}><i className="bi bi-file-earmark-word" style={{ color: 'darkBlue', fontSize:"18px", marginRight:'3px' }} /> WORD/RAW</MenuItem>
+                                <MenuItem style={{fontSize:"12px"}} onClick={document.signed_path ? this.handleClose : undefined}>
+                                    {document.signed_path ? (
+                                        <>
+                                        <i className="bi bi-file-earmark-pdf" style={{ color: 'darkRed', fontSize:"18px", marginRight:'3px' }} /> PDF/Potpisano
+                                      </>
+                                    ) : (
+                                        <form encType="multipart/form-data">
+                                        <Button
+                                            component="label"
+                                            variant="contained"
+                                            startIcon={<CloudUploadIcon />}
+                                        >
+                                            <VisuallyHiddenInput
+                                            id={`file-upload-${document.documentsId}`}
+                                            type="file"
+                                            onChange={(e) => this.handleFileUpload(e, document.documentsId!)}
+                                            />
                                             Upload file
                                         </Button>
-                                    <VisuallyHiddenInput id={`file-upload-${document.documentsId}`} type="file" onChange={(e) => this.handleFileUpload(e, document.documentsId!)} />
+                                        </form>
+                                    )}
                                 </MenuItem>
                             </Menu>
+                    </TableCell>
+                    <TableCell>
+                    
                     </TableCell>
                 </TableRow>
             ))

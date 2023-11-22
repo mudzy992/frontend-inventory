@@ -214,7 +214,7 @@ export default class DocumentsPage extends React.Component<{}> {
             <Container style={{ marginTop: 15 }}  component={Paper}>
 
                 <TextField
-                    label="Pretraži dokumenta"
+                    label="Pretraži dokumente"
                     variant="outlined"
                     margin="normal"
                     onChange={(e) => this.handleSearchChange(e.target.value)}

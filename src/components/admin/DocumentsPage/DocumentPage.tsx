@@ -3,10 +3,11 @@ import { ApiConfig } from "../../../config/api.config";
 import api, { ApiResponse } from '../../../API/api';
 import DocumentsType from '../../../types/DocumentsType';
 import { Redirect } from 'react-router-dom';
-import { Button, Container, Menu, MenuItem, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Button, Container, Menu, MenuItem, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Link, Stack, Pagination, Box, TextField  } from '@mui/material';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import saveAs from 'file-saver';
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -17,6 +18,11 @@ interface DocumentsPageState {
     documents: DocumentsType[];
     anchorEl: null,
     openedMenuId: number | null;
+    currentPage: number, 
+    itemsPerPage: number, 
+    totalPages: number;
+    isSearchActive: boolean;
+    query:string;
 }
 
 /* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
@@ -36,6 +42,11 @@ export default class DocumentsPage extends React.Component<{}> {
             documents: [],
             anchorEl: null,
             openedMenuId: null,
+            currentPage: 1, 
+            itemsPerPage: 10, 
+            totalPages: 0,
+            isSearchActive: false,
+            query:'',
         }
     }
 
@@ -101,38 +112,39 @@ export default class DocumentsPage extends React.Component<{}> {
         this.getDocumentsData()
         this.handleClose();
     }
-    
-    /* KRAJ SET FUNCKIJA */
 
-    render() {
-        if (this.state.isLoggedIn === false) {
-            return (
-                <Redirect to="/admin/login" />
+    private handleSaveFile(docPath: string) {
+        if (docPath) {
+            saveAs(
+            ApiConfig.TEMPLATE_PATH + docPath,
+            docPath
             );
         }
-        return(
-            <><RoledMainMenu role='administrator' />
-            <Container style={{ marginTop: 15 }}>     
-                <TableContainer style={{ maxHeight: 500, overflowY: 'auto' }} component={Paper}>
-                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Artikal</TableCell>
-                                <TableCell>Serijski broj</TableCell>
-                                <TableCell>Inventurni broj</TableCell>
-                                <TableCell>Korisnik</TableCell>
-                                <TableCell>Datum akcije</TableCell>
-                                <TableCell>Dokument</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.tableRowData(this.state.documents)}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Container></>
-        )
     }
+
+    private handlePageChange(newPage: number) {
+        this.setState(
+            {
+                currentPage: newPage,
+            },
+            () => {
+                if (this.state.isSearchActive) {
+                    this.getSearchDocumentsData(this.state.query);
+                } else {
+                    this.getDocumentsData(); 
+                }
+            }
+        );
+    }
+
+    handleSearchChange(query: string) {
+        this.setState({ currentPage: 1, isSearchActive: true }, () => {
+            this.getSearchDocumentsData(query);
+        });
+    }
+      
+    
+    /* KRAJ SET FUNCKIJA */
 
     /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
     componentDidMount(){
@@ -143,30 +155,100 @@ export default class DocumentsPage extends React.Component<{}> {
         /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
     }
 
-    /* Funkcija za dopremanje podataka, veza sa api-jem  
-    api u većini slučajeva traži povratnu informaciju 3 parametra
-    api('1', '2', '3'){} 
-    1. ruta (provjeriti u backend), 
-    2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
-    3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
-    private getDocumentsData () {
-        api('api/document/', 'get', { }, 'administrator' )
-        .then((res: ApiResponse ) => {
-            if (res.status === 'login') {
-                this.setLogginState(false);
-                this.setErrorMessage('Greška prilikom učitavanja dokumenata')
-                return
-            }
+    private getDocumentsData() {
+        const { currentPage, itemsPerPage } = this.state;
+        api(`api/document/p?perPage=${itemsPerPage}&offset=${(currentPage - 1) * itemsPerPage}`, 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'login') {
+                    this.setLogginState(false);
+                    this.setErrorMessage('Greška prilikom učitavanja dokumenata');
+                    return;
+                }
+    
+                const documents: DocumentsType[] = res.data.results;
+                const totalCount: number = res.data.total;
+                const totalPages: number = Math.ceil(totalCount / itemsPerPage);
 
-            const documents: DocumentsType[] = res.data;
-            this.setDocumentsData(documents)
-        }) 
+                this.setState({
+                    documents,
+                    totalPages,
+                });
+            }
+        );
+    }
+
+    private getSearchDocumentsData(query: string = '') {
+        const { currentPage, itemsPerPage } = this.state;
+      
+        const apiUrl = `api/document/s?perPage=${itemsPerPage}&page=${currentPage}&query=${encodeURIComponent(query)}`;
+      
+        api(apiUrl, 'get', {}, 'administrator')
+          .then((res: ApiResponse) => {
+            if (res.status === 'login') {
+              this.setLogginState(false);
+              this.setErrorMessage('Greška prilikom učitavanja dokumenata');
+              return;
+            }
+      
+            const documents: DocumentsType[] = res.data.results;
+            const totalCount: number = res.data.total;
+            const totalPages: number = Math.ceil(totalCount / itemsPerPage);
+      
+            this.setState({
+              documents,
+              totalPages,
+              query
+            });
+          });
+      }
+
+    render() {
+        if (this.state.isLoggedIn === false) {
+            return (
+                <Redirect to="/admin/login" />
+            );
+        }
+        const { currentPage } = this.state;
+        return(
+            <><RoledMainMenu role='administrator' />
+            <Container style={{ marginTop: 15 }}  component={Paper}>
+
+                <TextField
+                    label="Pretraži dokumenta"
+                    variant="outlined"
+                    margin="normal"
+                    onChange={(e) => this.handleSearchChange(e.target.value)}
+                    style={{width:'100%',}}
+                />
+                <TableContainer style={{ maxHeight: 'auto', overflowY: 'auto' }} >
+                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Broj</TableCell>
+                                <TableCell>Artikal</TableCell>
+                                <TableCell>Serijski broj</TableCell>
+                                <TableCell>Inventurni broj</TableCell>
+                                <TableCell>Korisnik</TableCell>
+                                <TableCell>Dokument</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {this.tableRowData(this.state.documents)}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <Stack style={{alignItems:'end', justifyContent:'center', height: '60px', padding:'15px'}} spacing={2}>
+                    <Pagination  variant="outlined" color="primary" showFirstButton showLastButton count={this.state.totalPages} page={currentPage} onChange={(event, value) => this.handlePageChange(value)} />
+                </Stack>
+                
+            </Container>
+            </>
+        )
     }
 
     private tableRowData(data: DocumentsType[]) {
-        const { anchorEl, openedMenuId } = this.state;
+        const { anchorEl, openedMenuId} = this.state;
         const open = Boolean(anchorEl);
-
         const VisuallyHiddenInput = styled('input')({
             clip: 'rect(0 0 0 0)',
             clipPath: 'inset(50%)',
@@ -181,11 +263,11 @@ export default class DocumentsPage extends React.Component<{}> {
         return(
             data.map(document => (
                 <TableRow key={document.documentsId} hover>
+                    <TableCell>{document.documentNumber}</TableCell>
                     <TableCell>{document.article?.stock?.name}</TableCell>
                     <TableCell>{document.article?.serialNumber}</TableCell>
                     <TableCell>{document.article?.invNumber}</TableCell>
                     <TableCell>{document.article?.user?.fullname}</TableCell>
-                    <TableCell>{document.createdDate}</TableCell>
                     <TableCell>
                     <Button
                                 id={`basic-button-${document.documentsId}`}
@@ -194,7 +276,7 @@ export default class DocumentsPage extends React.Component<{}> {
                                 aria-expanded={open && openedMenuId === document.documentsId ? 'true' : undefined}
                                 onClick={(event) => this.handleClick(event, document.documentsId!)}
                             >
-                                Dashboard
+                                Prenosnica
                             </Button>
                             <Menu
                                 id={`basic-menu-${document.documentsId}`}
@@ -205,13 +287,16 @@ export default class DocumentsPage extends React.Component<{}> {
                                     'aria-labelledby': `basic-button-${document.documentsId}`,
                                 }}
                             >
-                                /* Napraviti funkciju za generisanje fajlova */
-                                <MenuItem onClick={this.handleClose} style={{fontSize:"12px"}}><i className="bi bi-file-earmark-word" style={{ color: 'darkBlue', fontSize:"18px", marginRight:'3px' }} /> WORD/RAW</MenuItem>
+                                <MenuItem onClick={this.handleClose} style={{fontSize:"12px"}}>
+                                    <Link onClick={() =>this.handleSaveFile(document.path!)}>
+                                        <i className="bi bi-file-earmark-word" style={{ color: 'darkBlue', fontSize:"18px", marginRight:'3px' }} /> WORD/RAW
+                                    </Link>
+                                </MenuItem>
                                 <MenuItem style={{fontSize:"12px"}} onClick={document.signed_path ? this.handleClose : undefined}>
                                     {document.signed_path ? (
-                                        <>
+                                        <Link onClick={() =>this.handleSaveFile(document.signed_path!)}>
                                         <i className="bi bi-file-earmark-pdf" style={{ color: 'darkRed', fontSize:"18px", marginRight:'3px' }} /> PDF/Potpisano
-                                      </>
+                                      </Link>
                                     ) : (
                                         <form encType="multipart/form-data">
                                         <Button
@@ -224,7 +309,7 @@ export default class DocumentsPage extends React.Component<{}> {
                                             type="file"
                                             onChange={(e) => this.handleFileUpload(e, document.documentsId!)}
                                             />
-                                            Upload file
+                                            Dodaj PDF
                                         </Button>
                                         </form>
                                     )}

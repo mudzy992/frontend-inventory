@@ -8,6 +8,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import saveAs from 'file-saver';
+import AdminMenu from '../AdminMenu/AdminMenu';
 
 
 /* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
@@ -242,6 +243,7 @@ export default class DocumentsPage extends React.Component<{}> {
                 </Stack>
                 
             </Container>
+            <AdminMenu />
             </>
         )
     }

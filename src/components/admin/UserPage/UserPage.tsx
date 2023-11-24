@@ -24,7 +24,7 @@ interface UserPageState {
 function UserTable(row:UserType[]){
     const theme = createTheme(
         hrHR,
-    )
+    )    
     const kolone: GridColDef[] = [
         {
         field: 'userId', 
@@ -53,7 +53,6 @@ function UserTable(row:UserType[]){
         ];
     return(
         <ThemeProvider theme={theme}>
-        <Box sx={{ height: 531, width: '100%', }}>
             <DataGrid
                 getRowId={(row) => row.userId}
                 columns={kolone}
@@ -76,8 +75,7 @@ function UserTable(row:UserType[]){
                     }
                 }}
             />
-        </Box>
-    </ThemeProvider>
+        </ThemeProvider>
     )
 }
 
@@ -186,14 +184,12 @@ export default class UserPage extends React.Component {
             );
         }
         return (
-            <div>
-                <Row>
-                    <h5 style={{marginLeft:10, color:"white"}}> 
-                    <i className="bi bi-people-fill"/> Korisnici</h5>
-                    {UserTable(this.state.users)}
-                        <p>{this.state.message}</p>
-                </Row>
-            </div>
+            <Box sx={{ height: 531, width: '100%', }} className="mb-3">
+                <h5 style={{marginLeft:10, color:"white"}}> 
+                <i className="bi bi-people-fill"/> Korisnici</h5>
+                {UserTable(this.state.users)}
+                <p>{this.state.message}</p>
+            </Box>
         )
     }
 }

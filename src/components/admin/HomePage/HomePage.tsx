@@ -82,26 +82,28 @@ export default class HomePage extends React.Component {
         /* kraj provjera */
         return (
             /* prikaz klijentu */
-            <div>
+            <>
                 <RoledMainMenu role='administrator'/>
-                    <Container style={{marginTop: 15 }}>
-                        <UserPage />
-                            <Row >
-                                <h5 style={{marginLeft:10, color:"white"}}> 
-                                <i className="bi bi-card-list"/> Top level kategorije</h5>
-                                    {this.state.categories.map(this.singleCategory)}
-                                    <p>{this.state.message}</p>
-                            </Row>
-                            <AdminMenu />
+                    <Container className='mt-3'>
+                        <Row>
+                            <UserPage />
+                        </Row>
+                        
+                        <Row className="mt-5">
+                            <h5  style={{ color:"white"}}> 
+                            <i className="bi bi-card-list"/> Top level kategorije</h5>
+                                {this.state.categories.map(this.singleCategory)}
+                                <p>{this.state.message}</p>
+                        </Row>
                     </Container>
-            </div>
+                <AdminMenu />
+            </>
         )
     }
 
     private singleCategory(category: CategoryType) {
         return (
-            <Col lg="2" md="4" sm="6" xs="6" key={category.categoryId}>
-                <CardGroup>
+            <Col lg="2" xs="6" >
                 <Card className="text-white bg-dark mb-3">
                     <Card.Header>
                         <Card.Title>
@@ -116,7 +118,6 @@ export default class HomePage extends React.Component {
                             className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
                     </Card.Footer>
                 </Card>
-                </CardGroup>
             </Col>
         )
     }

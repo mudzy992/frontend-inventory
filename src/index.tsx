@@ -25,6 +25,7 @@ import AddFeaturePage from './components/admin/AddFeature/AddFeaturePage';
 import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
 import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepartmetAndJob';
 import StockPage from './components/admin/StockPage/StockPage';
+import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -47,6 +48,7 @@ ReactDOM.render(
         <Route path="/admin/feature/" component={ AddFeaturePage } />
         <Route path="/admin/category/" component={ AddNewCategoryPage } />
         <Route path="/admin/department/" component={ AddDepartmentAndJob } />
+        <Route path="/admin/document/" component={ DocumentsPage } />
         <Route path="/admin/stock/:stockID" component={ StockPage } />
       </Switch>
     </HashRouter>

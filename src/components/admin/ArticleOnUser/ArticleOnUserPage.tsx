@@ -54,7 +54,6 @@ interface AdminArticleOnUserPageState {
         name: string;
         value: string;
         comment: string;
-        serialNumber: string;
     }
 
 }
@@ -87,7 +86,6 @@ export default class AdminArticleOnUserPage extends React.Component<
                 name: "",
                 value: "",
                 comment: "",
-                serialNumber: "",
             },
             userArticle: [],
         }
@@ -228,9 +226,17 @@ export default class AdminArticleOnUserPage extends React.Component<
             if (res.status === 'login') {
                 return this.setLogginState(false);
             }
-            this.setUpgradeModalVisibleState(false)
             this.getUpgradeFeature()
             this.getArticleData()
+
+            this.setState({
+                upgradeFeatureAdd: {
+                    visible: false,
+                    name: '',
+                    value: '',
+                    comment: '',
+                }
+            });
         })
     }
 

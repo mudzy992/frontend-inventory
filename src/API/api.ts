@@ -6,19 +6,21 @@ export default function api(
     method: 'get' | 'post' | 'patch' | 'delete' | 'put',
     body: any | undefined,
     role: 'user' | 'administrator' = 'user',
+    options: { useMultipartFormData?: boolean } = {},
 ) {
     return new Promise<ApiResponse>((resolve) => {
         const requestData = {
             method: method,
             url: path,
             baseURL: ApiConfig.API_URL,
-            data: JSON.stringify(body),
+            data: options.useMultipartFormData ? body : JSON.stringify(body),
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': options.useMultipartFormData ? 'multipart/form-data' : 'application/json',
                 'Authorization': getToken(role),
             },
         };
 
+        // console.log('API Call:', path, method, body);
         axios(requestData)
         .then(res => responseHandler(res, resolve))
         .catch(async err => {

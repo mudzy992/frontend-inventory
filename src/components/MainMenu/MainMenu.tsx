@@ -21,9 +21,11 @@ export class MainMenuItem {
 
 interface MainMenuProperties {
     items: MainMenuItem[];
+    userId?: number;
 }
 interface MainMenuState {
     items: MainMenuItem[];
+    userId?: number;
 }
 
 export class MainMenu extends React.Component<MainMenuProperties> {
@@ -43,6 +45,12 @@ export class MainMenu extends React.Component<MainMenuProperties> {
         })
     }
 
+    setUserId(userID: number) {
+        this.setState({
+            userId: userID
+        })
+    }
+
     render() {
         return (
             <Navbar
@@ -52,8 +60,8 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                 expand="lg"
                 collapseOnSelect
             >
-                <Container>
-                    <Navbar.Brand  href="#"> <i className="bi bi-shop" /> Inventory Database</Navbar.Brand>
+                <Container fluid>
+                    <Navbar.Brand href={this.getNavbarBrandHref()}> <i className="bi bi-shop" /> Inventory Database</Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className='me-auto' >
@@ -76,6 +84,14 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                     {item.text}
             </Link>
         );
+    }
+
+    getNavbarBrandHref() {
+        if (this.props.userId === undefined) {
+            return "#"; // Vraća # ako je uloga administrator ili userId nije definisan
+        } else {
+            return `#/user/profile/${this.props.userId}`; // Vraća odgovarajući URL za ulogu user i definisan userId
+        }
     }
 }
 

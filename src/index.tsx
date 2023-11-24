@@ -24,6 +24,8 @@ import AddUserPage from './components/admin/AddUser/AddUserPage';
 import AddFeaturePage from './components/admin/AddFeature/AddFeaturePage';
 import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
 import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepartmetAndJob';
+import StockPage from './components/admin/StockPage/StockPage';
+import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -31,12 +33,12 @@ ReactDOM.render(
     <HashRouter>
       <Switch>
         <Route exact path="/user/login" component={UserLoginPage} />
-        <Route path="/userProfile/:userID" component={UserProfilePage} />
-        <Route path="/userArticle/:userID/:articleId/:serial" component={ArticleOnUserPage} />
+        <Route path="/user/profile/:userID" component={UserProfilePage} />
+        <Route path="/user/article/:serial" component={ArticleOnUserPage} />
 
         <Route exact path="/admin/login" component={AdministratorLoginPage} />
         <Route exact path="/user/" component={UserPage} />
-        <Route path="/admin/userArticle/:userID/:articleId/:serial" component={AdminArticleOnUserPage} />
+        <Route path="/admin/user/:serial" component={AdminArticleOnUserPage} />
         <Route path="/admin/userProfile/:userID" component={AdminUserProfilePage} />
         <Route exact path="/" component={HomePage} />
         <Route path="/category/:categoryID" component={CategoryPage} />
@@ -46,6 +48,8 @@ ReactDOM.render(
         <Route path="/admin/feature/" component={ AddFeaturePage } />
         <Route path="/admin/category/" component={ AddNewCategoryPage } />
         <Route path="/admin/department/" component={ AddDepartmentAndJob } />
+        <Route path="/admin/document/" component={ DocumentsPage } />
+        <Route path="/admin/stock/:stockID" component={ StockPage } />
       </Switch>
     </HashRouter>
   </React.StrictMode>,

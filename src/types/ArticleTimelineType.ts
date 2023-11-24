@@ -1,13 +1,16 @@
+import DocumentsType from "./DocumentsType";
+import UserType from "./UserType";
+
 export default class ArticleTimelineType {
-    surname?: string;
-    forname?: string;
-    status?: string;
-    comment?: string;
-    serialNumber?: string;
-    invBroj?: string;
-    sapNumber?: string;
-    timestamp?: string;
+    articleTimelineId?: number;
     articleId?: number;
     userId?: number;
-    documentPath?: string;
+    documentId?: number | null;
+    serialNumber?: string;
+    status?: string;
+    timestamp?: string;
+    invNumber?: string;
+    comment?: string;
+    document?: DocumentsType;
+    user?: UserType;
 }

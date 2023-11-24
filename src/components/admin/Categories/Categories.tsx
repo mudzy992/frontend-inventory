@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Card, Col, Container, Row } from 'react-bootstrap';
-import { Link, useParams } from 'react-router-dom';
-import api, { ApiResponse } from '../../../API/api';
-import UserArticleType from '../../../types/UserArticleType';
+import { Link, Redirect, useParams } from 'react-router-dom';
+import api from '../../../API/api';
+import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import Tabela from './TableFunction';
 
@@ -10,22 +10,24 @@ interface CategoryPageState {
   category?: CategoryType;
   subCategory: CategoryType[];
   message: string;
-  articles: UserArticleType[];
+  stocks: StockType[];
 }
 
 interface CategoryDto {
   categoryId: number;
   name: string;
   imagePath: string;
-  articles: {
-    articleId: number;
+  stocks: {
+    stockId: number;
     name: string;
     excerpt: string;
     description: string;
     concract: string;
     categoryId: number;
-    comment: string;
     sapNumber: string;
+    valueOnContract: number;
+    valueAvailable: number;
+    timestamp: string;
   }[];
 }
 
@@ -33,27 +35,70 @@ interface CategoryType {
   categoryId?: number;
   name?: string;
   imagePath?: string;
-  articles?: {
-    articleId: number;
+  stocks?: {
+    stockId: number;
     name: string;
     excerpt: string;
     description: string;
     concract: string;
     categoryId: number;
-    comment: string;
     sapNumber: string;
+    valueOnContract: number;
+    valueAvailable: number;
+    timestamp: string;
   }[];
 }
 
 const CategoryPage: React.FC = () => {
   const { categoryID } = useParams<{ categoryID: string }>();
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [state, setState] = useState<CategoryPageState>({
     subCategory: [],
     message: '',
-    articles: [],
+    stocks: [],
   });
 
-  useEffect(() => {
+    useEffect(() => {
+    const getCategoriesData = async () => {
+      try {
+        const response = await api(`api/category/${categoryID}`, 'get', {}, 'administrator');
+        
+        if (response.status === 'login') {
+          setIsLoggedIn(false);
+          return;
+        }
+
+        if (response.status === 'error') {
+          return setErrorMessage(
+            'Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije'
+          );
+        }
+
+        const categoryData: CategoryType = {
+          categoryId: response.data.categoryId,
+          name: response.data.name,
+          imagePath: response.data.imagePath,
+          stocks: response.data.stocks,
+        };
+
+        setCategoryData(categoryData);
+
+        const subcategories: CategoryType[] = response.data.categories.map(
+          (category: CategoryDto) => ({
+            categoryId: category.categoryId,
+            name: category.name,
+            imagePath: category.imagePath,
+            stocks: category.stocks,
+          })
+        );
+        setSubcategories(subcategories);
+      } catch (error) {
+        return setErrorMessage(
+          'Greška prilikom učitavanja pod-kategorije. Osvježite ili pokušajte ponovo kasnije. Greška: ' + error
+        );
+      }
+    };
+
     getCategoriesData();
   }, [categoryID]);
 
@@ -69,38 +114,6 @@ const CategoryPage: React.FC = () => {
     setState((prevState) => ({ ...prevState, subCategory: subcategories }));
   };
 
-  const getCategoriesData = () => {
-    api(`api/category/${categoryID}`, 'get', {}, 'administrator').then(
-      (res: ApiResponse) => {
-        if (res.status === 'error') {
-          return setErrorMessage(
-            'Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije'
-          );
-        }
-
-        const categoryData: CategoryType = {
-          categoryId: res.data.categoryId,
-          name: res.data.name,
-          imagePath: res.data.imagePath,
-          articles: res.data.articles,
-        };
-
-        setCategoryData(categoryData);
-
-        const subcategories: CategoryType[] = res.data.categories.map(
-          (category: CategoryDto) => ({
-            categoryId: category.categoryId,
-            name: category.name,
-            imagePath: category.imagePath,
-            articles: category.articles,
-          })
-        );
-
-        setSubcategories(subcategories);
-      }
-    );
-  };
-
   const printErrorMessage = () => {
     if (!state.message) {
       return null;
@@ -108,18 +121,25 @@ const CategoryPage: React.FC = () => {
 
     return (
       <Alert variant="error" style={{ marginTop: 15 }}>
-        <i className="bi bi-exclamation-circle-fill"></i> {state.message}
+        <i className="bi bi-exclamation-circle-fill" /> {state.message}
       </Alert>
     );
   };
 
   const showSubcategories = () => {
     if (state.subCategory.length === 0) {
-      return null;
+      return (
+        <Alert variant="info" style={{ marginTop: 15 }}>
+        <i className="bi bi-info-circle" /> Nema podkategorija
+      </Alert>
+      )  
     }
 
     return (
-      <Row>
+      <Row className='mt-3'>
+        <h5 style={{ color: 'white' }}>
+          <i className="bi bi-list-nested" /> Podkategorije
+        </h5>
         {printErrorMessage()}
         {state.subCategory.map(singleCategory)}
       </Row>
@@ -127,7 +147,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const singleCategory = (category: CategoryType) => (
-    <Col lg="2" md="4" sm="6" xs="6" key={category.categoryId}>
+    <Col lg="2" xs="6" key={category.categoryId}>
       <Card className="bg-dark text-white mb-3">
         <Card.Header>
           <Card.Title>{category.name}</Card.Title>
@@ -157,7 +177,7 @@ const CategoryPage: React.FC = () => {
       );
     }
   
-    if (!state.category.articles || state.category.articles.length === 0) {
+    if (!state.category || state.category.stocks?.length === 0) {
       return (
         <div>Nema opreme definisane za ovu kategoriju.</div>
       );
@@ -166,24 +186,25 @@ const CategoryPage: React.FC = () => {
     return <Tabela categoryId={categoryID} />;
   };
   
+  if(isLoggedIn === false) {
+    return (
+      <Redirect to="/admin/login" />
+    )
+  }
 
   return (
     <div>
       <RoledMainMenu role="administrator" />
-      <Container style={{ marginTop: 15 }}>
-      <Row className={state.category?.articles?.length && state.category.articles.length > 0 ? '' : 'd-none'}>
-          <h5 style={{ marginLeft: 10, marginBottom: 8, color: 'white' }}>
+      <Container className='mt-3'>
+      <Row className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'd-none'}>
+          <h5 style={{ color: 'white' }}>
             <i className="bi bi-list" />
             {state.category?.name}
           </h5>
           <div>{showArticles()}</div>
         </Row>
 
-
-        <Row style={{ marginTop: 25 }}>
-          <h5 style={{ marginLeft: 10, marginBottom: 8, color: 'white' }}>
-            <i className="bi bi-list-nested" /> Podkategorije
-          </h5>
+        <Row >
           <div>{showSubcategories()}</div>
         </Row>
       </Container>

@@ -41,3 +41,86 @@
 }
 
 
+
+.typing {
+    color: #057e5f;
+    padding-left: 6px;
+    font-size: 24px;
+    font-weight: bold;
+    overflow: hidden; 
+    border-right: .15em solid orange; 
+    white-space: nowrap;
+    
+    letter-spacing: .15em;
+    animation:
+      typing 3.5s steps(40, end),
+      blink-caret .75s step-end infinite;
+  }
+  
+.logo-container {
+    display: flex;
+    align-items: center;
+    margin-top: -70px;
+    position: absolute;
+}
+
+.circle {
+    width: 60px;
+    height: 60px;
+    border: 3px solid #fff;
+    background-color: #057e5f;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.incognito-icon {
+    color: #fff;
+    font-size: 40px;
+}
+
+.text {
+
+  font-size: 24px;
+  font-weight: bold;
+  margin-left: 16px;
+  white-space: prewrap;
+  overflow: hidden;
+  width: 0;
+  animation: revealText 5s steps(16, end) 0s forwards, showCircle 2s 5s forwards, typing 4s steps(19, end) 7s forwards;
+}
+
+
+
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+  
+  @keyframes blink-caret {
+    from, to {
+      border-color: transparent;
+    }
+    50% {
+      border-color: orange;
+    }
+  } 
+
+  @keyframes showCircle {
+      0% {
+          opacity: 0;
+      }
+      100% {
+          opacity: 1;
+      }
+  }
+
+
+
+
+

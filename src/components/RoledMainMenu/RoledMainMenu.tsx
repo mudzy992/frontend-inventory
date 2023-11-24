@@ -2,7 +2,8 @@ import React from "react";
 import { MainMenu, MainMenuItem } from '../MainMenu/MainMenu'
 
 interface RoledMainMenuProperties {
-    role: 'administrator' | 'user';
+    role: 'administrator' | 'user',
+    userId?: number
 }
 
 export default class RoledMainMenu extends React.Component<RoledMainMenuProperties> {
@@ -14,13 +15,14 @@ export default class RoledMainMenu extends React.Component<RoledMainMenuProperti
             case 'user': items = this.getUserItems(); break;
         }
 
-        return <MainMenu items={items} />
+        return <MainMenu items={items} userId={this.props.userId} />
     }
     getUserItems(): MainMenuItem[] {
+        const { userId } = this.props;
         return [
-            new MainMenuItem("Home", "/"),
+            new MainMenuItem("Naslovna", `/user/profile/${userId}`),
             new MainMenuItem("Log out", "/user/logout/"),
-        ]
+        ];
     }
     getAdministratorItems(): MainMenuItem[] {
         return [

@@ -4,10 +4,12 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
+import { Redirect } from 'react-router-dom';
 
 interface AddCategoryPageState {
     categories: CategoryType[];
     message: string;
+    isLoggedIn: boolean;
     addNewCategory: {
         name: string;
         parentCategoryId: number;
@@ -22,6 +24,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
         this.state = {
             categories: [],
             message: '',
+            isLoggedIn: true,
             addNewCategory: {
                 name: '',
                 imagePath: '',
@@ -56,6 +59,12 @@ export default class AddNewCategoryPage extends React.Component<{}> {
         }));
     }
 
+    private setIsLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
+        }));
+    }
+
     private setCategoryData(category: CategoryType) {
         this.setState(Object.assign(this.state, {
             categories: category
@@ -67,7 +76,11 @@ export default class AddNewCategoryPage extends React.Component<{}> {
     private getCategories() {
         api('api/category/', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false)
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja kategorija, osvježite stranicu i pokušajte ponovo.');
                 return;
             }   
@@ -91,7 +104,11 @@ export default class AddNewCategoryPage extends React.Component<{}> {
     private doAddCategory() {
         api('api/category/', 'post', this.state.addNewCategory, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false)
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja kategorije, pokušajte ponovo.');
                 return;
             }
@@ -167,6 +184,11 @@ export default class AddNewCategoryPage extends React.Component<{}> {
     /* RENDERER */
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return (
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
             <RoledMainMenu role="administrator" />

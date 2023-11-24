@@ -3,6 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
 import MuiAlert from '@mui/material/Alert';
 import { Snackbar, Stack } from '@mui/material';
+import { Redirect } from 'react-router-dom';
 
 
 interface LocationType {
@@ -17,6 +18,7 @@ interface AddLocationState {
         visible: boolean;
     };
     locationBase: LocationType[];
+    isLoggedIn: boolean;
     add: {
         location: {
             name: string;
@@ -34,6 +36,7 @@ export default class AddLocation extends React.Component<{}> {
             error: {
                 visible: false,
             },
+            isLoggedIn: true,
             locationBase: [],
             add: {
                 location: {
@@ -64,6 +67,12 @@ export default class AddLocation extends React.Component<{}> {
         }));
     }
 
+    private setIsLoggedInStatus(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state.error, {
+            isLoggedIn: isLoggedIn,
+        }));
+    }
+
     private setLocationData(locationData: LocationType[]) {
         this.setState(Object.assign(this.state, {
             locationBase: locationData,
@@ -87,7 +96,11 @@ export default class AddLocation extends React.Component<{}> {
     private getLocations() {
         api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom učitavanja lokacija.');
                 return;
             }   
@@ -111,7 +124,11 @@ export default class AddLocation extends React.Component<{}> {
     private doAddLocation() {
         api('api/location/', 'post', this.state.add.location, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedInStatus(false);
+                return;
+            }
+            if (res.status === "error") {
                 this.setErrorMessage('Greška prilikom dodavanja lokacije.');
                 return;
             }
@@ -187,6 +204,11 @@ export default class AddLocation extends React.Component<{}> {
     /* RENDERER */
 
     render() {
+        if(this.state.isLoggedIn === false) {
+            return(
+                <Redirect to='admin/login' />
+            )
+        }
         return (
             <div>
                 <Container style={{ marginTop:15}}>

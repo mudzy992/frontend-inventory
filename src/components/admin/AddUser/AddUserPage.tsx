@@ -30,7 +30,7 @@ interface AddUserPageState{
     message: string;
     isLoggedIn: boolean;
     addUser: {
-        surename: string;
+        surname: string;
         forname: string;
         email: string;
         localNumber: string;
@@ -69,7 +69,7 @@ export default class AddUserPage extends React.Component<{}>{
             message: '',
             isLoggedIn: true,
             addUser: {
-                surename: '',
+                surname: '',
                 forname: '',
                 email: '',
                 localNumber: '',
@@ -163,7 +163,6 @@ export default class AddUserPage extends React.Component<{}>{
 
     private async showDepartmentModal() {
         this.setDepartmentModalVisibleState(true)
-        console.log(this.state.modal.department.visible)
     }
 
     private setDepartmentModalVisibleState(newState: boolean) {
@@ -225,7 +224,7 @@ export default class AddUserPage extends React.Component<{}>{
     private clearFormFields() {
         this.setState({
           addUser: {
-            surename: '',
+            surname: '',
             forname: '',
             email: '',
             localNumber: '',
@@ -265,15 +264,18 @@ export default class AddUserPage extends React.Component<{}>{
         return new Promise(resolve => {
             api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/&sort=title,ASC', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
-            if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
-            }
+                if(res.status === 'login') {
+                    return this.setLogginState(false)
+                }
+                if(res.status === 'error') {
+                    this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+                }
 
-            const jobs: JobBaseType[] = res.data.map((item: any) => ({
-                jobId: item.jobId,
-                title: item.title,
-                jobCode: item.jobCode
-            }))
+                const jobs: JobBaseType[] = res.data.map((item: any) => ({
+                    jobId: item.jobId,
+                    title: item.title,
+                    jobCode: item.jobCode
+                }))
             resolve(jobs)
         })
     })      
@@ -295,7 +297,7 @@ export default class AddUserPage extends React.Component<{}>{
 
     private doAddUser() {
         api('api/user/add/', 'post', {
-            surename: this.state.addUser.surename,
+            surname: this.state.addUser.surname,
             forname: this.state.addUser.forname,
             password: this.state.addUser.password,
             email: this.state.addUser.email,
@@ -307,25 +309,14 @@ export default class AddUserPage extends React.Component<{}>{
             
         }, 'administrator')
         .then(async (res: ApiResponse) => {
-            if(res.data.statusCode === 201) {
-                this.setErrorMessage('Korisnik dodan')
-                this.clearFormFields();
+            if(res.status === 'login') {
+                return this.setLogginState(false)
             }
             
             if(res.status === 'ok') {
                 this.setErrorMessage('Korisnik dodan')
                 this.clearFormFields()
             }
-
-/*             if (res.status === "login") {
-                this.setLogginState(false);
-                return;
-            }
-
-            if (res.status === "error") {
-                this.setAddModalStringFieldState('message', JSON.stringify(res.data));
-                return;
-            } */
         });
     }
     /* Kraj dodatnih funkcija */
@@ -361,11 +352,11 @@ export default class AddUserPage extends React.Component<{}>{
                             <Col lg="6" xs="12">
                                 <FloatingLabel label="Ime" className="mb-3">
                                 <Form.Control 
-                                    id="surename" 
+                                    id="surname" 
                                     type="text" 
                                     placeholder="Ime"
-                                    value={ this.state.addUser.surename }
-                                    onChange={ (e) => this.setAddUserStringFieldState('surename', e.target.value) }
+                                    value={ this.state.addUser.surname }
+                                    onChange={ (e) => this.setAddUserStringFieldState('surname', e.target.value) }
                                     required />
                                 </FloatingLabel>
                             </Col>
@@ -526,7 +517,5 @@ export default class AddUserPage extends React.Component<{}>{
             </Card>  
             </div>
         )
-    }
-
-    
+    }    
 }

@@ -6,11 +6,13 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import AdminMenu from '../AdminMenu/AdminMenu';
+import { Redirect } from 'react-router-dom';
 
 interface AddArticlePageState{
     articles: ArticleType[];
     categories: CategoryType[];
     message: string;
+    isLoggedIn: boolean;
     addArticle: {
         name: string;
         categoryId: number;
@@ -49,6 +51,7 @@ export default class AddArticlePage extends React.Component<{}>{
             articles: [],
             categories: [],
             message: '',
+            isLoggedIn: true,
             addArticle: {
                 name: '',
                 categoryId: 0,
@@ -72,6 +75,12 @@ export default class AddArticlePage extends React.Component<{}>{
     private setErrorMessage(message: string) {
         this.setState(Object.assign(this.state, {
             message: message,
+        }));
+    }
+
+    private setIsLoggedIn(isLoggedIn: boolean) {
+        this.setState(Object.assign(this.state, {
+            isLoggedIn: isLoggedIn,
         }));
     }
 
@@ -145,6 +154,10 @@ export default class AddArticlePage extends React.Component<{}>{
     private getArticle() {
         api('api/article/?join=articleFeatures&join=features&join=category', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
+            if(res.status === 'login') {
+                this.setIsLoggedIn(false);
+                return;
+            }
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije')
             }
@@ -177,6 +190,10 @@ export default class AddArticlePage extends React.Component<{}>{
         return new Promise(resolve => {
             api('api/feature/?filter=categoryId||$eq||' + categoryId + '/', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
+                if(res.status === 'login') {
+                    this.setIsLoggedIn(false);
+                    return;
+                }
             if(res.status === 'error') {
                 this.setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
             }
@@ -193,7 +210,11 @@ export default class AddArticlePage extends React.Component<{}>{
     private getCategories() {
         api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
-            if (res.status === "error" || res.status === "login") {
+            if(res.status === 'login') {
+                this.setIsLoggedIn(false);
+                return;
+            }
+            if (res.status === "error" ) {
                 return;
             }
             this.putCategoriesInState(res.data)
@@ -274,33 +295,36 @@ export default class AddArticlePage extends React.Component<{}>{
     }
 
     private doAddArticle() {
-        api('/api/article/', 'post', {
-            categoryId: this.state.addArticle.categoryId,
+        const requestBody = {
             name: this.state.addArticle.name,
             excerpt: this.state.addArticle.excerpt,
             description: this.state.addArticle.description,
-            concract: this.state.addArticle.concract,
-            comment: this.state.addArticle.comment,
-            sap_number: this.state.addArticle.sapNumber,
-            stock: {
-                valueOnConcract: this.state.addArticle.valueOnConcract,
-                valueAvailable: this.state.addArticle.valueAvailable,
-            },
+            contract: this.state.addArticle.concract, // Ispravite tipfeler (concract -> contract)
+            categoryId: this.state.addArticle.categoryId,
+            sapNumber: this.state.addArticle.sapNumber,
+            valueOnContract: this.state.addArticle.valueOnConcract, // Ispravite tipfeler (valueOnConcract -> valueOnContract)
+            valueAvailable: this.state.addArticle.valueAvailable,
             features: this.state.addArticle.features
                 .filter(feature => feature.use === 1)
                 .map(feature => ({
                     featureId: feature.featureId,
-                    value: feature.value
+                    value: feature.value,
                 })),
-        }, 'administrator')
-        .then(async (res: ApiResponse) => {
+        };
+    
+        api('/api/stock/', 'post', requestBody, 'administrator').then(async (res: ApiResponse) => {
+            if(res.status === 'login') {
+                this.setIsLoggedIn(false);
+                return;
+            }
             if (res.status === 'ok') {
-                // Nakon uspješnog dodavanja, pozovite clearFormFields da biste očistili polja
+                // Nakon uspešnog dodavanja, pozovite clearFormFields da biste očistili polja
                 this.clearFormFields();
             }
             // Dodajte ostatak koda za obradu odgovora ako je potrebno
         });
     }
+    
     /* Kraj dodatnih funkcija */
     render() {
         return(
@@ -449,6 +473,11 @@ export default class AddArticlePage extends React.Component<{}>{
     }
 
     renderArticleData() {
+        if(this.state.isLoggedIn === false){
+            return(
+                <Redirect to='admin/login' />
+            )
+        }
         return(
             <Row>
             <Col xs ="12" lg="12">

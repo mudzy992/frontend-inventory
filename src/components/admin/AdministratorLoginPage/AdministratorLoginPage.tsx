@@ -1,5 +1,5 @@
-import React from 'react'
-import './style.css'
+import React from 'react';
+import './style.css';
 import { Container, Col, Card, Form, Button } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
@@ -9,11 +9,13 @@ import { Snackbar, Stack } from '@mui/material';
 interface administratorData {
     id: number;
 }
+
 interface AdministratorLoginPageState {
     username: string;
     password: string;
     administratorID: administratorData[];
     isLoggedIn: boolean;
+    isTyping: boolean;
     error: {
         message?: string;
         visible: boolean;
@@ -31,10 +33,19 @@ export default class AdministratorLoginPage extends React.Component {
             password: '',
             administratorID: [],
             isLoggedIn: false,
+            isTyping: true,
             error: {
                 visible: false,
             },
         }
+    }
+
+    componentDidMount() {
+        const typingTimeout = setTimeout(() => {
+            this.setState({ ...this.state, isTyping: false });
+        }, 3500);
+
+        return () => clearTimeout(typingTimeout);
     }
     private formInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
         this.setState(Object.assign(this.state, {
@@ -52,19 +63,19 @@ export default class AdministratorLoginPage extends React.Component {
         this.setState(Object.assign(this.state, {
             isLoggedIn: isLoggedIn,
         }));
-    }
+    };
 
     private setAdministratorID(administratorID: administratorData[]) {
         this.setState(Object.assign(this.state, {
             administratorID: administratorID,
         }));
-    }
+    };
 
     private setErrorMessage(message: string) {
-       this.setState(Object.assign(this.state.error, {
-            message: message,
-        }));
-    }
+        this.setState(Object.assign(this.state.error, {
+             message: message,
+         }));
+     }
 
     private async showErrorMessage() {
         this.setErrorMessageVisible(true)
@@ -75,7 +86,6 @@ export default class AdministratorLoginPage extends React.Component {
             visible: newState,
         }));
     }
-    
 
     private doLogin() {
         api(
@@ -115,56 +125,72 @@ export default class AdministratorLoginPage extends React.Component {
                 }
             });
     }
+
     render() {
         if (this.state.isLoggedIn === true) {
-            return (
-                <Redirect to="/" />
-            );
+            return <Redirect to="/" />;
         }
+
         return (
             <Container>
                 <Col md={{ span: 4, offset: 4 }}>
                     <Card style={{ marginTop: '50%' }}>
+                        <div className="logo-container">
+                            <div className="circle">
+                                <i className="bi bi-incognito incognito-icon"></i>
+                            </div>
+                            <div className={`typing ${this.state.isTyping ? 'typing' : ''}`}>Inventory Database</div>
+                        </div>
                         <Card.Body>
                             <Card.Title>
                                 <i className="bi bi-box-arrow-in-right" /> Administrator Login
                             </Card.Title>
                             <Form>
                                 <Form.Group>
-                                    <Form.Label className='login-form-label' htmlFor="username">Korisničko ime:</Form.Label>
-                                    <Form.Control 
-                                        className='login-form-control' 
-                                        type="text" 
+                                    <Form.Label className="login-form-label" htmlFor="username">
+                                        Korisničko ime:
+                                    </Form.Label>
+                                    <Form.Control
+                                        className="login-form-control"
+                                        type="text"
                                         id="username"
                                         value={this.state.username}
-                                        onChange={event => this.formInputChanged(event as any)} 
+                                        onChange={event => this.formInputChanged(event as any)}
                                         onKeyDown={event => this.handleKeyPress(event as any)}
-                                        />
+                                    />
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Label className='login-form-label' htmlFor="password">Password:</Form.Label>
-                                    <Form.Control 
-                                        className='login-form-control' 
-                                        type="password" 
+                                    <Form.Label className="login-form-label" htmlFor="password">
+                                        Lozinka:
+                                    </Form.Label>
+                                    <Form.Control
+                                        className="login-form-control"
+                                        type="password"
                                         id="password"
                                         value={this.state.password}
                                         onChange={event => this.formInputChanged(event as any)}
                                         onKeyDown={event => this.handleKeyPress(event as any)}
-                                        />
+                                    />
                                 </Form.Group>
                                 <Form.Group>
-                                <div className='block'>
-                                    <Button 
-                                        variant="success" 
-                                        className='btn-style'
-                                        onClick={() => this.doLogin()}>
-                                        Prijava
-                                    </Button>
-                                </div>
+                                    <div className="block">
+                                        <Button
+                                            variant="success"
+                                            className="btn-style"
+                                            onClick={() => this.doLogin()}
+                                        >
+                                            Prijava
+                                        </Button>
+                                    </div>
                                 </Form.Group>
                             </Form>
                             <Stack spacing={2} sx={{ width: '100%' }}>
-                                <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
+                                <Snackbar
+                                    open={this.state.error.visible}
+                                    autoHideDuration={6000}
+                                    onClose={() => this.setErrorMessageVisible(false)}
+                                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                                >
                                     <MuiAlert severity="error" sx={{ width: '100%' }}>
                                         {this.state.error.message}
                                     </MuiAlert>
@@ -174,6 +200,6 @@ export default class AdministratorLoginPage extends React.Component {
                     </Card>
                 </Col>
             </Container>
-        )
+        );
     }
-}/* Kraj koda */
+}

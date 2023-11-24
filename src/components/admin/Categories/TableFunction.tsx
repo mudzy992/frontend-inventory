@@ -1,14 +1,23 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { Button } from "react-bootstrap";
+import { Badge, Button } from "react-bootstrap";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
+import { Card} from "@mui/material";
+import { IoPeopleCircleOutline } from "@react-icons/all-files/io5/IoPeopleCircleOutline";
+import { MRT_Localization_SR_LATN_RS } from 'material-react-table/locales/sr-Latn-RS';
+import { Redirect } from "react-router-dom";
+
 
 interface ArticleType {
-  articleId: number;
+  stockId: number;
   name: string;
   excerpt: string;
   sapNumber: string;
+  valueAvailable: number;
+  articles?: [
+
+  ]
 }
 
 interface TabelaProps {
@@ -17,9 +26,10 @@ interface TabelaProps {
 
 const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const [data, setData] = useState<ArticleType[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false); // Dodajte state za prikaz moda
-  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
+  const [selectedStockId, setSelectedStockId] = useState<number | null>(null);
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -29,24 +39,37 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     setShowModal(false);
   };
 
-  const openModalWithArticle = (articleId: number) => {
-    setSelectedArticleId(articleId);
+  const openModalWithArticle = (stockId: number) => {
+    setSelectedStockId(stockId);
     handleShowModal();
   };
+
+  const valueStatus = (valueAvailabele: number) => {
+    if(valueAvailabele === 0) {
+      return <Badge bg="danger"> nema na stanju</Badge>
+    } else {
+      return <Badge bg="success">Dostupno: {valueAvailabele}</Badge>
+    }
+  }
 
   useEffect(() => {
     // Pozovite funkciju za dohvaćanje podataka o artiklima
     const fetchData = async () => {
       try {
-        const response = await api(`api/category/${categoryId}`, 'get', {}, 'administrator');
+        const response = await api(`api/stock/c/${categoryId}`, 'get', {}, 'administrator');
         if (response.status === 'error') {
           setErrorMessage('Greška prilikom učitavanja artikala. Osvježite stranicu ili pokušajte ponovo kasnije.');
           return;
         }
 
+        if(response.status === 'login') {
+          setIsLoggedIn(false);
+          return;
+        }
+
         // Dobijte podatke o artiklima iz response-a
-        const articles = response.data.articles as ArticleType[];
-        setData(articles);
+        const stocks = response.data as ArticleType[];
+        setData(stocks);
       } catch (error) {
         console.error("Greška:", error);
       }
@@ -58,53 +81,57 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const columns = useMemo<MRT_ColumnDef[]>(
     () => [
       {
+        size:400,
         accessorKey: "name",
         header: "Naziv opreme",
         Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
-        accessorKey: "excerpt",
-        header: "Opis opreme",
-        Cell: ({ cell }) => cell.getValue<string>(),
+       
+        accessorKey: "valueAvailable",
+        header: "Stanje",
+        Cell: ({ row }) => {
+          const { valueAvailable } = row.original as ArticleType;
+          return valueStatus(valueAvailable);
+        },
       },
       {
+      
         accessorKey: "sapNumber",
         header: "SAP broj",
         Cell: ({ cell }) => cell.getValue<string>(),
       },
       {
-        accessorKey: "articleId",
-        key: "articleId1",
+       
+        accessorKey: "stockId",
+        key: "stockId1",
         header: "Zaduženja",
         Cell: ({ cell }) => (
           <Button
-            variant="contained"
-            color="primary"
             className="btn-sm"
             onClick={() => {
-              const articleId = cell.getValue<number>();
-              openModalWithArticle(articleId); // Proslijedite articleId funkciji
+              const stockId = cell.getValue<number>();
+              openModalWithArticle(stockId); // Proslijedite articleId funkciji
             } }
           >
-            Zaduženja
+            <IoPeopleCircleOutline style={{fontSize:"19px"}}/> Zaduženja
           </Button>
         ),
       },
        {
-        accessorKey: "articleId",
+        
+        accessorKey: "stockId",
         key: "articleId2",
-        header: "",
+        header: "Detalji opreme",
         Cell: ({ cell }) => (
           <Button
-            variant="contained"
-            color="primary"
             className="btn-sm"
             onClick={() => {
-              const articleId = cell.getValue<number>();
-              window.location.href = `#/article/${articleId}/`;
+              const stockId = cell.getValue<number>();
+              window.location.href = `#/admin/stock/${stockId}/`;
             }}
           >
-            Detalji opreme
+            <i className="bi bi-boxes"  style={{fontSize:"15px"}} /> Skladište
           </Button>
         ),
       }, 
@@ -116,16 +143,32 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     return <div>{errorMessage}</div>;
   }
 
+  if(isLoggedIn === false) {
+    return (
+      <Redirect to="/admin/login" />
+    )
+  }
+    
   return (
     <>
+    <Card>
       <MaterialReactTable
         columns={columns}
         data={data}
+        enableSorting={false}
+        enableFilters={false}
+        enableColumnActions={false}
+        enableDensityToggle={false}
+        localization={MRT_Localization_SR_LATN_RS}
+        initialState={{ density: "compact" }}
       />
+     
+    </Card>
+      
       <ArticleModal
         show={showModal}
         onHide={handleHideModal}
-        articleId={selectedArticleId!} // Proslijedite articleId
+        stockId={selectedStockId!} // Proslijedite articleId
       />
     </>
   );

@@ -84,13 +84,13 @@ export default class HomePage extends React.Component {
             /* prikaz klijentu */
             <>
                 <RoledMainMenu role='administrator'/>
-                    <Container className='mb-3'>
-                        <Row className='mb-3'>
-                           <UserPage /> 
+                    <Container className='mt-3'>
+                        <Row>
+                            <UserPage />
                         </Row>
                         
-                        <Row className='mb-3'>
-                            <h5 style={{marginLeft:10, color:"white"}}> 
+                        <Row className="mt-5">
+                            <h5  style={{ color:"white"}}> 
                             <i className="bi bi-card-list"/> Top level kategorije</h5>
                                 {this.state.categories.map(this.singleCategory)}
                                 <p>{this.state.message}</p>
@@ -103,8 +103,7 @@ export default class HomePage extends React.Component {
 
     private singleCategory(category: CategoryType) {
         return (
-            <Col lg="2" xs="6" key={category.categoryId}>
-                <CardGroup>
+            <Col lg="2" xs="6" >
                 <Card className="text-white bg-dark mb-3">
                     <Card.Header>
                         <Card.Title>
@@ -119,7 +118,6 @@ export default class HomePage extends React.Component {
                             className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
                     </Card.Footer>
                 </Card>
-                </CardGroup>
             </Col>
         )
     }

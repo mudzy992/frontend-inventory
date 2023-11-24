@@ -212,8 +212,7 @@ export default class DocumentsPage extends React.Component<{}> {
         const { currentPage } = this.state;
         return(
             <><RoledMainMenu role='administrator' />
-            <Container style={{ marginTop: 15 }}  component={Paper}>
-
+            <Container className='mt-3'  component={Paper}>
                 <TextField
                     label="Pretraži dokumente"
                     variant="outlined"
@@ -241,7 +240,6 @@ export default class DocumentsPage extends React.Component<{}> {
                 <Stack style={{alignItems:'end', justifyContent:'center', height: '60px', padding:'15px'}} spacing={2}>
                     <Pagination  variant="outlined" color="primary" showFirstButton showLastButton count={this.state.totalPages} page={currentPage} onChange={(event, value) => this.handlePageChange(value)} />
                 </Stack>
-                
             </Container>
             <AdminMenu />
             </>

@@ -184,8 +184,8 @@ export default class UserPage extends React.Component {
             );
         }
         return (
-            <Box sx={{ height: 531, width: '100%', }} className="mb-3">
-                <h5 style={{marginLeft:10, color:"white"}}> 
+            <Box sx={{ height: 531, width: '100%' }}>
+                <h5 style={{color:"white"}}> 
                 <i className="bi bi-people-fill"/> Korisnici</h5>
                 {UserTable(this.state.users)}
                 <p>{this.state.message}</p>

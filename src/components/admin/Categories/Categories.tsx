@@ -136,8 +136,8 @@ const CategoryPage: React.FC = () => {
     }
 
     return (
-      <Row>
-        <h5 style={{ marginLeft: 10, marginBottom: 8, color: 'white' }}>
+      <Row className='mt-3'>
+        <h5 style={{ color: 'white' }}>
           <i className="bi bi-list-nested" /> Podkategorije
         </h5>
         {printErrorMessage()}
@@ -147,7 +147,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const singleCategory = (category: CategoryType) => (
-    <Col lg="2" md="4" sm="6" xs="6" key={category.categoryId}>
+    <Col lg="2" xs="6" key={category.categoryId}>
       <Card className="bg-dark text-white mb-3">
         <Card.Header>
           <Card.Title>{category.name}</Card.Title>
@@ -195,16 +195,16 @@ const CategoryPage: React.FC = () => {
   return (
     <div>
       <RoledMainMenu role="administrator" />
-      <Container style={{ marginTop: 15 }}>
-      <Row className={state.category?.stocks?.length && state.category.stocks.length > 0 ? '' : 'd-none'}>
-          <h5 style={{ marginLeft: 10, marginBottom: 8, color: 'white' }}>
+      <Container className='mt-3'>
+      <Row className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'd-none'}>
+          <h5 style={{ color: 'white' }}>
             <i className="bi bi-list" />
             {state.category?.name}
           </h5>
           <div>{showArticles()}</div>
         </Row>
 
-        <Row style={{ marginTop: 25 }}>
+        <Row >
           <div>{showSubcategories()}</div>
         </Row>
       </Container>

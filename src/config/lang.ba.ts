@@ -5,7 +5,7 @@ export const LangBa = {
         /* Errors */
         ARTICLE_ON_USER:{
             ERR_READ_CATEGORY : 'Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije',
-            ERR_CONTAINER_ARTICLE_NOT_FOUND : 'Article not found',
+            ERR_CONTAINER_ARTICLE_NOT_FOUND : 'Artikal nije pronađen!',
             /* BUTTONS */
             BTN_UPGRADE : 'Nadogradi',
             BTN_SAVE : 'Sačuvaj',

@@ -6,7 +6,22 @@ jobs:
       - image: cimg/node:16.10
     steps:
       - checkout
-      # Dodajte korake za build i deploy prema potrebama vašeg projekta
+
+      # Build koraci (npr. instalacija zavisnosti, kompilacija, minifikacija)
+      - run:
+          name: Install Dependencies
+          command: npm install
+
+      - run:
+          name: Build
+          command: npm run build
+
+      # Deploy koraci (prilagodite ovo prema vašim potrebama)
+      - run:
+          name: Deploy to Production
+          command: |
+            # Dodajte komande koje su potrebne za deploy
+            # Na primer, možete koristiti rsync, scp, ili neki drugi alat
 
 workflows:
   version: 2

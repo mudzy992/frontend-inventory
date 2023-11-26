@@ -1,3 +1,4 @@
+import CategoryType from "./CategoryType";
 import StockFeatureType from "./StockFeaturesType";
 
 export default class StockType {
@@ -5,11 +6,12 @@ export default class StockType {
     name?: string;
     excerpt?: string;
     description?: string;
-    concract?: string;
+    contract?: string;
     categoryId?: number;
     sapNumber?: string;
     valueOnContract?: number;
     valueAvailable?: number;
     timestamp?: string;
     stockFeatures?: StockFeatureType[];
+    category?:CategoryType;
 }

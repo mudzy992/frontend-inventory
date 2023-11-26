@@ -299,7 +299,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         this.setEditArticleStringFieldState('name', String(article.stock?.name))
         this.setEditArticleStringFieldState('excerpt', String(article.stock?.excerpt))
         this.setEditArticleStringFieldState('description', String(article.stock?.description))
-        this.setEditArticleStringFieldState('concract', String(article.stock?.concract))
+        this.setEditArticleStringFieldState('concract', String(article.stock?.contract))
         this.setEditArticleStringFieldState('comment', String(article.comment))
         this.setEditArticleStringFieldState('valueOnConcract', String(article.stock?.valueOnContract))
         this.setEditArticleStringFieldState('valueAvailable', String(article.stock?.valueAvailable))

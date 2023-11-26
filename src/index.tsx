@@ -26,6 +26,7 @@ import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
 import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepartmetAndJob';
 import StockPage from './components/admin/StockPage/StockPage';
 import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
+import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -50,6 +51,7 @@ ReactDOM.render(
         <Route path="/admin/department/" component={ AddDepartmentAndJob } />
         <Route path="/admin/document/" component={ DocumentsPage } />
         <Route path="/admin/stock/:stockID" component={ StockPage } />
+        <Route path="/admin/dashboard" component={ AdminDashboardPage } />
       </Switch>
     </HashRouter>
   </React.StrictMode>,

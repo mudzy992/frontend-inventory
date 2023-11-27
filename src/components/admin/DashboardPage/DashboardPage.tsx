@@ -407,7 +407,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
                                         <TableBody>
                                             {paginedArticleData && paginedArticleData.map(artikal => (
                                                 <TableRow key={artikal.articleId} hover>
-                                                    <TableCell>{artikal?.stock?.name}</TableCell>
+                                                    <TableCell><Link href={`#/admin/user/${artikal?.serialNumber}`} >{artikal?.stock?.name} </Link></TableCell>
                                                     <TableCell>{artikal?.serialNumber}</TableCell>
                                                     <TableCell>{artikal?.invNumber}</TableCell>
                                                     <TableCell>{artikal?.category?.name}</TableCell>

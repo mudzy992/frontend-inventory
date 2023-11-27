@@ -22,6 +22,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
     const [paginedArticleData, setPaginedArticle] = useState<ArticleType[]>();
     const [articleCurrentPage, setArticleCurrentPage] = useState<number>(1);
     const [articleItemsPerPage, setArticleItemsPerPage] = useState<number>(10);
+    const [isArticleSearchActive, setIsArticleSearchActive] = useState<boolean>(false);
     const [articleTotalPage, setArticleTotalPage] = useState<number>(0);
     const [articlePaginationTableQuery, setArticlePaginationTableQuery] = useState<string>('');
     const [unsignedDocumentData, setUnsignedDocument] = useState<DocumentsType[]>();
@@ -69,7 +70,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
                 setMessage('Greška prilikom do' + error)
             }
 
-            try {
+            /* try {
                 const offset = ((articleCurrentPage - 1) * articleItemsPerPage)
                 const apiUrl = `/api/admin/dashboard/articles/p?perPage=${articleItemsPerPage}&offset=${offset}`
                 const paginedArticleResponse = await api(apiUrl, 'get', {}, 'administrator');
@@ -87,7 +88,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
 
             } catch (error) {
                 setMessage('Greška prilikom dohvaćanja artikala u tabelu. Greška: ' + error)
-            }
+            } */
 
             try {
                 const unsignedDocumentResponse = await api('/api/admin/dashboard/document/unsigned', 'get', {}, 'administrator');
@@ -108,7 +109,70 @@ const AdminDashboardPage: React.FC<{}> = () => {
             }
         }
         fatchData()
-    }, [articleCurrentPage, articleItemsPerPage]);
+    }, []);
+
+    useEffect(() => {
+        // Ova funkcija se izvršava samo kada se mijenja stranica
+        const fetchPaginatedData = async () => {
+            try {
+                const offset = ((articleCurrentPage - 1) * articleItemsPerPage);
+                const apiUrl = `/api/admin/dashboard/articles/p?perPage=${articleItemsPerPage}&offset=${offset}`;
+                const paginatedArticleResponse = await api(apiUrl, 'get', {}, 'administrator');
+    
+                if (paginatedArticleResponse.status === 'login') {
+                    setLoggedIn(false);
+                    return;
+                }
+    
+                if (paginatedArticleResponse.status === 'error') {
+                    setMessage('Greška prilikom dohvaćanja posljednjeg artikla na skladištu');
+                    return;
+                }
+    
+                setPaginedArticle(paginatedArticleResponse.data.results);
+                setArticleTotalPage(paginatedArticleResponse.data.total);
+            } catch (error) {
+                setMessage('Greška prilikom dohvaćanja artikala u tabelu. Greška: ' + error);
+            }
+        };
+    
+        // Ako nije aktivan search, dohvatite paginirane podatke
+        if (!isArticleSearchActive) {
+            fetchPaginatedData();
+        }
+    }, [articleCurrentPage, articleItemsPerPage, isArticleSearchActive]);
+
+    useEffect(() => {
+        // Ova funkcija se izvršava samo kada se vrši pretraga
+        const fetchSearchData = async () => {
+            try {
+                const apiUrl = `/api/admin/dashboard/articles/s?perPage=${articleItemsPerPage}&page=${articleCurrentPage}&query=${encodeURIComponent(articlePaginationTableQuery)}`;
+                const paginatedArticleResponse = await api(apiUrl, 'get', {}, 'administrator');
+    
+                if (paginatedArticleResponse.status === 'login') {
+                    setLoggedIn(false);
+                    return;
+                }
+    
+                if (paginatedArticleResponse.status === 'error') {
+                    setMessage('Greška prilikom dohvaćanja posljednjeg artikla na skladištu');
+                    return;
+                }
+    
+                setPaginedArticle(paginatedArticleResponse.data.results);
+                const totalCount: number = paginatedArticleResponse.data.total;
+                const totalPages: number = Math.ceil(totalCount / articleItemsPerPage);
+                setArticleTotalPage(totalPages);
+            } catch (error) {
+                setMessage('Greška prilikom dohvaćanja artikala u tabelu. Greška: ' + error);
+            }
+        };
+    
+        // Ako je aktivan search, dohvatite rezultate pretrage
+        if (isArticleSearchActive) {
+            fetchSearchData();
+        }
+    }, [articleCurrentPage, articleItemsPerPage, isArticleSearchActive, articlePaginationTableQuery]);
 
     if (!isLoggedIn) {
         return <Redirect to="/admin/login" />;
@@ -125,7 +189,13 @@ const AdminDashboardPage: React.FC<{}> = () => {
         setArticleCurrentPage(newPage);
     };
 
-    const searchArticle = async (query: string = '') => {
+    const handleSearchChange = (query: string) => {
+        setIsArticleSearchActive(true)
+        setArticleCurrentPage(1)
+        setArticlePaginationTableQuery(query)        
+    }
+
+/*     const searchArticle = async (query: string = '') => {
         try {
             const apiUrl = `/api/admin/dashboard/articles/s?perPage=${articleItemsPerPage}&page=${articleCurrentPage}&query=${encodeURIComponent(articlePaginationTableQuery)}`
             const paginedArticleResponse = await api(apiUrl, 'get', {}, 'administrator');
@@ -146,15 +216,12 @@ const AdminDashboardPage: React.FC<{}> = () => {
         } catch (error) {
             setMessage('Greška prilikom dohvaćanja artikala u tabelu. Greška: ' + error)
         }
-    }
+    } */
 
-    const handleSearchChange = (query: string) => {
-        setArticleCurrentPage(1)
-        searchArticle(query)
-    }
+    
 
     const handleClick = () => {
-    setOpen(true);
+        setOpen(true);
     };
 
     const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {

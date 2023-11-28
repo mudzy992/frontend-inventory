@@ -3,6 +3,7 @@ import { ApiConfig } from '../../../config/api.config';
 import api, { ApiResponse } from '../../../API/api';
 import { Redirect, useHistory } from 'react-router-dom';
 import { saveAs } from 'file-saver';
+import * as ExcelJS from 'exceljs';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import AdminMenu from '../AdminMenu/AdminMenu';
 import StockType from '../../../types/UserArticleType';
@@ -162,7 +163,64 @@ const AdminDashboardPage: React.FC<{}> = () => {
         setMenuAnchorEl(null);
         setSelectedDocument(null);
     };
-    
+
+    const fetchAllArticles = async () => {
+        try {
+          const apiUrl = `/api/admin/dashboard/articles`;
+          const response = await api(apiUrl, 'get', {}, 'administrator');
+      
+          if (response.status === 'login') {
+            setLoggedIn(false);
+            return [];
+          }
+      
+          if (response.status === 'error') {
+            setMessage('Greška prilikom dohvaćanja artikala');
+            return [];
+          }
+      
+          return response.data || [];
+        } catch (error) {
+          setMessage('Greška prilikom dohvaćanja artikala. Greška: ' + error);
+          return [];
+        }
+      };
+
+      const exportToExcel = async () => {
+        const allArticles = await fetchAllArticles();
+        const dataToExport = allArticles.map((article:any) => ({
+          ID: article.articleId,
+          Naziv: article.stock?.name || '',
+          serijski_broj: article.serialNumber || '',
+          inventurni_broj: article.invNumber || '',
+          Korisnik: article.user?.fullname || '',
+          kategorija: article.category?.name || '',
+          status: article.status || '',
+        }));
+      
+        // Stvaranje radnog lista
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Sheet1');
+        
+        // Dodajte zaglavlje
+        const headerRow = worksheet.addRow(Object.keys(dataToExport[0] || {}));
+        headerRow.eachCell((cell) => {
+          cell.font = { bold: true };
+        });
+        
+        // Dodajte podatke
+        dataToExport.forEach((data:any) => {
+          const row = worksheet.addRow(Object.values(data));
+        });
+        
+        // Stvaranje binarnih podataka radne knjige
+        const excelBuffer = await workbook.xlsx.writeBuffer();
+        
+        // Spašavanje datoteke
+        saveAs(new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' }), 'export.xlsx');
+      };
+      
+
     const handleSaveFile = (docPath: string) => {
     if (docPath) {
         saveAs(ApiConfig.TEMPLATE_PATH + docPath, docPath);
@@ -291,7 +349,26 @@ const AdminDashboardPage: React.FC<{}> = () => {
                             <Card.Header>
                                  Svi artikli
                             </Card.Header>
-                            <div style={{width:'100%', paddingLeft:'10px', paddingRight:'10px', fontSize:"14px"}}>
+                            <Row style={{width:'100%', paddingLeft:'10px', paddingRight:'10px', fontSize:"14px"}}>
+                                <Col lg={11} xs={11}>
+                                <TextField
+                                        label="Pretraži artikle"
+                                        variant="outlined"
+                                        margin="normal"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              const target = e.target as HTMLInputElement;
+                                              handleSearchChange(target.value);
+                                            }
+                                          }}
+                                        style={{width:'100%', fontSize:"14px"}}
+                                    /> 
+                                </Col>
+                                <Col lg={1} xs={1}style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
+                                <Link component={() => <div title='Prebaci u excel' className="linkContainer" onClick={() => exportToExcel()} ><i className="bi bi-filetype-xlsx" style={{ fontSize: "25px", color:'darkgreen'}} /></div>} />
+                                </Col>
+                            </Row>
+{/*                             <div style={{width:'100%', paddingLeft:'10px', paddingRight:'10px', fontSize:"14px"}}>
                                        <TextField
                                         label="Pretraži artikle"
                                         variant="outlined"
@@ -302,10 +379,13 @@ const AdminDashboardPage: React.FC<{}> = () => {
                                               handleSearchChange(target.value);
                                             }
                                           }}
-                                        /* onChange={(e) => handleSearchChange(e.target.value)} */
                                         style={{width:'100%', fontSize:"14px"}}
                                     /> 
-                            </div>
+                                    <Button onClick={exportToExcel} variant="success">
+                                    <i className="bi bi-filetype-xlsx" style={{fontSize:"16px"}}></i>
+                                    </Button>
+
+                            </div> */}
                                 <TableContainer style={{ maxHeight: 'auto', overflowY: 'auto', fontSize:"14px" }} >                                   
                                     <Table sx={{ minWidth: 700 }} stickyHeader size='small'>
                                         <TableHead>
@@ -341,8 +421,6 @@ const AdminDashboardPage: React.FC<{}> = () => {
                 </Row>
                 
             </Container>
-
-            {/* Redovi u tabeli  */}
 
             {/* Menu za dodavanje fajlove */}
             <MuiMenu

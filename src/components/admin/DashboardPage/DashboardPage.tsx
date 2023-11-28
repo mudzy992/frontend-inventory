@@ -3,6 +3,7 @@ import { ApiConfig } from '../../../config/api.config';
 import api, { ApiResponse } from '../../../API/api';
 import { Redirect, useHistory } from 'react-router-dom';
 import { saveAs } from 'file-saver';
+import * as ExcelJS from 'exceljs';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import AdminMenu from '../AdminMenu/AdminMenu';
 import StockType from '../../../types/UserArticleType';
@@ -12,6 +13,7 @@ import DocumentsType from '../../../types/DocumentsType';
 import { Box, Link, MenuItem, Menu as MuiMenu, Button as MuiButton, Snackbar, Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Pagination, TextField} from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import './style.css'
 
 // Funkcionalna komponenta AdminDashboardPage
 const AdminDashboardPage: React.FC<{}> = () => {
@@ -22,6 +24,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
     const [paginedArticleData, setPaginedArticle] = useState<ArticleType[]>();
     const [articleCurrentPage, setArticleCurrentPage] = useState<number>(1);
     const [articleItemsPerPage, setArticleItemsPerPage] = useState<number>(10);
+    const [isArticleSearchActive, setIsArticleSearchActive] = useState<boolean>(false);
     const [articleTotalPage, setArticleTotalPage] = useState<number>(0);
     const [articlePaginationTableQuery, setArticlePaginationTableQuery] = useState<string>('');
     const [unsignedDocumentData, setUnsignedDocument] = useState<DocumentsType[]>();
@@ -70,26 +73,6 @@ const AdminDashboardPage: React.FC<{}> = () => {
             }
 
             try {
-                const offset = ((articleCurrentPage - 1) * articleItemsPerPage)
-                const apiUrl = `/api/admin/dashboard/articles/p?perPage=${articleItemsPerPage}&offset=${offset}`
-                const paginedArticleResponse = await api(apiUrl, 'get', {}, 'administrator');
-                if (paginedArticleResponse.status === 'login') {
-                    setLoggedIn(false);
-                    return
-                }
-
-                if (paginedArticleResponse.status === 'error') {
-                    setMessage('Greška prilikom dohvaćanja posljednjeg artikla na skladištu')
-                    return;
-                }
-                setPaginedArticle(paginedArticleResponse.data.results)
-                setArticleTotalPage(paginedArticleResponse.data.total)
-
-            } catch (error) {
-                setMessage('Greška prilikom dohvaćanja artikala u tabelu. Greška: ' + error)
-            }
-
-            try {
                 const unsignedDocumentResponse = await api('/api/admin/dashboard/document/unsigned', 'get', {}, 'administrator');
                 if (unsignedDocumentResponse.status === 'login') {
                     setLoggedIn(false);
@@ -108,7 +91,35 @@ const AdminDashboardPage: React.FC<{}> = () => {
             }
         }
         fatchData()
-    }, [articleCurrentPage, articleItemsPerPage]);
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const apiUrl = `/api/admin/dashboard/articles/s?perPage=${articleItemsPerPage}&page=${articleCurrentPage}&query=${encodeURIComponent(articlePaginationTableQuery)}`;
+                const paginatedArticleResponse = await api(apiUrl, 'get', {}, 'administrator');
+    
+                if (paginatedArticleResponse.status === 'login') {
+                    setLoggedIn(false);
+                    return;
+                }
+    
+                if (paginatedArticleResponse.status === 'error') {
+                    setMessage('Greška prilikom dohvaćanja posljednjeg artikla na skladištu');
+                    return;
+                }
+    
+                setPaginedArticle(paginatedArticleResponse.data.results);
+                const totalCount: number = paginatedArticleResponse.data.total;
+                const totalPages: number = Math.ceil(totalCount / articleItemsPerPage);
+                setArticleTotalPage(totalPages);
+            } catch (error) {
+                setMessage('Greška prilikom dohvaćanja artikala u tabelu. Greška: ' + error);
+            }
+        };
+    
+        fetchData();
+    }, [articleCurrentPage, articleItemsPerPage, articlePaginationTableQuery]);
 
     if (!isLoggedIn) {
         return <Redirect to="/admin/login" />;
@@ -125,36 +136,14 @@ const AdminDashboardPage: React.FC<{}> = () => {
         setArticleCurrentPage(newPage);
     };
 
-    const searchArticle = async (query: string = '') => {
-        try {
-            const apiUrl = `/api/admin/dashboard/articles/s?perPage=${articleItemsPerPage}&page=${articleCurrentPage}&query=${encodeURIComponent(articlePaginationTableQuery)}`
-            const paginedArticleResponse = await api(apiUrl, 'get', {}, 'administrator');
-            if (paginedArticleResponse.status === 'login') {
-                setLoggedIn(false);
-                return
-            }
-
-            if (paginedArticleResponse.status === 'error') {
-                setMessage('Greška prilikom dohvaćanja posljednjeg artikla na skladištu')
-                return;
-            }
-            setPaginedArticle(paginedArticleResponse.data.results)
-            const totalCount: number = paginedArticleResponse.data.total;
-            const totalPages: number = Math.ceil(totalCount / articleItemsPerPage);
-            setArticleTotalPage(totalPages)
-            setArticlePaginationTableQuery(query)
-        } catch (error) {
-            setMessage('Greška prilikom dohvaćanja artikala u tabelu. Greška: ' + error)
-        }
-    }
-
     const handleSearchChange = (query: string) => {
+        setIsArticleSearchActive(true)
         setArticleCurrentPage(1)
-        searchArticle(query)
-    }
+        setArticlePaginationTableQuery(query)        
+    }  
 
     const handleClick = () => {
-    setOpen(true);
+        setOpen(true);
     };
 
     const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -174,7 +163,64 @@ const AdminDashboardPage: React.FC<{}> = () => {
         setMenuAnchorEl(null);
         setSelectedDocument(null);
     };
-    
+
+    const fetchAllArticles = async () => {
+        try {
+          const apiUrl = `/api/admin/dashboard/articles`;
+          const response = await api(apiUrl, 'get', {}, 'administrator');
+      
+          if (response.status === 'login') {
+            setLoggedIn(false);
+            return [];
+          }
+      
+          if (response.status === 'error') {
+            setMessage('Greška prilikom dohvaćanja artikala');
+            return [];
+          }
+      
+          return response.data || [];
+        } catch (error) {
+          setMessage('Greška prilikom dohvaćanja artikala. Greška: ' + error);
+          return [];
+        }
+      };
+
+      const exportToExcel = async () => {
+        const allArticles = await fetchAllArticles();
+        const dataToExport = allArticles.map((article:any) => ({
+          ID: article.articleId,
+          Naziv: article.stock?.name || '',
+          serijski_broj: article.serialNumber || '',
+          inventurni_broj: article.invNumber || '',
+          Korisnik: article.user?.fullname || '',
+          kategorija: article.category?.name || '',
+          status: article.status || '',
+        }));
+      
+        // Stvaranje radnog lista
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Sheet1');
+        
+        // Dodajte zaglavlje
+        const headerRow = worksheet.addRow(Object.keys(dataToExport[0] || {}));
+        headerRow.eachCell((cell) => {
+          cell.font = { bold: true };
+        });
+        
+        // Dodajte podatke
+        dataToExport.forEach((data:any) => {
+          const row = worksheet.addRow(Object.values(data));
+        });
+        
+        // Stvaranje binarnih podataka radne knjige
+        const excelBuffer = await workbook.xlsx.writeBuffer();
+        
+        // Spašavanje datoteke
+        saveAs(new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' }), 'export.xlsx');
+      };
+      
+
     const handleSaveFile = (docPath: string) => {
     if (docPath) {
         saveAs(ApiConfig.TEMPLATE_PATH + docPath, docPath);
@@ -215,69 +261,55 @@ const AdminDashboardPage: React.FC<{}> = () => {
             <Container className="mt-3" fluid="md">
                 <Row >
                     <Col lg='4' xs="12" className='mt-2'>
-                        <Card style={{fontSize:"14px", height:'auto', minHeight:"auto"}}>
-                            <Card.Header>
-                                Posljednje dodani artikal na skladište
-                            </Card.Header>
-                            <Card.Body>
-                                <Row >
-                                    <Col xs={12} md lg > 
-                                        <ListGroup style={{width:'auto'}}>
-                                            <ListGroup.Item active >
-                                                {stockData?.name}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                Kategorija: {stockData?.category?.name}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                Dostupno: {stockData?.valueAvailable}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                Ugovor: {stockData?.contract}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                SAP broj: {stockData?.sapNumber}
-                                            </ListGroup.Item>
-                                        </ListGroup>
-                                    </Col>
-                                </Row>
-                            </Card.Body>
-                            <Card.Footer>
-                                <Row>
-                                    <Col style={{display:"flex", justifyContent:"flex-end"}}><Button onClick={() => handlePageClick(`stock/${stockData?.stockId}`)} size='sm'>Zaduži</Button></Col>
-                                </Row>
-                            </Card.Footer>
-                        </Card>
+                        <ListGroup style={{fontSize:"14px"}}>
+                                <ListGroup.Item active >
+                                    Posljednje dodani artikal na skladište
+                                </ListGroup.Item>
+                                <ListGroup.Item >
+                                    Naziv: {stockData?.name}
+                                </ListGroup.Item>
+                                <ListGroup.Item>
+                                    Kategorija: {stockData?.category?.name}
+                                </ListGroup.Item>
+                                <ListGroup.Item>
+                                    Dostupno: {stockData?.valueAvailable}
+                                </ListGroup.Item>
+                                <ListGroup.Item>
+                                    Ugovor: {stockData?.contract}
+                                </ListGroup.Item>
+                                <ListGroup.Item>
+                                    SAP broj: {stockData?.sapNumber}
+                                </ListGroup.Item>
+                                <ListGroup.Item style={{display:"flex", justifyContent:"flex-end"}}>
+                                    <Button onClick={() => handlePageClick(`stock/${stockData?.stockId}`)} size='sm'>Zaduži</Button>
+                                </ListGroup.Item>
+                         </ListGroup>
+                                        
                     </Col>
                     <Col lg='4' xs="12" className='mt-2'>
-                        <Card style={{fontSize:"14px", height:'auto', minHeight:"309px"}}>
-                            <Card.Header>
+                        <ListGroup style={{fontSize:"14px"}} >
+                            <ListGroup.Item active >
                                 Posljednje dodani artikal
-                            </Card.Header>
-                            <Card.Body className="justify-content-md-center">
-                                <Row >
-                                    <Col xs={12} md lg> 
-                                        <ListGroup style={{width:'auto'}}>
-                                            <ListGroup.Item active >
-                                                {articleData?.stock?.name}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                Serijski broj: {articleData?.serialNumber}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                Inventurni broj: {articleData?.invNumber}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                Korisnik: {articleData?.user?.fullname}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                Status: {articleData?.status}
-                                            </ListGroup.Item>
-                                        </ListGroup>
-                                    </Col>
-                                </Row>
-                            </Card.Body>
-                        </Card>
+                            </ListGroup.Item>
+                            <ListGroup.Item >
+                                Naziv: {articleData?.stock?.name}
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                Serijski broj: {articleData?.serialNumber}
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                Inventurni broj: {articleData?.invNumber}
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                Korisnik: {articleData?.user?.fullname}
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                Status: <span className={`status-${articleData?.status}`}>{articleData?.status}</span>
+                            </ListGroup.Item>
+                            <ListGroup.Item style={{display:"flex", justifyContent:"flex-end"}}>
+                                    <Button onClick={() => handlePageClick(`user/${articleData?.serialNumber}`)} size='sm'>Pregledaj</Button>
+                                </ListGroup.Item>
+                        </ListGroup>
                     </Col>
 
                     <Col lg='4' xs="12" className='mt-2'>
@@ -286,18 +318,18 @@ const AdminDashboardPage: React.FC<{}> = () => {
                                 Nepotpisani dokumenti <Badge bg="danger" pill> {unsignedDocumentDataCount}</Badge>
                             </Card.Header>
                             <Card.Body style={{ overflow: 'auto' }}>
-                                <Table>
+                                <Table size='small'>
                                     <TableBody>
                                     {unsignedDocumentData?.map(document => (
                                         <TableRow key={document.documentsId}>
-                                            <TableCell>
-                                                <i className={document?.article?.category?.imagePath} />
-                                            </TableCell>
                                             <TableCell>
                                                 {document?.article?.stock?.name}
                                             </TableCell>
                                             <TableCell>
                                                 {document?.article?.invNumber}
+                                            </TableCell>
+                                            <TableCell>
+                                                {document?.article?.user?.fullname}
                                             </TableCell>
                                             <TableCell>
                                                 <Button onClick={(event) => handleClickMenu(event, document)} size='sm'>Dodaj</Button>
@@ -317,16 +349,45 @@ const AdminDashboardPage: React.FC<{}> = () => {
                             <Card.Header>
                                  Svi artikli
                             </Card.Header>
-                            
-                            <TextField
-                                label="Pretraži artikle"
-                                variant="outlined"
-                                margin="normal"
-                                onChange={(e) => handleSearchChange(e.target.value)}
-                                style={{width:'98%', margin:'10px', fontSize:"14px"}}
-                            />
-                                <TableContainer style={{ maxHeight: 'auto', overflowY: 'auto', fontSize:"14px" }} >
-                                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
+                            <Row style={{width:'100%', paddingLeft:'10px', paddingRight:'10px', fontSize:"14px"}}>
+                                <Col lg={11} xs={11}>
+                                <TextField
+                                        label="Pretraži artikle"
+                                        variant="outlined"
+                                        margin="normal"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              const target = e.target as HTMLInputElement;
+                                              handleSearchChange(target.value);
+                                            }
+                                          }}
+                                        style={{width:'100%', fontSize:"14px"}}
+                                    /> 
+                                </Col>
+                                <Col lg={1} xs={1}style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
+                                <Link component={() => <div title='Prebaci u excel' className="linkContainer" onClick={() => exportToExcel()} ><i className="bi bi-filetype-xlsx" style={{ fontSize: "25px", color:'darkgreen'}} /></div>} />
+                                </Col>
+                            </Row>
+{/*                             <div style={{width:'100%', paddingLeft:'10px', paddingRight:'10px', fontSize:"14px"}}>
+                                       <TextField
+                                        label="Pretraži artikle"
+                                        variant="outlined"
+                                        margin="normal"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              const target = e.target as HTMLInputElement;
+                                              handleSearchChange(target.value);
+                                            }
+                                          }}
+                                        style={{width:'100%', fontSize:"14px"}}
+                                    /> 
+                                    <Button onClick={exportToExcel} variant="success">
+                                    <i className="bi bi-filetype-xlsx" style={{fontSize:"16px"}}></i>
+                                    </Button>
+
+                            </div> */}
+                                <TableContainer style={{ maxHeight: 'auto', overflowY: 'auto', fontSize:"14px" }} >                                   
+                                    <Table sx={{ minWidth: 700 }} stickyHeader size='small'>
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell>Naziv</TableCell>
@@ -340,12 +401,12 @@ const AdminDashboardPage: React.FC<{}> = () => {
                                         <TableBody>
                                             {paginedArticleData && paginedArticleData.map(artikal => (
                                                 <TableRow key={artikal.articleId} hover>
-                                                    <TableCell>{artikal?.stock?.name}</TableCell>
+                                                    <TableCell><Link href={`#/admin/user/${artikal?.serialNumber}`} >{artikal?.stock?.name} </Link></TableCell>
                                                     <TableCell>{artikal?.serialNumber}</TableCell>
                                                     <TableCell>{artikal?.invNumber}</TableCell>
                                                     <TableCell>{artikal?.category?.name}</TableCell>
-                                                    <TableCell>{artikal?.user?.fullname}</TableCell>
-                                                    <TableCell>{artikal?.status}</TableCell>
+                                                    <TableCell><Link href={`#/admin/userProfile/${artikal?.userId}`} >{artikal?.user?.fullname}</Link></TableCell>
+                                                    <TableCell className={`status-${artikal?.status}`}>{artikal?.status}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -360,8 +421,6 @@ const AdminDashboardPage: React.FC<{}> = () => {
                 </Row>
                 
             </Container>
-
-            {/* Redovi u tabeli  */}
 
             {/* Menu za dodavanje fajlove */}
             <MuiMenu

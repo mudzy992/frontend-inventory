@@ -1,0 +1,35 @@
+.status-zaduženo  {
+    color: darkGreen !important;
+    font-weight: bold !important;
+  }
+  
+  .status-razduženo {
+  color: darkgoldenrod !important;
+  font-weight: bold !important;
+  }
+  
+  .status-otpisano {
+  color: darkRed !important;
+  font-weight: bold !important;
+  }
+
+.linkContainer {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.linkContainer:hover {
+  background-color: lightgray;
+  height: 45px;
+  width:  45px;
+  border-radius: 20px;
+}
+
+.linkContainer:active {
+  background-color: lightgray;
+  height: 45px;
+  width:  45px;
+  border-radius: 20px;
+}

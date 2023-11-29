@@ -267,7 +267,8 @@ export default class DocumentsPage extends React.Component<{}> {
                     <TableCell>{document.article?.stock?.name}</TableCell>
                     <TableCell>{document.article?.serialNumber}</TableCell>
                     <TableCell>{document.article?.invNumber}</TableCell>
-                    <TableCell>{document.article?.user?.fullname}</TableCell>
+                    <TableCell>{document.articleTimelines && document.articleTimelines.length > 0 ? document.articleTimelines[0].user?.fullname : null}</TableCell>
+
                     <TableCell>
                     <Button
                                 id={`basic-button-${document.documentsId}`}

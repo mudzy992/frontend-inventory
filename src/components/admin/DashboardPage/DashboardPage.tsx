@@ -260,7 +260,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
             <RoledMainMenu role="administrator" />
             <Container className="mt-3" fluid="md">
                 <Row >
-                    <Col lg='4' xs="12" className='mt-2'>
+                    <Col lg='3' xs="12" className='mt-2'>
                         <ListGroup style={{fontSize:"14px"}}>
                                 <ListGroup.Item active >
                                     Posljednje dodani artikal na skladište
@@ -286,7 +286,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
                          </ListGroup>
                                         
                     </Col>
-                    <Col lg='4' xs="12" className='mt-2'>
+                    <Col lg='3' xs="12" className='mt-2'>
                         <ListGroup style={{fontSize:"14px"}} >
                             <ListGroup.Item active >
                                 Posljednje dodani artikal
@@ -312,7 +312,7 @@ const AdminDashboardPage: React.FC<{}> = () => {
                         </ListGroup>
                     </Col>
 
-                    <Col lg='4' xs="12" className='mt-2'>
+                    <Col lg='6' xs="12" className='mt-2'>
                         <Card style={{fontSize:"14px", height:'auto', maxHeight:"309px"}}>
                             <Card.Header className="d-flex justify-content-between align-items-center">
                                 Nepotpisani dokumenti <Badge bg="danger" pill> {unsignedDocumentDataCount}</Badge>

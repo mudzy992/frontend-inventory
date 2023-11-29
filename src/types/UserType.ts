@@ -20,6 +20,8 @@ export default class UserType {
     registrationDate?: string;
     lastLoginDate?: string;
     status?: "string";
+    code?:number;
+    gender?: string;
     articles?: ArticleType[];
     articleTimelines?: ArticleTimelineType[];
     department?: DepartmentType;

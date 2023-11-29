@@ -368,24 +368,6 @@ const AdminDashboardPage: React.FC<{}> = () => {
                                 <Link component={() => <div title='Prebaci u excel' className="linkContainer" onClick={() => exportToExcel()} ><i className="bi bi-filetype-xlsx" style={{ fontSize: "25px", color:'darkgreen'}} /></div>} />
                                 </Col>
                             </Row>
-{/*                             <div style={{width:'100%', paddingLeft:'10px', paddingRight:'10px', fontSize:"14px"}}>
-                                       <TextField
-                                        label="Pretraži artikle"
-                                        variant="outlined"
-                                        margin="normal"
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                              const target = e.target as HTMLInputElement;
-                                              handleSearchChange(target.value);
-                                            }
-                                          }}
-                                        style={{width:'100%', fontSize:"14px"}}
-                                    /> 
-                                    <Button onClick={exportToExcel} variant="success">
-                                    <i className="bi bi-filetype-xlsx" style={{fontSize:"16px"}}></i>
-                                    </Button>
-
-                            </div> */}
                                 <TableContainer style={{ maxHeight: 'auto', overflowY: 'auto', fontSize:"14px" }} >                                   
                                     <Table sx={{ minWidth: 700 }} stickyHeader size='small'>
                                         <TableHead>

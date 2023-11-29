@@ -39,6 +39,9 @@ interface AddUserPageState{
         departmentId: number;
         locationId: number;
         password: string;
+        status: string;
+        code: number;
+        gender: string;
     };
     modal: {
         department:{
@@ -78,6 +81,9 @@ export default class AddUserPage extends React.Component<{}>{
                 departmentId: Number(),
                 locationId: Number(),
                 password: '',
+                status: '',
+                code: Number(),
+                gender: 'muško' || 'žensko'
             },
             modal: {
                 department: { 
@@ -221,22 +227,6 @@ export default class AddUserPage extends React.Component<{}>{
         this.setState(newState);
     }
 
-    private clearFormFields() {
-        this.setState({
-          addUser: {
-            surname: '',
-            forname: '',
-            email: '',
-            localNumber: '',
-            telephone: '',
-            jobId: Number(),
-            departmentId: Number(),
-            locationId: Number(),
-            password: '',
-          },
-        });
-      };
-      
     /* Kraj SET */
     /* GET */
     private getData(){
@@ -306,7 +296,9 @@ export default class AddUserPage extends React.Component<{}>{
             jobId: this.state.addUser.jobId,
             departmentId: this.state.addUser.departmentId,
             locationId: this.state.addUser.locationId,
-            
+            status: this.state.addUser.status,
+            code: this.state.addUser.code,
+            gender: this.state.addUser.gender,            
         }, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'login') {
@@ -315,7 +307,22 @@ export default class AddUserPage extends React.Component<{}>{
             
             if(res.status === 'ok') {
                 this.setErrorMessage('Korisnik dodan')
-                this.clearFormFields()
+                this.setState({
+                    addUser: {
+                      surname: '',
+                      forname: '',
+                      email: '',
+                      localNumber: '',
+                      telephone: '',
+                      jobId: Number(),
+                      departmentId: Number(),
+                      locationId: Number(),
+                      password: '',
+                      status: '',
+                      code: Number(),
+                      gender: ''
+                    },
+                  });
             }
         });
     }
@@ -347,7 +354,6 @@ export default class AddUserPage extends React.Component<{}>{
                 <Card.Body>
                     <Form>
                         <Form.Group className="mb-3 was-validated">
-                            
                         <Row>
                             <Col lg="6" xs="12">
                                 <FloatingLabel label="Ime" className="mb-3">
@@ -422,6 +428,44 @@ export default class AddUserPage extends React.Component<{}>{
                             </FloatingLabel>
                             </Col>
                         </Row>
+
+                        <Row>
+                            <Col lg="4" xs="12">
+                                <FloatingLabel label="Kadrovski broj" className="mb-3">
+                                <Form.Control 
+                                id="code" 
+                                type='number'
+                                placeholder="Kadrovski broj"
+                                value={ this.state.addUser.code}
+                                onChange={ (e) => this.setAddUserStringFieldState('code', e.target.value) }
+                                required />
+                            </FloatingLabel>
+                            </Col>
+                            <Col lg="4" xs="12">
+                            <FloatingLabel label="Gender" className="mb-3">
+                                    <Form.Select
+                                        id='gender'
+                                        value={this.state.addUser.gender}
+                                        onChange={ (e) => this.setAddUserStringFieldState('gender', e.target.value) }
+                                        required >
+                                        <option value='muško'>muško</option>
+                                        <option value='žensko'>žensko</option>
+                                    </Form.Select>
+                                </FloatingLabel>
+                            </Col>
+                            <Col lg="4" xs="12">
+                                <FloatingLabel label="Status" className="mb-3">
+                                    <Form.Select
+                                        id='status'
+                                        value={this.state.addUser.status}
+                                        onChange={(e) => this.setAddUserStringFieldState('status', e.target.value)}
+                                        required >
+                                        <option value='aktivan'>aktivan</option>
+                                        <option value='neaktivan'>neaktivan</option>
+                                    </Form.Select>
+                                </FloatingLabel>
+                            </Col>
+                        </Row>
                         
                         <Row>
                         <Col lg="11" xs="11" style={{marginRight:-12}}>
@@ -444,7 +488,8 @@ export default class AddUserPage extends React.Component<{}>{
                                     <AddDepartment />
                                 </Modal>
                             </Col>
-                            
+                           </Row>
+                           <Row> 
                             <Col lg="11" xs="11" style={{marginRight:-12}}>
                                 <FloatingLabel label="Radno mjesto" className="mb-3">
                                     <Form.Select

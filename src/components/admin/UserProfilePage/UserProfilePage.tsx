@@ -64,6 +64,8 @@ interface AdminUserProfilePageState {
         locationId: number;
         status: string;
         passwordHash: string;
+        code:number;
+        gender: string;
     },
     location: LocationType[];
     department: DepartmentType[];
@@ -97,6 +99,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 locationId: Number(),
                 status: "",
                 passwordHash: "", 
+                code: Number(),
+                gender:"",
             },
             location: [],
             department: [],
@@ -371,6 +375,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         this.setEditUserNumberFieldState('departmentId', Number(user.departmentId))
         this.setEditUserNumberFieldState('locationId', Number(user.locationId))
         this.setEditUserStringFieldState('status', String(user.status))
+        this.setEditUserNumberFieldState('code', Number(user.code))
+        this.setEditUserStringFieldState('gender', String(user.gender))
     }
     
 
@@ -452,6 +458,15 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
 
     private userData(user: UserType){
         const inicijali = `${user.surname?.charAt(0)}${user.forname?.charAt(0)}`;
+        let gender = '';
+        let genderColor = '';
+        if(user.gender === 'muško') {
+            gender = 'bi bi-gender-male'
+            genderColor = 'lightblue'
+        } else {
+            gender = 'bi bi-gender-female'
+            genderColor = 'lightpink'
+        }
 
         let lastActivityText;
         if(user.lastLoginDate){
@@ -483,7 +498,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
             <Row>
                 <Col className="user-container" lg={3} xs={3}>
                     <div className="mb-3 user-container details">
-                        <Avatar className="avatar">{inicijali}</Avatar>
+                        <Avatar className="avatar" style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
                         <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
                         <div style={{fontSize:"14px"}}>{user.email}</div>
                         <div style={{fontSize:"14px"}}>{user.job?.title}</div>
@@ -508,11 +523,14 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         autoComplete="off"
                         >
                              <Row>
-                                <Col lg={6} xs={12} className="mb-3">
+                                <Col lg={4} xs={12} className="mb-3">
                                     <TextField fullWidth  id="form-ime" label="Ime" variant="outlined" value={this.state.editUser.surname} onChange={(e) => this.setEditUserStringFieldState('surname', e.target.value)}/>
                                 </Col>
-                                <Col lg={6} xs={12} className="mb-3">
+                                <Col lg={4} xs={12} className="mb-3">
                                     <TextField fullWidth  id="form-prezime" label="Prezime" variant="outlined" value={this.state.editUser.forname} onChange={(e) => this.setEditUserStringFieldState('forname', e.target.value)}/>
+                                </Col>
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <TextField fullWidth  id="form-code" label="Kadrovski broj" variant="outlined" value={this.state.editUser.code} onChange={(e) => this.setEditUserNumberFieldState('code', e.target.value)}/>
                                 </Col>
                             </Row>
                             <Row>
@@ -573,6 +591,21 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                                                 {this.state.location.map((location, index) => (
                                                     <MenuItem key={index} value={location.locationId?.toString()}>{location.name}</MenuItem>
                                                 ))}
+                                        </Select>
+                                    </FormControl>
+                                </Col>
+                                
+                                <Col lg={4} xs={12} className="mb-3">
+                                    <FormControl fullWidth>
+                                        <InputLabel id="form-select-gender-label">Spol</InputLabel>
+                                        <Select
+                                            labelId="form-select-gender-label"
+                                            id="form-select-gender"
+                                            value={this.state.editUser.gender.toString()}
+                                            label="Status"
+                                            onChange={e => {this.setEditUserStringFieldState('gender', e.target.value)}}>
+                                                    <MenuItem key="muško" value="muško">Muško</MenuItem>
+                                                    <MenuItem key="žensko" value="žensko">Žensko</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Col>
@@ -643,6 +676,8 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 departmentId: this.state.editUser.departmentId,
                 locationId: this.state.editUser.locationId,
                 status: this.state.editUser.status,
+                code: this.state.editUser.code,
+                gender: this.state.editUser.gender,
             }, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {

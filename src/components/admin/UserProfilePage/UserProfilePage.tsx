@@ -457,7 +457,6 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
     }
 
     private userData(user: UserType){
-        const inicijali = `${user.surname?.charAt(0)}${user.forname?.charAt(0)}`;
         let gender = '';
         let genderColor = '';
         if(user.gender === 'muško') {

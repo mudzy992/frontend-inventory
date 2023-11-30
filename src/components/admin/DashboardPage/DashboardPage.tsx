@@ -14,6 +14,7 @@ import { Box, Link, MenuItem, Menu as MuiMenu, Button as MuiButton, Snackbar, Ta
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import './style.css'
+import ArticleTimlineModal from '../ArticleTimelinePage/ArticleTimelinePageModal';
 
 // Funkcionalna komponenta AdminDashboardPage
 const AdminDashboardPage: React.FC<{}> = () => {
@@ -33,6 +34,8 @@ const AdminDashboardPage: React.FC<{}> = () => {
     const [selectedDocument, setSelectedDocument] = useState<DocumentsType | null>(null);
     const [open, setOpen] = React.useState(false);
     const [messageData, setMessage] = useState<string>('')
+    const [showModal, setShowModal] = useState(false); 
+    const [selectedArticleTimelineId, setSelectedArticleTimelineId] = useState<number | null>(null);
 
     const history = useHistory();
 
@@ -254,6 +257,19 @@ const AdminDashboardPage: React.FC<{}> = () => {
         history.push(link);
     };
 
+    const handleShowModal = () => {
+        setShowModal(true);
+      };
+    
+    const handleHideModal = () => {
+    setShowModal(false);
+    };
+
+    const openModalWithArticle = (articleTimelineId: number) => {
+        setSelectedArticleTimelineId(articleTimelineId);
+        handleShowModal();
+    };
+
 
     return (
         <>
@@ -333,6 +349,19 @@ const AdminDashboardPage: React.FC<{}> = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <Button onClick={(event) => handleClickMenu(event, document)} size='sm'>Dodaj</Button>
+                                            </TableCell>
+                                            <TableCell>
+                                            <Button
+                                                onClick={(event) => {
+                                                    const firstArticleTimeline = document.articleTimelines?.[0];
+                                                    if (firstArticleTimeline?.articleTimelineId !== undefined) {
+                                                    openModalWithArticle(firstArticleTimeline.articleTimelineId);
+                                                    }
+                                                }}
+                                                size='sm'
+                                                >
+                                                Dodaj
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))} 
@@ -445,6 +474,12 @@ const AdminDashboardPage: React.FC<{}> = () => {
                     {messageData}
                 </Alert>
             </Snackbar>
+
+            <ArticleTimlineModal 
+            show={showModal}
+            onHide={handleHideModal}
+            articleTimlineId={selectedArticleTimelineId!}
+            />
             {/* <AdminMenu /> */}
         </>
     );

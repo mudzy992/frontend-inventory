@@ -28,7 +28,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const [data, setData] = useState<ArticleType[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false); // Dodajte state za prikaz moda
+  const [showModal, setShowModal] = useState(false); 
   const [selectedStockId, setSelectedStockId] = useState<number | null>(null);
 
   const handleShowModal = () => {
@@ -111,7 +111,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
             className="btn-sm"
             onClick={() => {
               const stockId = cell.getValue<number>();
-              openModalWithArticle(stockId); // Proslijedite articleId funkciji
+              openModalWithArticle(stockId); 
             } }
           >
             <IoPeopleCircleOutline style={{fontSize:"19px"}}/> Zaduženja
@@ -168,7 +168,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
       <ArticleModal
         show={showModal}
         onHide={handleHideModal}
-        stockId={selectedStockId!} // Proslijedite articleId
+        stockId={selectedStockId!} 
       />
     </>
   );

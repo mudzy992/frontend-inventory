@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import api from "../../../API/api";
 import { Col, Modal, Row } from "react-bootstrap";
 import { Avatar } from "@mui/material";
-import "./style.css";
+import "./style.article.timeline.css";
 
 interface ArticleTimelineProps {
     show: boolean;

@@ -2,9 +2,9 @@ name: NodeJS with Webpack
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "Admin-Dashboard" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "Admin-Dashboard" ]
 
 jobs:
   build:
@@ -26,3 +26,4 @@ jobs:
       run: |
         npm install
         npx webpack
+        npm run build

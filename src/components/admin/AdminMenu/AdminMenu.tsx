@@ -1,6 +1,6 @@
 import React from 'react'
-import SpeedDial from '@mui/material/SpeedDial';
-import { Backdrop, SpeedDialAction} from '@mui/material'; 
+/* import SpeedDial from '@mui/material/SpeedDial';
+import { Backdrop, SpeedDialAction} from '@mui/material';  */
 
 export default function AdminMenu() {
     const [open, setOpen] = React.useState(false);
@@ -22,7 +22,7 @@ export default function AdminMenu() {
       ]
     return (
         <div>
-        <Backdrop open={open} />
+        {/* <Backdrop open={open} />
         <SpeedDial
             ariaLabel="Administrator dashboard"
             hidden={false}
@@ -41,6 +41,6 @@ export default function AdminMenu() {
                     tooltipOpen
                     onClick={()=> window.open('#' + action.link, '_self', 'noopener,noreferrer')} />
             ))}
-        </SpeedDial></div>
+        </SpeedDial> */}</div>
     );
   }

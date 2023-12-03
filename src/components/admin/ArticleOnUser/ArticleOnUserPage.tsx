@@ -1,25 +1,19 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Stack, Tooltip } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
-import Paper from '@mui/material/Paper';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Autocomplete, TextField } from "@mui/material";
+import { useNavigate, useParams } from 'react-router-dom';
 import Moment from 'moment';
 import UserArticleDto from '../../../dtos/UserArticleDto';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
-import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
+import { LangBa } from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
-import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
-import "./article.on.user.page.css";
-interface AdminArticleOnUserPageProperties {
-    match: {
-        params: {
-            serial: string;
-        }
-    }
+import { Autocomplete, AutocompleteItem, Link, Table, TableBody, TableCell, TableHeader, TableRow } from '@nextui-org/react';
+
+interface ArticleOnUserPageProperties {
+
 }
 
 interface upgradeFeaturesType {
@@ -59,10 +53,10 @@ interface AdminArticleOnUserPageState {
 }
 
 export default class AdminArticleOnUserPage extends React.Component<
-  AdminArticleOnUserPageProperties,
+  ArticleOnUserPageProperties,
   AdminArticleOnUserPageState
 > {
-    constructor(props: Readonly<AdminArticleOnUserPageProperties>) {
+    constructor(props: Readonly<ArticleOnUserPageProperties>) {
         super(props);
         this.state = {
             message: "",
@@ -170,16 +164,15 @@ export default class AdminArticleOnUserPage extends React.Component<
         this.getUpgradeFeature()
     }
 
-    componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if (oldProperties.match.params.serial === this.props.match.params.serial) {
-            return;
-        }
+    componentDidUpdate(prevProps: ArticleOnUserPageProperties) {
+        const { serial } = useParams();
+    
         this.getArticleData();
-    }
+      }
     /* '&filter=userDetails.userId||$eq||' + this.props.match.params.userID + */
     private getArticleData() {
-        api(`api/article/sb/${this.props.match.params.serial}`, 'get', {}, 'administrator')
+        const { serial } = useParams();
+        api(`api/article/sb/${serial}`, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'error') {
                     this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
@@ -206,7 +199,8 @@ export default class AdminArticleOnUserPage extends React.Component<
     }
 
     private getUpgradeFeature () {
-        api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'administrator')
+        const { serial } = useParams();
+        api('api/upgradeFeature/?filter=serialNumber||$eq||' + serial, 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if (res.status === 'login') {
                 return this.setLogginState(false);
@@ -216,7 +210,8 @@ export default class AdminArticleOnUserPage extends React.Component<
     }
 
     private addNewUpgradeFeature () {
-        api('api/upgradeFeature/add/' + this.props.match.params.serial, 'post', {
+        const { serial } = useParams();
+        api('api/upgradeFeature/add/' + serial, 'post', {
             name: this.state.upgradeFeatureAdd.name,
             value: this.state.upgradeFeatureAdd.value,
             comment: this.state.upgradeFeatureAdd.comment,
@@ -317,11 +312,11 @@ export default class AdminArticleOnUserPage extends React.Component<
     }
 
     render() {
-        if (this.state.isLoggedIn === false) {
+        /* if (this.state.isLoggedIn === false) {
             return (
                 <Redirect to="/admin/login/" />
             );
-        }
+        } */
         return (
             <div>
                 <RoledMainMenu role='administrator' />
@@ -444,7 +439,7 @@ export default class AdminArticleOnUserPage extends React.Component<
                         <Modal.Body>
                             <Form>
                             <Form.Text>
-                                <h6>{ModalMessageArticleOnUser(artiName, userFullName)}</h6>
+                                <h6>Da li ste sigurni da želite promjeniti status opreme {artiName} sa korisnika {userFullName}</h6>
                             </Form.Text>
                             <Form.Group className='was-validated'>
                                 <FloatingLabel label="Status" className="mb-3">
@@ -466,10 +461,9 @@ export default class AdminArticleOnUserPage extends React.Component<
                             <Form.Group className='was-validated'>
                                 <Autocomplete
                                     className='mb-3'
-                                    disablePortal
                                     id="pick-the-user"
                                     disabled={this.state.changeStatus.status === 'razduženo' || this.state.changeStatus.status === 'otpisano'}
-                                    onChange={(event, value, reason) => {
+                                    /* onChange={(event, value, reason) => {
                                         if (reason === 'selectOption' && typeof value === 'string') {
                                             const selectedUser = this.state.users.find(user => user.fullname === value);
                                             if (selectedUser) {
@@ -477,10 +471,14 @@ export default class AdminArticleOnUserPage extends React.Component<
                                                 this.setChangeStatusNumberFieldState('userId', userId || null);
                                             }
                                         }
-                                    }}
-                                    options={this.state.users.map((option) => option.fullname)}
-                                    renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
-                                />
+                                    }} */
+                                   /*  renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>} */
+                                >
+                                {this.state.users.map((option) => (
+                                    <AutocompleteItem key={option.userId !== undefined ? option.userId : 'defaultKey'} value={''}>{option.fullname}</AutocompleteItem>
+                                ))}
+
+                                </Autocomplete>
                             </Form.Group>
                             <Form.Group className="mb-3">             
                                 <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
@@ -714,7 +712,7 @@ private upgradeFeature() {
                                         <div className='moreLess'>
                                             {this.state.article.stock?.stockFeatures ? this.state.article.stock?.stockFeatures.length > 4 && (
                                                 <Link className='linkStyle' onClick={() => this.toggleExpand(0)}>
-                                                    {expandedCards[0] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
+                                                    {expandedCards[0] ? "^" : "ˇ"}
                                               </Link>
                                             ):""}
                                         </div>
@@ -736,7 +734,7 @@ private upgradeFeature() {
                                 <div className='moreLess'>
                                     {article.stock?.description ? article.stock?.description.length > 100 && (
                                         <Link className='linkStyle' onClick={() => this.toggleExpand(1)}>
-                                            {expandedCards[1] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
+                                            {expandedCards[1] ? "^" : "ˇ"}
                                         </Link>
                                     ):""}
                                 </div>
@@ -748,9 +746,8 @@ private upgradeFeature() {
                     <Row>
                         <Col>
                             <Card className="mb-3">
-                                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-                                        <TableHead>
+                                    <Table aria-label="sticky table">
+                                        <TableHeader>
                                             <TableRow>
                                                 <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableCell>
                                                 <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableCell>
@@ -758,20 +755,19 @@ private upgradeFeature() {
                                                 <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableCell>
                                                 <TableCell>#</TableCell>
                                             </TableRow>
-                                        </TableHead>
+                                        </TableHeader>
                                         <TableBody>
-                                            {article.articleTimelines?.map(timeline => (
-                                                <TableRow key="tabela-user" hover>
+                                            {/* {article.articleTimelines?.map(timeline => (
+                                                <TableRow key="tabela-user">
                                                     <TableCell><Link href={`#/admin/userProfile/${timeline.userId}`} style={{textDecoration:"none", fontWeight:"bold", color:"#0E5E6F"}}>{timeline.user?.fullname}</Link></TableCell>
                                                     <TableCell>{timeline.status}</TableCell>
                                                     <TableCell>{timeline.comment}</TableCell>
                                                     <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
                                                     <TableCell>{this.saveFile(timeline.document?.path)}</TableCell>
                                                 </TableRow>
-                                            ))}
+                                            ))} */}
                                         </TableBody>
                                     </Table>
-                                </TableContainer>
                             </Card>
                         </Col>
                     </Row>

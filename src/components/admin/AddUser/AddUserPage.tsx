@@ -10,7 +10,7 @@ import AddDepartment from '../AddDepartmentAndJob/AddDepartment';
 import AddJob from '../AddDepartmentAndJob/AddJob';
 import AddLocation from '../AddDepartmentAndJob/AddLocation';
 import AddDepartmentJobLocation from '../AddDepartmentAndJob/AddDepartmentJobLocation';
-import { Redirect } from 'react-router-dom';
+/* import { Redirect } from 'react-router-dom'; */
 import './adduser.css'
 
 
@@ -328,11 +328,11 @@ export default class AddUserPage extends React.Component<{}>{
     }
     /* Kraj dodatnih funkcija */
     render() {
-         if (this.state.isLoggedIn === false) {
+         /* if (this.state.isLoggedIn === false) {
             return (
                 <Redirect to="/admin/login" />
             );
-        } 
+        } */ 
         return(
             <div>
                 <RoledMainMenu role='administrator'/>

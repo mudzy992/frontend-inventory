@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'jquery/dist/jquery.js';
@@ -8,11 +8,11 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import "bootstrap/js/src/collapse.js";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import reportWebVitals from './reportWebVitals';
-import { HashRouter, Route, Switch } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import CategoryPage from './components/admin/Categories/Categories';
 import HomePage from './components/admin/HomePage/HomePage';
-import ArticlePage from './components/admin/ArticlePage/ArticlePage';
-import UserPage from './components/admin/UserPage/UserPage';
+/* import ArticlePage from './components/admin/ArticlePage/ArticlePage';
+import UserPage from './components/admin/UserPage/UserPage'; */
 import UserProfilePage from './components/user/UserProfilePage/UserProfilePage';
 import ArticleOnUserPage from './components/user/ArticleOnUser/ArticleOnUserPage';
 import UserLoginPage from './components/user/UserLogin/UserLoginPage';
@@ -24,37 +24,48 @@ import AddUserPage from './components/admin/AddUser/AddUserPage';
 import AddFeaturePage from './components/admin/AddFeature/AddFeaturePage';
 import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
 import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepartmetAndJob';
-import StockPage from './components/admin/StockPage/StockPage';
+import { NextUIProvider } from '@nextui-org/react';
+/* import StockPage from './components/admin/StockPage/StockPage';
 import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
-import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage';
+import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage'; */
 
-ReactDOM.render(
+const rootElement = document.getElementById('root');
+
+if(rootElement) {
+  createRoot(rootElement).render(
   <React.StrictMode>
-    {/* mehanizam rutiranja */}
-    <HashRouter>
-      <Switch>
-        <Route exact path="/user/login" component={UserLoginPage} />
-        <Route path="/user/profile/:userID" component={UserProfilePage} />
-        <Route path="/user/article/:serial" component={ArticleOnUserPage} />
+    <NextUIProvider>
+      <main className='dark'>
+      {/* mehanizam rutiranja */}
+          <HashRouter>
+            <Routes>
+              <Route path="/user/login" element={<UserLoginPage />} />
+              <Route path="/user/profile/:userID" element={<UserProfilePage />} />
+              <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
 
-        <Route exact path="/admin/login" component={AdministratorLoginPage} />
-        <Route exact path="/user/" component={UserPage} />
-        <Route path="/admin/user/:serial" component={AdminArticleOnUserPage} />
-        <Route path="/admin/userProfile/:userID" component={AdminUserProfilePage} />
-        <Route exact path="/" component={HomePage} />
-        <Route path="/category/:categoryID" component={CategoryPage} />
-        <Route path="/article/:articleID" component={ArticlePage} />
-        <Route path="/admin/article/" component={ AddArticlePage } />
-        <Route path="/admin/user/" component={ AddUserPage } />
-        <Route path="/admin/feature/" component={ AddFeaturePage } />
-        <Route path="/admin/category/" component={ AddNewCategoryPage } />
-        <Route path="/admin/department/" component={ AddDepartmentAndJob } />
-        <Route path="/admin/document/" component={ DocumentsPage } />
-        <Route path="/admin/stock/:stockID" component={ StockPage } />
-        <Route path="/admin/dashboard" component={ AdminDashboardPage } />
-      </Switch>
-    </HashRouter>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+              <Route path="/admin/login" element={<AdministratorLoginPage />} />
+              {/* <Route path="/user/" element={<UserPage />} /> */}
+              <Route path="/admin/user/:serial" element={<AdminArticleOnUserPage />} />
+              <Route path="/admin/userProfile/:userID" element={<AdminUserProfilePage />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/category/:categoryID" element={<CategoryPage />} />
+              {/* <Route path="/article/:articleID" element={<ArticlePage />} /> */}
+              <Route path="/admin/article/" element={<AddArticlePage />} />
+              <Route path="/admin/user/" element={<AddUserPage />} />
+              <Route path="/admin/feature/" element={<AddFeaturePage />} />
+              <Route path="/admin/category/" element={<AddNewCategoryPage />} />
+              <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
+              {/* <Route path="/admin/document/" element={<DocumentsPage />} /> */}
+              {/* <Route path="/admin/stock/:stockID" element={<StockPage />} /> */}
+              {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
+            </Routes>
+      </HashRouter>
+      </main>
+    </NextUIProvider>
+  </React.StrictMode>
+  
+  );
+} else {
+  console.error("Element with id 'root' not found.");
+}
 reportWebVitals();

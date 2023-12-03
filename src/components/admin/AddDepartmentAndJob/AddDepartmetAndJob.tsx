@@ -3,8 +3,7 @@ import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import MuiAlert from '@mui/material/Alert';
-import { Redirect } from 'react-router-dom';
+/* import { Redirect } from 'react-router-dom'; */
 
 interface DepartmentType {
     departmentId: number;
@@ -328,10 +327,10 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
-                            <MuiAlert elevation={6} variant="filled" severity="success" className={this.state.message ? '' : 'd-none'}>
+                            {/* <MuiAlert elevation={6} variant="filled" severity="success" className={this.state.message ? '' : 'd-none'}>
                                 {this.printOptionalMessage()}
                             </MuiAlert>
-                                
+                                 */}
 
                         </Form.Group>
                     </Form>
@@ -512,11 +511,11 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
     /* RENDERER */
 
     render() {
-        if(this.state.isLoggedIn === false) {
+        /* if(this.state.isLoggedIn === false) {
             return (
                 <Redirect to='admin/login' />
             )
-        }
+        } */
         return (
             <div>
                 <RoledMainMenu role="administrator" />

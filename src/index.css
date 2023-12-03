@@ -1,3 +1,7 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -12,3 +16,202 @@ code {
     monospace;
 }
 
+.status-zaduženo  {
+  color: darkGreen !important;
+  font-weight: bold !important;
+}
+
+.status-razduženo {
+color: darkgoldenrod !important;
+font-weight: bold !important;
+}
+
+.status-otpisano {
+color: darkRed !important;
+font-weight: bold !important;
+}
+
+.linkContainer {
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.linkContainer:hover {
+background-color: lightgray;
+height: 45px;
+width:  45px;
+border-radius: 20px;
+}
+
+.linkContainer:active {
+background-color: lightgray;
+height: 45px;
+width:  45px;
+border-radius: 20px;
+}
+
+/* Za md i xs ekrane, postavi min-width na auto */
+@media (max-width: 991.98px) {
+  .nav-link.active {
+    min-width: auto !important;
+  }
+  .nav{
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+  }
+  
+  .card-radius-container {
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+  }
+}
+
+/* Za lg ekrane, postavi min-width na minimalno 150px */
+@media (min-width: 992px) {
+  /* .nav-link.active {
+    min-width: 200px !important;
+  } */
+  .nav {
+      display: flex;
+      flex-direction: column;
+  }
+  .card-radius-container {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+  }
+}
+
+/* Ostali stilovi za .nav-link.active */
+.nav-link.active {
+  background-color: #537188 !important; 
+  color: white !important;
+}
+
+.nav {
+  white-space: nowrap !important;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* Internet Explorer 11 */
+}
+
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #27272a;
+  color: white;
+  border-radius: 15px;
+}
+
+.user-container .details { 
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.user-container .avatar {
+  font-size: 80px;
+  height: 150px;
+  width: 150px;
+}
+
+.user-container .activity-status {
+  font-size: 12px;
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: 100%;
+}
+
+.important-button {
+  sx: small o !important;
+}
+.important-button:hover {
+  background-color: transparent;
+  color: black !important;
+}
+
+.important-button:active {
+  background-color: transparent;
+  color: black !important;
+}
+
+.important-button{
+  background-color: transparent;
+  color: black !important;
+}
+
+.important-button::after {
+  background-color: transparent;
+  color: black !important;
+}
+
+.search-box-modal {
+    display: flex;
+    justify-content: center;
+}
+
+
+.kartica-wrapper {
+  overflow: hidden;
+  border-bottom-left-radius:5px; 
+  border-bottom-right-radius:5px; 
+  max-height: 180px !important;
+  
+}
+
+.description {
+  background-color: white;
+  color: black !important;
+  max-height: 150px;
+}
+
+.kartica-expanded {
+  max-height: none;
+}
+
+.moreLess {
+  background: linear-gradient(transparent, white); 
+  height: 35px;
+  margin-top: -35px; 
+  border-bottom-left-radius:5px; 
+  border-bottom-right-radius:5px; 
+  position:relative;
+}
+
+.linkStyle {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  color: black !important;
+  
+  position: relative;
+}
+
+.user-article-box {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.user-article-link {
+  color: darkslategray;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.user-article-link:hover {
+  text-decoration: underline;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end; 
+}
+.user-article-typography {
+  font-size: 15px !important;
+  display: flex !important;
+}

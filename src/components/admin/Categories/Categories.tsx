@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Card, Col, Container, Row } from 'react-bootstrap';
-import { Link, Redirect, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import Tabela from './TableFunction';
+/* import Tabela from './TableFunction'; */
 
 interface CategoryPageState {
   category?: CategoryType;
@@ -183,14 +183,14 @@ const CategoryPage: React.FC = () => {
       );
     }
   
-    return <Tabela categoryId={categoryID} />;
+    /* return <Tabela categoryId={categoryID} />; */
   };
   
-  if(isLoggedIn === false) {
+  /* if(isLoggedIn === false) {
     return (
       <Redirect to="/admin/login" />
     )
-  }
+  } */
 
   return (
     <div>

@@ -624,8 +624,8 @@ export default function AdminUserProfilePage() {
                     const categoryArticles = state.article.filter((artikal) => artikal.category?.name === categoryName)
                     return(
                         <AccordionItem key={categoryName} aria-label="Accordion 1" title={categoryName}>
-                            <Listbox>
-                                <ListboxItem key={index}>
+                            {/* <Listbox>
+                                <ListboxItem key={index}> */}
                                     <Table>
                                         <TableHeader>
                                             <TableColumn>Naziv</TableColumn>
@@ -646,8 +646,8 @@ export default function AdminUserProfilePage() {
                                     ))}
                                         </TableBody>
                                     </Table>
-                                </ListboxItem>
-                            </Listbox>
+                               {/*  </ListboxItem>
+                            </Listbox> */}
                         </AccordionItem>
                     )
                 })}

@@ -8,7 +8,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import "bootstrap/js/src/collapse.js";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import reportWebVitals from './reportWebVitals';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, useParams } from 'react-router-dom';
 import CategoryPage from './components/admin/Categories/Categories';
 import HomePage from './components/admin/HomePage/HomePage';
 /* import ArticlePage from './components/admin/ArticlePage/ArticlePage';
@@ -31,9 +31,10 @@ import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage';
 
 const rootElement = document.getElementById('root');
 
-if(rootElement) {
-  createRoot(rootElement).render(
-  <React.StrictMode>
+const App = () => {
+  const { serial } = useParams();
+  return (
+    <React.StrictMode>
     <NextUIProvider>
       <main className='dark'>
       {/* mehanizam rutiranja */}
@@ -63,8 +64,12 @@ if(rootElement) {
       </main>
     </NextUIProvider>
   </React.StrictMode>
-  
-  );
+  )
+}
+
+
+if(rootElement) {
+  createRoot(rootElement).render( <App /> );
 } else {
   console.error("Element with id 'root' not found.");
 }

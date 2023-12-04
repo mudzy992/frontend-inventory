@@ -13,10 +13,9 @@ import DepartmentType from "../../../types/DepartmentType";
 import JobType from "../../../types/JobType";
 import { Avatar, Button, Card, CardBody, Input, Accordion, AccordionItem, 
     Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Tab, Tabs, 
-    Link, Listbox, ListboxItem, Table, TableHeader, TableCell, TableBody, TableRow, TableColumn } from "@nextui-org/react";
+    Link, Table, TableHeader, TableCell, TableBody, TableRow, TableColumn } from "@nextui-org/react";
 import { EyeSlashFilledIcon } from "../../Icons/EyeSlashFilledIcon";
 import { EyeFilledIcon } from "../../Icons/EyeFilledIcon";
-import { Row, Col } from "react-bootstrap";
 
 
 interface LocationDto {
@@ -371,12 +370,14 @@ export default function AdminUserProfilePage() {
     function saveFile (docPath: any) {
         if(!docPath) {
             return (
-                <div><Popover placement='right'>
+                <div>
+                    <Popover placement='right' showArrow backdrop="blur">
                     <PopoverTrigger>
                         <Button size='sm' style={{ backgroundColor: "#9D5353" }}>
                             <i className="bi bi-file-earmark-text" style={{ fontSize: 20, color: "white" }} />
                     </Button>
-                </PopoverTrigger><PopoverContent>
+                </PopoverTrigger>
+                <PopoverContent>
                         Prenosnica nije generisana
                     </PopoverContent>
                 </Popover>
@@ -624,30 +625,26 @@ export default function AdminUserProfilePage() {
                     const categoryArticles = state.article.filter((artikal) => artikal.category?.name === categoryName)
                     return(
                         <AccordionItem key={categoryName} aria-label="Accordion 1" title={categoryName}>
-                            {/* <Listbox>
-                                <ListboxItem key={index}> */}
-                                    <Table>
-                                        <TableHeader>
-                                            <TableColumn>Naziv</TableColumn>
-                                            <TableColumn>Serijski broj</TableColumn>
-                                            <TableColumn>Inventurni broj</TableColumn>
-                                            <TableColumn>Dokument</TableColumn>
-                                        </TableHeader>
-                                        <TableBody>
-                                        {categoryArticles.map((article) => (
-                                        <TableRow key={article.articleId}>
-                                            <TableCell>{article.stock?.name || 'N/A'}</TableCell>
-                                            <TableCell>
-                                                <Link href={`/admin/user/${article.serialNumber}`}>{article.serialNumber}</Link>
-                                            </TableCell>
-                                            <TableCell>{article.invNumber || 'N/A'}</TableCell>
-                                            <TableCell>{saveFile(article.documents ? article.documents[0]?.path : 'N/A')}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                        </TableBody>
-                                    </Table>
-                               {/*  </ListboxItem>
-                            </Listbox> */}
+                            <Table>
+                                <TableHeader>
+                                    <TableColumn>Naziv</TableColumn>
+                                    <TableColumn>Serijski broj</TableColumn>
+                                    <TableColumn>Inventurni broj</TableColumn>
+                                    <TableColumn>Dokument</TableColumn>
+                                </TableHeader>
+                                <TableBody>
+                                {categoryArticles.map((article) => (
+                                <TableRow key={article.articleId}>
+                                    <TableCell>{article.stock?.name || 'N/A'}</TableCell>
+                                    <TableCell>
+                                        <Link href={`#/admin/user/${article.serialNumber}`}>{article.serialNumber}</Link>
+                                    </TableCell>
+                                    <TableCell>{article.invNumber || 'N/A'}</TableCell>
+                                    <TableCell>{saveFile(article.documents ? article.documents[0]?.path : 'N/A')}</TableCell>
+                                </TableRow>
+                            ))}
+                                </TableBody>
+                            </Table>
                         </AccordionItem>
                     )
                 })}

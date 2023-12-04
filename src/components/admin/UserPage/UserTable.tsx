@@ -41,7 +41,7 @@ export const UserTable: React.FC<{}> = () => {
     const [statusFilter, setStatusFilter] = useState<Selection>("all");
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-        column: "age",
+        column: "fullname",
         direction: "ascending",
     });
 
@@ -115,7 +115,7 @@ export const UserTable: React.FC<{}> = () => {
               <User
                 avatarProps={{radius: "lg", name:inicials, icon: (<i className={gender}/>)}}
                 description={user.email}
-                name={(<Link href={linkUser}>{user.fullName}</Link>)}
+                name={(<Link isBlock showAnchorIcon color="primary" href={linkUser}>{user.fullName}</Link>)}
               >
                 {user.email}
               </User>
@@ -127,6 +127,13 @@ export const UserTable: React.FC<{}> = () => {
                 <p className="text-bold text-tiny capitalize text-default-400">{user.jobTitle}</p>
               </div>
             );
+          case "telephone":
+          return (
+            <div className="flex flex-col">
+              <p className="text-bold text-small capitalize">{user.telephone}</p>
+              <p className="text-bold text-tiny capitalize text-default-400">{user.localNumber}</p>
+            </div>
+          );
           case "status":
             return (
               <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">

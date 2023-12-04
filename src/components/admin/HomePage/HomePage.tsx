@@ -7,17 +7,11 @@ import AdminMenu from '../AdminMenu/AdminMenu';
 import { UserTable } from '../UserPage/UserTable';
 import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
 
-
-/* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface HomePageState {
-    /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa */
     categories?: CategoryType[];
     isLoggedIn?: boolean;
     message?: string;
 }
-
-/* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
-gdje ćemo definisati da je neka veza primjerak tog DTO-a*/
 
 interface CategoryDto {
     categoryId: number,
@@ -25,7 +19,7 @@ interface CategoryDto {
     imagePath: string,
 }
 
-/* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
+
 const HomePage: React.FC <HomePageState> = () => {
 
     const [state, setState] = useState<HomePageState>({
@@ -34,7 +28,6 @@ const HomePage: React.FC <HomePageState> = () => {
         message:'',
     })
 
-    /* SET FUNKCIJE ĆEMO DEFINISATI PRIJE RENDERA */
     const navigate = useNavigate();
 
     const setLogginState = (isLoggedIn: boolean) => {
@@ -67,12 +60,11 @@ const HomePage: React.FC <HomePageState> = () => {
                     setLogginState(false)
                     return;
                 }
-                /* Nakon što se izvrši ruta, šta onda */
                 putCategoriesInState(res.data)
             })
     }, [])
 
-    /* KRAJ SET FUNCKIJA */
+
     
 
     return (

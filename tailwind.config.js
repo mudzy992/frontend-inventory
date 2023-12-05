@@ -6,7 +6,24 @@ module.exports = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        white: "#FFFFFF",
+        black: "#000000",
+        cyan: {
+          50: "#e6f1fe",
+        100: "#cce3fd",
+        200: "#99c7fb",
+        300: "#66aaf9",
+        400: "#338ef7",
+        500: "#006FEE",
+        600: "#005bc4",
+        700: "#004493",
+        800: "#002e62",
+        900: "#001731",
+        },
+      },
+    },
   },
   darkMode: "class",
   plugins: [nextui()],
@@ -76,7 +93,26 @@ module.exports = {
                 "0px 0px 30px 0px rgb(0 0 0 / 0.07), 0px 30px 60px 0px rgb(0 0 0 / 0.26), inset 0px 0px 1px 0px rgb(255 255 255 / 0.15)",
             },
           }, // dark theme layout tokens
-          colors: {}, // dark theme colors
+          colors: {
+            white: "#FFFFFF",
+            black: "#000000",
+            cyan: {
+              50: "#e6f1fe",
+            100: "#cce3fd",
+            200: "#99c7fb",
+            300: "#66aaf9",
+            400: "#338ef7",
+            500: "#006FEE",
+            600: "#005bc4",
+            700: "#004493",
+            800: "#002e62",
+            900: "#001731",
+            },
+            success: {
+              DEFAULT: "#095028",
+              foreground: "#FFFFFF",
+            },
+          }, // dark theme colors
         },
         // ... custom themes
       },

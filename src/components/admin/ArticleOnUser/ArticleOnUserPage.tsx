@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Button,  Col, FloatingLabel, Form, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Alert, Col, FloatingLabel, Form, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Moment from 'moment';
 import UserArticleDto from '../../../dtos/UserArticleDto';
@@ -11,7 +11,10 @@ import { LangBa } from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
 import { Autocomplete, AutocompleteItem, Badge, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, 
-    ListboxSection, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+    ListboxSection, Popover, PopoverContent, Button, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, 
+    TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem } from '@nextui-org/react';
+import { useAsyncList } from '@react-stately/data';
+import { on } from 'stream';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -22,9 +25,10 @@ interface upgradeFeaturesType {
     timestamp: string;
 }
 
-interface AdminArticleOnUserPageProps {
-    serial: string | undefined;
-  }
+type UserTypeBase = {
+    userId: string;
+    fullname: string;
+  };
 
 interface AdminArticleOnUserPageState {
     userArticle: UserArticleDto[];
@@ -55,6 +59,8 @@ interface AdminArticleOnUserPageState {
 
 const AdminArticleOnUserPage: React.FC = () => {
     const { serial } = useParams();
+    const [selectedUser, setSelectedUser] = useState<string>('')
+    const [selectedUserIsDisabled, setSelectedUserIdDisabled] = useState<boolean>(true)
     const [state, setState] = useState<AdminArticleOnUserPageState> ({
         message: "",
             users: [],
@@ -80,6 +86,31 @@ const AdminArticleOnUserPage: React.FC = () => {
             },
             userArticle: [],
     })
+
+    const onSelectionChange = (selectedItem: UserTypeBase | null) => {
+        if (selectedItem) {
+          const userId = selectedItem.userId;
+          setChangeStatusNumberFieldState('userId', userId || null);
+        }
+      };
+
+      const onInputChange = (value: string) => {
+        setSelectedUser(value)
+        const selectedUser = state.users.find(user => user.fullname === value);
+            if (selectedUser) {
+                const userId = selectedUser.userId;
+                setChangeStatusNumberFieldState('userId', userId || null);
+            }
+    }
+
+    const isDisabled = () => {
+        if (state.changeStatus.status === 'razduženo' || 'otpisano') {
+            setSelectedUserIdDisabled(false)
+        } else if (state.changeStatus.status === 'zaduženo') {
+            setSelectedUserIdDisabled(true)
+        }
+        
+    }
 
     const setChangeStatusStringFieldState = (fieldName: string, newValue: string) => {
         setState((prev) => ({
@@ -142,7 +173,7 @@ const AdminArticleOnUserPage: React.FC = () => {
             ...prev, isLoggedIn: isLoggedIn
         }))
         if(isLoggedIn === false) {
-            navigate('admin/login')
+            navigate('/admin/login')
         }
     }
 
@@ -188,19 +219,37 @@ const AdminArticleOnUserPage: React.FC = () => {
     }, [serial]);
     
     const getUserData = useCallback(async () => {
-    try {
-        await api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if (res.status === 'login') {
-            return setLogginState(false);
-            }
+        try {
+            await api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if (res.status === 'login') {
+                return setLogginState(false);
+                }
 
-            setUsers(res.data);
-        });
-    } catch (err) {
-        setErrorMessage('Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: ' + err);
-    }
+                setUsers(res.data);
+            });
+        } catch (err) {
+            setErrorMessage('Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: ' + err);
+        }
     }, [serial]);
+
+    const userList = useAsyncList<UserTypeBase> ({
+        async load({signal, filterText}) {
+            try {
+                const res = await api(`/api/user/?sort=forname,ASC`, 'get', {}, 'administrator')
+                if (res.status === 'login') {
+                        setLogginState(false);
+                        return {items: []}
+                    }
+
+                    return {items: res.data}
+                    /* setUsers(res.data); */
+            } catch (err) {
+                setErrorMessage('Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: ' + err);
+                return {items: []}
+            }
+        }
+    })
     
     const getUpgradeFeature = useCallback(async () => {
     try {
@@ -262,60 +311,49 @@ const AdminArticleOnUserPage: React.FC = () => {
 
     const addNewUpgradeFeatureButton = () => {
         return (
-        <div><Button variant='success' size='sm' onClick={() => showAddUpgradeFeatureModal()}>{LangBa.ARTICLE_ON_USER.BTN_UPGRADE}</Button><Modal size="lg" centered show={state.upgradeFeatureAdd.visible} onHide={() => setUpgradeModalVisibleState(false)}>
-                <Modal.Header closeButton>
-              {LangBa.ARTICLE_ON_USER.MODAL_HEADER_TEXT}
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Text>
-                            <h6>{LangBa.ARTICLE_ON_USER.MODAL_FORM_DESCRIPTION}
-                            </h6>
-                        </Form.Text>
-                        <Form.Group>
-                            <FloatingLabel label="Naziv" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-name">{LangBa.ARTICLE_ON_USER.TOOLTIP_NAME}</Tooltip>}>
-                                    <Form.Control type='text' id='name' value={state.upgradeFeatureAdd.name} required
-                                        onChange={(e) => setUpgradeFeatureStringFieldState('name', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                            <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-value">{LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE}</Tooltip>}>
-                                    <Form.Control type='text' id='value' value={state.upgradeFeatureAdd.value} required
-                                        onChange={(e) => setUpgradeFeatureStringFieldState('value', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                            <FloatingLabel label="Komentar" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-comment">{LangBa.ARTICLE_ON_USER.TOOLTIP_COMMENT}</Tooltip>}>
-                                    <Form.Control
-                                    defaultValue=""
-                                    type='text' 
-                                    id="comment" 
-                                    as="textarea"
-                                    rows={3}
-                                    placeholder={LangBa.ARTICLE_ON_USER.FORM_COMMENT_PLACEHOLDER}
-                                    style={{ height: '100px' }}
-                                    value={state.upgradeFeatureAdd.comment} 
-                                    required
-                                    onChange={(e) => setUpgradeFeatureStringFieldState('comment', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                    <Modal.Footer>
-                        <Button variant='success' onClick={() => addNewUpgradeFeature()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
-                    </Modal.Footer>
-                </Modal.Body>
-            </Modal></div>
+        <div><Button className='text-sm' color='success' size='sm' onClick={() => showAddUpgradeFeatureModal()} 
+                startContent={<i className="bi bi-node-plus text-base"></i>}>{LangBa.ARTICLE_ON_USER.BTN_UPGRADE}
+            </Button>
+            <Modal size="lg" backdrop='blur' isOpen={state.upgradeFeatureAdd.visible} onClose={() => setUpgradeModalVisibleState(false)}>
+                <ModalContent>
+                <ModalHeader>
+                    {LangBa.ARTICLE_ON_USER.MODAL_HEADER_TEXT}
+                </ModalHeader>
+                <ModalBody>
+                    <div className="w-full flex flex-col gap-4">
+                        <Input
+                        type='text'
+                        variant='bordered'
+                        label='Naziv'
+                        key={'name'}
+                        labelPlacement='inside'
+                        onChange={(e) => setUpgradeFeatureStringFieldState('name', e.target.value)}
+                        description='Unesite naziv nadogradnje. Npr. SSD, RAM '
+                        />
+                        <Input
+                        type='text'
+                        variant='bordered'
+                        label='Vrijednost'
+                        key={'value'}
+                        labelPlacement='inside'
+                        onChange={(e) => setUpgradeFeatureStringFieldState('value', e.target.value)}
+                        description='Unesite vrijednost nadogradnje. Npr. 256GB, 8GB '
+                        />
+                        <Textarea
+                        label="Opis"
+                        placeholder="Upišite razlog nadogradnje"
+                        key={'description'}
+                        variant='bordered'
+                        onChange={(e) => setUpgradeFeatureStringFieldState('comment', e.target.value)}
+                        />
+                    </div>
+                    <ModalFooter>
+                        <Button color='success' onClick={() => addNewUpgradeFeature()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
+                    </ModalFooter>
+                </ModalBody>
+                </ModalContent>
+            </Modal>
+            </div>
         )
     }
 
@@ -365,9 +403,6 @@ const AdminArticleOnUserPage: React.FC = () => {
 
     function changeStatusButton(article: ArticleType) {
         let stat = article.status;
-        const artiName = article.stock?.name;
-        const userFullName: any = article.user?.fullname;
-
         if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
                 <Col lg="3" xs="3" sm="3" md="3" style={{
@@ -376,115 +411,96 @@ const AdminArticleOnUserPage: React.FC = () => {
                     alignItems: "center"
                 }}>
                     <Button 
-                        variant='success' 
-                        size='sm' 
+                        color='success' 
+                        size='sm'
+                        startContent={<i className="bi bi-pencil-square"></i>}
                         onClick={() => showChangeStatusModal(state.article)}>
                             {LangBa.ARTICLE_ON_USER.BTN_EDIT}
                     </Button>
-                    <Modal size="lg" centered show={state.changeStatus.visible} onHide={() => setChangeStatusVisibleState(false)}>
-                        <Modal.Header closeButton>
+                    <Modal size="lg" backdrop='blur' isOpen={state.changeStatus.visible} onClose={() => setChangeStatusVisibleState(false)}>
+                    <ModalContent>
+                        <ModalHeader>
                             {LangBa.ARTICLE_ON_USER.MODAL_HEADER_CHANGE_STATUS}
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Form>
-                            <Form.Text>
-                                <h6>Da li ste sigurni da želite promjeniti status opreme {artiName} sa korisnika {userFullName}</h6>
-                            </Form.Text>
-                            <Form.Group className='was-validated'>
-                                <FloatingLabel label="Status" className="mb-3">
-                                    <Form.Select id="status"
-                                        onChange={(e) => setChangeStatusStringFieldState('status', e.target.value)} required>
-                                        <option value="">izaberi status</option>
-                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}
-                                        </option>
-                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_DEBT}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS_DEBT}
-                                        </option>
-                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_DESTROY}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS_DESTROY}
-                                        </option>
-                                    </Form.Select>
-                                </FloatingLabel>
-                            </Form.Group>
-                            <Form.Group className='was-validated'>
-                                <Autocomplete
-                                    className='mb-3'
+                        </ModalHeader>
+                            <ModalBody>
+                                <div className="w-full flex flex-col gap-4">
+                                    <Select
+                                        variant='bordered'
+                                        label="Status"
+                                        placeholder="Odaberite status"
+                                        onChange={(e) => {setChangeStatusStringFieldState('status', e.target.value); isDisabled()}}
+                                    >
+                                        <SelectItem key={LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE} value={LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}>
+                                            {LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}
+                                        </SelectItem>
+                                        <SelectItem key={LangBa.ARTICLE_ON_USER.STATUS_DEBT} value={LangBa.ARTICLE_ON_USER.STATUS_DEBT}>
+                                            {LangBa.ARTICLE_ON_USER.STATUS_DEBT}
+                                        </SelectItem>
+                                        <SelectItem key={LangBa.ARTICLE_ON_USER.STATUS_DESTROY} value={LangBa.ARTICLE_ON_USER.STATUS_DESTROY}>
+                                            {LangBa.ARTICLE_ON_USER.STATUS_DESTROY}
+                                        </SelectItem>
+                                    </Select>
+                                    <Autocomplete
+                                    label='Odaberi korisnika'
                                     id="pick-the-user"
-                                    disabled={state.changeStatus.status === 'razduženo' || state.changeStatus.status === 'otpisano'}
-                                    /* onChange={(event, value, reason) => {
-                                        if (reason === 'selectOption' && typeof value === 'string') {
-                                            const selectedUser = this.state.users.find(user => user.fullname === value);
-                                            if (selectedUser) {
-                                                const userId = selectedUser.userId;
-                                                this.setChangeStatusNumberFieldState('userId', userId || null);
-                                            }
-                                        }
-                                    }} */
-                                   /*  renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>} */
-                                >
-                                {state.users.map((option) => (
-                                    <AutocompleteItem key={option.userId !== undefined ? option.userId : 'defaultKey'} value={''}>{option.fullname}</AutocompleteItem>
-                                ))}
-
-                                </Autocomplete>
-                            </Form.Group>
-                            <Form.Group className="mb-3">             
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
-                                <OverlayTrigger 
-                                placement="top"
-                                delay={{ show: 250, hide: 400 }}
-                                overlay={
-                                <Tooltip id="tooltip-kolicina">{LangBa.ARTICLE_ON_USER.TOOLTIP_DEFAULT_VALUE}</Tooltip>
-                                }>
-                                <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
-                                <Form.Text></Form.Text> 
-                            </Form.Group>
-                            
-                            <Form.Group>
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_SERIALNUMBER} className="mb-3">
-                                    <OverlayTrigger 
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={
-                                    <Tooltip id="tooltip-msg-serialnumber">{LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_SERIALNUMBER}</Tooltip>
-                                    }>
-                                    <Form.Control type='text' id='serialNumber' value={state.changeStatus.serialNumber} readOnly isValid required
-                                        onChange={(e) => setChangeStatusStringFieldState('serialNumber', e.target.value)} />
-                                    </OverlayTrigger>
-                                </FloatingLabel>
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_INV_NUMBER} className="mb-3">
-                                    <OverlayTrigger 
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={
-                                    <Tooltip id="tooltip-msg-invnumber">{LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}</Tooltip>
-                                    }>
-                                    <Form.Control type='text' id='invNumber' value={state.changeStatus.invNumber} isValid required readOnly
-                                        onChange={(e) => setChangeStatusStringFieldState('invNumber', e.target.value)} />
-                                    </OverlayTrigger>
-                                </FloatingLabel>
-                            </Form.Group>
-
-                            <Form.Group className='was-validated'>
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_COMMENT} className="mb-3">
-                                    <Form.Control
-                                        required
-                                        defaultValue=""
-                                        id="comment"
-                                        as="textarea"
-                                        rows={3}
-                                        placeholder={LangBa.ARTICLE_ON_USER.FORM_COMMENT_PLACEHOLDER}
-                                        style={{ height: '100px' }}
-                                        onChange={(e) => setChangeStatusStringFieldState('comment', e.target.value)}
+                                    isDisabled={selectedUserIsDisabled}
+                                    /* onSelectionChange={(key) => {
+                                        const selectedItem = userList.items.find((item) => item.userId === key);
+                                        onSelectionChange(selectedItem !== undefined ? selectedItem : null);
+                                      }}
+                                    items={userList.items.map((user) => ({
+                                        key: user.userId,
+                                        text: user.fullname,
+                                    }))} */
+                                    onInputChange={onInputChange}
+                                    isLoading={userList.isLoading}
+                                    isClearable
+                                    >
+                                        {/* {(item) => (
+                                            <AutocompleteItem key={item.key} value={item.text}>
+                                                {item.text}
+                                            </AutocompleteItem>
+                                        )} */}
+                                        {state.users.map((option) => (
+                                            <AutocompleteItem key={option.userId !== undefined ? option.userId : 'defaultKey'} value={''}>{option.fullname}</AutocompleteItem>
+                                        ))}
+                                    </Autocomplete>
+                                    <p>{state.changeStatus.userId}</p>
+                                    <Input
+                                    type='text'
+                                    variant='bordered'
+                                    label='Serijski broj'
+                                    key={'serial-number'}
+                                    labelPlacement='inside'
+                                    isDisabled
+                                    value={state.changeStatus.serialNumber}
+                                    onChange={(e) => setChangeStatusStringFieldState('serialNumber', e.target.value)}
+                                    description={LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_SERIALNUMBER}
                                     />
-                                </FloatingLabel>
-                            </Form.Group>
-                            </Form>
-                            <Modal.Footer>
-                                <Button variant='success' onClick={() => changeStatus()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
-                            </Modal.Footer>
-                        </Modal.Body>
+                                    <Input
+                                    type='text'
+                                    variant='bordered'
+                                    label='Inventurni broj'
+                                    key={'inventurni-broj'}
+                                    labelPlacement='inside'
+                                    isDisabled
+                                    value={state.changeStatus.invNumber}
+                                    onChange={(e) => setChangeStatusStringFieldState('invNumber', e.target.value)}
+                                    description={LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}
+                                    />
+                                    <Textarea
+                                    label="Opis"
+                                    placeholder="Upišite razlog zaduženja/razduženja/otpisa"
+                                    key={'description'}
+                                    variant='bordered'
+                                    onChange={(e) => setChangeStatusStringFieldState('comment', e.target.value)}
+                                    />
+                                </div>
+                                <ModalFooter>
+                                    <Button color='success' className='text-white' startContent={<i className="bi bi-save"></i>} onClick={() => changeStatus()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
+                                </ModalFooter>
+                            </ModalBody>
+                    </ModalContent>
                     </Modal>
                 </Col>
             )
@@ -650,15 +666,13 @@ function upgradeFeature(this: any) {
     if (state.upgradeFeature.length !== 0) {
         return (
             <Card className="mb-3">
-                <CardHeader style={{backgroundColor:"#00695C"}}>
-                    <div className="grid lg:grid-cols-6 xs:grid-cols gap-2" >
-                        <div>
+                <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C"}}>
+                        <div className="col-span-5">
                             {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
                         </div>
-                        <div className='col-end-7'>
+                        <div className="col-end-7 flex justify-end">
                             {addNewUpgradeFeatureButton()}
                         </div>
-                    </div>
                 </CardHeader>
                 <Listbox>
 

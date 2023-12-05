@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Button,  Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Stack, Tooltip } from 'react-bootstrap';
+import { Alert, Button,  Col, FloatingLabel, Form, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Moment from 'moment';
 import UserArticleDto from '../../../dtos/UserArticleDto';
@@ -10,7 +10,8 @@ import saveAs from 'file-saver';
 import { LangBa } from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
-import { Autocomplete, AutocompleteItem, Badge, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, ListboxSection, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import { Autocomplete, AutocompleteItem, Badge, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, 
+    ListboxSection, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -509,16 +510,16 @@ const AdminArticleOnUserPage: React.FC = () => {
     return (
         <div>
             <RoledMainMenu role='administrator' />
-            <div className="container mx-auto px-4 mt-3 h-max">
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <Card>
                     <CardHeader className='grid grid-cols-6 gap-2'>  
-                            <div className='col-span-5 flex flex-nowrap'>
+                            <div className='col-span-4 flex flex-nowrap'>
                                     <i className={state.article.category?.imagePath?.toString()} style={{fontSize: 20}}/>
                                 <div className='pl-2 col-start-2'>
                                     {state.article.stock?.name}
                                 </div> 
                             </div>
-                            <div className='col-end-7'>
+                            <div className='col-end-7 flex justify-center'>
                                 {badgeStatus(state.article)} 
                             </div>
                     </CardHeader>
@@ -634,15 +635,13 @@ function upgradeFeature(this: any) {
     if (state.upgradeFeature.length === 0) {
         return (
             <Card className="mb-3">
-                <CardHeader style={{backgroundColor:"#00695C"}}>
-                    <div className="grid lg:grid-cols-6 xs:grid-cols gap-2" >
-                        <div>
+                <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C"}}>
+                        <div className="col-span-5">
                             {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
                         </div>
-                        <div className='col-end-7'>
+                        <div className="col-end-7 flex justify-end">
                             {addNewUpgradeFeatureButton()}
                         </div>
-                    </div>
                 </CardHeader>
             </Card>
         )
@@ -692,124 +691,103 @@ function upgradeFeature(this: any) {
 }
 
 function renderArticleData(article: ArticleType) {
+    const mappedStockFeatures = state.article.stock?.stockFeatures?.map(stockFeature => ({
+        featureId: stockFeature.feature?.featureId || null,
+        name: stockFeature.feature?.name || '',
+        value: stockFeature.value || ''
+      })) || [];
+
         return (
-            <Row>
-                <Col xs="12" lg="8">
-                    <Row>
-                        <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: "center", display: "flex" }}>
+            <div className="lg:flex">
+                <div className="lg:w-8/12 xs:w-full lg:mr-5">
+                    <div className="lg:flex">
+                        <div className="lg:w-4/12 xs:w-full flex justify-center items-center">
                             <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
-                        </Col>
-                        <Col xs="12" lg="8" sm="8">
-                            <Row>
-                                <Col>
-                                
-                                <Listbox
-                                items={state.article.stock?.stockFeatures}
-                                variant='flat'
-                                >
+                        </div>
+                        <div className="lg:w-8/12 xs:w-full">
+                            <ScrollShadow hideScrollBar className="w-full h-[250px]">
+                                <Listbox items={mappedStockFeatures} variant="flat">
                                     {(item) => (
-                                        <ListboxSection key={item.stockFeatureId}>
-                                                <ListboxItem key={'test'} textValue={item.feature?.name}>{item.feature?.name}</ListboxItem>
-                                        </ListboxSection>
+                                    <ListboxSection key={item.name} title={item.name}>
+                                        <ListboxItem key={item.value} textValue={item.name}>
+                                        {item.value}
+                                        </ListboxItem>
+                                    </ListboxSection>
                                     )}
-                                    </Listbox>
-                            {/* <ListboxSection title={'Detalji opreme'}>
-                                <ScrollShadow size={100} hideScrollBar className="w-[100%] h-[250px]">
-                                {state.article.stock.stockFeatures?.map((artFeature, index) => (
-                                    <ListboxItem key={index}>
-                                    <b>{artFeature.feature?.name}: </b>{artFeature.value}
-                                    </ListboxItem>
-                                ))}
-                                <ListboxItem key={'komentar'}>
-                                    <b>Komentar: </b>{state.article.comment}
-                                </ListboxItem>
-                                <ListboxItem key={'serijski'}>
-                                    <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{state.article.serialNumber}
-                                </ListboxItem>
-                                <ListboxItem key={'inventurni'}>
-                                    <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{state.article.invNumber}
-                                </ListboxItem>
-                                </ScrollShadow>
-                            </ListboxSection> */}
-                            
-
-                                </Col>
-                            </Row>
+                                </Listbox>
+                            </ScrollShadow>
                             {upgradeFeature()}
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
 
-                    <Row>
-                        <Col xs="12" lg="12" sm="12">
+                    <div className="lg:flex">
+                        <div className="w-full lg:w-12/12 sm:w-12/12">
                             <Card className="mb-3">
-                                <CardHeader >{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</CardHeader>
-                                <CardBody>
-                                    <ScrollShadow size={100} hideScrollBar  className="w-[100%] h-[250px]">
-                                        {article.stock?.description}
-                                    </ScrollShadow>
-                                </CardBody>
+                            <CardHeader>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</CardHeader>
+                            <CardBody>
+                                <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
+                                {article.stock?.description}
+                                </ScrollShadow>
+                            </CardBody>
                             </Card>
-                        </Col>
-                    </Row>
-                    
-                    <Row>
-                        <Table>
-                            <TableHeader>
-                                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
-                                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
-                                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
-                                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
-                                    <TableColumn>#</TableColumn>
-                            </TableHeader>
-                            <TableBody>
-                            {article.articleTimelines?.map((timeline) => (
-                                <TableRow key={timeline.articleTimelineId}>
-                                    <TableCell><Link isBlock showAnchorIcon color="primary" href={`#/admin/userProfile/${timeline.userId}`} >{timeline.user?.fullname}</Link></TableCell>
-                                    <TableCell>{timeline.status}</TableCell>
-                                    <TableCell>{timeline.comment}</TableCell>
-                                    <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                    <TableCell>{saveFile(timeline.document?.path)}</TableCell>
-                                </TableRow>
-                            )) ?? []}
-                            </TableBody>
-                        </Table>
-                    </Row>
-                </Col>
-                <Col sm="12" xs="12" lg="4" >
+                        </div>
+                    </div>
+
+                    <div className="lg:flex mb-3">
+                    <Table>
+                        <TableHeader>
+                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
+                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
+                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
+                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
+                        <TableColumn>#</TableColumn>
+                        </TableHeader>
+                        <TableBody>
+                        {article.articleTimelines?.map((timeline) => (
+                            <TableRow key={timeline.articleTimelineId}>
+                            <TableCell>
+                                <Link isBlock showAnchorIcon color="primary" href={`#/admin/userProfile/${timeline.userId}`}>
+                                {timeline.user?.fullname}
+                                </Link>
+                            </TableCell>
+                            <TableCell>{timeline.status}</TableCell>
+                            <TableCell>{timeline.comment}</TableCell>
+                            <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                            <TableCell>{saveFile(timeline.document?.path)}</TableCell>
+                            </TableRow>
+                        )) ?? []}
+                        </TableBody>
+                    </Table>
+                    </div>
+                </div>
+
+                <div className="w-full sm:w-full lg:w-1/3">
                     {userDetails(article)}
-                    <Row>
-                        <Col>
-                            <Card className=" mb-2">
-                                <CardHeader>
-                                    <Row>
-                                        <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS.STATUS}
-                                        </Col>
-                                        {changeStatusButton(article)}
-                                    </Row>
-                                </CardHeader>
-                                <ListGroup variant="flush">
-                                    <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
-                                    <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
-                                </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Card className="text-dark bg-light mb-2" >
-                                <CardHeader>U skladištu</CardHeader>
-                                    <ListGroup variant="flush" >
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListGroup.Item>
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListGroup.Item>
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListGroup.Item>
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                    </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
+                    <div>
+                    <Card className="mb-3">
+                        <CardHeader className="grid grid-cols-6 gap-4">
+                            <div className="col-span-5">{LangBa.ARTICLE_ON_USER.STATUS.STATUS}</div>
+                            <div className="col-end-7 flex justify-end">{changeStatusButton(article)}</div>
+                        </CardHeader>
+                        <Listbox variant="flat">
+                        <ListboxItem key="status">Status: <b>{article.status} </b></ListboxItem>
+                        <ListboxItem key="datum-akcije">Datum akcije: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
+                        </Listbox>
+                    </Card>
+                    </div>
+                    <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 mb-3">
+                    <Listbox variant="flat">
+                        <ListboxSection title={'U skladištu'}>
+                        <ListboxItem key={'stanje-ugovor'}>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListboxItem>
+                        <ListboxItem key={'stanje-trenutno'}>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListboxItem>
+                        <ListboxItem key={'sapBroj'}>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListboxItem>
+                        <ListboxItem key={'datum-akcije'}>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
+                        </ListboxSection>
+                    </Listbox>
+                    </div>
+                </div>
+            </div>
+
         );
     }
 }

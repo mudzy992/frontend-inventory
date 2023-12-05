@@ -71,7 +71,7 @@ const HomePage: React.FC <HomePageState> = () => {
         /* prikaz klijentu */
         <>
             <RoledMainMenu role='administrator'/>
-            <div className="container mx-auto px-4 mt-3 h-max">
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <div className='' >
                     <div>
                         {<UserTable /> }

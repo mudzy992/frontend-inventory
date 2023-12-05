@@ -184,7 +184,7 @@ const CategoryPage: React.FC = () => {
   return (
     <div>
       <RoledMainMenu role="administrator" />
-      <div className="container mx-auto px-4 mt-3 h-max">
+      <div className="container mx-auto lg:px-4 mt-3 h-max">
         <div className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'd-none'}>
           <h5 style={{ color: 'white' }}>
             <i className="bi bi-list" />

@@ -105,12 +105,16 @@ const AdminArticleOnUserPage: React.FC = () => {
 
     const isDisabled = () => {
         if (state.changeStatus.status === 'razduženo' || 'otpisano') {
-            setSelectedUserIdDisabled(false)
-        } else if (state.changeStatus.status === 'zaduženo') {
             setSelectedUserIdDisabled(true)
+        } 
+        if (state.changeStatus.status === 'zaduženo') {
+            setSelectedUserIdDisabled(false)
         }
-        
     }
+
+    useEffect(() => {
+        isDisabled();
+      }, [state.changeStatus.status]);
 
     const setChangeStatusStringFieldState = (fieldName: string, newValue: string) => {
         setState((prev) => ({
@@ -405,11 +409,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         let stat = article.status;
         if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (
-                <Col lg="3" xs="3" sm="3" md="3" style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center"
-                }}>
+                <div className="lg:w-1/4 xs:w-1/4 sm:w-1/4 md:w-1/4 flex justify-end items-center">
                     <Button 
                         color='success' 
                         size='sm'
@@ -465,7 +465,6 @@ const AdminArticleOnUserPage: React.FC = () => {
                                             <AutocompleteItem key={option.userId !== undefined ? option.userId : 'defaultKey'} value={''}>{option.fullname}</AutocompleteItem>
                                         ))}
                                     </Autocomplete>
-                                    <p>{state.changeStatus.userId}</p>
                                     <Input
                                     type='text'
                                     variant='bordered'
@@ -502,7 +501,7 @@ const AdminArticleOnUserPage: React.FC = () => {
                             </ModalBody>
                     </ModalContent>
                     </Modal>
-                </Col>
+                </div>
             )
         }
     }
@@ -720,13 +719,11 @@ function renderArticleData(article: ArticleType) {
                         </div>
                         <div className="lg:w-8/12 xs:w-full">
                             <ScrollShadow hideScrollBar className="w-full h-[250px]">
-                                <Listbox items={mappedStockFeatures} variant="flat">
+                                <Listbox items={mappedStockFeatures} variant="bordered">
                                     {(item) => (
-                                    <ListboxSection key={item.name} title={item.name}>
-                                        <ListboxItem key={item.value} textValue={item.name}>
-                                        {item.value}
-                                        </ListboxItem>
-                                    </ListboxSection>
+                                    <ListboxItem key={item.value}>
+                                        <span className="text-bold text-small text-default-400">{item.name}: </span>{item.value}
+                                    </ListboxItem>
                                     )}
                                 </Listbox>
                             </ScrollShadow>

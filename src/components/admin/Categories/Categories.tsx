@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Alert,  Col,  Row } from 'react-bootstrap';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/react';
+import { Button, Card, CardBody, CardFooter, CardHeader, Link } from '@nextui-org/react';
 import Tabela from './TableFunction';
 
 interface CategoryPageState {
@@ -122,18 +121,18 @@ const CategoryPage: React.FC = () => {
     }
 
     return (
-      <Alert variant="error" style={{ marginTop: 15 }}>
+      <Card style={{ marginTop: 15 }}>
         <i className="bi bi-exclamation-circle-fill" /> {state.message}
-      </Alert>
+      </Card>
     );
   };
 
   const showSubcategories = () => {
     if (state.subCategory.length === 0) {
       return (
-        <Alert variant="info" style={{ marginTop: 15 }}>
+        <Card style={{ marginTop: 15 }}>
         <i className="bi bi-info-circle" /> Nema podkategorija
-      </Alert>
+      </Card>
       )  
     }
 
@@ -156,9 +155,8 @@ const CategoryPage: React.FC = () => {
         <CardBody>
           <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
         </CardBody>
-        <CardFooter style={{display:"flex", justifyContent:'center'}}>
-            <small><Link to={`/category/${category.categoryId}`}
-                className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
+        <CardFooter className='flex justify-center'>
+          <Button as={Link} href={`#/category/${category.categoryId}`} variant='solid' >Prikaži kategoriju</Button>
         </CardFooter>
       </Card>
   );

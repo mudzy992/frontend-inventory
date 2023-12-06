@@ -50,34 +50,34 @@ code {
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
   }
+}
 
-  .user-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #27272a;
-    color: white;
-    border-radius: 15px;
-  }
-  
-  .user-container .details { 
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .user-container .avatar {
-    font-size: 80px;
-    height: 150px;
-    width: 150px;
-  }
-  
-  .user-container .activity-status {
-    font-size: 12px;
-    margin-top: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    width: 100%;
-  }
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #27272a;
+  color: white;
+  border-radius: 15px;
+}
+
+.user-container .details { 
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.user-container .ikonica {
+  font-size: 80px;
+  height: 150px;
+  width: 150px;
+}
+
+.user-container .activity-status {
+  font-size: 12px;
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: 100%;
 }

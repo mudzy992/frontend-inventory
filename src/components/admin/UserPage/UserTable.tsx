@@ -315,6 +315,7 @@ export const UserTable: React.FC<{}> = () => {
           <Card>
               <CardBody>
                   <Table
+                      aria-label="Tabela korisnika"
                       isHeaderSticky
                       bottomContent={bottomContent}
                       bottomContentPlacement="outside"

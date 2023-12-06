@@ -1,8 +1,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { Badge, Button } from "react-bootstrap";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
-import { Card, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, getKeyValue } from "@nextui-org/react";
+import { Badge, Button, Card, Link, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 /* import { Redirect } from "react-router-dom"; */
 
 
@@ -12,9 +11,7 @@ interface ArticleType {
   excerpt: string;
   sapNumber: string;
   valueAvailable: number;
-  articles?: [
-
-  ]
+  articles?: []
 }
 
 interface TabelaProps {
@@ -55,9 +52,9 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   const valueStatus = (valueAvailabele: number) => {
     if(valueAvailabele === 0) {
-      return <Badge bg="danger"> nema na stanju</Badge>
+      return <Badge variant="solid" shape="circle" color="danger" content="nema na stanju"> </Badge>
     } else {
-      return <Badge bg="success">Dostupno: {valueAvailabele}</Badge>
+      return <Badge variant="solid" color="success" content={`Dostupno: ${valueAvailabele}`}> </Badge>
     }
   }
 
@@ -129,17 +126,16 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   </TableHeader>
   <TableBody items={items}>
     {(item) => (
-      <TableRow key={item.name}>
+      <TableRow key={item.stockId}>
         <TableCell>{item.name}</TableCell>
-        <TableCell>{item.valueAvailable}</TableCell>
+        <TableCell>{valueStatus(item.valueAvailable)}</TableCell>
         <TableCell>{item.sapNumber}</TableCell>
         <TableCell>
           <Button
-            style={{width:"auto", display: "flex"}}
-            color="success"
+            color="warning"
+            variant="flat"
             onClick={() => {
-              const stockId = item.stockId;
-              openModalWithArticle(stockId); 
+              openModalWithArticle(item.stockId); 
             }}
           >
             Zaduženja
@@ -147,11 +143,10 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         </TableCell>
         <TableCell>
           <Button
-            color="primary"
-            onClick={() => {
-              const stockId = item.stockId;
-              window.location.href = `#/admin/stock/${stockId}/`;
-            }}
+            color="warning"
+            variant="flat"
+            as={Link}
+            href={`#/admin/stock/${item.stockId}/`}
           >
             <i className="bi bi-boxes"  style={{fontSize:"15px"}} /> Skladište
           </Button>

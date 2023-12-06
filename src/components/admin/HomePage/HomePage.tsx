@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
 import AdminMenu from '../AdminMenu/AdminMenu';
 import { UserTable } from '../UserPage/UserTable';
-import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
+import { Button, Card, CardBody, CardFooter, CardHeader, Link} from '@nextui-org/react';
 
 interface HomePageState {
     categories?: CategoryType[];
@@ -98,9 +98,8 @@ const HomePage: React.FC <HomePageState> = () => {
                 <CardBody>
                     <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
                 </CardBody>
-                <CardFooter style={{display:"flex", justifyContent:'center'}}>
-                    <small><Link to={`/category/${category.categoryId}`}
-                        className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
+                <CardFooter className='flex justify-center'>
+                    <Button as={Link} href={`#/category/${category.categoryId}`} variant='solid' >Prikaži kategoriju</Button>
                 </CardFooter>
             </Card>
         )

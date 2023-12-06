@@ -436,10 +436,10 @@ export default function AdminUserProfilePage() {
         
         return (
             <div className="container mx-auto">
-            <div className="grid lg:grid-cols-6 xs:grid-cols gap-2">
-                <div className="user-container lg:col-span-2" >
+            <div className="grid lg:grid-cols-6 xs:grid-cols gap-2 md:mt-3">
+                <div className="user-container col-span-2 md:mb-3 xs:mb-3" >
                     <div className="user-container details">
-                        <Avatar className="avatar" style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
+                        <Avatar className="ikonica " style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
                         <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
                         <div style={{fontSize:"14px"}}>{user.email}</div>
                         <div style={{fontSize:"14px"}}>{user.job?.title}</div>
@@ -453,7 +453,7 @@ export default function AdminUserProfilePage() {
                         </div>
                     </div>
                 </div>
-                <div className="px-4 lg:col-span-4 ">
+                <div className="lg:col-span-4 xs:col-span-2 md:col-span-2 ">
                         <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
                             <Input
                                 value={state.editUser.surname}
@@ -466,6 +466,7 @@ export default function AdminUserProfilePage() {
                             <Input
                                 value={state.editUser.forname}
                                 type='text'
+                               
                                 label='Prezime'
                                 variant='bordered'
                                 onValueChange={(value: string) => setEditUserStringFieldState('forname', value)}
@@ -474,6 +475,7 @@ export default function AdminUserProfilePage() {
                             <Input
                                 value={state.editUser.code}
                                 type='number'
+                                
                                 label='Kadrovski broj'
                                 variant='bordered'
                                 onValueChange={(value: string) => setEditUserStringFieldState('code', value)}
@@ -483,6 +485,7 @@ export default function AdminUserProfilePage() {
                             <Input
                                 value={state.editUser.email}
                                 type='email'
+                                
                                 label='Email'
                                 variant='bordered'
                                 onValueChange={(value: string) => setEditUserStringFieldState('email', value)}
@@ -490,12 +493,14 @@ export default function AdminUserProfilePage() {
                             <Input
                                 value={state.editUser.telephone}
                                 type='text'
+                                
                                 label='Telefon'
                                 variant='bordered'
                                 onValueChange={(value: string) => setEditUserStringFieldState('telephone', value)}
                             />
                             <Input
                                 value={state.editUser.localNumber}
+                                
                                 type='number'
                                 label='Telefon/lokal'
                                 variant='bordered'
@@ -507,7 +512,7 @@ export default function AdminUserProfilePage() {
                             <Select
                                 label='Sektor/odjeljenje'
                                 value={state.editUser.departmentId.toString()}
-                                className="max-w-lg"
+                                
                                 onChange={(e:any) => {setEditUserNumberFieldState('departmentId', e.target.value); addJobDepartmentChange(e as any)}}
                                 >
                                 {state.department.map((department, index) => (
@@ -517,7 +522,7 @@ export default function AdminUserProfilePage() {
                             <Select
                                 label='Radno mjesto'
                                 value={state.editUser.jobId.toString()}
-                                className="max-w-lg"
+                                
                                 onChange={(e:any) => {setEditUserNumberFieldState('jobId', e.target.value)}}
                                 >
                                 {state.job.map((job, index) => (
@@ -530,7 +535,7 @@ export default function AdminUserProfilePage() {
                             <Select
                                 label='Lokacija'
                                 value={state.editUser.locationId.toString()}
-                                className="max-w-xs"
+                               
                                 onChange={(e:any) => {setEditUserNumberFieldState('locationId', e.target.value)}}
                                 >
                                 {state.location.map((location, index) => (
@@ -540,7 +545,7 @@ export default function AdminUserProfilePage() {
                             <Select
                                 label='Spol'
                                 value={state.editUser.gender.toString()}
-                                className="max-w-xs"
+                                
                                 onChange={(e:any) => {setEditUserStringFieldState('gender', e.target.value)}}
                                 >
                                 <SelectItem key='musko' value='muško'>muško</SelectItem>
@@ -549,7 +554,7 @@ export default function AdminUserProfilePage() {
                             <Select
                                 label='Status'
                                 value={state.editUser.status.toString()}
-                                className="max-w-xs"
+                                
                                 onChange={(e:any) => {setEditUserStringFieldState('status', e.target.value)}}
                                 >
                                 <SelectItem key='aktivan' value='aktivan'>aktivan</SelectItem>
@@ -572,7 +577,7 @@ export default function AdminUserProfilePage() {
                                     </button>
                                 }
                                 type={isVisible ? "text" : "password"}
-                                className="max-w-xs"
+                                
                                 />          
                         </div>
                     </div>

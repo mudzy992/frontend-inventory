@@ -5,7 +5,7 @@ import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/react';
-/* import Tabela from './TableFunction'; */
+import Tabela from './TableFunction';
 
 interface CategoryPageState {
   category?: CategoryType;
@@ -177,7 +177,7 @@ const CategoryPage: React.FC = () => {
       );
     }
   
-    /* return <Tabela categoryId={categoryID} />; */
+    return <Tabela categoryId={categoryID} />;
   };
   
 

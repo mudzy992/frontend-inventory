@@ -312,11 +312,9 @@ export const UserTable: React.FC<{}> = () => {
       }, [usersData]);
 
     return (
-
           <Card>
               <CardBody>
                   <Table
-                      aria-label="Example table with custom cells, pagination and sorting"
                       isHeaderSticky
                       bottomContent={bottomContent}
                       bottomContentPlacement="outside"
@@ -339,7 +337,7 @@ export const UserTable: React.FC<{}> = () => {
                           </TableColumn>
                           )}
                       </TableHeader>
-                      <TableBody emptyContent={"No users found"} items={sortedItems}>
+                      <TableBody emptyContent={"Nema pronađenih korisnika"} items={sortedItems}>
                           {(item) => (
                           <TableRow key={item.id}>
                               {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

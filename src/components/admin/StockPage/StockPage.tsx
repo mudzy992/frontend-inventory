@@ -5,7 +5,7 @@ import FeaturesType from '../../../types/FeaturesType';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
-import ArticleInStockTable from './StockArticleTableNew.tsx';
+/* import ArticleInStockTable from './StockArticleTableNew.tsx'; */
 import { useNavigate, useParams } from 'react-router-dom';
 /* import { Redirect } from 'react-router-dom'; */
 
@@ -60,51 +60,52 @@ interface StockPageState {
 
 const StockPage: React.FC = () => {
     const{stockID} = useParams<{stockID: string}>()
+    const [categoryID, setCategoryId] = useState<number | undefined>(0)
     const navigate = useNavigate()
     const [state, setState] = useState<StockPageState>({
         message: "",
-            stock: {},
-            feature: [],
-            users: [],
-            isLoggedIn: true,
-            expandedCards: new Array(2).fill(false),
-            editFeature: {
-                visible: false,
-                categoryId: 0,
+        stock: {},
+        feature: [],
+        users: [],
+        isLoggedIn: true,
+        expandedCards: new Array(2).fill(false),
+        editFeature: {
+            visible: false,
+            categoryId: 0,
+            name: "",
+            excerpt: "",
+            description: "",
+            concract: "",
+            comment: "",
+            valueOnConcract: 0,
+            valueAvailable: 0,
+            sapNumber: "",
+            features:[{
+                use: 0,
+                featureId: Number(),
                 name: "",
-                excerpt: "",
-                description: "",
-                concract: "",
-                comment: "",
-                valueOnConcract: 0,
-                valueAvailable: 0,
-                sapNumber: "",
-                features:[{
-                    use: 0,
-                    featureId: Number(),
-                    name: "",
-                    value: "",
-                    stockFeatureId: Number(),
-                }],
-            },
-            changeStatus: {
-                userId: 0,
-                articleId: 0,
-                comment: '',
-                serialNumber: '',
-                status: '',
-                invNumber: '',
-                visible: false,
-            },
+                value: "",
+                stockFeatureId: Number(),
+            }],
+        },
+        changeStatus: {
+            userId: 0,
+            articleId: 0,
+            comment: '',
+            serialNumber: '',
+            status: '',
+            invNumber: '',
+            visible: false,
+        },
     })
 
     const setStocks = (stockData: StockType | undefined) => {
-        setState((prev) => ({...prev, stockData}))
+        setState((prev) => ({ ...prev, stock: stockData || {} }));
     }
 
     const setFeaturesData = (featuresData: FeaturesType[]) => {
-        setState((prev) => ({...prev, featuresData}))
-    }
+        setState((prev) => ({...prev, feature: featuresData}))
+    }  
 
     const setEditArticleStringFieldState = (fieldName: string, newValue: string) => {
         setState((prev) => ({
@@ -115,24 +116,24 @@ const StockPage: React.FC = () => {
           },
         }));
       };
-    
-    const setEditArticleNumberFieldState = (fieldName:string, newValue:any) => {
-    setState((prev) => ({
-        ...prev,
-        editFeature: {
-        ...prev.editFeature,
-        [fieldName]: newValue === 'null' ? null : Number(newValue),
-        },
-    }));
-    };
-
-    const setEditFeatureUse = (featureId: number, use:boolean) => {
+      
+      const setEditArticleNumberFieldState = (fieldName: string, newValue: any) => {
+        setState((prev) => ({
+          ...prev,
+          editFeature: {
+            ...prev.editFeature,
+            [fieldName]: newValue === 'null' ? null : Number(newValue),
+          },
+        }));
+      };
+      
+      const setEditFeatureUse = (featureId: number, use: boolean) => {
         setState((prev) => {
           const addFeatures = [...prev.editFeature.features];
           const updatedFeatures = addFeatures.map((feature) =>
             feature.featureId === featureId ? { ...feature, use: use ? 1 : 0 } : feature
           );
-    
+      
           return {
             ...prev,
             editFeature: {
@@ -142,24 +143,24 @@ const StockPage: React.FC = () => {
           };
         });
       };
-
-    const setEditFeatureValue = (featureId:number, value:string) => {
+      
+      const setEditFeatureValue = (featureId: number, value: string) => {
         setState((prev) => {
-            const updatedFeatures = prev.editFeature.features.map((feature) =>
+          const updatedFeatures = prev.editFeature.features.map((feature) =>
             feature.featureId === featureId ? { ...feature, value } : feature
-            );
-
-            return {
+          );
+      
+          return {
             ...prev,
             editFeature: {
-                ...prev.editFeature,
-                features: updatedFeatures,
+              ...prev.editFeature,
+              features: updatedFeatures,
             },
-            };
+          };
         });
-    };
-
-    const setModalVisibleState = (newState:boolean) => {
+      };
+      
+      const setModalVisibleState = (newState: boolean) => {
         setState((prev) => ({
           ...prev,
           changeStatus: {
@@ -168,29 +169,29 @@ const StockPage: React.FC = () => {
           },
         }));
       };
-
-    const setUsers = (usersData: userData[]) => {
+      
+      const setUsers = (usersData: userData[]) => {
         setState((prev) => ({
-            ...prev,
-            users: usersData,
+          ...prev,
+          users: usersData,
         }));
-    };
-
-    const setErrorMessage = (message:string) => {
+      };
+      
+      const setErrorMessage = (message: string) => {
         setState((prev) => ({
           ...prev,
           message,
         }));
       };
-
-    const setIsLoggedInStatus = (isLoggedIn:boolean) => {
+      
+      const setIsLoggedInStatus = (isLoggedIn: boolean) => {
         setState((prev) => ({
-            ...prev,
-            isLoggedIn,
+          ...prev,
+          isLoggedIn,
         }));
-    };
-
-    const setEditFeatureModalVisibleState = (newState:boolean) => {
+      };
+      
+      const setEditFeatureModalVisibleState = (newState: boolean) => {
         setState((prev) => ({
           ...prev,
           editFeature: {
@@ -199,18 +200,18 @@ const StockPage: React.FC = () => {
           },
         }));
       };
-
-    const setChangeStatusStringFieldState = (fieldName:string, newValue:string) => {
+      
+      const setChangeStatusStringFieldState = (fieldName: string, newValue: string) => {
         setState((prev) => ({
-            ...prev,
-            changeStatus: {
+          ...prev,
+          changeStatus: {
             ...prev.changeStatus,
             [fieldName]: newValue,
-            },
+          },
         }));
-    };
-
-    const setChangeStatusNumberFieldState = (fieldName:string, newValue:any) => {
+      };
+      
+      const setChangeStatusNumberFieldState = (fieldName: string, newValue: any) => {
         setState((prev) => ({
           ...prev,
           changeStatus: {
@@ -219,7 +220,7 @@ const StockPage: React.FC = () => {
           },
         }));
       };
-
+      
     const toggleExpand = (index:number) => {
         setState((prev) => {
         const expandedCards = [...prev.expandedCards];
@@ -228,81 +229,240 @@ const StockPage: React.FC = () => {
         });
     };
 
-    return (
+    useEffect(() => {
+        const getStockData = () => {
+            try {
+                api('api/stock/' + stockID, 'get', {}, 'administrator')
+                .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false)
+                    return;
+                } 
+                if (res.status === 'error') {
+                    setStocks(undefined);
+                    setFeaturesData([]);
+                    setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                    return;
+                }
+                const data: StockType = res.data;
+                setErrorMessage('')
+                setCategoryId(data.categoryId)
+                setStocks(data)
+                
+                putArticleDetailsInState(res.data)
+                editFeatureCategoryChanged() 
+                }
+            )
+        } catch (error) {
 
-    )
-}
+        }}
+        getStockData()
+    }, [stockID])
 
-export default StockPage;
 
-    componentDidMount() {
-        this.getStockData()
-    }
-
-    componentDidUpdate(oldProperties: StockPageProperties) {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if (oldProperties.match.params.stockID === this.props.match.params.stockID) {
-            return;
+    const getUsers = async () => {
+        try {
+            api('/api/user/', 'get', {}, 'administrator')
+                .then((res: ApiResponse) => {
+                    if(res.status === 'login') {
+                        setIsLoggedInStatus(false)
+                        return;
+                    } 
+                    setUsers(res.data)
+                }
+            )
+        } catch(error) {
+            setErrorMessage('Greška prilikom dohvaćanja korisnika. Greška: ' + error)
         }
-
-        this.getStockData();
     }
+        
 
-    private async editFeatureCategoryChanged() {
-        const features = await this.getFeaturesByCategoryId();
-    
-        const updatedFeatures = this.state.editFeature.features.map((feature) => ({
+    const editFeatureCategoryChanged = async () => {
+        try {
+        const features = await getFeaturesByCategoryId();
+        const updatedFeatures = state.editFeature.features.map((feature) => ({
             ...feature,
-            use: 0, // Resetujte use na 0
+            use: 0,
         }));
-    
-        // Iterirajte kroz features i ažurirajte vrednost u odgovarajućoj osobini
+
         features.forEach((feature) => {
             const existingFeature = updatedFeatures.find((f) => f.featureId === feature.featureId);
-    
+
             if (existingFeature) {
-                existingFeature.name = feature.name;
-                existingFeature.value = feature.value;
-                existingFeature.stockFeatureId = feature.stockFeatureId;
-                // Dodajte ovde ažuriranje drugih svojstava po potrebi
+            existingFeature.name = feature.name;
+            existingFeature.value = feature.value;
+            existingFeature.stockFeatureId = feature.stockFeatureId;
             }
         });
 
-        this.setState(Object.assign(this.state, {
-            editFeature: {
-                ...this.state.editFeature,
-                features: updatedFeatures,
-            },
+        setState((prevEditFeature) => ({
+            ...prevEditFeature,
+            features: updatedFeatures,
         }));
-    }
+        } catch (error) {
+        setIsLoggedInStatus(false);
+        setErrorMessage('Greška prilikom dohvatanja osobina. Greška: ' + error)
+        }
+    };
     
-    private async getFeaturesByCategoryId(): Promise<FeatureBaseType[]> {
-        return new Promise(resolve => {
-            api('/api/feature/?filter=categoryId||$eq||' + this.state.editFeature.categoryId + '/', 'get', {}, 'administrator')
-            /* api('/api/feature/?join=stockFeatures&filter=stockFeatures.stockId||$eq||' + this.props.match.params.stockID + '/', 'get', {}, 'administrator') */
+    const getFeaturesByCategoryId = async (): Promise<FeatureBaseType[]> => {
+        return new Promise(async (resolve) => {
+          try {
+            const categoryId = state.stock?.categoryId;
+      
+            // Dodajte provjeru postoji li categoryId prije nego što ga koristite
+            if (!categoryId) {
+              console.warn('categoryId nije dostupan.');
+              return;
+            }
+      
+            const res = await api(
+              '/api/feature/?filter=categoryId||$eq||' + categoryID,
+              'get',
+              {},
+              'administrator'
+            );
+      
+            if (res.status === 'login') {
+              setIsLoggedInStatus(false);
+              return;
+            }
+      
+            const features: FeatureBaseType[] = res.data.map((item: any) => ({
+              featureId: item.featureId,
+              name: item.name,
+              value: item.stockFeatures.map((feature: any) => feature.value),
+              stockFeatureId: item.stockFeatures.map((feature: any) => feature.stockFeatureId),
+            }));
+      
+            console.log(features);
+            resolve(features);
+          } catch (error) {
+            setErrorMessage('Greška prilikom dohvatanja osobina po kategoriji. Greška: ' + error);
+          }
+        });
+      };
+      
+
+    const putArticleDetailsInState = async (article: StockType) => {
+        try {
+            setEditArticleNumberFieldState('categoryId', Number(article.categoryId));
+            setEditArticleStringFieldState('name', String(article.name));
+            setEditArticleStringFieldState('excerpt', String(article.excerpt));
+            setEditArticleStringFieldState('description', String(article.description));
+            setEditArticleStringFieldState('concract', String(article.contract));
+            setEditArticleStringFieldState('comment', String(article.timestamp));
+            setEditArticleStringFieldState('valueOnConcract', String(article.valueOnContract));
+            setEditArticleStringFieldState('valueAvailable', String(article.valueAvailable));
+            setEditArticleStringFieldState('sapNumber', String(article.sapNumber));
+    
+          if (!article.stockFeatures) {
+            return;
+          }
+    
+          const allFeatures: any[] = await getFeaturesByCategoryId();
+          const updatedFeatures: any[] = [];
+    
+          for (const apiFeature of allFeatures) {
+            apiFeature.use = 0;
+            apiFeature.value = '';
+    
+            for (const feature of article.stockFeatures) {
+              if (feature && feature.featureId === apiFeature.featureId) {
+                apiFeature.use = 1;
+                apiFeature.value = feature.value || '';
+              }
+            }
+    
+            updatedFeatures.push(apiFeature);
+          }
+    
+          // Postavite ažurirane osobine u state
+          setState((prev) => ({
+            ...prev,
+            editFeature: {
+              ...prev.editFeature,
+              features: updatedFeatures,
+            },
+          }));
+        } catch (error) {
+          // Obrada greške
+          console.error(error);
+        }
+      };
+
+    const doEditArticle = () => {
+        const editedFeatures = state.editFeature.features
+            .filter(feature => feature.use === 1)
+            .map(feature => ({
+                featureId: feature.featureId,
+                value: feature.value,
+            }));
+        const requestBody = {
+            name: state.editFeature.name,
+            excerpt: state.editFeature.excerpt,
+            description: state.editFeature.description,
+            contract: state.editFeature.concract,
+            categoryId: state.editFeature.categoryId,
+            sapNumber: state.editFeature.sapNumber,
+            valueOnContract: state.editFeature.valueOnConcract,
+            valueAvailable: state.editFeature.valueAvailable,
+            features: editedFeatures,
+        };
+        
+        
+        api('api/stock/' + stockID, 'put', requestBody, 'administrator')
             .then((res: ApiResponse) => {
                 if(res.status === 'login') {
-                    this.setIsLoggedInStatus(false)
+                    setIsLoggedInStatus(false)
                     return;
                 } 
-                const features: FeatureBaseType[] = res.data.map((item: any) => ({
-                    featureId: item.featureId,
-                    name: item.name,
-                    value: item.stockFeatures.map((feature: any) => (feature.value)),
-                    stockFeatureId: item.stockFeatures.map((feature: any) => (feature.stockFeatureId)),
-                }));
-                resolve(features);
+                setEditFeatureModalVisibleState(false);
+            });
+        }
+    
+    const changeStatus = () => {
+        try {
+            api('api/article/' + stockID, 'post', {
+                stockId: stockID,
+                userId: state.changeStatus.userId,
+                comment: state.changeStatus.comment,
+                serialNumber: state.changeStatus.serialNumber,
+                status: state.changeStatus.status,
+                invNumber: state.changeStatus.invNumber,
+            }, 'administrator')
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false)
+                    return;
+                } 
+                /* Hvatati grešku ako korisnik nema pravo da mjenja status */
+                setModalVisibleState(false)
+                /* Očistiti listu nakon dodavanja, kako bi polja na sljedećoj izmjeni bila prazna */
+                setState((prev) =>({
+                    ...prev, changeStatus: {
+                        userId: Number(),
+                        comment: '',
+                        serialNumber: '',
+                        status: '',
+                        invNumber: '',
+                        visible: false,
+                        articleId: null
+                    }
+                }))
             })
-        })
+          }catch (err) {
+            setErrorMessage('Greška prilikom izmjene status. Greška:' + err)
+        }
     }
 
-    private editFeatureInput(feature: any) {
+    const editFeaturesInput = (feature: any) => {
         return (
             <div><Form.Group className="mb-3 was-validated">
                 <Row style={{ alignItems: 'baseline' }}>
                     <Col xs="4" sm="1" className="text-center">
                         <input type="checkbox" value="1" checked={feature.use === 1}
-                            onChange={(e) => this.setEditFeatureUse(feature.featureId, e.target.checked)} />
+                            onChange={(e) => setEditFeatureUse(feature.featureId, e.target.checked)} />
                     </Col>
 
                     <Col>
@@ -318,7 +478,7 @@ export default StockPage;
                                 type="text"
                                 placeholder={feature.name}
                                 value={feature.value}
-                                onChange={(e) => this.setEditFeatureValue(feature.featureId, e.target.value)}
+                                onChange={(e) => setEditFeatureValue(feature.featureId, e.target.value)}
                                 required /></OverlayTrigger>
                         </FloatingLabel>
                     </Col>
@@ -327,229 +487,30 @@ export default StockPage;
             </div>
         );
     }
-    
-    private async showEditFeatureModal() {
-        this.setEditFeatureModalVisibleState(true)
+
+    const showEditFeatureModal = async () => {
+        setEditFeatureModalVisibleState(true)
     }
 
-    private async putArticleDetailsInState(article: StockType) {
-        this.setEditArticleNumberFieldState('categoryId', Number(article.categoryId));
-        this.setEditArticleStringFieldState('name', String(article.name));
-        this.setEditArticleStringFieldState('excerpt', String(article.excerpt));
-        this.setEditArticleStringFieldState('description', String(article.description));
-        this.setEditArticleStringFieldState('concract', String(article.contract));
-        this.setEditArticleStringFieldState('comment', String(article.timestamp));
-        this.setEditArticleStringFieldState('valueOnConcract', String(article.valueOnContract));
-        this.setEditArticleStringFieldState('valueAvailable', String(article.valueAvailable));
-        this.setEditArticleStringFieldState('sapNumber', String(article.sapNumber));
-    
-        if (!article.stockFeatures) {
-            return;
-        }
-    
-        const allFeatures: any[] = await this.getFeaturesByCategoryId();
-    
-        for (const apiFeature of allFeatures) {
-            apiFeature.use = 0;
-            apiFeature.value = '';
-    
-            for (const feature of article.stockFeatures) {
-                if (feature) {
-                    if (feature.featureId === apiFeature.featureId) {
-                        apiFeature.use = 1;
-                        apiFeature.value = feature.value || ''; // Dodali smo provjeru za prazan string ako nema vrednosti
-                    }
-                }
-            }
-        }
-    
-        this.setState((prevState: StockPageState) => ({
-            editFeature: {
-                ...prevState.editFeature,
-                features: allFeatures,
-            },
-        }));
-    }
-    
-    
-
-    private getStockData() {
-        api('api/stock/' + this.props.match.params.stockID, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if(res.status === 'login') {
-                    this.setIsLoggedInStatus(false)
-                    return;
-                } 
-                if (res.status === 'error') {
-                    this.setStocks(undefined);
-                    this.setFeaturesData([]);
-                    this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                    return;
-                }
-                const data: StockType = res.data;
-                this.setErrorMessage('')
-                this.setStocks(data)
-                this.editFeatureCategoryChanged() 
-                this.putArticleDetailsInState(res.data)
-            }
-        )
-        
+    const showModal = async () => {
+        setModalVisibleState(true)
+        getUsers()
     }
 
-    private async getUsers(){
-        api('/api/user/', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if(res.status === 'login') {
-                    this.setIsLoggedInStatus(false)
-                    return;
-                } 
-                this.setUsers(res.data)
-            }
-        )
-    }
-    
-    private doEditArticle() {  
-        const editedFeatures = this.state.editFeature.features
-            .filter(feature => feature.use === 1)
-            .map(feature => ({
-                featureId: feature.featureId,
-                value: feature.value,
-            }));
-    
-        const requestBody = {
-            name: this.state.editFeature.name,
-            excerpt: this.state.editFeature.excerpt,
-            description: this.state.editFeature.description,
-            contract: this.state.editFeature.concract,
-            categoryId: this.state.editFeature.categoryId,
-            sapNumber: this.state.editFeature.sapNumber,
-            valueOnContract: this.state.editFeature.valueOnConcract,
-            valueAvailable: this.state.editFeature.valueAvailable,
-            features: editedFeatures,
-        };
-    
-        api('api/stock/' + this.props.match.params.stockID, 'put', requestBody, 'administrator')
-            .then((res: ApiResponse) => {
-                /* Hvatati grešku ako korisnik nema pravo da mijenja status */
-                if(res.status === 'login') {
-                    this.setIsLoggedInStatus(false)
-                    return;
-                } 
-                this.setEditFeatureModalVisibleState(false);
-                this.getStockData();
-            });
-    }
-    
-
-    // Ovo je changeStatus kada se prvi put iz stocka zadužuje artikal
-    private changeStatus() {
-        api('api/article/' + this.props.match.params.stockID, 'post', {
-            stockId: this.props.match.params.stockID,
-            userId: this.state.changeStatus.userId,
-            comment: this.state.changeStatus.comment,
-            serialNumber: this.state.changeStatus.serialNumber,
-            status: this.state.changeStatus.status,
-            invNumber: this.state.changeStatus.invNumber,
-        }, 'administrator')
-            .then((res: ApiResponse) => {
-                if(res.status === 'login') {
-                    this.setIsLoggedInStatus(false)
-                    return;
-                } 
-                /* Hvatati grešku ako korisnik nema pravo da mjenja status */
-                this.setModalVisibleState(false)
-                this.getStockData()
-                /* Očistiti listu nakon dodavanja, kako bi polja na sljedećoj izmjeni bila prazna */
-                this.setState({
-                changeStatus: {
-                    userId: Number(),
-                    comment: '',
-                    serialNumber: '',
-                    status: '',
-                    invNumber: '',
-                    visible: false,
-                    articleId: null
-                }
-        });
-            })
-    }
-
-    private async showModal() {
-        this.setModalVisibleState(true)
-        this.getUsers()
-    }
-
-    private printOptionalMessage() {
-        if (this.state.message === '') {
+    const printOptionalMessage = () => {
+        if(state.message === '') {
             return;
         }
 
         return (
             <Card.Text>
-                {this.state.message}
+                {state.message}
             </Card.Text>
-        );
-    }
-
-    render() {
-        /* if(this.state.isLoggedIn === false) {
-            return (
-                <Redirect to='admin/login' />
-            )
-        } */
-        return (
-            <div>
-                <RoledMainMenu role='administrator' />
-                <Container style={{ marginTop: 15 }}>
-                    <Card className="text-white bg-dark">
-                        <Card.Header >
-                            <Card.Title>
-                                <Row style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                        }}>
-                                        <Col md="auto" xs="auto">
-                                        <i className={this.state.stock?.category?.imagePath}/>
-                                        </Col>
-                                        <Col md="auto" xs="auto">
-                                            {
-                                            this.state.stock ?
-                                                this.state.stock?.name :
-                                                'Oprema nije pronađena'
-                                            }
-                                        </Col>    
-                                        <Col md="auto" xs="auto">
-                                            {this.badgeStatus()}
-                                        </Col>
-                                        <Col style={{ display: "flex", justifyContent: "flex-end"}}>
-                                            <Button className="btn" size='sm' onClick={() => this.showEditFeatureModal()} ><i className="bi bi-pencil-square"/> Izmjeni</Button> 
-                                        </Col>
-                                </Row>
-                                
-                            
-                            </Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                            <Card.Text>
-                                {this.printOptionalMessage()}
-
-                                {
-                                    this.state.stock ?
-                                        (this.renderStockData(this.state.stock)) :
-                                        ''
-                                }
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
-                </Container>
-            </div>
         )
     }
 
-    private badgeStatus() {
-
-        let status = Number(this.state.stock?.valueAvailable);
-
+    const badgeStatus = () => {
+        let status = Number(state.stock?.valueAvailable);
         if (status === 0) {
             return (
                 <Badge pill bg="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
@@ -562,13 +523,12 @@ export default StockPage;
                 <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     dostupno
                 </Badge>
-                )
+            )
         }
-
     }
 
-    private changeStatusButton() {
-        let status = Number(this.state.stock?.valueAvailable);
+    const changeStatusButton = () => {
+        let status = Number(state.stock?.valueAvailable);
 
         if (status === 0) {
             return (
@@ -579,7 +539,7 @@ export default StockPage;
         }
         if (status > 0) {
             return (                    
-                    <div><Button size='sm' onClick={() => this.showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setModalVisibleState(false)}>
+                    <div><Button size='sm' onClick={() => showModal()}><i className="bi bi-pencil-square" /> Izmjeni/zaduži</Button><Modal size="lg" centered show={state.changeStatus.visible} onHide={() => setModalVisibleState(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Kartica zaduženja</Modal.Title>
                     </Modal.Header>
@@ -587,7 +547,7 @@ export default StockPage;
                     <Form.Group className='was-validated'>
                             <FloatingLabel label="Status" className="mb-3">
                                 <Form.Select id="status" required
-                                    onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)}>
+                                    onChange={(e) => setChangeStatusStringFieldState('status', e.target.value)}>
                                     <option value=''> izaberi status</option>
                                     <option value='zaduženo'>
                                         zaduženo
@@ -602,23 +562,23 @@ export default StockPage;
                             </FloatingLabel>
                         </Form.Group>
                         <Form.Group className='was-validated'>
-                            <Autocomplete
+                            {/* <Autocomplete
                                 className='mb-3'
                                 disablePortal
                                 id="pick-the-user"
-                                disabled={this.state.changeStatus.status === 'razduženo' || this.state.changeStatus.status === 'otpisano'}
+                                disabled={state.changeStatus.status === 'razduženo' || state.changeStatus.status === 'otpisano'}
                                 onChange={(event, value, reason) => {
                                     if (reason === 'selectOption' && typeof value === 'string') {
-                                        const selectedUser = this.state.users.find(user => user.fullname === value);
+                                        const selectedUser = state.users.find(user => user.fullname === value);
                                         if (selectedUser) {
                                             const userId = selectedUser.userId;
-                                            this.setChangeStatusNumberFieldState('userId', userId || null);
+                                            setChangeStatusNumberFieldState('userId', userId || null);
                                         }
                                     }
                                 }}
-                                options={this.state.users.map((option) => option.fullname)}
+                                options={state.users.map((option) => option.fullname)}
                                 renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
-                            />
+                            /> */}
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <FloatingLabel label="Kolicina" className="mb-3">
@@ -636,7 +596,7 @@ export default StockPage;
                                     delay={{ show: 250, hide: 400 }}
                                     overlay={<Tooltip id="tooltip-serialNumber">U ovom koraku se dodjeljuje korisniku oprema po serijskom broju. Serijski broj se kasnije ne može mjenjati.</Tooltip>}>
                                     <Form.Control type='text' id='serialNumber' required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
+                                        onChange={(e) => setChangeStatusStringFieldState('serialNumber', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
                             <FloatingLabel label="Inventurni broj" className="mb-3">
@@ -644,8 +604,8 @@ export default StockPage;
                                     placement="top"
                                     delay={{ show: 250, hide: 400 }}
                                     overlay={<Tooltip id="tooltip-invNumber">U ovom koraku se dodjeljuje inventurni broj opremi. Inventurni broj se kasnije ne može mjenjati.</Tooltip>}>
-                                    <Form.Control type='text' id='invNumber' value={this.state.changeStatus.invNumber} isValid required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('invNumber', e.target.value)} />
+                                    <Form.Control type='text' id='invNumber' value={state.changeStatus.invNumber} isValid required
+                                        onChange={(e) => setChangeStatusStringFieldState('invNumber', e.target.value)} />
                                 </OverlayTrigger>
                             </FloatingLabel>
                         </Form.Group>
@@ -657,12 +617,12 @@ export default StockPage;
                                     rows={3}
                                     placeholder="(neobavezno)"
                                     style={{ height: '100px' }}
-                                    onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
+                                    onChange={(e) => setChangeStatusStringFieldState('comment', e.target.value)}
                                     required
                                     isValid /></FloatingLabel>
                         </Form.Group>
                         <Modal.Footer>
-                            <Button variant="primary" onClick={() => this.changeStatus()}> Sačuvaj
+                            <Button variant="primary" onClick={() => changeStatus()}> Sačuvaj
                             </Button>
                         </Modal.Footer>
                     </Modal.Body>
@@ -681,8 +641,8 @@ export default StockPage;
 
     }
 
-    renderStockData(article: StockType) {
-        const { expandedCards } = this.state;
+    const renderStockData = (article: StockType) => {
+        const { expandedCards } = state;
         return (
             <><Row>
                 <Col xs="12" lg="8">
@@ -694,7 +654,7 @@ export default StockPage;
                             <Card bg="dark" text="light" className="mb-3">
                                 <Card.Header style={{ backgroundColor: "#263238" }}>
                                     Detalji opreme
-                                    <Modal size="lg" centered show={this.state.editFeature.visible} onHide={() => this.setEditFeatureModalVisibleState(false)}>
+                                    <Modal size="lg" centered show={state.editFeature.visible} onHide={() => setEditFeatureModalVisibleState(false)}>
                                         <Modal.Header closeButton>
                                             <Modal.Title>Izmjena detalja opreme</Modal.Title>
                                         </Modal.Header>
@@ -706,8 +666,8 @@ export default StockPage;
                                                             id="name"
                                                             type="text"
                                                             placeholder="Naziv"
-                                                            value={this.state.editFeature.name}
-                                                            onChange={(e) => this.setEditArticleStringFieldState('name', e.target.value)}
+                                                            value={state.editFeature.name}
+                                                            onChange={(e) => setEditArticleStringFieldState('name', e.target.value)}
                                                             required />
                                                     </FloatingLabel>
                                                     <FloatingLabel label="Kratki opis" className="mb-3">
@@ -717,8 +677,8 @@ export default StockPage;
                                                             rows={3}
                                                             style={{ height: '100px' }}
                                                             placeholder="Kratki opis"
-                                                            value={this.state.editFeature.excerpt}
-                                                            onChange={(e) => this.setEditArticleStringFieldState('excerpt', e.target.value)}
+                                                            value={state.editFeature.excerpt}
+                                                            onChange={(e) => setEditArticleStringFieldState('excerpt', e.target.value)}
                                                             required />
                                                     </FloatingLabel>
                                                     <FloatingLabel label="Detaljan opis" className="mb-3">
@@ -728,8 +688,8 @@ export default StockPage;
                                                             rows={5}
                                                             style={{ height: '100px' }}
                                                             placeholder="Detaljan opis"
-                                                            value={this.state.editFeature.description}
-                                                            onChange={(e) => this.setEditArticleStringFieldState('description', e.target.value)}
+                                                            value={state.editFeature.description}
+                                                            onChange={(e) => setEditArticleStringFieldState('description', e.target.value)}
                                                             required />
                                                     </FloatingLabel>
                                                     <FloatingLabel label="Ugovor" className="mb-3">
@@ -737,8 +697,8 @@ export default StockPage;
                                                             id="concract"
                                                             type="text"
                                                             placeholder="Ugovor"
-                                                            value={this.state.editFeature.concract}
-                                                            onChange={(e) => this.setEditArticleStringFieldState('concract', e.target.value)}
+                                                            value={state.editFeature.concract}
+                                                            onChange={(e) => setEditArticleStringFieldState('concract', e.target.value)}
                                                             required />
                                                     </FloatingLabel>
                                                     <FloatingLabel label="Stanje po ugovoru" className="mb-3">
@@ -746,8 +706,8 @@ export default StockPage;
                                                             id="valueOnConcract"
                                                             type="text"
                                                             placeholder="Stanje po ugovoru"
-                                                            value={this.state.editFeature.valueOnConcract}
-                                                            onChange={(e) => this.setEditArticleNumberFieldState('valueOnConcract', e.target.value)}
+                                                            value={state.editFeature.valueOnConcract}
+                                                            onChange={(e) => setEditArticleNumberFieldState('valueOnConcract', e.target.value)}
                                                             required
                                                             readOnly />
                                                     </FloatingLabel>
@@ -756,8 +716,8 @@ export default StockPage;
                                                             id="valueAvailable"
                                                             type="text"
                                                             placeholder="SAP Broj"
-                                                            value={this.state.editFeature.valueAvailable}
-                                                            onChange={(e) => this.setEditArticleNumberFieldState('valueAvailable', e.target.value)}
+                                                            value={state.editFeature.valueAvailable}
+                                                            onChange={(e) => setEditArticleNumberFieldState('valueAvailable', e.target.value)}
                                                             required />
                                                     </FloatingLabel>
                                                     <FloatingLabel label="SAP broj" className="mb-3">
@@ -765,8 +725,8 @@ export default StockPage;
                                                             id="sap_number"
                                                             type="text"
                                                             placeholder="SAP Broj"
-                                                            value={this.state.editFeature.sapNumber}
-                                                            onChange={(e) => this.setEditArticleStringFieldState('sapNumber', e.target.value)}
+                                                            value={state.editFeature.sapNumber}
+                                                            onChange={(e) => setEditArticleStringFieldState('sapNumber', e.target.value)}
                                                             required />
                                                     </FloatingLabel>
                                                     <FloatingLabel label="Komentar" className="mb-3">
@@ -775,25 +735,25 @@ export default StockPage;
                                                             as="textarea"
                                                             rows={3}
                                                             style={{ height: '100px' }}
-                                                            value={this.state.editFeature.comment}
-                                                            onChange={(e) => this.setEditArticleStringFieldState('comment', e.target.value)}
+                                                            value={state.editFeature.comment}
+                                                            onChange={(e) => setEditArticleStringFieldState('comment', e.target.value)}
                                                             required
                                                             isValid />
                                                     </FloatingLabel>
                                                 </Form.Group>
                                                 <Form.Group className='was-validated'>
-                                                    {this.state.editFeature.features.map(this.editFeatureInput, this)}
+                                                    {state.editFeature.features.map(editFeaturesInput, this)}
                                                 </Form.Group>
                                             </Form>
                                             <Modal.Footer>
-                                                <Button variant="primary" onClick={() => this.doEditArticle()}> Sačuvaj
+                                                <Button variant="primary" onClick={() => doEditArticle()}> Sačuvaj
                                                 </Button>
                                             </Modal.Footer>
                                         </Modal.Body>
                                     </Modal>
                                 </Card.Header>
 
-                                <ListGroup className={`kartica-wrapper ${expandedCards[0] ? 'kartica-expanded' : ''}`} variant="flush" >
+                                <ListGroup variant="flush" >
                                 {article.stockFeatures && article.stockFeatures.map(feature => (
                                         <ListGroup.Item key={feature.feature?.name}>
                                             <b>{feature.feature?.name}:</b> {feature.value}
@@ -801,13 +761,13 @@ export default StockPage;
                                 ))}
                                 <ListGroup.Item></ListGroup.Item>
                                 </ListGroup>
-                                <div className='moreLess'>
+                                {/* <div className='moreLess'>
                                     {article.stockFeatures ? article.stockFeatures.length > 4 && (
-                                        <Link className='linkStyle' onClick={() => this.toggleExpand(0)}>
+                                        <Link className='linkStyle' onClick={() => toggleExpand(0)}>
                                             {expandedCards[0] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
                                         </Link>
                                     ):""}
-                                </div>
+                                </div> */}
                             </Card>
                         </Col>
                     </Row>
@@ -818,13 +778,13 @@ export default StockPage;
                                 <Card.Body className={`kartica-wrapper description ${expandedCards[1] ? 'kartica-expanded' : ''}`}>
                                     {article.description}
                                 </Card.Body>
-                                <div className='moreLess'>
+                                {/* <div className='moreLess'>
                                     {article.description ? article.description.length > 100 && (
-                                        <Link className='linkStyle' onClick={() => this.toggleExpand(1)}>
+                                        <Link className='linkStyle' onClick={() => toggleExpand(1)}>
                                             {expandedCards[1] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
                                         </Link>
                                     ):""}
-                                </div>
+                                </div> */}
                             </Card>
                         </Col>
                     </Row>
@@ -848,7 +808,7 @@ export default StockPage;
                                             display: "flex",
                                             justifyContent: "flex-end",
                                         }}>
-                                            {this.changeStatusButton()}
+                                            {changeStatusButton()}
                                         </Col>
 
                                     </Row>
@@ -866,10 +826,60 @@ export default StockPage;
             </Row>
             <Row>
                 <Col>
-                    <ArticleInStockTable stockId={this.state.stock.stockId || 0} />
+                    {/* <ArticleInStockTable stockId={state.stock.stockId || 0} /> */}
                 </Col>
             </Row>
             </>
         );
     }
+
+    return (
+        <div>
+            <RoledMainMenu role='administrator' />
+            <Container style={{ marginTop: 15 }}>
+                <Card className="text-white bg-dark">
+                    <Card.Header >
+                        <Card.Title>
+                            <Row style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                    }}>
+                                    <Col md="auto" xs="auto">
+                                    <i className={state.stock?.category?.imagePath}/>
+                                    </Col>
+                                    <Col md="auto" xs="auto">
+                                        {
+                                        state.stock ?
+                                            state.stock?.name :
+                                            'Oprema nije pronađena'
+                                        }
+                                    </Col>    
+                                    <Col md="auto" xs="auto">
+                                        {badgeStatus()}
+                                    </Col>
+                                    <Col style={{ display: "flex", justifyContent: "flex-end"}}>
+                                        <Button className="btn" size='sm' onClick={() => showEditFeatureModal()} ><i className="bi bi-pencil-square"/> Izmjeni</Button> 
+                                    </Col>
+                            </Row>
+                            
+                        
+                        </Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <Card.Text>
+                            {printOptionalMessage()}
+
+                            {
+                                state.stock ?
+                                    (renderStockData(state.stock)) :
+                                    ''
+                            }
+                        </Card.Text>
+                    </Card.Body>
+                </Card>
+            </Container>
+        </div>
+    )
 }
+
+export default StockPage;

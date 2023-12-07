@@ -61,7 +61,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     const [selectedUser, setSelectedUser] = useState<string>('')
     const [selectedUserIsDisabled, setSelectedUserIdDisabled] = useState<boolean>(true)
     const [state, setState] = useState<AdminArticleOnUserPageState> ({
-        message: "",
+            message: "",
             users: [],
             article: {},
             isLoggedIn: true,

@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Alert, Col, FloatingLabel, Form, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Moment from 'moment';
 import UserArticleDto from '../../../dtos/UserArticleDto';
@@ -14,7 +13,7 @@ import { Autocomplete, AutocompleteItem, Badge, Card, CardBody, CardHeader, Link
     ListboxSection, Popover, PopoverContent, Button, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, 
     TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem } from '@nextui-org/react';
 import { useAsyncList } from '@react-stately/data';
-import { on } from 'stream';
+import { Alert } from '../../custom/Alert';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -106,6 +105,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     const isDisabled = () => {
         if (state.changeStatus.status === 'razduženo' || 'otpisano') {
             setSelectedUserIdDisabled(true)
+            setChangeStatusNumberFieldState('userId', Number());
         } 
         if (state.changeStatus.status === 'zaduženo') {
             setSelectedUserIdDisabled(false)
@@ -193,14 +193,6 @@ const AdminArticleOnUserPage: React.FC = () => {
             ...prev, users: usersData
         }))
     }
-
-    const toggleExpand = (index: number) => {
-        setState((prev) => {
-          const expandedCards = [...prev.expandedCards];
-          expandedCards[index] = !expandedCards[index];
-          return { ...prev, expandedCards }; 
-        });
-      };
       
     const getArticleData = useCallback(async () => {
     try {
@@ -245,7 +237,6 @@ const AdminArticleOnUserPage: React.FC = () => {
                         setLogginState(false);
                         return {items: []}
                     }
-
                     return {items: res.data}
                     /* setUsers(res.data); */
             } catch (err) {
@@ -581,10 +572,10 @@ const AdminArticleOnUserPage: React.FC = () => {
     function userDetails(userDet: ArticleType) {
         let stat = userDet.status
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
-            return (<Alert variant='info'> {LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}</Alert>)
+            return (<Alert variant='info' title='Info!' body={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO} />)
         }
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
-            return (<Alert variant='warning'> {LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}</Alert>)
+            return (<Alert variant='danger' title='Info!' body={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING} />)
         }
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
@@ -650,7 +641,7 @@ function upgradeFeature(this: any) {
     if (state.upgradeFeature.length === 0) {
         return (
             <Card className="mb-3">
-                <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C"}}>
+                <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C", color:'white'}}>
                         <div className="col-span-5">
                             {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
                         </div>

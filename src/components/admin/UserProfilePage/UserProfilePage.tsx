@@ -14,8 +14,8 @@ import JobType from "../../../types/JobType";
 import { Avatar, Button, Card, CardBody, Input, Accordion, AccordionItem, 
     Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Tab, Tabs, 
     Link, Table, TableHeader, TableCell, TableBody, TableRow, TableColumn } from "@nextui-org/react";
-import { EyeSlashFilledIcon } from "../../Icons/EyeSlashFilledIcon";
-import { EyeFilledIcon } from "../../Icons/EyeFilledIcon";
+import { EyeSlashFilledIcon } from "../../../Icons/EyeSlashFilledIcon";
+import { EyeFilledIcon } from "../../../Icons/EyeFilledIcon";
 
 
 interface LocationDto {
@@ -437,7 +437,7 @@ export default function AdminUserProfilePage() {
         return (
             <div className="container mx-auto">
             <div className="grid lg:grid-cols-6 xs:grid-cols gap-2 md:mt-3">
-                <div className="user-container col-span-2 md:mb-3 xs:mb-3" >
+                <div className="user-container col-span-2 md:mb-3 xs:mb-3 lg:shadow-large border-3" >
                     <div className="user-container details">
                         <Avatar className="ikonica " style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
                         <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
@@ -453,7 +453,7 @@ export default function AdminUserProfilePage() {
                         </div>
                     </div>
                 </div>
-                <div className="lg:col-span-4 xs:col-span-2 md:col-span-2 ">
+                <div className="lg:col-span-4 xs:col-span-2 md:col-span-2 lg:pl-4">
                         <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
                             <Input
                                 value={state.editUser.surname}
@@ -473,9 +473,8 @@ export default function AdminUserProfilePage() {
                             />
                         
                             <Input
-                                value={state.editUser.code}
+                                value={state.editUser.code !== '0' ? state.editUser.code : ''}
                                 type='number'
-                                
                                 label='Kadrovski broj'
                                 variant='bordered'
                                 onValueChange={(value: string) => setEditUserStringFieldState('code', value)}

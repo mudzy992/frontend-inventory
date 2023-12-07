@@ -1,8 +1,8 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import api from "../../../API/api"; 
 import Moment from "moment";
-import { Link, Badge, Button, ChipProps, Input, Modal, ModalBody, ModalContent, 
-  ModalFooter, ModalHeader, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { Link, Button, ChipProps, Input, Modal, ModalBody, ModalContent, 
+  ModalFooter, ModalHeader, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Chip } from "@nextui-org/react";
 
 interface ResponsibilityArticleBaseType {
   serialNumber: string;
@@ -24,10 +24,10 @@ interface ArticleModalProps {
   stockId: number;
 }
 
-const statusColorMap: Record<string, ChipProps["color"]> = {
-  zaduženo: "success",
-  razduženo: "danger",
-  otpisano: "warning",
+const statusColorMap: Record<string, { color: ChipProps["color"]; startContent: string }> = {
+  zaduženo: { color: "success", startContent: "bi bi-check-circle" },
+  razduženo: { color: "warning", startContent: "bi bi-exclamation-circle" },
+  otpisano: { color: "warning", startContent: "bi bi-x-circle" },
 };
 
 const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
@@ -75,6 +75,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
     } else {
       setArticleData([])
       setSearchQuery("")
+      setCurrentPage(1)
     }
   }, [show, stockId, itemsPerPage, currentPage, searchQuery]);
  
@@ -104,9 +105,9 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
 };
 
   return (
-    <Modal isOpen={show} onClose={onHide} size="4xl" backdrop="blur">
+    <Modal isOpen={show} onClose={onHide} size="4xl" backdrop="blur" >
       <ModalContent>
-        <ModalHeader>Detalji zaduženja</ModalHeader>
+        <ModalHeader>Detalji zaduženja </ModalHeader>
         <ModalBody >
         <div>
               <Input
@@ -137,6 +138,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
             </TableHeader>
             <TableBody items={items}>
               {(item) => {
+                const { color, startContent } = statusColorMap[item.status];
                 return items.length > 0 ? (
                   <TableRow key={item.serialNumber}>
                     <TableCell key={item.user?.fullname}>
@@ -150,7 +152,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                       </Link>
                     </TableCell>
                     <TableCell key={item.invNumber}>{item.invNumber}</TableCell>
-                    <TableCell key={item.status}><Badge content={item.status} color={statusColorMap[item.status]} variant="flat" shape="rectangle"> </Badge></TableCell>
+                    <TableCell key={item.status}><Chip color={color} variant="bordered" startContent={<i className={startContent}></i>}> {item.status}</Chip></TableCell>
                     <TableCell key={item.timestamp}>{Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}</TableCell>
                   </TableRow>
                 ) : (

@@ -1,8 +1,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
-import { Badge, Button, Card, Link, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
-/* import { Redirect } from "react-router-dom"; */
+import {  Button, Chip, Link, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 
 
 interface ArticleType {
@@ -52,9 +51,9 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   const valueStatus = (valueAvailabele: number) => {
     if(valueAvailabele === 0) {
-      return <Badge variant="solid" shape="circle" color="danger" content="nema na stanju"> </Badge>
+      return <Chip variant="flat" color="danger" > nema na stanju </Chip>
     } else {
-      return <Badge variant="solid" color="success" content={`Dostupno: ${valueAvailabele}`}> </Badge>
+      return <Chip variant="flat" color="warning"> {`Dostupno: ${valueAvailabele}`}</Chip>
     }
   }
 
@@ -88,18 +87,13 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   if (errorMessage) {
     return <div>{errorMessage}</div>;
   }
-
-  /* if(isLoggedIn === false) {
-    return (
-      <Redirect to="/admin/login" />
-    )
-  } */
     
   return (
     <>
-    <Card>
+    
     <Table 
     aria-label="Tabela korisnika zaduženja"
+    className="mb-3"
     bottomContent={
     <div className="flex w-full justify-center">
       <Pagination
@@ -144,7 +138,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         <TableCell>
           <Button
             color="warning"
-            variant="flat"
+            variant="shadow"
             as={Link}
             href={`#/admin/stock/${item.stockId}/`}
           >
@@ -155,7 +149,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     )}
   </TableBody>
 </Table>  
-    </Card>
+    
       <ArticleModal
         show={showModal}
         onHide={handleHideModal}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,7 +8,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import "bootstrap/js/src/collapse.js";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import reportWebVitals from './reportWebVitals';
-import { HashRouter, Routes, Route, useParams } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import CategoryPage from './components/admin/Categories/Categories';
 import HomePage from './components/admin/HomePage/HomePage';
 /* import ArticlePage from './components/admin/ArticlePage/ArticlePage';
@@ -32,11 +32,10 @@ import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage';
 const rootElement = document.getElementById('root');
 
 const App = () => {
-  const { serial } = useParams();
   return (
     <React.StrictMode>
     <NextUIProvider>
-      <main className='dark'>
+      <main className='dark text-foreground bg-background min-h-screen min-w-screen pb-4'>
       {/* mehanizam rutiranja */}
           <HashRouter>
             <Routes>
@@ -60,7 +59,9 @@ const App = () => {
               {/* <Route path="/admin/stock/:stockID" element={<StockPage />} /> */}
               {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
             </Routes>
+            
       </HashRouter>
+      
       </main>
     </NextUIProvider>
   </React.StrictMode>

@@ -5,7 +5,7 @@ import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
 import AdminMenu from '../AdminMenu/AdminMenu';
 import { UserTable } from '../UserPage/UserTable';
-import { Button, Card, CardBody, CardFooter, CardHeader, Link} from '@nextui-org/react';
+import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
 
 interface HomePageState {
     categories?: CategoryType[];
@@ -91,7 +91,7 @@ const HomePage: React.FC <HomePageState> = () => {
 
     function singleCategory(category: CategoryType) {
         return (
-            <Card className='mt-3' key={category.categoryId}>
+            <Card className='mt-3' key={category.categoryId} isPressable onPress={() => window.location.href=`#/category/${category.categoryId}`}>
                 <CardHeader>
                         {category.name}
                 </CardHeader>
@@ -99,7 +99,6 @@ const HomePage: React.FC <HomePageState> = () => {
                     <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
                 </CardBody>
                 <CardFooter className='flex justify-center'>
-                    <Button as={Link} href={`#/category/${category.categoryId}`} variant='solid' >Prikaži kategoriju</Button>
                 </CardFooter>
             </Card>
         )

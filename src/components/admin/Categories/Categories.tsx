@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { Button, Card, CardBody, CardFooter, CardHeader, Link } from '@nextui-org/react';
+import { Card, CardBody, CardFooter, CardHeader, Chip } from '@nextui-org/react';
 import Tabela from './TableFunction';
+import { Alert } from '../../custom/Alert';
 
 interface CategoryPageState {
   category?: CategoryType;
@@ -119,20 +120,15 @@ const CategoryPage: React.FC = () => {
     if (!state.message) {
       return null;
     }
-
     return (
-      <Card style={{ marginTop: 15 }}>
-        <i className="bi bi-exclamation-circle-fill" /> {state.message}
-      </Card>
+      <Alert variant='warning' title='Upozorenje!' body={state.message} />
     );
   };
 
   const showSubcategories = () => {
     if (state.subCategory.length === 0) {
       return (
-        <Card style={{ marginTop: 15 }}>
-        <i className="bi bi-info-circle" /> Nema podkategorija
-      </Card>
+        <div className='mb-4 mt-4'><Alert variant="info" title="Info!" body="Nema podkategorija" /></div>
       )  
     }
 
@@ -148,15 +144,14 @@ const CategoryPage: React.FC = () => {
   };
 
   const singleCategory = (category: CategoryType) => (
-      <Card className='mt-3' key={category.categoryId}>
+      <Card className='mt-3' key={category.categoryId} isPressable onPress={() => window.location.href=`#/category/${category.categoryId}`}>
         <CardHeader>
           {category.name}
         </CardHeader>
         <CardBody>
-          <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
+          <i className={category.imagePath} style={{fontSize:60, display:"flex", justifyContent:"center"}}/>
         </CardBody>
         <CardFooter className='flex justify-center'>
-          <Button as={Link} href={`#/category/${category.categoryId}`} variant='solid' >Prikaži kategoriju</Button>
         </CardFooter>
       </Card>
   );
@@ -165,13 +160,13 @@ const CategoryPage: React.FC = () => {
   const showArticles = () => {
     if (!state.category) {
       return (
-        <div>Nema opreme definisane za ovu kategoriju.</div>
+        <Alert variant='info' title='Info!' body='Nema opreme definisane za ovu kategoriju' />
       );
     }
   
     if (!state.category || state.category.stocks?.length === 0) {
       return (
-        <div>Nema opreme definisane za ovu kategoriju.</div>
+        <Alert variant='info' title='Info!' body='Nema opreme definisane za ovu kategoriju' />
       );
     }
   

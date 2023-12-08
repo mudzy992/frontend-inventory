@@ -5,8 +5,8 @@ import FeaturesType from '../../../types/FeaturesType';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
-/* import ArticleInStockTable from './StockArticleTableNew.tsx'; */
 import { useNavigate, useParams } from 'react-router-dom';
+import ArticleInStockTable from './StockArticleTableNew';
 /* import { Redirect } from 'react-router-dom'; */
 
 interface userData {
@@ -257,7 +257,7 @@ const StockPage: React.FC = () => {
 
         }}
         getStockData()
-    }, [stockID])
+    }, [stockID, categoryID])
 
 
     const getUsers = async () => {
@@ -307,15 +307,7 @@ const StockPage: React.FC = () => {
     
     const getFeaturesByCategoryId = async (): Promise<FeatureBaseType[]> => {
         return new Promise(async (resolve) => {
-          try {
-            const categoryId = state.stock?.categoryId;
-      
-            // Dodajte provjeru postoji li categoryId prije nego što ga koristite
-            if (!categoryId) {
-              console.warn('categoryId nije dostupan.');
-              return;
-            }
-      
+          try {   
             const res = await api(
               '/api/feature/?filter=categoryId||$eq||' + categoryID,
               'get',
@@ -334,8 +326,7 @@ const StockPage: React.FC = () => {
               value: item.stockFeatures.map((feature: any) => feature.value),
               stockFeatureId: item.stockFeatures.map((feature: any) => feature.stockFeatureId),
             }));
-      
-            console.log(features);
+    
             resolve(features);
           } catch (error) {
             setErrorMessage('Greška prilikom dohvatanja osobina po kategoriji. Greška: ' + error);
@@ -753,21 +744,15 @@ const StockPage: React.FC = () => {
                                     </Modal>
                                 </Card.Header>
 
-                                <ListGroup variant="flush" >
-                                {article.stockFeatures && article.stockFeatures.map(feature => (
-                                        <ListGroup.Item key={feature.feature?.name}>
-                                            <b>{feature.feature?.name}:</b> {feature.value}
-                                        </ListGroup.Item>
-                                ))}
-                                <ListGroup.Item></ListGroup.Item>
-                                </ListGroup>
-                                {/* <div className='moreLess'>
-                                    {article.stockFeatures ? article.stockFeatures.length > 4 && (
-                                        <Link className='linkStyle' onClick={() => toggleExpand(0)}>
-                                            {expandedCards[0] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
-                                        </Link>
-                                    ):""}
-                                </div> */}
+                                {article.stockFeatures && article.stockFeatures[0] && (
+                                    <ListGroup variant="flush" key={`stockFeatures:${article.stockFeatures[0].featureId}`}>
+                                        {article.stockFeatures && article.stockFeatures.map(feature => (
+                                            <ListGroup.Item key={feature.feature?.name}>
+                                                <b>{feature.feature?.name}:</b> {feature.value}
+                                            </ListGroup.Item>
+                                    ))}
+                                    </ListGroup>
+                                    )}
                             </Card>
                         </Col>
                     </Row>
@@ -813,11 +798,11 @@ const StockPage: React.FC = () => {
 
                                     </Row>
                                 </Card.Header>
-                                <ListGroup variant="flush">
-                                    <ListGroup.Item>Stanje po ugovoru: {article.valueOnContract}</ListGroup.Item>
-                                    <ListGroup.Item>Trenutno stanje: {article.valueAvailable}</ListGroup.Item>
-                                    <ListGroup.Item>SAP broj: {article.sapNumber}</ListGroup.Item>
-                                    <ListGroup.Item>Stanje na: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
+                                <ListGroup variant="flush" key={`stock:${article.stockId}`}>
+                                    <ListGroup.Item key={'trenutno-stanje'}>Stanje po ugovoru: {article.valueOnContract}</ListGroup.Item>
+                                    <ListGroup.Item key={'dostupno-stanje'}>Trenutno stanje: {article.valueAvailable}</ListGroup.Item>
+                                    <ListGroup.Item key={'sap-broj'}>SAP broj: {article.sapNumber}</ListGroup.Item>
+                                    <ListGroup.Item key={'datum-akcije'}>Stanje na: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
                                 </ListGroup>
                             </Card>
                         </Col>
@@ -826,7 +811,7 @@ const StockPage: React.FC = () => {
             </Row>
             <Row>
                 <Col>
-                    {/* <ArticleInStockTable stockId={state.stock.stockId || 0} /> */}
+                    <ArticleInStockTable stockId={state.stock.stockId || 0} />
                 </Col>
             </Row>
             </>

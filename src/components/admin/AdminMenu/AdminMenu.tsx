@@ -19,27 +19,15 @@ const AdminMenu = () => {
   const handleMouseEnter = () => {
     setMenuVisible(true);
   };
-
+  
   const handleMouseLeave = () => {
     setMenuVisible(false);
   };
-
-  const handleMenuMouseEnter = () => {
-    setMenuVisible(true);
+  
+  const toggleMenuVisibility = () => {
+    setMenuVisible(!isMenuVisible);
   };
-
-  const handleMenuMouseLeave = () => {
-    setMenuVisible(false);
-  };
-  const handleMenuMouseClick = () => {
-    if(isMenuVisible === true){
-        setMenuVisible(false);
-    }
-    if(isMenuVisible === false) {
-        setMenuVisible(true);
-    }
-  };
-
+  
   const handleButtonClick = (link:string) => {
     navigate(link);
     setMenuVisible(false);
@@ -47,18 +35,18 @@ const AdminMenu = () => {
 
   return (
     <div
-    onClick={handleMenuMouseClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="fixed bottom-2 right-2 group"
+        onClick={toggleMenuVisibility}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className="fixed bottom-2 right-2 group"
     >
       
 
       {isMenuVisible && (
         <div
           id="speed-dial-menu-text-outside-button-square"
-          onMouseEnter={handleMenuMouseEnter}
-          onMouseLeave={handleMenuMouseLeave}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           className="flex flex-col items-center mb-4 space-y-2"
         >
             

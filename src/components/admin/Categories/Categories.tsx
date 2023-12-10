@@ -137,7 +137,7 @@ const CategoryPage: React.FC = () => {
         <h5 style={{ color: 'white' }}>
           <i className="bi bi-list-nested" /> Podkategorije
         </h5>
-        {printErrorMessage()}
+          {printErrorMessage()}
         <div className='grid lg:grid-cols-5 lg:gap-3 xs:grid-cols xs:gap md:grid-cols-2 md:gap-3'>{state.subCategory.map(singleCategory)}</div>
       </div>
     );

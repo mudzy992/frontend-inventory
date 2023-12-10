@@ -51,9 +51,9 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   const valueStatus = (valueAvailabele: number) => {
     if(valueAvailabele === 0) {
-      return <Chip variant="flat" color="danger" > nema na stanju </Chip>
+      return <Chip variant="flat" color="danger" size="sm" > nema na stanju </Chip>
     } else {
-      return <Chip variant="flat" color="warning"> {`Dostupno: ${valueAvailabele}`}</Chip>
+      return <Chip variant="flat" color="warning" size="sm"> {`Dostupno: ${valueAvailabele}`}</Chip>
     }
   }
 
@@ -128,6 +128,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
           <Button
             color="warning"
             variant="flat"
+            size="sm"
             onClick={() => {
               openModalWithArticle(item.stockId); 
             }}
@@ -139,6 +140,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
           <Button
             color="warning"
             variant="shadow"
+            size="sm"
             as={Link}
             href={`#/admin/stock/${item.stockId}/`}
           >

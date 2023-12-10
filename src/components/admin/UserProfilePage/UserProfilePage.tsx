@@ -346,7 +346,7 @@ export default function AdminUserProfilePage() {
     return (
             <>
             <RoledMainMenu role='administrator' />
-            <div className="container mx-auto px-4 mt-3 h-max">
+            <div className="container mx-auto  mt-3 h-max">
                 <Tabs id="left-tabs-example" aria-label="Options">
                     <Tab key='profile' title='Profil'>
                         <Card>
@@ -356,11 +356,9 @@ export default function AdminUserProfilePage() {
                         </Card>
                     </Tab>
                     <Tab key='zaduzeni-artikli' title='Zaduženi artikli'>
-                        <Card>
-                            <CardBody>
+
                                 {articles()}
-                            </CardBody>
-                        </Card>
+
                     </Tab>
                 </Tabs>
           
@@ -436,8 +434,8 @@ export default function AdminUserProfilePage() {
         
         return (
             <div className="container mx-auto">
-            <div className="grid lg:grid-cols-6 xs:grid-cols gap-2 md:mt-3">
-                <div className="user-container col-span-2 md:mb-3 xs:mb-3 lg:shadow-large border-3" >
+            <div className="grid lg:grid-cols-6 xs:grid-cols gap-2 md:mt-5">
+                <div className="user-container col-span-2 md:mb-3 xs:mb-5 lg:shadow-large border-3" >
                     <div className="user-container details">
                         <Avatar className="ikonica " style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
                         <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>

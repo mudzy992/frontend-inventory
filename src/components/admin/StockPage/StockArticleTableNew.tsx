@@ -43,53 +43,14 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const navigate = useNavigate();
 
-  const items = useMemo(() => {
-    if (!userArticleData) {
-      return []; // Vrati praznu listu ako podaci nisu dostupni
-    }
-  
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return userArticleData.slice(start, end);
-  }, [currentPage, itemsPerPage, userArticleData]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const res = await api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, "get", {}, "administrator");
-  
-        if (res.status === "error") {
-          console.error("Greška prilikom dohvaćanja dodatnih podataka:", res.data);
-        } else if (res.status === "login") {
-          console.log("Korisnik nije prijavljen.");
-        } else {
-          setUserArticleData(res.data.results);
-          setTotalResults(Math.max(0, res.data.total)); // Postavi samo pozitivne vrijednosti
-          console.log(`Page ispis: ${currentPage} New items:`, res.data.results);
-        }
-      } catch (error) {
-        console.error("Greška pri dohvaćanju podataka:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-  
-    fetchData();
-  }, [stockId, itemsPerPage, currentPage, searchQuery]);
-  
-  
-
-  useEffect(() => {
-    console.log("Page: ", currentPage, "New items:", items);
-  }, [items]);
+    stockArticleData();
+  }, [stockId, itemsPerPage, currentPage]);
 
   const stockArticleData = async () => {
     setIsLoading(true);
     try {
-      console.log(`API URL: api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`);
       const res = await api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, "get", {}, "administrator");
-
 
       if (res.status === "error") {
         console.error("Greška prilikom dohvaćanja dodatnih podataka:", res.data);
@@ -97,7 +58,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
         console.log("Korisnik nije prijavljen.");
       } else {
         setUserArticleData(res.data.results);
-        setTotalResults(res.data.total);
+        setTotalResults(Math.max(0, res.data.total)); // Postavi samo pozitivne vrijednosti
       }
     } catch (error) {
       console.error("Greška pri dohvaćanju podataka:", error);
@@ -105,30 +66,26 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
       setIsLoading(false);
     }
   };
-
-
-const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  if (event.key === "Enter") {
-    stockArticleData();
-  }
-};
-
   
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      setCurrentPage(1)
+      stockArticleData();
+    }
+  };
+  
   const saveFile = (path: string) => {
     saveAs(ApiConfig.TEMPLATE_PATH + path, path);
   };
+
+  const totalPages = Math.ceil(totalResults / itemsPerPage);
 
 /*   if(isLoggedIn === false) {
     return (
       navigate('/admin/login')
     )
   } */
-
-  const totalPages = Math.ceil(totalResults / itemsPerPage);
 
   return (
     <div> {/* kolona div */}
@@ -161,10 +118,10 @@ const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
               <TableColumn key="status">Datum akcije</TableColumn>
               <TableColumn key="path">Datum akcije</TableColumn>
             </TableHeader>
-            <TableBody items={items}>
+            <TableBody items={userArticleData}>
               {(item) => {
                 const { color, startContent } = statusColorMap[item.status];
-                return items.length > 0 ? (
+                return userArticleData.length > 0 ? (
                   <TableRow key={item.serialNumber}>
                     <TableCell key={item.user?.fullname}>
                       <Link href={`#/admin/userProfile/${item.user?.userId}`}>
@@ -208,7 +165,7 @@ const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
               showShadow
               page={currentPage}
               total={totalPages}
-              onChange={(page) => handlePageChange(page)}
+              onChange={(page) => setCurrentPage(page)}
             />
           </div>
     </div>

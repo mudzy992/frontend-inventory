@@ -93,13 +93,13 @@ const AdminArticleOnUserPage: React.FC = () => {
         }
       };
 
-      const onInputChange = (value: string) => {
-        setSelectedUser(value)
-        const selectedUser = state.users.find(user => user.fullname === value);
-            if (selectedUser) {
-                const userId = selectedUser.userId;
-                setChangeStatusNumberFieldState('userId', userId || null);
-            }
+    const onInputChange = (value: string) => {
+    setSelectedUser(value)
+    const selectedUser = state.users.find(user => user.fullname === value);
+        if (selectedUser) {
+            const userId = selectedUser.userId;
+            setChangeStatusNumberFieldState('userId', userId || null);
+        }
     }
 
     const isDisabled = () => {
@@ -432,58 +432,45 @@ const AdminArticleOnUserPage: React.FC = () => {
                                         </SelectItem>
                                     </Select>
                                     <Autocomplete
-                                    label='Odaberi korisnika'
-                                    id="pick-the-user"
-                                    isDisabled={selectedUserIsDisabled}
-                                    /* onSelectionChange={(key) => {
-                                        const selectedItem = userList.items.find((item) => item.userId === key);
-                                        onSelectionChange(selectedItem !== undefined ? selectedItem : null);
-                                      }}
-                                    items={userList.items.map((user) => ({
-                                        key: user.userId,
-                                        text: user.fullname,
-                                    }))} */
-                                    onInputChange={onInputChange}
-                                    isLoading={userList.isLoading}
-                                    isClearable
-                                    >
-                                        {/* {(item) => (
-                                            <AutocompleteItem key={item.key} value={item.text}>
-                                                {item.text}
-                                            </AutocompleteItem>
-                                        )} */}
+                                        label='Odaberi korisnika'
+                                        id="pick-the-user"
+                                        isDisabled={selectedUserIsDisabled}
+                                        onInputChange={onInputChange}
+                                        isLoading={userList.isLoading}
+                                        isClearable
+                                        >
                                         {state.users.map((option) => (
                                             <AutocompleteItem key={option.userId !== undefined ? option.userId : 'defaultKey'} value={''}>{option.fullname}</AutocompleteItem>
                                         ))}
                                     </Autocomplete>
                                     <Input
-                                    type='text'
-                                    variant='bordered'
-                                    label='Serijski broj'
-                                    key={'serial-number'}
-                                    labelPlacement='inside'
-                                    isDisabled
-                                    value={state.changeStatus.serialNumber}
-                                    onChange={(e) => setChangeStatusStringFieldState('serialNumber', e.target.value)}
-                                    description={LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_SERIALNUMBER}
+                                        type='text'
+                                        variant='bordered'
+                                        label='Serijski broj'
+                                        key={'serial-number'}
+                                        labelPlacement='inside'
+                                        isDisabled
+                                        value={state.changeStatus.serialNumber}
+                                        onChange={(e) => setChangeStatusStringFieldState('serialNumber', e.target.value)}
+                                        description={LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_SERIALNUMBER}
                                     />
                                     <Input
-                                    type='text'
-                                    variant='bordered'
-                                    label='Inventurni broj'
-                                    key={'inventurni-broj'}
-                                    labelPlacement='inside'
-                                    isDisabled
-                                    value={state.changeStatus.invNumber}
-                                    onChange={(e) => setChangeStatusStringFieldState('invNumber', e.target.value)}
-                                    description={LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}
+                                        type='text'
+                                        variant='bordered'
+                                        label='Inventurni broj'
+                                        key={'inventurni-broj'}
+                                        labelPlacement='inside'
+                                        isDisabled
+                                        value={state.changeStatus.invNumber}
+                                        onChange={(e) => setChangeStatusStringFieldState('invNumber', e.target.value)}
+                                        description={LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}
                                     />
                                     <Textarea
-                                    label="Opis"
-                                    placeholder="Upišite razlog zaduženja/razduženja/otpisa"
-                                    key={'description'}
-                                    variant='bordered'
-                                    onChange={(e) => setChangeStatusStringFieldState('comment', e.target.value)}
+                                        label="Opis"
+                                        placeholder="Upišite razlog zaduženja/razduženja/otpisa"
+                                        key={'description'}
+                                        variant='bordered'
+                                        onChange={(e) => setChangeStatusStringFieldState('comment', e.target.value)}
                                     />
                                 </div>
                                 <ModalFooter>
@@ -735,7 +722,7 @@ function renderArticleData(article: ArticleType) {
                         </div>
                     </div>
 
-                    <div className="lg:flex mb-3">
+                <div className="lg:flex mb-3">
                     <Table>
                         <TableHeader>
                         <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
@@ -760,7 +747,7 @@ function renderArticleData(article: ArticleType) {
                         )) ?? []}
                         </TableBody>
                     </Table>
-                    </div>
+                </div>
                 </div>
 
                 <div className="w-full sm:w-full lg:w-1/3">

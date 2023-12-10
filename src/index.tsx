@@ -26,8 +26,8 @@ import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
 import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepartmetAndJob';
 import { NextUIProvider } from '@nextui-org/react';
 import StockPage from './components/admin/StockPage/StockPage';
-/*import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
-import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage'; */
+import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
+/*import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage'; */
 
 const rootElement = document.getElementById('root');
 
@@ -55,15 +55,16 @@ const App = () => {
               <Route path="/admin/feature/" element={<AddFeaturePage />} />
               <Route path="/admin/category/" element={<AddNewCategoryPage />} />
               <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
-              {/* <Route path="/admin/document/" element={<DocumentsPage />} /> */}
+              <Route path="/admin/document/" element={<DocumentsPage />} />
                <Route path="/admin/stock/:stockID" element={<StockPage />} /> 
               {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
             </Routes>
             
       </HashRouter>
-      
       </main>
+      
     </NextUIProvider>
+    
   </React.StrictMode>
   )
 }

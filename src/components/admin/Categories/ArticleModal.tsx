@@ -41,66 +41,39 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
   const itemsPerPage = 5;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
-  const items = useMemo(() => {
-  const start = (currentPage - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-
-  return articleData.slice(start, end);
-}, [currentPage, itemsPerPage, articleData]);
-
-
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const res = await api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, "get", {}, "administrator");
-  
-        if (res.status === "error") {
-          console.error("Greška prilikom dohvaćanja dodatnih podataka:", res.data);
-        } else if (res.status === "login") {
-          console.log("Korisnik nije prijavljen.");
-        } else {
-          setArticleData(prevData => [...prevData, ...res.data.results]);
-          setTotalResults(res.data.total);
-        }
-      } catch (error) {
-        console.error("Greška pri dohvaćanju podataka:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-  
     if (show) {
-      fetchData();
+      stockArticleData();
     } else {
       setArticleData([])
       setSearchQuery("")
       setCurrentPage(1)
     }
-  }, [show, stockId, itemsPerPage, currentPage, searchQuery]);
- 
-  const handleSearch = () => {
+  }, [show, stockId, itemsPerPage, currentPage]);
+
+  const stockArticleData = async () => {
     setIsLoading(true);
-    api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, "get", {}, "administrator")
-      .then((res) => {
-        if (res.status === "error") {
-          console.error("Greška prilikom pretrage:", res.data);
-        } else {
-          setArticleData(res.data.results);
-          setTotalResults(res.data.total);
-        }
-      })
-      .catch((error) => {
-        console.error("Greška pri dohvaćanju podataka:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      const res = await api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, "get", {}, "administrator");
+      if (res.status === "error") {
+        console.error("Greška prilikom dohvaćanja dodatnih podataka:", res.data);
+      } else if (res.status === "login") {
+        console.log("Korisnik nije prijavljen.");
+      } else {
+        setArticleData(res.data.results);
+        setTotalResults(res.data.total);
+      }
+    } catch (error) {
+      console.error("Greška pri dohvaćanju podataka:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      handleSearch();
+      setCurrentPage(1)
+      stockArticleData();
     }
 };
 
@@ -136,10 +109,10 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
               <TableColumn key="timestamp">Status</TableColumn>
               <TableColumn key="status">Datum akcije</TableColumn>
             </TableHeader>
-            <TableBody items={items}>
+            <TableBody items={articleData}>
               {(item) => {
                 const { color, startContent } = statusColorMap[item.status];
-                return items.length > 0 ? (
+                return articleData.length > 0 ? (
                   <TableRow key={item.serialNumber}>
                     <TableCell key={item.user?.fullname}>
                       <Link href={`#/admin/userProfile/${item.user?.userId}`}>

@@ -60,14 +60,12 @@ export class MainMenu extends React.Component<MainMenuProperties> {
                 expand="lg"
                 collapseOnSelect
             >
-                <Container fluid>
-                    <Navbar.Brand href={this.getNavbarBrandHref()}> <i className="bi bi-shop" /> Inventory Database</Navbar.Brand>
+                <Container fluid >
+                    <Navbar.Brand href={this.getNavbarBrandHref()} className="text-2x1"> <i className="bi bi-shop" /> Inventory Database</Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className='me-auto' >
-                            <HashRouter>
                                 {this.state.items.map(this.makeNavLink)}
-                            </HashRouter>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

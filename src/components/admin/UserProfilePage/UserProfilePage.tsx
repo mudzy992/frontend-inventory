@@ -1,31 +1,22 @@
-import React from "react";
-import { Card, Col, Container, Row, Button, OverlayTrigger, Tooltip, ThemeProvider, Tab, Nav, Form } from 'react-bootstrap';
+import React, { useEffect } from "react";
 import api, { ApiResponse } from '../../../API/api';
-import { Table, TableContainer, TableHead, TableBody, TableCell, List, ListSubheader, ListItemButton, ListItemIcon, ListItemText, 
-            Collapse, Avatar, FormControl, InputLabel, TextField, Box, InputAdornment, IconButton, Select, MenuItem, OutlinedInput } from "@mui/material";
-import Paper from '@mui/material/Paper';
 import FeaturesType from "../../../types/FeaturesType";
-import { Link, Redirect } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
 import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import ArticleType from "../../../types/ArticleType";
 import UserType from "../../../types/UserType";
-import { ExpandLess, ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material";
-import "./style.css";
 import LocationType from "../../../types/LocationType";
 import DepartmentType from "../../../types/DepartmentType";
 import JobType from "../../../types/JobType";
+import { Avatar, Button, Card, CardBody, Input, Accordion, AccordionItem, 
+    Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Tab, Tabs, 
+    Link, Table, TableHeader, TableCell, TableBody, TableRow, TableColumn } from "@nextui-org/react";
+import { EyeSlashFilledIcon } from "../../../Icons/EyeSlashFilledIcon";
+import { EyeFilledIcon } from "../../../Icons/EyeFilledIcon";
 
-/* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
-interface AdminUserProfilePageProperties {
-    match: {
-        params: {
-            userID: number;
-        }
-    }
-}
 
 interface LocationDto {
     locationId: number;
@@ -64,7 +55,7 @@ interface AdminUserProfilePageState {
         locationId: number;
         status: string;
         passwordHash: string;
-        code:number;
+        code:string;
         gender: string;
     },
     location: LocationType[];
@@ -72,15 +63,13 @@ interface AdminUserProfilePageState {
     job: JobType[];
 }
 
+export default function AdminUserProfilePage() {
+    const { userID } = useParams();
+    const [isVisible, setIsVisible] = React.useState<boolean>(false);
+    const toggleVisibility = () => setIsVisible(!isVisible);
 
-/* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
-export default class AdminUserProfilePage extends React.Component<AdminUserProfilePageProperties> {
-    state: AdminUserProfilePageState;
-
-    constructor(props: Readonly<AdminUserProfilePageProperties>) {
-        super(props);
-        this.state = {
-            message: "",
+    const [state, setState] = React.useState<AdminUserProfilePageState>({
+        message: "",
             article: [],
             features: [],
             isLoggedIn: true,
@@ -99,207 +88,129 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 locationId: Number(),
                 status: "",
                 passwordHash: "", 
-                code: Number(),
+                code: "",
                 gender:"",
             },
             location: [],
             department: [],
             job: [],
+    });
+
+    const setFeaturesData = (featuresData: FeaturesType[]) => {
+        setState((prev) => ({ ...prev, features: featuresData}));
+    }
+
+    const setUsers = (userProfileData: UserType | undefined) => {
+        setState((prev) => ({ ...prev, users: userProfileData}));
+    }
+
+    const setArticleByUser = (articleData: ArticleType[]) => {
+        setState((prev) => ({ ...prev, article: articleData}));
+    }
+
+    const setErrorMessage = (message: string) => {
+        setState((prev) => ({ ...prev, message: message}));
+    }
+
+    const navigate = useNavigate();
+
+    const setLogginState = (isLoggedIn: boolean) => {
+        setState({ ...state, isLoggedIn: isLoggedIn });
+        if(isLoggedIn === false) {
+            navigate('admin/login')
         }
     }
-    
-    private setFeaturesData(featuresData: FeaturesType[]) {
-        this.setState(Object.assign(this.state, {
-            features: featuresData
-        }))
-    }
 
-    private setUsers(userProfileDate: UserType | undefined) {
-        this.setState(Object.assign(this.state, {
-            users: userProfileDate
-        }))
-    }
-
-    private setArticleByUser(articleData: ArticleType[]) {
-        this.setState(Object.assign(this.state, {
-            article: articleData
-        }))
-    }
-
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            message: message,
-        }));
-    }
-
-    private setLogginState(isLoggedIn: boolean) {
-        const newState = Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        });
-
-        this.setState(newState);
-    }
-
-    private setLocation(location: LocationDto[]) {
+    const setLocation = (location: LocationDto[]) => {
         const locData: LocationType[] = location.map(details => {
-            return {
+            return{
                 locationId: details.locationId,
                 code: details.code,
                 name: details.name,
-                parentLocationId: details.parentLocationId,
+                parentLocationId: details.parentLocationId
             }
         })
-        this.setState(Object.assign(this.state, {
-            location: locData,
-        }))
+        setState((prev) => ({...prev, location:locData}))
     }
 
-    private setDepartment(department: DepartmentType) {
-        this.setState(Object.assign(this.state, {
-            department: department,
-        }))
+    const setDepartment = (department: DepartmentType[]) => {
+        setState((prev) => ({...prev, department: department}));
     }
 
-    private setJob(job: JobType) {
-        this.setState(Object.assign(this.state, {
-            job: job,
-        }))
+    const setJob = (job: JobType[]) => {
+        setState((prev) => ({...prev, job: job}));
     }
 
-    private async addJobDepartmentChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        this.setEditUserNumberFieldState('departmentId', event.target.value);
-
-        const jobs = await this.getJobsByDepartmentId(this.state.editUser.departmentId);
-        const stateJobs = jobs.map(job => ({
-            jobId: job.jobId,
-            title: job.title,
-            jobCode: job.jobCode
-        }));
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state, {
-                job: stateJobs,
-            }),
-        ));
-    }
-
-    private setEditUserStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editUser, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setEditUserNumberFieldState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.editUser, {
-                [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
-    }
-
-    /* HANDLE FUNKCIJE */
-
-    handleClickShowPassword = () => {
-        this.setState((prevState: AdminUserProfilePageState) => ({
-          showPassword: !prevState.showPassword,
+    const setEditUserNumberFieldState = (fieldName: string, newValue: any) => {
+        setState((prev) => ({
+          ...prev,
+          editUser: {
+            ...prev.editUser,
+            [fieldName]: (newValue === 'null') ? null : Number(newValue),
+          },
         }));
       };
-    
-      handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-      };
 
-    handleClick = (categoryName: string) => {
-        this.setState((prevState: AdminUserProfilePageState) => ({
-            open: prevState.open === categoryName ? null : categoryName,
+    const setEditUserStringFieldState = (fieldName: string, newValue: string) => {
+        setState((prev) => ({
+          ...prev,
+          editUser: {
+            ...prev.editUser,
+            [fieldName]: newValue,
+          },
         }));
     };
 
-    /* KRAJ SET FUNCKIJA */
+    const addJobDepartmentChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setEditUserNumberFieldState('departmentId', event.target.value)
+        try {
+            const jobs = await getJobsByDepartmentId(state.editUser.departmentId)
+            const stateJobs:any = jobs.map(job => ({
+                jobId: job.jobId,
+                title: job.title,
+                jobCode: job.jobCode,
+            }))
 
-    /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
-    componentDidMount() {
-        /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
-        this.getUserData()
-            .then(() => {
-                // Nakon što se getUserData završi, možete sigurno pristupiti this.state.users
-                this.getData();
-                this.getArticleData()
-                this.getJobsByDepartmentId(this.state.users?.departmentId ?? 0)
-                    .then(jobs => {
-                        this.setState({ job: jobs });
-    
-                        // Ako je trenutni department isti kao početni, ažurirajte state još jednom
-                        if (this.state.users?.departmentId === this.state.editUser.departmentId) {
-                            this.setState({ job: jobs });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Greška prilikom dohvaćanja radnih mesta:', error);
-                    });
-            });
-    }
-    
-
-    componentDidUpdate() {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-
-    }
-
-    private printOptionalMessage() {
-        if (this.state.message === '') {
-            return;
+            setState((prev) => ({...prev, job: stateJobs}))
+        } catch (error) {
+            setErrorMessage('Greška prilikom mapiranja radnik mjesta za traženi sektor/odjelnje. Greška: ' + error)
         }
-        return (
-            <Card.Text>
-                {this.state.message}
-            </Card.Text>
-        );
     }
 
-    /* Funkcija za dopremanje podataka, veza sa api-jem  
-    api u većini slučajeva traži povratnu informaciju 3 parametra
-    api('1', '2', '3'){} 
-    1. ruta (provjeriti u backend), 
-    2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
-    3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
-    private getUserData() {
-        return new Promise<void>((resolve) => {
-            api('api/user/' + this.props.match.params.userID, 'get', {}, 'administrator')
+
+
+    /* GET funkcije */
+    const getUserData = () => {
+        api('api/user/' + userID, 'get', {}, 'administrator')
                 .then((res: ApiResponse) => {
                     if (res.status === 'error') {
-                        this.setUsers(undefined);
-                        this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                        resolve();
+                        setUsers(undefined);
+                        setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
                         return;
                     }
                     if (res.status === 'login') {
-                        this.setLogginState(false);
-                        resolve();
+                        setLogginState(false);
                         return;
                     }
     
                     const data: UserType = res.data;
-                    this.setErrorMessage('');
-                    this.setUsers(data);
-                    this.putUserDetailsInState(res.data);
-                    resolve();
+                    setErrorMessage('');
+                    setUsers(data);
+                    putUserDetailsInState(res.data);
                 });
-        });
-        
     }
 
-    private getArticleData(){
-            api('api/article/?filter=user.userId||$eq||'
-            + this.props.match.params.userID
+    const getArticleData = () => {
+        api('api/article/?filter=user.userId||$eq||'
+            + userID
             , 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
-                    return this.setLogginState(false);
+                    return setLogginState(false);
                 }
 
                 const articleByUser: ArticleType[] = res.data;
-                this.setArticleByUser(articleByUser)
+                setArticleByUser(articleByUser)
                 const features: FeaturesType[] = [];
 
                 for (const start of articleByUser) {
@@ -311,47 +222,45 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                         features.push({ articleId, name, value });
                     }
                 }
-                this.setFeaturesData(features);
+                setFeaturesData(features);
             }
         )
     }
 
-    private getData(){
+    const getDepartmentAndLocationData = () => {
         api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom hvatanja lokacija')
+                setErrorMessage('Greška prilikom hvatanja lokacija')
             }
             if(res.status === 'login') {
-                return this.setLogginState(false)
+                return setLogginState(false)
             }
-            this.setLocation(res.data)
+            setLocation(res.data)
         })
 
         api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
+                setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
             }
             if (res.status === 'login') {
-                return this.setLogginState(false);
+                return setLogginState(false);
             }
-            this.setDepartment(res.data)
+            setDepartment(res.data)
         })
     }
 
-    private async getJobsByDepartmentId(departmentId: number): Promise<JobBaseType[]> {
+    const getJobsByDepartmentId = async (departmentId: number): Promise<JobType[]> => {
         return new Promise(resolve => {
             api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/&sort=title,ASC', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
             if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+                setErrorMessage('Greška prilikom hvatanja radnih mjesta')
             }
             if (res.status === 'login') {
-                return this.setLogginState(false);
+                return setLogginState(false);
             }
-
-            /* this.setJob(res.data) */
 
             const jobs: JobBaseType[] = res.data.map((item: any) => ({
                 jobId: item.jobId,
@@ -359,88 +268,119 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                 jobCode: item.jobCode
             }))
             resolve(jobs)
-        })
-    })      
+        })}) 
     }
 
-
-    private async putUserDetailsInState(user: UserType){
-        this.setEditUserStringFieldState('forname', String(user.forname))
-        this.setEditUserStringFieldState('surname', String(user.surname))
-        this.setEditUserStringFieldState('email', String(user.email))
-        this.setEditUserStringFieldState('passwordHash', String(user.passwordHash))
-        this.setEditUserStringFieldState('localNumber', String(user.localNumber))
-        this.setEditUserStringFieldState('telephone', String(user.telephone))
-        this.setEditUserNumberFieldState('jobId', Number(user.jobId))
-        this.setEditUserNumberFieldState('departmentId', Number(user.departmentId))
-        this.setEditUserNumberFieldState('locationId', Number(user.locationId))
-        this.setEditUserStringFieldState('status', String(user.status))
-        this.setEditUserNumberFieldState('code', Number(user.code))
-        this.setEditUserStringFieldState('gender', String(user.gender))
-    }
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            await getUserData();
     
+            // Nakon što se getUserData završi, možete sigurno pristupiti state.users
+            await getDepartmentAndLocationData();
+            await getArticleData();
+    
+            const jobs = await getJobsByDepartmentId(state.users?.departmentId ?? 0);
+            
+            // Ažuriranje stanja za radna mesta
+            setState((prev) => ({
+              ...prev,
+              job: jobs,
+            }));
+    
+            // Ako je trenutni department isti kao početni, ažurirajte stanje još jednom
+            if (state.users?.departmentId === state.editUser.departmentId) {
+              setState((prev) => ({
+                ...prev,
+                job: jobs,
+              }));
+            }
+          } catch (error) {
+            console.error('Greška prilikom dohvaćanja podataka:', error);
+          }
+        };
+    
+        fetchData();
+      }, []);
 
-    /* KRAJ GET I MOUNT FUNKCIJA */
+    /* HANDLE FUNKCIJE */
 
-    render() {
+    const handleClickShowPassword = () => {
+        setState((prev) => ({...prev, showPassword: !prev.showPassword}))
+    };
 
-        /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
-        /* kraj provjera */
-        if (this.state.isLoggedIn === false) {
-            return (
-                <Redirect to="/admin/login" />
-            );
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
+
+    const handleClick = (categoryName: string) => {
+        setState((prev) => ({...prev, open: prev.open === categoryName ? null : categoryName}));
+    };
+
+    const printOptionalMessage = () => {
+        if (state.message === '') {
+            return;
         }
         return (
-            <ThemeProvider
-            fluid
-                breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
-                minBreakpoint="xxs">
-            <div>
-                <RoledMainMenu role='administrator' />
-                <Container style={{ marginTop: 15 }}>
-                    <Card className="text-white bg-dark" >
-                            <Tab.Container id="left-tabs-example" defaultActiveKey="profile">
-                                <Row>
-                                    <Col lg={2} xs={2}>
-                                        <Card.Body>
-                                            <Nav variant='pills' className="nav-pills">
-                                                <Nav.Item >
-                                                    <Nav.Link eventKey="profile"> <i className="bi bi-person-fill" /> Profile</Nav.Link>
-                                                </Nav.Item>
-                                                <Nav.Item >
-                                                    <Nav.Link eventKey="articles"> <i className="bi bi-box-fill" /> Zaduženi artikli</Nav.Link>
-                                                </Nav.Item>
-                                            </Nav>
-                                        </Card.Body>
-                                    </Col>
-                                    <Col lg={10} xs={10}>
-                                        <Tab.Content>
-                                            {this.printOptionalMessage()}
-                                            <Tab.Pane eventKey="profile">{this.state.users ? (this.userData(this.state.users)): ''}</Tab.Pane>
-                                            <Tab.Pane eventKey="articles">{this.articles()}</Tab.Pane>
-                                        </Tab.Content>
-                                    </Col>
-                                </Row>
-                            </Tab.Container>
-                        
-                    </Card>
-                </Container>
-            </div></ThemeProvider>
-        )
+            <Card>
+                {state.message}
+            </Card>
+        );
     }
 
-    private saveFile (docPath: any) {
+    const putUserDetailsInState = async (user: UserType) =>{
+        setEditUserStringFieldState('forname', String(user.forname))
+        setEditUserStringFieldState('surname', String(user.surname))
+        setEditUserStringFieldState('email', String(user.email))
+        setEditUserStringFieldState('passwordHash', String(user.passwordHash))
+        setEditUserStringFieldState('localNumber', String(user.localNumber))
+        setEditUserStringFieldState('telephone', String(user.telephone))
+        setEditUserNumberFieldState('jobId', Number(user.jobId))
+        setEditUserNumberFieldState('departmentId', Number(user.departmentId))
+        setEditUserNumberFieldState('locationId', Number(user.locationId))
+        setEditUserStringFieldState('status', String(user.status))
+        setEditUserNumberFieldState('code', Number(user.code))
+        setEditUserStringFieldState('gender', String(user.gender))
+    }
+ 
+    return (
+            <>
+            <RoledMainMenu role='administrator' />
+            <div className="container mx-auto  mt-3 h-max">
+                <Tabs id="left-tabs-example" aria-label="Options">
+                    <Tab key='profile' title='Profil'>
+                        <Card>
+                            <CardBody>
+                                {state.users ? (userData(state.users)) : ''}
+                            </CardBody>
+                        </Card>
+                    </Tab>
+                    <Tab key='zaduzeni-artikli' title='Zaduženi artikli'>
+
+                                {articles()}
+
+                    </Tab>
+                </Tabs>
+          
+        </div></>
+    )
+
+    function saveFile (docPath: any) {
         if(!docPath) {
-            return (<div>
-            <Button size='sm' style={{backgroundColor:"#9D5353"}}>
-                <OverlayTrigger 
-                placement="top"
-                delay={{ show: 250, hide: 400 }}
-                overlay={
-                <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                }><i className="bi bi-file-earmark-text" style={{ fontSize: 20, color:"white" }}/></OverlayTrigger>
-                </Button></div> )
+            return (
+                <div>
+                    <Popover placement='right' showArrow backdrop="blur">
+                    <PopoverTrigger>
+                        <Button size='sm' style={{ backgroundColor: "#9D5353" }}>
+                            <i className="bi bi-file-earmark-text" style={{ fontSize: 20, color: "white" }} />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                        Prenosnica nije generisana
+                    </PopoverContent>
+                </Popover>
+                </div>
+                )
         }
         if (docPath) {
             const savedFile = (docPath:any) => {
@@ -456,7 +396,7 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         }
     }
 
-    private userData(user: UserType){
+    function userData(user: UserType){
         let gender = '';
         let genderColor = '';
         if(user.gender === 'muško') {
@@ -493,11 +433,11 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
         }
         
         return (
-            <Container fluid>
-            <Row>
-                <Col className="user-container" lg={3} xs={3}>
-                    <div className="mb-3 user-container details">
-                        <Avatar className="avatar" style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
+            <div className="container mx-auto">
+            <div className="grid lg:grid-cols-6 xs:grid-cols gap-2 md:mt-5">
+                <div className="user-container col-span-2 md:mb-3 xs:mb-5 lg:shadow-large border-3" >
+                    <div className="user-container details">
+                        <Avatar className="ikonica " style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
                         <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
                         <div style={{fontSize:"14px"}}>{user.email}</div>
                         <div style={{fontSize:"14px"}}>{user.job?.title}</div>
@@ -510,252 +450,207 @@ export default class AdminUserProfilePage extends React.Component<AdminUserProfi
                             </div>
                         </div>
                     </div>
-                </Col>
-                <Col lg={9} xs={9} className="text-dark bg-white card-radius-container">
-                    <Form style={{marginTop:'45px'}}>
-                    <Box
-                        component="form"
-                        sx={{
-                            '& > :not(style)': { m: 1 },
-                        }}
-                        noValidate
-                        autoComplete="off"
-                        >
-                             <Row>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-ime" label="Ime" variant="outlined" value={this.state.editUser.surname} onChange={(e) => this.setEditUserStringFieldState('surname', e.target.value)}/>
-                                </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-prezime" label="Prezime" variant="outlined" value={this.state.editUser.forname} onChange={(e) => this.setEditUserStringFieldState('forname', e.target.value)}/>
-                                </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-code" label="Kadrovski broj" variant="outlined" value={this.state.editUser.code} onChange={(e) => this.setEditUserNumberFieldState('code', e.target.value)}/>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-email" label="Email" variant="outlined" value={this.state.editUser.email} onChange={(e) => this.setEditUserStringFieldState('email', e.target.value)}/>
-                                </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-telephone" label="Telefon" variant="outlined" value={this.state.editUser.telephone} onChange={(e) => this.setEditUserStringFieldState('telephone', e.target.value)}/>
-                                </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <TextField fullWidth  id="form-localnumber" label="Telefon/lokal" variant="outlined" value={this.state.editUser.localNumber} onChange={(e) => this.setEditUserStringFieldState('localNumber', e.target.value)}/>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col lg={6} xs={12} className="mb-3">
-                                    <FormControl fullWidth>
-                                        <InputLabel id="form-select-department-label">Sektor/odjeljenje</InputLabel>
-                                        <Select
-                                            labelId="form-select-department-label"
-                                            id="form-select-department"
-                                            value={this.state.editUser.departmentId.toString()}
-                                            label="Sektor/odjeljenje"
-                                            onChange={e => {this.setEditUserNumberFieldState('departmentId', e.target.value); this.addJobDepartmentChange(e as any)}}>
-                                                {this.state.department.map((department, index) => (
-                                                    <MenuItem key={index} value={department.departmentId?.toString()}>{department.title}</MenuItem>
-                                                ))}
-                                        </Select>
-                                    </FormControl>
-                                </Col>
-                                <Col lg={6} xs={12} className="mb-3">
-                                    <FormControl fullWidth>
-                                        <InputLabel id="form-select-job-label">Radno mjesto</InputLabel>
-                                        <Select
-                                            labelId="form-select-job-label"
-                                            id="form-select-job"
-                                            value={this.state.editUser.jobId.toString()}
-                                            label="Radno mjesto"
-                                            onChange={e => {this.setEditUserNumberFieldState('jobId', e.target.value)}}>
-                                                {this.state.job.map((job, index) => (
-                                                    <MenuItem key={index} value={job.jobId?.toString()}>{job.title}</MenuItem>
-                                                ))}
-                                        </Select>
-                                    </FormControl>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <FormControl fullWidth>
-                                        <InputLabel id="form-select-location-label">Lokacija</InputLabel>
-                                        <Select
-                                            labelId="form-select-location-label"
-                                            id="form-select-location"
-                                            value={this.state.editUser.locationId.toString()}
-                                            label="Lokacija"
-                                            onChange={e => {this.setEditUserNumberFieldState('locationId', e.target.value)}}>
-                                                {this.state.location.map((location, index) => (
-                                                    <MenuItem key={index} value={location.locationId?.toString()}>{location.name}</MenuItem>
-                                                ))}
-                                        </Select>
-                                    </FormControl>
-                                </Col>
+                </div>
+                <div className="lg:col-span-4 xs:col-span-2 md:col-span-2 lg:pl-4">
+                        <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
+                            <Input
+                                value={state.editUser.surname}
+                                type='text'
+                                label='Ime'
+                                variant='bordered'
+                                onValueChange={(value: string) => setEditUserStringFieldState('surname', value)}
+                            />
+                        
+                            <Input
+                                value={state.editUser.forname}
+                                type='text'
+                               
+                                label='Prezime'
+                                variant='bordered'
+                                onValueChange={(value: string) => setEditUserStringFieldState('forname', value)}
+                            />
+                        
+                            <Input
+                                value={state.editUser.code !== '0' ? state.editUser.code : ''}
+                                type='number'
+                                label='Kadrovski broj'
+                                variant='bordered'
+                                onValueChange={(value: string) => setEditUserStringFieldState('code', value)}
+                            />
+                        </div>
+                        <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
+                            <Input
+                                value={state.editUser.email}
+                                type='email'
                                 
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <FormControl fullWidth>
-                                        <InputLabel id="form-select-gender-label">Spol</InputLabel>
-                                        <Select
-                                            labelId="form-select-gender-label"
-                                            id="form-select-gender"
-                                            value={this.state.editUser.gender.toString()}
-                                            label="Status"
-                                            onChange={e => {this.setEditUserStringFieldState('gender', e.target.value)}}>
-                                                    <MenuItem key="muško" value="muško">Muško</MenuItem>
-                                                    <MenuItem key="žensko" value="žensko">Žensko</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <FormControl fullWidth>
-                                        <InputLabel id="form-select-status-label">Status</InputLabel>
-                                        <Select
-                                            labelId="form-select-status-label"
-                                            id="form-select-status"
-                                            value={this.state.editUser.status.toString()}
-                                            label="Status"
-                                            onChange={e => {this.setEditUserStringFieldState('status', e.target.value)}}>
-                                                    <MenuItem key="aktivan" value="aktivan">Aktivan</MenuItem>
-                                                    <MenuItem key="neaktivan" value="neaktivan">Neaktivan</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Col>
-                                <Col lg={4} xs={12} className="mb-3">
-                                    <FormControl fullWidth variant="outlined">
-                                        <InputLabel htmlFor="outlined-adornment-password-label">Lozinka</InputLabel>
-                                        <OutlinedInput
-                                            onChange={(e) => this.setEditUserStringFieldState('passwordHash', e.target.value)}
-                                            label="outlined-adornment-password-label"
-                                            id="outlined-adornment-password"
-                                            type={this.state.showPassword ? 'text' : 'password'}
-                                            value={this.state.editUser.passwordHash}
-                                            endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                aria-label="prikaži lozinku"
-                                                onClick={this.handleClickShowPassword}
-                                                onMouseDown={this.handleMouseDownPassword}
-                                                edge="end"
-                                                >
-                                                {this.state.showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                            }
-                                        />
-                                    </FormControl>
-                                </Col>
+                                label='Email'
+                                variant='bordered'
+                                onValueChange={(value: string) => setEditUserStringFieldState('email', value)}
+                            />
+                            <Input
+                                value={state.editUser.telephone}
+                                type='text'
                                 
-                            </Row>
+                                label='Telefon'
+                                variant='bordered'
+                                onValueChange={(value: string) => setEditUserStringFieldState('telephone', value)}
+                            />
+                            <Input
+                                value={state.editUser.localNumber}
+                                
+                                type='number'
+                                label='Telefon/lokal'
+                                variant='bordered'
+                                onValueChange={(value: string) => setEditUserStringFieldState('localNumber', value)}
+                            />
+                        </div>
 
-                            <Row>
-                                <Col lg={12} xs={12} style={{display:"flex", justifyContent:'flex-end'}} className="mb-3">
-                                 <Button onClick={() => this.doEditUser()}>Snimi izmjene</Button>
-                                </Col>
-                            </Row>
-                        </Box>
-                    </Form>
-                </Col>
-            </Row>
-         </Container>
+                    <div className="grid lg:grid-cols-2 xs:grid-cols gap-3 mb-3">
+                            <Select
+                                label='Sektor/odjeljenje'
+                                value={state.editUser.departmentId.toString()}
+                                
+                                onChange={(e:any) => {setEditUserNumberFieldState('departmentId', e.target.value); addJobDepartmentChange(e as any)}}
+                                >
+                                {state.department.map((department, index) => (
+                                    <SelectItem key={index} value={department.departmentId?.toString()}>{department.title}</SelectItem>
+                                ))}
+                            </Select>
+                            <Select
+                                label='Radno mjesto'
+                                value={state.editUser.jobId.toString()}
+                                
+                                onChange={(e:any) => {setEditUserNumberFieldState('jobId', e.target.value)}}
+                                >
+                                {state.job.map((job, index) => (
+                                    <SelectItem key={index} value={job.jobId?.toString()}>{job.title}</SelectItem>
+                                ))}
+                            </Select>
+                    </div>
+
+                    <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
+                            <Select
+                                label='Lokacija'
+                                value={state.editUser.locationId.toString()}
+                               
+                                onChange={(e:any) => {setEditUserNumberFieldState('locationId', e.target.value)}}
+                                >
+                                {state.location.map((location, index) => (
+                                    <SelectItem key={index} value={location.locationId?.toString()}>{location.name}</SelectItem>
+                                ))}
+                            </Select>
+                            <Select
+                                label='Spol'
+                                value={state.editUser.gender.toString()}
+                                
+                                onChange={(e:any) => {setEditUserStringFieldState('gender', e.target.value)}}
+                                >
+                                <SelectItem key='musko' value='muško'>muško</SelectItem>
+                                <SelectItem key='zensko' value='žensko'>žensko</SelectItem>
+                            </Select>
+                            <Select
+                                label='Status'
+                                value={state.editUser.status.toString()}
+                                
+                                onChange={(e:any) => {setEditUserStringFieldState('status', e.target.value)}}
+                                >
+                                <SelectItem key='aktivan' value='aktivan'>aktivan</SelectItem>
+                                <SelectItem key='neaktivan' value='neaktivan'>neaktivan</SelectItem>
+                            </Select>
+                        <div className="grid grid-cols gap-2 mb-3">
+                            <Input
+                                label="Lozinka"
+                                variant="bordered"
+                                placeholder="Ukucajte lozinku"
+                                value={state.editUser.passwordHash}
+                                onChange={(e) => setEditUserStringFieldState('passwordHash', e.target.value)}
+                                endContent={
+                                    <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                                    {isVisible ? (
+                                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                    ) : (
+                                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                    )}
+                                    </button>
+                                }
+                                type={isVisible ? "text" : "password"}
+                                
+                                />          
+                        </div>
+                    </div>
+
+                    <div className="grid lg:grid-cols-2 xs:grid-cols gap-2 mb-3">
+                        <Button className="col-end-7" onClick={() => doEditUser()}>Snimi izmjene</Button>
+                    </div>
+                </div>
+            </div>
+         </div>
         )
     }
 
-    private doEditUser() {
+    function doEditUser() {
         try {
-            api('api/user/edit/' + this.props.match.params.userID, 'patch', {
-                forname: this.state.editUser.forname,
-                surename: this.state.editUser.surname,
-                email: this.state.editUser.email,
-                password: this.state.editUser.passwordHash,
-                localNumber: this.state.editUser.localNumber,
-                telephone: this.state.editUser.telephone,
-                jobId: this.state.editUser.jobId,
-                departmentId: this.state.editUser.departmentId,
-                locationId: this.state.editUser.locationId,
-                status: this.state.editUser.status,
-                code: this.state.editUser.code,
-                gender: this.state.editUser.gender,
+            api('api/user/edit/' + userID, 'patch', {
+                forname: state.editUser.forname,
+                surename: state.editUser.surname,
+                email: state.editUser.email,
+                password: state.editUser.passwordHash,
+                localNumber: state.editUser.localNumber,
+                telephone: state.editUser.telephone,
+                jobId: state.editUser.jobId,
+                departmentId: state.editUser.departmentId,
+                locationId: state.editUser.locationId,
+                status: state.editUser.status,
+                code: state.editUser.code,
+                gender: state.editUser.gender,
             }, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
-                    this.setLogginState(false);
+                    setLogginState(false);
                     return;
                 }
-                this.getUserData();
+                getUserData();
             });
         } catch (error) {
-            // Ovde možete obraditi grešku kako želite, npr. ispisivanjem u konzoli ili prikazivanjem korisniku
             console.error('Greška prilikom izvršavanja API poziva:', error);
         }
     }
 
-    private articles() {
-        const uniqueCategories = Array.from(new Set(this.state.article.map(artikal => artikal.category?.name)));
+    function articles() {
+        if (!state || !state.article) {
+            return <div>Loading...</div>; 
+        }
+        const uniqueCategories = Array.from(new Set(state.article.map(artikal => artikal.category?.name)));
         return(
-            <List
-                sx={{
-                    bgcolor: 'background.paper',
-                    color:"black"
-                }}
-                component="nav"
-                aria-labelledby="nested-list-subheader"
-                subheader={
-                <ListSubheader component="div" id="nested-list-subheader">
-                    Zadužena oprema
-                </ListSubheader>
-            }>
-                {uniqueCategories.map(categoryName => {
-                    const categoryArticles = this.state.article.filter(artikal => artikal.category?.name === categoryName);
-                        return (
-                            <><ListItemButton sx={{ width: '100%'}} onClick={() => categoryName && this.handleClick(categoryName)}>
-                                <ListItemIcon>
-                                    <i className={categoryArticles[0]?.category?.imagePath} style={{ fontSize: 16 }} />
-                                </ListItemIcon>
-                                <ListItemText>{categoryName}</ListItemText> {this.state.open === categoryName ? <ExpandLess /> : <ExpandMore />}
-                            </ListItemButton>
-                            <Collapse in={this.state.open === categoryName} timeout="auto" unmountOnExit>
-                                <List component="div" disablePadding
-                                    sx={{
-                                        maxHeight:300,
-                                        overflow: 'auto'
-                                    }}
-                                    >
-                                    <ListItemText>
-                                        <TableContainer component={Paper}> 
-                                            <Table>
-                                                <TableHead>
-                                                    <TableCell>Naziv</TableCell>
-                                                    <TableCell>Serijski broj</TableCell>
-                                                    <TableCell>Inventurni broj</TableCell>
-                                                    <TableCell>Dokument</TableCell>
-                                                </TableHead>
-                                                {categoryArticles.map(artikal => (
-                                                    <TableBody>
-                                                        <TableCell>
-                                                            {artikal.stock?.name}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Link to={`/admin/user/${artikal.serialNumber}`}>{artikal.serialNumber}</Link>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {artikal.invNumber}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {this.saveFile(artikal.documents ? artikal.documents[0]?.path : 'N/A')}
-                                                        </TableCell>
-                                                    </TableBody>
-                                                ))}
-                                            </Table>
-                                        </TableContainer>
-                                    </ListItemText>
-                                </List>
-                            </Collapse></>
-                        );
-                    })
-                }
-            </List>
-        )
+            <Accordion variant="splitted">
+                {uniqueCategories.map((categoryName, index) => {
+                    const categoryArticles = state.article.filter((artikal) => artikal.category?.name === categoryName)
+                    return(
+                        <AccordionItem key={categoryName} aria-label="Accordion 1" title={categoryName}>
+                            <Table>
+                                <TableHeader>
+                                    <TableColumn>Naziv</TableColumn>
+                                    <TableColumn>Serijski broj</TableColumn>
+                                    <TableColumn>Inventurni broj</TableColumn>
+                                    <TableColumn>Dokument</TableColumn>
+                                </TableHeader>
+                                <TableBody>
+                                {categoryArticles.map((article) => (
+                                <TableRow key={article.articleId}>
+                                    <TableCell>{article.stock?.name || 'N/A'}</TableCell>
+                                    <TableCell>
+                                        <Link href={`#/admin/user/${article.serialNumber}`}>{article.serialNumber}</Link>
+                                    </TableCell>
+                                    <TableCell>{article.invNumber || 'N/A'}</TableCell>
+                                    <TableCell>{saveFile(article.documents ? article.documents[0]?.path : 'N/A')}</TableCell>
+                                </TableRow>
+                            ))}
+                                </TableBody>
+                            </Table>
+                        </AccordionItem>
+                    )
+                })}
+        </Accordion>)
+        
     }
 }

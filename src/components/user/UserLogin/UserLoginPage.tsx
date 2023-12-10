@@ -1,6 +1,6 @@
 import React from 'react'
 import { Container, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
+/* import { Redirect } from 'react-router-dom'; */
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
 
 
@@ -102,11 +102,11 @@ export default class UserLoginPage extends React.Component {
             });
     }
     render() {
-        if (this.state.isLoggedIn === true) {
+        /* if (this.state.isLoggedIn === true) {
             return (
                 <Redirect to={`/user/profile/${this.state.userID}`} />
             );
-        }
+        } */
         return (
             <div>
                 <Container>

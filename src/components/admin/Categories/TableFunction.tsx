@@ -1,12 +1,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { Badge, Button } from "react-bootstrap";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
-import { Card} from "@mui/material";
-import { IoPeopleCircleOutline } from "@react-icons/all-files/io5/IoPeopleCircleOutline";
-import { MRT_Localization_SR_LATN_RS } from 'material-react-table/locales/sr-Latn-RS';
-import { Redirect } from "react-router-dom";
+import {  Button, Chip, Link, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 
 
 interface ArticleType {
@@ -15,13 +10,11 @@ interface ArticleType {
   excerpt: string;
   sapNumber: string;
   valueAvailable: number;
-  articles?: [
-
-  ]
+  articles?: []
 }
 
 interface TabelaProps {
-  categoryId: string;
+  categoryId?: string;
 }
 
 const Tabela: FC<TabelaProps> = ({ categoryId }) => {
@@ -30,6 +23,18 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false); 
   const [selectedStockId, setSelectedStockId] = useState<number | null>(null);
+
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
+
+  const pages = Math.ceil(data.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return data.slice(start, end);
+  }, [page, data]);
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -46,9 +51,9 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   const valueStatus = (valueAvailabele: number) => {
     if(valueAvailabele === 0) {
-      return <Badge bg="danger"> nema na stanju</Badge>
+      return <Chip variant="flat" color="danger" > nema na stanju </Chip>
     } else {
-      return <Badge bg="success">Dostupno: {valueAvailabele}</Badge>
+      return <Chip variant="flat" color="warning"> {`Dostupno: ${valueAvailabele}`}</Chip>
     }
   }
 
@@ -78,93 +83,73 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
     fetchData();
   }, [categoryId]);
 
-  const columns = useMemo<MRT_ColumnDef[]>(
-    () => [
-      {
-        size:400,
-        accessorKey: "name",
-        header: "Naziv opreme",
-        Cell: ({ cell }) => cell.getValue<string>(),
-      },
-      {
-       
-        accessorKey: "valueAvailable",
-        header: "Stanje",
-        Cell: ({ row }) => {
-          const { valueAvailable } = row.original as ArticleType;
-          return valueStatus(valueAvailable);
-        },
-      },
-      {
-      
-        accessorKey: "sapNumber",
-        header: "SAP broj",
-        Cell: ({ cell }) => cell.getValue<string>(),
-      },
-      {
-       
-        accessorKey: "stockId",
-        key: "stockId1",
-        header: "Zaduženja",
-        Cell: ({ cell }) => (
-          <Button
-            className="btn-sm"
-            onClick={() => {
-              const stockId = cell.getValue<number>();
-              openModalWithArticle(stockId); 
-            } }
-          >
-            <IoPeopleCircleOutline style={{fontSize:"19px"}}/> Zaduženja
-          </Button>
-        ),
-      },
-       {
-        
-        accessorKey: "stockId",
-        key: "articleId2",
-        header: "Detalji opreme",
-        Cell: ({ cell }) => (
-          <Button
-            className="btn-sm"
-            onClick={() => {
-              const stockId = cell.getValue<number>();
-              window.location.href = `#/admin/stock/${stockId}/`;
-            }}
-          >
-            <i className="bi bi-boxes"  style={{fontSize:"15px"}} /> Skladište
-          </Button>
-        ),
-      }, 
-    ],
-    []
-  );
 
   if (errorMessage) {
     return <div>{errorMessage}</div>;
   }
-
-  if(isLoggedIn === false) {
-    return (
-      <Redirect to="/admin/login" />
-    )
-  }
     
   return (
     <>
-    <Card>
-      <MaterialReactTable
-        columns={columns}
-        data={data}
-        enableSorting={false}
-        enableFilters={false}
-        enableColumnActions={false}
-        enableDensityToggle={false}
-        localization={MRT_Localization_SR_LATN_RS}
-        initialState={{ density: "compact" }}
+    
+    <Table 
+    aria-label="Tabela korisnika zaduženja"
+    className="mb-3"
+    bottomContent={
+    <div className="flex w-full justify-center">
+      <Pagination
+        isCompact
+        showControls
+        showShadow
+        color="secondary"
+        page={page}
+        total={pages}
+        onChange={(page) => setPage(page)}
       />
-     
-    </Card>
-      
+    </div>
+  }
+  classNames={{
+    wrapper: "min-h-[222px]",
+  }}
+>
+  <TableHeader>
+    <TableColumn key="name">Naziv opreme</TableColumn>
+    <TableColumn key="valueAvailable">Stanje opreme</TableColumn>
+    <TableColumn key="sapNumber">SAP broj</TableColumn>
+    <TableColumn key="zaduzenja">Zaduženja</TableColumn>
+    <TableColumn key="skladiste">Skladište</TableColumn>
+  </TableHeader>
+  <TableBody items={items}>
+    {(item) => (
+      <TableRow key={item.stockId}>
+        <TableCell>{item.name}</TableCell>
+        <TableCell>{valueStatus(item.valueAvailable)}</TableCell>
+        <TableCell>{item.sapNumber}</TableCell>
+        <TableCell>
+          <Button
+            color="warning"
+            variant="flat"
+            onClick={() => {
+              openModalWithArticle(item.stockId); 
+            }}
+          >
+            Zaduženja
+          </Button>
+        </TableCell>
+        <TableCell>
+          <Button
+            color="warning"
+            variant="shadow"
+            as={Link}
+            href={`#/admin/stock/${item.stockId}/`}
+          >
+            <i className="bi bi-boxes"  style={{fontSize:"15px"}} /> Skladište
+          </Button>
+        </TableCell>
+      </TableRow>
+    )}
+  </TableBody>
+</Table>  
+    
       <ArticleModal
         show={showModal}
         onHide={handleHideModal}

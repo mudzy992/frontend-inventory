@@ -5,9 +5,9 @@ import FeaturesType from '../../../types/FeaturesType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import ArticleTable from './ArticleTable';
+/* import ArticleTable from './ArticleTable'; */
 import ArticleType from '../../../types/ArticleType';
-import { Redirect } from 'react-router-dom';
+/* import { Redirect } from 'react-router-dom'; */
 
 interface ArticlePageProperties {
     match: {
@@ -461,11 +461,11 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     }
 
     render() {
-        if(this.state.isLoggedIn === false){
+        /* if(this.state.isLoggedIn === false){
             return (
                 <Redirect to='admin/login'/>
             )
-        }
+        } */
         return (
             <div>
                 <RoledMainMenu role='administrator' />
@@ -812,7 +812,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
             <Row>
             <Col>
                 <Card className="mb-3">
-                    <ArticleTable articleId={this.props.match.params.articleID} />
+                   {/*  <ArticleTable articleId={this.props.match.params.articleID} /> */}
                 </Card>
             </Col>
         </Row></>

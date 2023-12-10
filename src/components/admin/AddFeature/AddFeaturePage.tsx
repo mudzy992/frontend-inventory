@@ -3,9 +3,9 @@ import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { List, ListItemButton, ListItemText, ListSubheader } from '@mui/material';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import { Redirect } from 'react-router-dom';
+import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/react';
+/* import { Redirect } from 'react-router-dom'; */
 
 interface AddFeatureState {
     categories: CategoryType[];
@@ -147,10 +147,9 @@ export default class AddFeaturePage extends React.Component<{}> {
 
     private addFeatureInput(feature: any) {
         return (
-            <ListItemButton>
-                <ListItemText primary={feature.name} />
-            </ListItemButton>
-                
+            <ListboxItem key={feature.name}>
+                {feature.name}
+            </ListboxItem>     
         );
     }
 
@@ -204,10 +203,11 @@ export default class AddFeaturePage extends React.Component<{}> {
                                         ))}
                                     </Form.Select>
                                 </FloatingLabel>
-                                <List>
-                                <ListSubheader key="trenutne-osobine" className={this.state.addNewFeature.categoryId ? '' : 'd-none'}>Trenutne osobine</ListSubheader>
-                                    {this.state.addNewFeature.features.map(this.addFeatureInput, this)}
-                                </List>  
+                                <Listbox variant='flat' aria-label="Trenutne osobine">
+                                    <ListboxSection className={this.state.addNewFeature.categoryId ? '' : 'd-none'}>
+                                        {this.state.addNewFeature.features.map(this.addFeatureInput, this)}
+                                    </ListboxSection>                                    
+                                </Listbox>  
                                 
                             <FloatingLabel label="Nova osobina (naziv)" className="mb-3">
                                 <Form.Control
@@ -242,11 +242,11 @@ export default class AddFeaturePage extends React.Component<{}> {
     /* RENDER */
 
     render() {
-        if(this.state.isLoggedIn === false) {
+        /* if(this.state.isLoggedIn === false) {
             return (
                 <Redirect to='admin/login' />
             )
-        }
+        } */
         return (
             <div>
                 <RoledMainMenu role="administrator" />

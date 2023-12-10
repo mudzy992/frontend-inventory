@@ -1,8 +1,8 @@
 import { FC, useEffect, useState } from "react";
 import api from "../../../API/api";
 import { Col, Modal, Row } from "react-bootstrap";
-import { Avatar } from "@mui/material";
 import "./styleArticleTimeline.css";
+import { Avatar } from "@nextui-org/react";
 
 interface ArticleTimelineProps {
     show: boolean;
@@ -67,14 +67,14 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({show, onHide, articleTim
     let genderPredaoColor = '';
     let genderPruzeo = '';
     let genderPreuzeoColor = '';
-    if(articleTimelineData?.user.gender == 'muško') {
+    if(articleTimelineData?.user.gender === 'muško') {
         genderPredao = 'bi bi-gender-male'
         genderPredaoColor = 'lightblue'
     } else {
         genderPredao = 'bi bi-gender-female'
         genderPredaoColor = 'lightpink'
     }
-    if(articleTimelineData?.subbmited.gender == 'muško') {
+    if(articleTimelineData?.subbmited.gender === 'muško') {
         genderPruzeo = 'bi bi-gender-male'
         genderPreuzeoColor = 'lightblue'
     } else {
@@ -96,7 +96,7 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({show, onHide, articleTim
                 <Row style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
                     <Col>
                         <Col className="mb-2" lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                            <Avatar className="avatar-modal" style={{border: `10px solid ${genderPredaoColor}`}}> 
+                            <Avatar className="avatarmodal" style={{border: `10px solid ${genderPredaoColor}`}}> 
                                 <i className={genderPredao}/>
                             </Avatar>
                         </Col>

@@ -1,9 +1,8 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
-import MuiAlert from '@mui/material/Alert';
-import { Snackbar, Stack } from '@mui/material';
-import { Redirect } from 'react-router-dom';
+
+/* import { Redirect } from 'react-router-dom'; */
 
 interface DepartmentType {
     departmentId: number;
@@ -191,13 +190,13 @@ export default class AddDepartment extends React.Component<{}> {
                                     ))}
                                 </Form.Select>
                             </FloatingLabel>
-                            <Stack spacing={2} sx={{ width: '100%' }}>
+                            {/* <Stack spacing={2} sx={{ width: '100%' }}>
                                 <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
                                     <MuiAlert severity="success" sx={{ width: '100%' }}>
                                         {this.printOptionalMessage()}
                                     </MuiAlert>
                                 </Snackbar>
-                            </Stack>
+                            </Stack> */}
                         </Form.Group>
                     </Form>
                 <Modal.Footer className={this.state.add.department.title ? '' : 'd-none'}>
@@ -216,11 +215,11 @@ export default class AddDepartment extends React.Component<{}> {
     /* RENDERER */
 
     render() {
-        if(this.state.isLoggedIn === false) {
+        /* if(this.state.isLoggedIn === false) {
             return (
                 <Redirect to='admin/login' />
             )
-        }
+        } */
         return (
             <div>
                 <Container style={{ marginTop:15}}>

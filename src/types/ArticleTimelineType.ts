@@ -13,4 +13,5 @@ export default class ArticleTimelineType {
     comment?: string;
     document?: DocumentsType;
     user?: UserType;
+    subbmited?: UserType;
 }

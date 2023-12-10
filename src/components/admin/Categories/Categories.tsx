@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Card, Col, Container, Row } from 'react-bootstrap';
-import { Link, Redirect, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
+import { Card, CardBody, CardFooter, CardHeader, Chip } from '@nextui-org/react';
 import Tabela from './TableFunction';
+import { Alert } from '../../custom/Alert';
 
 interface CategoryPageState {
   category?: CategoryType;
@@ -57,14 +58,15 @@ const CategoryPage: React.FC = () => {
     message: '',
     stocks: [],
   });
+  const navigate = useNavigate()
 
     useEffect(() => {
     const getCategoriesData = async () => {
       try {
         const response = await api(`api/category/${categoryID}`, 'get', {}, 'administrator');
-        
         if (response.status === 'login') {
           setIsLoggedIn(false);
+          navigate('/admin/login')
           return;
         }
 
@@ -118,96 +120,73 @@ const CategoryPage: React.FC = () => {
     if (!state.message) {
       return null;
     }
-
     return (
-      <Alert variant="error" style={{ marginTop: 15 }}>
-        <i className="bi bi-exclamation-circle-fill" /> {state.message}
-      </Alert>
+      <Alert variant='warning' title='Upozorenje!' body={state.message} />
     );
   };
 
   const showSubcategories = () => {
     if (state.subCategory.length === 0) {
       return (
-        <Alert variant="info" style={{ marginTop: 15 }}>
-        <i className="bi bi-info-circle" /> Nema podkategorija
-      </Alert>
+        <div className='mb-4 mt-4'><Alert variant="info" title="Info!" body="Nema podkategorija" /></div>
       )  
     }
 
     return (
-      <Row className='mt-3'>
+      <div>
         <h5 style={{ color: 'white' }}>
           <i className="bi bi-list-nested" /> Podkategorije
         </h5>
         {printErrorMessage()}
-        {state.subCategory.map(singleCategory)}
-      </Row>
+        <div className='grid lg:grid-cols-5 lg:gap-3 xs:grid-cols xs:gap md:grid-cols-2 md:gap-3'>{state.subCategory.map(singleCategory)}</div>
+      </div>
     );
   };
 
   const singleCategory = (category: CategoryType) => (
-    <Col lg="2" xs="6" key={category.categoryId}>
-      <Card className="bg-dark text-white mb-3">
-        <Card.Header>
-          <Card.Title>{category.name}</Card.Title>
-        </Card.Header>
-        <Card.Body style={{ display: 'flex', justifyContent: 'center' }}>
-          <i className={category.imagePath} style={{ fontSize: 60 }}></i>
-        </Card.Body>
-        <Card.Footer style={{ display: 'flex', justifyContent: 'center' }}>
-          <small>
-            <Link
-              to={`/category/${category.categoryId}`}
-              className="btn btn-block btn-sm"
-            >
-              Prikaži kategoriju
-            </Link>
-          </small>
-        </Card.Footer>
+      <Card className='mt-3' key={category.categoryId} isPressable onPress={() => window.location.href=`#/category/${category.categoryId}`}>
+        <CardHeader>
+          {category.name}
+        </CardHeader>
+        <CardBody>
+          <i className={category.imagePath} style={{fontSize:60, display:"flex", justifyContent:"center"}}/>
+        </CardBody>
+        <CardFooter className='flex justify-center'>
+        </CardFooter>
       </Card>
-    </Col>
   );
   
 
   const showArticles = () => {
     if (!state.category) {
       return (
-        <div>Nema opreme definisane za ovu kategoriju.</div>
+        <Alert variant='info' title='Info!' body='Nema opreme definisane za ovu kategoriju' />
       );
     }
   
     if (!state.category || state.category.stocks?.length === 0) {
       return (
-        <div>Nema opreme definisane za ovu kategoriju.</div>
+        <Alert variant='info' title='Info!' body='Nema opreme definisane za ovu kategoriju' />
       );
     }
   
     return <Tabela categoryId={categoryID} />;
   };
   
-  if(isLoggedIn === false) {
-    return (
-      <Redirect to="/admin/login" />
-    )
-  }
 
   return (
     <div>
       <RoledMainMenu role="administrator" />
-      <Container className='mt-3'>
-      <Row className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'd-none'}>
+      <div className="container mx-auto lg:px-4 mt-3 h-max">
+        <div className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'd-none'}>
           <h5 style={{ color: 'white' }}>
             <i className="bi bi-list" />
             {state.category?.name}
           </h5>
           <div>{showArticles()}</div>
-        </Row>
-
-        <Row >
-          <div>{showSubcategories()}</div>
-        </Row>
-      </Container>
+        </div>
+          {showSubcategories()}
+      </div>
     </div>
   );
 };

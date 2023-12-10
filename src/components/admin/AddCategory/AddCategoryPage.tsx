@@ -4,7 +4,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import { Redirect } from 'react-router-dom';
+/* import { Redirect } from 'react-router-dom'; */
 
 interface AddCategoryPageState {
     categories: CategoryType[];
@@ -184,11 +184,11 @@ export default class AddNewCategoryPage extends React.Component<{}> {
     /* RENDERER */
 
     render() {
-        if(this.state.isLoggedIn === false) {
+        /* if(this.state.isLoggedIn === false) {
             return (
                 <Redirect to='admin/login' />
             )
-        }
+        } */
         return (
             <div>
             <RoledMainMenu role="administrator" />

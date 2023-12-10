@@ -6,7 +6,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import { Redirect } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface AddArticlePageState{
     articles: ArticleType[];
@@ -42,6 +42,8 @@ interface CategoryDto {
     imagePath: string,
     parentCategoryId: number,
 }
+
+
 
 export default class AddArticlePage extends React.Component<{}>{
     state: AddArticlePageState;
@@ -471,13 +473,12 @@ export default class AddArticlePage extends React.Component<{}>{
             </div>
         )
     }
-
     renderArticleData() {
-        if(this.state.isLoggedIn === false){
+        /* if(this.state.isLoggedIn === false){
             return(
-                <Redirect to='admin/login' />
+                navigate('/admin/login')
             )
-        }
+        } */
         return(
             <Row>
             <Col xs ="12" lg="12">

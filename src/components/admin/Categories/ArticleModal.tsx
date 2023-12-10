@@ -1,14 +1,22 @@
-import { FC, useEffect, useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
+import { FC, useEffect, useMemo, useState } from "react";
 import api from "../../../API/api"; 
-import Moment from 'moment';
-import { Link } from 'react-router-dom';
-import { TableContainer, Table, TableBody, TableCell, TableHead,TableRow, Alert, CircularProgress, IconButton, FormControl, InputLabel, OutlinedInput, InputAdornment} from '@mui/material';
-import { ArrowForwardIos, ArrowBackIos, Search } from '@mui/icons-material';
-import { CgMoreO } from "@react-icons/all-files/cg/CgMoreO";
-import './ArticleModal.css';
-import { Pagination } from 'react-bootstrap';
+import Moment from "moment";
+import { Link, Button, ChipProps, Input, Modal, ModalBody, ModalContent, 
+  ModalFooter, ModalHeader, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Chip } from "@nextui-org/react";
+
+interface ResponsibilityArticleBaseType {
+  serialNumber: string;
+  invNumber: string;
+  status: "zaduženo" | "razduženo" | "otpisano";
+  timestamp: string;
+  articleId: number;
+  user?: {
+    userId: number;
+    fullname: string;
+  };
+  [key: string]: string | number | { userId: number; fullname: string } | undefined;
+}
+
 
 interface ArticleModalProps {
   show: boolean;
@@ -16,189 +24,134 @@ interface ArticleModalProps {
   stockId: number;
 }
 
-interface ResponsibilityArticleBaseType {
-  serialNumber: string;
-  invNumber: string;
-  status: 'zaduženo' | 'razduženo' | 'otpisano';
-  timestamp: string;
-  articleId: number;
-  user?:{
-    userId: number;
-    fullname: string;
-  }
-}
+const statusColorMap: Record<string, { color: ChipProps["color"]; startContent: string }> = {
+  zaduženo: { color: "success", startContent: "bi bi-check-circle" },
+  razduženo: { color: "warning", startContent: "bi bi-exclamation-circle" },
+  otpisano: { color: "warning", startContent: "bi bi-x-circle" },
+};
 
 const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
-  const [userArticleData, setUserArticleData] = useState<ResponsibilityArticleBaseType[] | null>(null);
+  const [articleData, setArticleData] = useState<ResponsibilityArticleBaseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<ResponsibilityArticleBaseType[] | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(totalResults / itemsPerPage);
 
   useEffect(() => {
     if (show) {
-      setIsLoading(true);
-      // Ažurirajte API poziv za korištenje 'page' umjesto 'offset'
-      api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, 'get', {}, 'administrator')
-        .then((res) => {
-          if (res.status === 'error') {
-            console.error('Greška prilikom dohvaćanja dodatnih podataka:');
-          } else {
-            // Ažurirajte state s novim podacima
-            setUserArticleData(res.data.results as ResponsibilityArticleBaseType[]);
-            setTotalResults(res.data.total); // Postavite ukupan broj rezultata
-          }
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Greška pri dohvaćanju podataka:', error);
-          setIsLoading(false);
-        });
+      stockArticleData();
+    } else {
+      setArticleData([])
+      setSearchQuery("")
+      setCurrentPage(1)
     }
   }, [show, stockId, itemsPerPage, currentPage]);
 
-  const handleSearch = () => {
+  const stockArticleData = async () => {
     setIsLoading(true);
-    api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, 'get', {}, 'administrator')
-      .then((res) => {
-        if (res.status === 'error') {
-          console.error('Greška prilikom pretrage:', res.data);
-        } else {
-          setUserArticleData(res.data.results as ResponsibilityArticleBaseType[]);
-          setTotalResults(res.data.total); // Postavite ukupan broj rezultata
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error('Greška pri dohvaćanju podataka:', error);
-        setIsLoading(false);
-      });
-  };
-  
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    try {
+      const res = await api(`api/article/s/${stockId}?perPage=${itemsPerPage}&page=${currentPage}&query=${searchQuery}`, "get", {}, "administrator");
+      if (res.status === "error") {
+        console.error("Greška prilikom dohvaćanja dodatnih podataka:", res.data);
+      } else if (res.status === "login") {
+        console.log("Korisnik nije prijavljen.");
+      } else {
+        setArticleData(res.data.results);
+        setTotalResults(res.data.total);
+      }
+    } catch (error) {
+      console.error("Greška pri dohvaćanju podataka:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const totalPages = Math.ceil(totalResults / itemsPerPage);
-  
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      setCurrentPage(1)
+      stockArticleData();
+    }
+};
+
   return (
-    <Modal 
-    show={show} 
-    onHide={onHide}
-    size='xl'
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Detalji zaduženja</Modal.Title>
-      </Modal.Header>
-      <Modal.Body style={{ overflowX: 'auto' }}>
-      <FormControl className='search-box-modal'>
-            <InputLabel htmlFor="pretraga-outlined">Pretraga</InputLabel>
-            <OutlinedInput
-              id="pretraga-outlined"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSearch();
-                }
-              }}
-              endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                onClick={handleSearch}
-                >
-                  <Search />
-                </IconButton>
-              </InputAdornment>
-            }
-            label="Pretraga"
-            />
-          </FormControl>
-      {isLoading ? (
-        <div style={{display:"flex", justifyContent:"center"}}><CircularProgress /></div>
-      ) : userArticleData && userArticleData.length > 0 ? (
-        <>
-          
-        <TableContainer>
-              <Table sx={{ minWidth: 650 }} size={'small'} aria-label="caption table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Korisnik</TableCell>
-                    <TableCell>Serijski broj</TableCell>
-                    <TableCell>Inv. Broj</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Datum</TableCell>
+    <Modal isOpen={show} onClose={onHide} size="4xl" backdrop="blur" >
+      <ModalContent>
+        <ModalHeader>Detalji zaduženja </ModalHeader>
+        <ModalBody >
+        <div>
+              <Input
+                variant="bordered"
+                type="text"
+                isClearable
+                placeholder="Pronađi artikal..."
+                value={searchQuery}
+                onClear={() => setSearchQuery("")} 
+                onValueChange={(value) => setSearchQuery(value || "")}
+                onKeyDown={handleKeyPress}
+              />           
+          </div>
+          <Table
+            aria-label="Article modal tabela"
+            isHeaderSticky
+            classNames={{
+              wrapper: "max-h-[382px]",
+            }}
+           
+          >
+            <TableHeader>
+              <TableColumn key="fullname">Ime i prezime</TableColumn>
+              <TableColumn key="sapNumber">Serijski broj</TableColumn>
+              <TableColumn key="invNumber">Inventurni broj</TableColumn>
+              <TableColumn key="timestamp">Status</TableColumn>
+              <TableColumn key="status">Datum akcije</TableColumn>
+            </TableHeader>
+            <TableBody items={articleData}>
+              {(item) => {
+                const { color, startContent } = statusColorMap[item.status];
+                return articleData.length > 0 ? (
+                  <TableRow key={item.serialNumber}>
+                    <TableCell key={item.user?.fullname}>
+                      <Link href={`#/admin/userProfile/${item.user?.userId}`}>
+                        {item.user?.fullname}
+                      </Link>
+                    </TableCell>
+                    <TableCell key={item.serialNumber}>
+                      <Link href={`#/admin/user/${item.serialNumber}`}>
+                        {item.serialNumber}
+                      </Link>
+                    </TableCell>
+                    <TableCell key={item.invNumber}>{item.invNumber}</TableCell>
+                    <TableCell key={item.status}><Chip color={color} variant="bordered" startContent={<i className={startContent}></i>}> {item.status}</Chip></TableCell>
+                    <TableCell key={item.timestamp}>{Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}</TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {userArticleData.map((article, index) => (
-                    <TableRow key={index}>
-                      <TableCell component="th" scope="row">
-                        {article.user ? (
-                          <Link to={`/admin/userProfile/${article.user.userId}`}>
-                            {article.user.fullname}
-                          </Link>
-                        ) : <span className='status-razduženo'>Skladište</span>}
-                      </TableCell>
-                      <TableCell>
-                        <Link to={`/admin/user/${article.serialNumber}`}>
-                          {article.serialNumber}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{article.invNumber}</TableCell>
-                      <TableCell className={`status-${article.status}`}>{article.status}</TableCell>
-                      <TableCell>{Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          className="btn-sm"
-                          size="sm"
-                          onClick={() => {
-                            window.location.href = `#/admin/stock/${stockId}/`;
-                          } }
-                        >
-                          <CgMoreO />
-                          {/*  Više <i className="bi bi-arrow-bar-right"/> */}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "10px" }}>
-                <Pagination>
-                  <Pagination.Prev
-                    disabled={currentPage === 1}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                  >
-                    <ArrowBackIos style={{ color: 'black', fontSize: "20px" }} />
-                  </Pagination.Prev>
-                  <Pagination.Item disabled>{`${currentPage} od ${totalPages}`}</Pagination.Item>
-                  <Pagination.Next
-                    disabled={currentPage * itemsPerPage >= totalResults}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                  >
-                    <ArrowForwardIos style={{ color: 'black', fontSize: "20px" }} />
-                  </Pagination.Next>
-                </Pagination>
-              </div></>
-      ) : (
-        <div style={{marginTop:"10px"}}><Alert severity='info'>Artikal nema zaduženja.</Alert></div>
-      )}      
-</Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Zatvori
-        </Button>
-      </Modal.Footer>
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5}>Nema artikala</TableCell>
+                  </TableRow>
+                );
+              }}
+            </TableBody>
+          </Table>
+          <div className="flex justify-center">
+            <Pagination
+              showControls
+              showShadow
+              page={currentPage}
+              total={totalPages}
+              onChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="success" onClick={onHide}>Zatvori</Button>
+        </ModalFooter>
+      </ModalContent>
     </Modal>
   );
 };
 
 export default ArticleModal;
-

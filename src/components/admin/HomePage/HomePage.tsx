@@ -1,24 +1,17 @@
-import React from 'react';
-import { Card, CardGroup, Col, Container, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api, { ApiResponse } from '../../../API/api';
 import CategoryType from '../../../types/CategoryType';
-import { Redirect } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
-import UserPage from '../UserPage/UserPage';
 import AdminMenu from '../AdminMenu/AdminMenu';
+import { UserTable } from '../UserPage/UserTable';
+import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
 
-
-/* Obavezni dio komponente je state (properties nije), u kome definišemo konačno stanje komponente */
 interface HomePageState {
-    /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa */
-    categories: CategoryType[];
-    isLoggedIn: boolean;
-    message: string;
+    categories?: CategoryType[];
+    isLoggedIn?: boolean;
+    message?: string;
 }
-
-/* U većini slučajeva će biti potrebno napraviti DataTransferObjekat koji će raditi sa podacima,
-gdje ćemo definisati da je neka veza primjerak tog DTO-a*/
 
 interface CategoryDto {
     categoryId: number,
@@ -26,37 +19,29 @@ interface CategoryDto {
     imagePath: string,
 }
 
-/* Ova komponenta je proširena da se prikazuje na osnovu parametara koje smo definisali iznad */
-export default class HomePage extends React.Component {
-    state: HomePageState;
 
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
-            categories: [],
-            isLoggedIn: true,
-            message:'',
+const HomePage: React.FC <HomePageState> = () => {
+
+    const [state, setState] = useState<HomePageState>({
+        categories: [],
+        isLoggedIn: true,
+        message:'',
+    })
+
+    const navigate = useNavigate();
+
+    const setLogginState = (isLoggedIn: boolean) => {
+        setState({ ...state, isLoggedIn: isLoggedIn });
+        if(isLoggedIn === false) {
+            navigate('admin/login')
         }
     }
 
-    /* SET FUNKCIJE ĆEMO DEFINISATI PRIJE RENDERA */
-    private setLogginState(isLoggedIn: boolean) {
-        const newState = Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        });
-
-        this.setState(newState);
+    const setMessageState = (message: string) => {
+        setState({...state, message: message})
     }
 
-    private setMessageState(message: string) {
-        const newState = Object.assign(this.state, {
-            message: message,
-        });
-
-        this.setState(newState);
-    }
-
-    private putCategoriesInState(data: CategoryDto[]) {
+    const putCategoriesInState = (data: CategoryDto[]) => {
         const categories: CategoryType[] = data.map(category => {
             return {
                 categoryId: category.categoryId,
@@ -64,89 +49,60 @@ export default class HomePage extends React.Component {
                 imagePath: category.imagePath,
             }
         })
-        const newState = Object.assign(this.state, {
-            categories: categories
-        })
-        this.setState(newState)
+        setState({...state, categories: categories})
     }
 
-    /* KRAJ SET FUNCKIJA */
-
-    render() {
-        /* Prije povratne izvršenja returna možemo izvršiti neke provjere */
-        if (this.state.isLoggedIn === false) {
-            return (
-                <Redirect to="/admin/login" />
-            );
-        }
-        /* kraj provjera */
-        return (
-            /* prikaz klijentu */
-            <>
-                <RoledMainMenu role='administrator'/>
-                    <Container className='mt-3'>
-                        <Row>
-                            <UserPage />
-                        </Row>
-                        
-                        <Row className="mt-5">
-                            <h5  style={{ color:"white"}}> 
-                            <i className="bi bi-card-list"/> Top level kategorije</h5>
-                                {this.state.categories.map(this.singleCategory)}
-                                <p>{this.state.message}</p>
-                        </Row>
-                    </Container>
-                <AdminMenu />
-            </>
-        )
-    }
-
-    private singleCategory(category: CategoryType) {
-        return (
-            <Col lg="2" xs="6" >
-                <Card className="text-white bg-dark mb-3">
-                    <Card.Header>
-                        <Card.Title>
-                            {category.name}
-                        </Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
-                    </Card.Body>
-                    <Card.Footer style={{display:"flex", justifyContent:'center'}}>
-                        <small><Link to={`/category/${category.categoryId}`}
-                            className='btn btn-block btn-sm'>Prikaži kategoriju</Link></small>
-                    </Card.Footer>
-                </Card>
-            </Col>
-        )
-    }
-
-    /* GET I MOUNT FUNKCIJE ĆEMO DEFINISATI ISPOD RENDERA */
-    componentDidMount() {
-        /* Upisujemo funkcije koje se izvršavaju prilikom učitavanja stranice */
-        this.getData()
-    }
-
-    componentDidUpdate() {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-    }
-
-    /* Funkcija za dopremanje podataka, veza sa api-jem  
-    api u većini slučajeva traži povratnu informaciju 3 parametra
-    api('1', '2', '3'){} 
-    1. ruta (provjeriti u backend), 
-    2. method (onaj koji definišemo u api da koristimo get, post, patch, delete, update..) 
-    3. body (ako je get tj. prazan body stavljamo {} a ako nije unutar {definišemo body}) */
-    private getData() {
+    useEffect(() => {
         api('api/category/?filter=parentCategoryId||$isnull', 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
-                    return this.setLogginState(false);
+                    setMessageState('Greška prilikom dohvaćanja podataka.')
+                    setLogginState(false)
+                    return;
                 }
-                /* Nakon što se izvrši ruta, šta onda */
-                this.putCategoriesInState(res.data)
+                putCategoriesInState(res.data)
             })
+    }, [])
+
+
+    
+
+    return (
+        /* prikaz klijentu */
+        <>
+            <RoledMainMenu role='administrator'/>
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
+                <div className='' >
+                    <div>
+                        {<UserTable /> }
+                    </div>
+                    
+                    <h5 className='mt-3 ml-3' style={{ color:"white"}}> <i className="bi bi-card-list"/> Top level kategorije</h5>
+                    <div className='grid lg:grid-cols-5 lg:gap-5 xs:grid-cols xs:gap'>
+                    {state.categories && state.categories.map(singleCategory)}
+                        <p>{state.message}</p>
+                    </div>
+
+                </div>
+            </div>
+            <AdminMenu />
+        </>
+    )
+
+    function singleCategory(category: CategoryType) {
+        return (
+            <Card className='mt-3' key={category.categoryId} isPressable onPress={() => window.location.href=`#/category/${category.categoryId}`}>
+                <CardHeader>
+                        {category.name}
+                </CardHeader>
+                <CardBody>
+                    <i className={category.imagePath} style={{fontSize:50, display:"flex", justifyContent:"center"}}/>
+                </CardBody>
+                <CardFooter className='flex justify-center'>
+                </CardFooter>
+            </Card>
+        )
     }
-} /* Kraj koda */
-    /* KRAJ GET I MOUNT FUNKCIJA */
+}
+
+export default HomePage;

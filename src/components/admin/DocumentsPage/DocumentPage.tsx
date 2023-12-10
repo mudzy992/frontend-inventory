@@ -87,6 +87,10 @@ const DocumentsPage: React.FC = () => {
         }
     };
 
+    function combineFirstLetters(surname: string, forname: string) {
+        const inicialLetters = surname.charAt(0).toUpperCase() + forname.charAt(0).toUpperCase()
+        return inicialLetters
+      }
 
     useEffect(() => {
         try {
@@ -159,7 +163,8 @@ const DocumentsPage: React.FC = () => {
               <TableColumn key="naziv-artikla">Naziv artikla</TableColumn>
               <TableColumn key="serijski-broj-artikla">Serijski broj</TableColumn>
               <TableColumn key="inv-broj-artikal">Inventurni broj</TableColumn>
-              <TableColumn key="zaduzeni-korisnik">Korisnik</TableColumn>
+              <TableColumn key="zaduzeni-korisnik">Predao</TableColumn>
+              <TableColumn key="zaduzeni-korisnik">Preuzeo</TableColumn>
               <TableColumn key="dokument-prenosnica">Dokument</TableColumn>
             </TableHeader>
                 <TableBody items={documentsData}>
@@ -170,6 +175,7 @@ const DocumentsPage: React.FC = () => {
                             <TableCell>{item.article?.stock?.name}</TableCell>
                             <TableCell>{item.article?.serialNumber}</TableCell>
                             <TableCell>{item.article?.invNumber}</TableCell>
+                            <TableCell>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].subbmited?.fullname : null}</TableCell>
                             <TableCell>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].user?.fullname : null}</TableCell>
                             <TableCell>{dokumentAction(item.signed_path!, item.documentsId, handleOpenModal)}</TableCell>
                         </TableRow>
@@ -189,7 +195,7 @@ const DocumentsPage: React.FC = () => {
                                         <div className='grid grid-cols-12 gap-2 '>
                                                 {modalData.document.articleTimelines && modalData.document.articleTimelines.length > 0 && (
                                                     <div className='col-span-4 flex flex-col justify-center items-center w-full h-[250px] p-3'>
-                                                        <div className='mb-3'><Avatar className='w-20 h-20 text-large' isBordered showFallback name={modalData.document.articleTimelines[0]?.subbmited?.surname} /></div>
+                                                        <div className='mb-3'><Avatar className='w-20 h-20 text-large' isBordered showFallback name={combineFirstLetters(modalData.document.articleTimelines[0]?.subbmited?.surname!, modalData.document.articleTimelines[0]?.subbmited?.forname!)} /></div>
                                                         <div className='text-center'>{modalData.document.articleTimelines[0]?.subbmited?.fullname}</div>
                                                     </div>
                                                 )}
@@ -205,7 +211,7 @@ const DocumentsPage: React.FC = () => {
                                             </div>
                                             {modalData.document.articleTimelines && modalData.document.articleTimelines.length > 0 && (
                                                     <div className='col-span-4 flex flex-col justify-center items-center w-full max-h-[250px] p-3'>
-                                                        <div className='mb-3'><Avatar className='w-20 h-20 text-large' isBordered showFallback name={modalData.document.articleTimelines[0]?.user?.surname} /></div>
+                                                        <div className='mb-3'><Avatar className='w-20 h-20 text-large' isBordered showFallback name={combineFirstLetters(modalData.document.articleTimelines[0]?.user?.surname!, modalData.document.articleTimelines[0]?.user?.forname!)} /></div>
                                                         <div className='text-center'>{modalData.document.articleTimelines[0]?.user?.fullname}</div>
                                                     </div>
                                                 )}

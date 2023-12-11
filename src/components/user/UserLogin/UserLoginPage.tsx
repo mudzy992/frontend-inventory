@@ -1,152 +1,169 @@
-import React from 'react'
-import { Container, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-/* import { Redirect } from 'react-router-dom'; */
+import React, { useState } from 'react'
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
-
-
-interface userData {
-    id: number;
-}
-
+import { useNavigate } from 'react-router-dom';
+import { Alert } from '../../custom/Alert';
+import { Button, Divider, Input } from '@nextui-org/react';
 
 interface UserLoginPageState {
     email: string;
     password: string;
-    userID: userData[];
+    userID: number;
     errorMessage: string;
     isLoggedIn: boolean;
 }
 
-export default class UserLoginPage extends React.Component {
-    state: UserLoginPageState;
+const UserLoginPage: React.FC = () => {
 
-    constructor(props: Readonly<{}>) {
-        super(props);
+const [state, setState] = useState<UserLoginPageState>({
+    email: '',
+    password: '',
+    userID: 0,
+    errorMessage: '',
+    isLoggedIn: false,
+})
 
-        this.state = {
-            email: '',
-            password: '',
-            userID: [],
-            errorMessage: '',
-            isLoggedIn: false,
+const navigate = useNavigate();
+const [isVisible, setIsVisible] = React.useState(false);
+const toggleVisibility = () => setIsVisible(!isVisible);
+
+
+const formInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setState({...state, [event.target.id]: event.target.value})
+}
+
+const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+        doLogin();
+    }
+};
+
+const setLogginState = (isLoggedIn: boolean) => {
+    setState({
+        ...state,
+        isLoggedIn: isLoggedIn,
+    });
+};
+
+const setUserID = (userID: number) => {
+    setState({
+      ...state,
+      userID: userID,
+    });
+  
+    if (userID) {
+      navigate(`/user/profile/${userID}`);
+    }
+  };
+  
+  
+
+const setErrorMessage = (message: string) => {
+    setState((prev) =>({...prev, message: message}))
+};
+
+const printErrorMessage = () => {
+    if (!state.errorMessage) {
+        return null;
+    }
+    return (
+        <Alert showCloseButton={true} variant='danger' title='Upozorenje!' body={state.errorMessage} />
+    );
+};
+
+
+const doLogin = async () => {
+    api(
+        'auth/user/login',
+        'post',
+        {
+            email: state.email,
+            password: state.password,
         }
-    }
-    private formInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
-        const newState = Object.assign(this.state, {
-            [event.target.id]: event.target.value,
-        });
-
-        this.setState(newState);
-    }
-
-    private setLogginState(isLoggedIn: boolean) {
-        const newState = Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        });
-
-        this.setState(newState);
-    }
-
-    private setUserID(userID: userData[]) {
-        const newState = Object.assign(this.state, {
-            userID: userID,
-        });
-
-        this.setState(newState);
-    }
-
-    private setErrorMessage(message: string) {
-        const newState = Object.assign(this.state, {
-            errorMessage: message,
-        });
-
-        this.setState(newState);
-    }
-
-    private doLogin() {
-        api(
-            'auth/user/login',
-            'post',
-            {
-                email: this.state.email,
-                password: this.state.password,
+    )
+        .then(async (res: ApiResponse) => {
+            if (res.status === 'error') {
+                setErrorMessage('System error... Try again!');
+                return;
             }
-        )
-            .then((res: ApiResponse) => {
-                if (res.status === 'error') {
-                    this.setErrorMessage('System error... Try again!');
 
+            if (res.status === 'ok') {
+                if (res.data.statusCode !== undefined) {
+                    let message = '';
+
+                    switch (res.data.statusCode) {
+                        case -3001: 
+                        case -3002: 
+                            message = 'Neispravni korisnički podaci!';
+                            break;
+                    }
+                    setErrorMessage(message);
                     return;
                 }
+                console.log('ID Prije:' + state.userID)
+                await setUserID(res.data.id);
+                console.log('ID Poslije:' + state.userID)
+                await saveToken('user', res.data.token);
+                console.log(saveToken)
+                await saveRefreshToken('user', res.data.refreshToken);
+                console.log('Log Prije:' + state.isLoggedIn)
+                await setLogginState(true);
+                await console.log('Log Poslije:' + state.isLoggedIn)
 
-                if (res.status === 'ok') {
-                    if (res.data.statusCode !== undefined) {
-                        let message = '';
+            }
+        });
+}
 
-                        switch (res.data.statusCode) {
-                            case -3001: message = 'Unkwnon e-mail!'; break;
-                            case -3002: message = 'Bad password!'; break;
-                        }
+return (
+    <div className='grid gap-3'>
+        <div className='text-center text-3xl text-gray-400'>
+            <p>
+                Korisnička prijava
+            </p>
+        </div>
+        <Input
+            type='text'
+            id='email'
+            label='Email'
+            placeholder="Unesite email"
+            variant="flat"
+            labelPlacement='outside'
+            value={state.email}
+            onChange={(event) => formInputChanged(event as any)}
+            onKeyDown={(event) => handleKeyPress(event as any)} 
+            startContent={
+                <i className="bi bi-envelope-at-fill text-2xl text-default-400 pointer-events-none"></i>
+            }
+        />
+        <Input
+            id='password'
+            label="Lozinka"
+            variant="flat"
+            labelPlacement='outside'
+            placeholder="Unesite lozinku"
+            endContent={<button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                {isVisible ? (
+                    <i className="bi bi-eye-fill text-2xl text-default-400 pointer-events-none" />
+                ) : (
+                    <i className="bi bi-eye-slash-fill text-2xl text-default-400 pointer-events-none" />
+                )}
+            </button>}
+            type={isVisible ? "text" : "password"}
+            value={state.password}
+            onChange={(event) => formInputChanged(event as any)}
+            onKeyDown={(event) => handleKeyPress(event as any)} 
+            startContent={
+                <i className="bi bi-key-fill text-2xl text-default-400 pointer-events-none"></i>
+            }
+        />
+        <Divider className="my-4" />
+        <Button size='lg' variant="solid" color='default' onClick={() => doLogin()}>
+            Prijava
+        </Button>
+        <div>
+            {printErrorMessage()}
+        </div>
+    </div>
+                
+)}
 
-                        this.setErrorMessage(message);
-
-                        return;
-                    }
-                    this.setUserID(res.data.id);
-                    saveToken('user', res.data.token);
-                    saveRefreshToken('user', res.data.refreshToken);
-
-                    this.setLogginState(true);
-
-                }
-            });
-    }
-    render() {
-        /* if (this.state.isLoggedIn === true) {
-            return (
-                <Redirect to={`/user/profile/${this.state.userID}`} />
-            );
-        } */
-        return (
-            <div>
-                <Container>
-                    <Col md={{ span: 6, offset: 3 }}>
-                        <Card style={{ marginTop: 10 }}>
-                            <Card.Body>
-                                <Card.Title>
-                                    <i className="bi bi-box-arrow-in-right" /> Prijava korisnika
-                                </Card.Title>
-                                <Form>
-                                    <Form.Group>
-                                        <Form.Label htmlFor="email">E-mail:</Form.Label>
-                                        <Form.Control type="email" id="email"
-                                            value={this.state.email}
-                                            onChange={event => this.formInputChanged(event as any)} />
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Form.Label htmlFor="password">Password:</Form.Label>
-                                        <Form.Control type="password" id="password"
-                                            value={this.state.password}
-                                            onChange={event => this.formInputChanged(event as any)} />
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Button variant="primary"
-                                            style={{ marginTop: 15 }}
-                                            onClick={() => this.doLogin()}>
-                                            Log in
-                                        </Button>
-                                    </Form.Group>
-                                </Form>
-                                <Alert variant="danger"
-                                    style={{ marginTop: 15 }}
-                                    className={this.state.errorMessage ? '' : 'd-none'}>
-                                    <i className="bi bi-exclamation-triangle" />  {this.state.errorMessage}
-                                </Alert>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Container>
-            </div>
-        )
-    }
-}/* Kraj koda */
+export default UserLoginPage;

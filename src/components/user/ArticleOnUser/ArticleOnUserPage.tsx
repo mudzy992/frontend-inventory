@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NextUIProvider, Button, Card, CardBody,CardHeader, Badge, Tooltip, Listbox, ListboxItem  } from '@nextui-org/react';
+import { NextUIProvider, Button, Card, CardBody,CardHeader, Badge, Tooltip, Listbox, ListboxItem, Table, TableHeader, TableColumn, TableBody, TableCell, TableRow, ListboxSection, ScrollShadow, Link, Popover, PopoverTrigger, PopoverContent  } from '@nextui-org/react';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
@@ -7,6 +7,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LangBa } from '../../../config/lang.ba';
 import ArticleType from '../../../types/ArticleType';
 import { Col, Row } from 'react-bootstrap';
+import saveAs from 'file-saver';
+import { ApiConfig } from '../../../config/api.config';
+import { Alert } from '../../custom/Alert';
 
 interface UpgradeFeaturesType {
   name: string;
@@ -26,6 +29,7 @@ interface ArticleOnUserPageState {
 
 export default function ArticleOnUserPage() {
   const { serial } = useParams();
+  const navigate = useNavigate();
 
   const [state, setState] = useState<ArticleOnUserPageState>({
     message: '',
@@ -53,16 +57,28 @@ export default function ArticleOnUserPage() {
 
   const printOptionalMessage = () => {
     if (state.message === '') {
-      return null;
+        return;
     }
 
-    return <Card><CardBody>{state.message}</CardBody></Card>;
-  };
+    return (
+        <Card>
+              {state.message}            
+        </Card>
+    );
+}
+  
+  
 
   useEffect(() => {
     if (!serial) {
       return;
     }
+
+    if(state.isLoggedIn === false) {
+      return (
+        navigate('/login')
+      )
+    } 
 
     getArticleData(serial as string);
   }, [serial]);
@@ -88,196 +104,271 @@ export default function ArticleOnUserPage() {
     });
   };
 
-  const badgeStatus = (status: string) => {
-    const statusColors: Record<string, string> = {
-      [LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE]: 'success',
-      [LangBa.ARTICLE_ON_USER.STATUS_DEBT]: 'warning',
-      [LangBa.ARTICLE_ON_USER.STATUS_DESTROY]: 'danger',
-    };
+  function badgeStatus (article: ArticleType) {
+    let stat:any = article.status;
+    let color:any;
+    if(stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
+        color = 'success'
+    } else if(stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
+        color = 'warning'
+    } else {
+        color = 'danger'
+    }
 
-    return (
-      <Badge shape="circle" /* color={statusColors[status]} */ style={{ marginLeft: 10, alignItems: 'center', display: 'flex', fontSize: 12 }}>
-        {status}
-      </Badge>
-    );
-  };
+    return(
+        <Badge content={stat} color={color}> </Badge>
+    )
+}
 
-  const userDetails = (userDet: ArticleType) => {
-    const stat = userDet.status;
-
+  function userDetails(userDet: ArticleType) {
+    let stat = userDet.status
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
-      return <Card> <CardBody>{LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}</CardBody></Card>;
+        return (<Alert variant='info' title='Info!' body={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO} />)
     }
-
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
-      return <Card> <CardBody>{LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}</CardBody></Card>;
+        return (<Alert variant='danger' title='Info!' body={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING} />)
     }
-
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
-      return (
-        <Card className="mb-2">
-          <CardHeader>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</CardHeader>
-          <Listbox>
-                  <ListboxItem key={'name'} >{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname}</ListboxItem>
-                  <ListboxItem key={'lastname'} >{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname}</ListboxItem>
-                  <ListboxItem key={'email'} >{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email}</ListboxItem>
-                  <ListboxItem key={'department'} >{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title}</ListboxItem>
-                  <ListboxItem key={'jobname'} >{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title}</ListboxItem>
+        return (
+          <div className='mb-3'>
+            <span className='ml-2'>Detalji korisnika</span><Listbox key={userDet.user?.userId} className='mt-2 pt-3 bg-gray-800 shadow rounded-2xl'>
+            <ListboxItem
+              className='w-[95%]'
+              key={userDet.user?.fullname!}
+              description={<span className='text-tiny text-gray-400'>Naziv korisnika</span>}
+            >
+              {userDet.user?.fullname}
+            </ListboxItem>
+            <ListboxItem className='w-[95%]' key={userDet.user?.email!} description={<span className='text-tiny text-gray-400'>Email</span>}>
+              {userDet.user?.email}
+            </ListboxItem>
+            <ListboxItem className='w-[95%]' key={userDet.user?.department?.title!} description={<span className='text-tiny text-gray-400'>Naziv sektora/odjeljenja</span>}>
+              {userDet.user?.department?.title}
+            </ListboxItem>
+            <ListboxItem className='w-[95%]' key={userDet.user?.job?.title!} description={<span className='text-tiny text-gray-400'>Naziv radnog mjesta</span>}>
+              {userDet.user?.job?.title}
+            </ListboxItem>
+            <ListboxItem className='w-[95%]' key={userDet.user?.location?.name!} description={<span className='text-tiny text-gray-400'>Lokacija</span>}>
+              {userDet.user?.location?.name}
+            </ListboxItem>
           </Listbox>
-        </Card>
-      );
+          </div>
+        )
     }
-  };
+}
 
-  const upgradeFeature = () => {
+  function upgradeFeature(this: any) {
     if (state.upgradeFeatures.length === 0) {
-      return (
-        <Card className="mb-3">
-          <CardBody>
-              <Badge>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}</Badge>
-          </CardBody>
-        </Card>
-      );
-    }
-
-    return (
-      <Card className="mb-3">
-        <CardHeader style={{ backgroundColor: '#00695C' }}>
-          {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
-        </CardHeader>
-        <CardBody>
-          <ul>
-            {state.upgradeFeatures.map((uf) => (
-              <li key={uf.serialNumber} style={{ display: 'flex', alignItems: 'center' }}>
-                <b>{uf.name}:</b> {uf.value}
-                <Tooltip content={`${uf.comment} ${LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE} ${Moment(uf.timestamp).format(
-                  'DD.MM.YYYY - HH:mm'
-                )}`}>
-                  <Badge shape="circle" style={{ marginLeft: '5px', fontSize: '11px' }}>
-                    ?
-                  </Badge>
-                </Tooltip>
-              </li>
-            ))}
-          </ul>
-        </CardBody>
-      </Card>
-    );
-  };
-
-  const renderArticleData = (article: ArticleType) => {
-    return (
-      <Row>
-        <Col xs="12" lg="8">
-          <Row>
-            <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
-              <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
-            </Col>
-            <Col xs="12" lg="8" sm="8">
-              <Card className="mb-3">
-                <CardHeader>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.CARD_HEADER}</CardHeader>
-                <CardBody>
-                  <ul>
-                    {article.stock?.stockFeatures?.map((artFeature, index) => (
-                      <li key={index}>
-                        <b>{artFeature.feature?.name}:</b> {artFeature.value}
-                      </li>
-                    ))}
-                    <li>
-                      <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER}</b> {article.serialNumber}
-                    </li>
-                    <li>
-                      <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER}</b> {article.invNumber}
-                    </li>
-                  </ul>
-                </CardBody>
-              </Card>
-              {upgradeFeature()}
-            </Col>
-          </Row>
-
-          <Row>
-            <Col xs="12" lg="12" sm="12">
-              <Card className="mb-3">
-                <CardHeader>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</CardHeader>
-                <CardBody style={{ borderRadius: '0 0 calc(.25rem - 1px) calc(.25rem - 1px)', background: 'white', color: 'black' }}>
-                  {article.stock?.description}
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-        </Col>
-
-        <Col sm="12" xs="12" lg="4">
-          {userDetails(article)}
-          <Row>
-            <Col>
-              <Card className=" mb-2">
-                <CardHeader>
-                  <Row>
-                    <Col lg="9" xs="9" sm="9" md="9" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                      {LangBa.ARTICLE_ON_USER.USER_DETAILS.STATUS}
-                    </Col>
-                  </Row>
+        return (
+            <Card className="mb-3">
+                <CardHeader className="grid grid-cols-6 gap-4 bg-warning-100" style={{ color:'white'}}>
+                        <div className="col-span-5">
+                           <i className="bi bi-question-circle" /> Artikal nema nadogradnji
+                        </div>
                 </CardHeader>
-                <ul>
-                  <li key="status">
-                    Status: <b>{article.status} </b>
-                  </li>
-                  <li key="datum-akcije">
-                    Datum akcije: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}{' '}
-                  </li>
-                </ul>
-              </Card>
-            </Col>
-          </Row>
-        </Col>
+            </Card>
+        )
+    }
+    
 
-        <Col sm="12" xs="12" lg="12">
-          <Card className="mb-3">
-            <ul>
-              {/* {article.articleTimelines?.map((timeline) => (
-                <li key={timeline.timestamp}>
-                  <b>{timeline.user?.fullname}</b>  {timeline.status}{' '}
-                  {LangBa.ARTICLE_ON_USER.WITH_COMMENT_LABEL} {timeline.comment} {LangBa.ARTICLE_ON_USER.SERIAL_LABEL} {timeline.serialNumber}{' '}
-                  {LangBa.ARTICLE_ON_USER.INV_LABEL} {timeline.invNumber} {LangBa.ARTICLE_ON_USER.ON_DATE_LABEL}{' '}
-                  {Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}
-                </li>
-              ))} */}
-            </ul>
-          </Card>
-        </Col>
-      </Row>
-    );
-  };
+    if (state.upgradeFeatures.length !== 0) {
+        return (
+            <Card className="mb-3">
+                <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C"}}>
+                        <div className="col-span-5 text-sm">
+                          {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
+                        </div>
+
+                </CardHeader>
+                <Listbox>
+
+                {state.upgradeFeatures.map((uf, index) => (
+                        <ListboxItem key={index} className='w-[95%] mt-3'>
+                            <div className="grid grid-cols gap-2">
+                                <div className='col-span-4 flex flex-nowrap'>
+                                    <div>
+                                        <Popover placement='top' showArrow backdrop='blur'>
+                                            <PopoverTrigger>
+                                                <i style={{color:"darkgray"}} className="bi bi-info-circle-fill"/>
+                                            </PopoverTrigger>
+                                            <PopoverContent>
+                                                {uf.comment} <b>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE}</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                <div className='pl-2'><b>{uf.name}: </b> {uf.value}</div>
+                            </div>                                
+                            </div>
+                        </ListboxItem>
+                    ), this)}  
+                </Listbox>
+            </Card>
+        )
+    }
+}
+
+function saveFile (docPath: any) {
+  if(!docPath) {
+      return (
+          <div><Popover placement='right'>
+              <PopoverTrigger>
+                  <Button size='sm' style={{ backgroundColor: "#9D5353" }}>
+                      <i className="bi bi-file-earmark-text" style={{ fontSize: 20, color: "white" }} />
+              </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+                  Prenosnica nije generisana
+              </PopoverContent>
+          </Popover>
+          </div>
+      )
+  }
+  if (docPath) {
+      const savedFile = (docPath:any) => {
+          saveAs(
+              ApiConfig.TEMPLATE_PATH + docPath,
+              docPath
+          );
+      }
+      return (
+          <Link onClick={() => savedFile(docPath)}>
+              <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
+          </Link>
+      )
+}
+}
+
+  function renderArticleData(article: ArticleType) {
+    const mappedStockFeatures = state.article.stock?.stockFeatures?.map(stockFeature => ({
+        featureId: stockFeature.feature?.featureId || null,
+        name: stockFeature.feature?.name || '',
+        value: stockFeature.value || ''
+      })) || [];
+
+        return (
+            <div className="lg:flex">
+                <div className="lg:w-8/12 xs:w-full lg:mr-5">
+                    <div className="lg:flex">
+                        <div className="lg:w-4/12 xs:w-full flex justify-center items-center">
+                            <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
+                        </div>
+                        <div className="lg:w-8/12 xs:w-full">
+                            <ScrollShadow hideScrollBar className="w-full h-[250px]">
+                                <Listbox items={mappedStockFeatures} variant="bordered">
+                                    {(item) => (
+                                    <ListboxItem key={item.value}>
+                                        <span className="text-bold text-small text-default-400">{item.name}: </span>{item.value}
+                                    </ListboxItem>
+                                    )}
+                                </Listbox>
+                            </ScrollShadow>
+                            {upgradeFeature()}
+                        </div>
+                    </div>
+
+                    <div className="lg:flex">
+                        <div className="w-full lg:w-12/12 sm:w-12/12">
+                            <Card className="mb-3">
+                            <CardHeader> <span className='p-2 rounded-lg text-sm bg-gray-800 w-full'>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</span></CardHeader>
+                            <CardBody>
+                                <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
+                                {article.stock?.description}
+                                </ScrollShadow>
+                            </CardBody>
+                            </Card>
+                        </div>
+                    </div>
+
+                <div className="lg:flex mb-3">
+                    <Table>
+                        <TableHeader>
+                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
+                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
+                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
+                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
+                          <TableColumn>#</TableColumn>
+                        </TableHeader>
+                        <TableBody>
+                        {article.articleTimelines?.map((timeline) => (
+                            <TableRow key={timeline.articleTimelineId}>
+                            <TableCell>
+                                <Link isBlock showAnchorIcon color="primary" href={`#/admin/userProfile/${timeline.userId}`}>
+                                {timeline.user?.fullname}
+                                </Link>
+                            </TableCell>
+                            <TableCell>{timeline.status}</TableCell>
+                            <TableCell>{timeline.comment}</TableCell>
+                            <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                            <TableCell>{saveFile(timeline.document?.path)}</TableCell>
+                            </TableRow>
+                        )) ?? []}
+                        </TableBody>
+                    </Table>
+                </div>
+                </div>
+
+                <div className="w-full sm:w-full lg:w-1/3">
+                    {userDetails(article)}
+                    <div>
+                    <Card className="mb-3">
+                        <CardHeader className="grid grid-cols-6 gap-4">
+                            <div className="col-span-5">{LangBa.ARTICLE_ON_USER.STATUS.STATUS}</div>
+                        </CardHeader>
+                        <Listbox variant="flat">
+                        <ListboxItem key="status">Status: <b>{article.status} </b></ListboxItem>
+                        <ListboxItem key="datum-akcije">Datum akcije: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
+                        </Listbox>
+                    </Card>
+                    </div>
+                </div>
+            </div>
+
+        );
+    }
 
   return (
-    <NextUIProvider>
-      <div>
-        <RoledMainMenu role="user" userId={state.article ? state.article.userId : undefined} />
-          <Card>
-            <CardHeader>
-                <Row>
-                  <Col lg="12" xs="12" sm="12" md="12" style={{ display: 'flex', justifyContent: 'start' }}>
-                    <i className={state.article.category?.imagePath?.toString()} style={{ fontSize: 20, marginRight: 5 }} />
-                    {state.article.stock?.name}
-                    {state.article.status && badgeStatus(state.article.status)}
-                  </Col>
-                </Row>
-            </CardHeader>
-            <CardBody>
-              {printOptionalMessage()}
+    <div>
+            <RoledMainMenu role='administrator' />
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
+                <Card>
+                    <CardHeader>
+                          <div className='grid grid-cols-12 gap-2 bg-slate-800 rounded-xl p-2'>
+                            <div className='col-span-2'>
+                                <div className='grid grid-col-2'>
+                                  <div>
+                                    <i className={state.article.category?.imagePath?.toString()} style={{fontSize: 20}}/>
+                                  </div>
+                                      
+                                  <div className='pl-2 col-start-2 items-center flex'>
+                                      {state.article.stock?.name}
+                                  </div> 
+                              </div>
+                            </div>
+                            
+                            <div className='col-end-13 text-center'>
+                                {badgeStatus(state.article)} 
+                            </div>
+                          </div>
+                            
+                    </CardHeader>
+                    <CardBody>
+                            {printOptionalMessage()}
 
-              {state.article ? renderArticleData(state.article) : ''}
-
-              {state.errorMessage && (
-                  <Badge>
-                    <i className="bi bi-exclamation-circle-fill"></i> {state.errorMessage}
-                  </Badge>
-              )}
-            </CardBody>
-          </Card>
-      </div>
-    </NextUIProvider>
+                            {
+                                state.article ?
+                                    (renderArticleData(state.article)) :
+                                    ''
+                            }
+                            <Card
+                                style={{ marginTop: 15 }}
+                                className={state.errorMessage ? '' : 'd-none'}>
+                                    <CardBody>
+                                        <i className="bi bi-exclamation-circle-fill"></i> {state.errorMessage}
+                                    </CardBody>
+                            </Card>
+                    </CardBody>
+                </Card>
+            </div> 
+        </div>
   );
 }

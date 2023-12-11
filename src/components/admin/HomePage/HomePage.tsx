@@ -33,7 +33,7 @@ const HomePage: React.FC <HomePageState> = () => {
     const setLogginState = (isLoggedIn: boolean) => {
         setState({ ...state, isLoggedIn: isLoggedIn });
         if(isLoggedIn === false) {
-            navigate('admin/login')
+            navigate('/login')
         }
     }
 

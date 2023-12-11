@@ -177,7 +177,7 @@ const AdminArticleOnUserPage: React.FC = () => {
             ...prev, isLoggedIn: isLoggedIn
         }))
         if(isLoggedIn === false) {
-            navigate('/admin/login')
+            navigate('/login')
         }
     }
 

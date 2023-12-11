@@ -120,7 +120,7 @@
 //     }, [articleCurrentPage, articleItemsPerPage, articlePaginationTableQuery]);
 
 //     /* if (!isLoggedIn) {
-//         return <Redirect to="/admin/login" />;
+//         return <Redirect to="/login" />;
 //     } */
 
 //    /*  const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(

@@ -81,11 +81,6 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
 
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
-/*   if(isLoggedIn === false) {
-    return (
-      navigate('/admin/login')
-    )
-  } */
 
   return (
     <div> {/* kolona div */}

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -11,12 +11,9 @@ import reportWebVitals from './reportWebVitals';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import CategoryPage from './components/admin/Categories/Categories';
 import HomePage from './components/admin/HomePage/HomePage';
-/* import ArticlePage from './components/admin/ArticlePage/ArticlePage';
-import UserPage from './components/admin/UserPage/UserPage'; */
+/* import ArticlePage from './components/admin/ArticlePage/ArticlePage';*/
 import UserProfilePage from './components/user/UserProfilePage/UserProfilePage';
 import ArticleOnUserPage from './components/user/ArticleOnUser/ArticleOnUserPage';
-import UserLoginPage from './components/user/UserLogin/UserLoginPage';
-import AdministratorLoginPage from './components/admin/AdministratorLoginPage/AdministratorLoginPage';
 import AdminArticleOnUserPage from './components/admin/ArticleOnUser/ArticleOnUserPage';
 import AdminUserProfilePage from './components/admin/UserProfilePage/UserProfilePage';
 import AddArticlePage from './components/admin/AddArticle/AddArticlePage';
@@ -27,6 +24,7 @@ import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepar
 import { NextUIProvider } from '@nextui-org/react';
 import StockPage from './components/admin/StockPage/StockPage';
 import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
+import LoginPage from './components/Login/LoginPage';
 /*import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage'; */
 
 const rootElement = document.getElementById('root');
@@ -39,11 +37,11 @@ const App = () => {
       {/* mehanizam rutiranja */}
           <HashRouter>
             <Routes>
-              <Route path="/user/login" element={<UserLoginPage />} />
+              {/* master login */}
+              <Route path='/login/' element={<LoginPage />} />
               <Route path="/user/profile/:userID" element={<UserProfilePage />} />
               <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
 
-              <Route path="/admin/login" element={<AdministratorLoginPage />} />
               {/* <Route path="/user/" element={<UserPage />} /> */}
               <Route path="/admin/user/:serial" element={<AdminArticleOnUserPage />} />
               <Route path="/admin/userProfile/:userID" element={<AdminUserProfilePage />} />
@@ -56,7 +54,7 @@ const App = () => {
               <Route path="/admin/category/" element={<AddNewCategoryPage />} />
               <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
               <Route path="/admin/document/" element={<DocumentsPage />} />
-               <Route path="/admin/stock/:stockID" element={<StockPage />} /> 
+              <Route path="/admin/stock/:stockID" element={<StockPage />} /> 
               {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
             </Routes>
             

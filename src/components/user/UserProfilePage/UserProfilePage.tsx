@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Col, Container, Row, Badge } from 'react-bootstrap';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -10,7 +9,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
 import DepartmentByIdType from '../../../types/DepartmentByIdType';
-import { Card, CardBody, CardHeader, Link, Table, TableBody, TableCell, TableHeader, TableRow } from '@nextui-org/react';
+import { Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 
 interface UserProfilePageState {
   user?: UserType;
@@ -35,6 +34,11 @@ export default function UserProfilePage() {
   });
 
   useEffect(() => {
+    if(state.isLoggedIn === false) {
+      return (
+        navigate('/login')
+      )
+    } 
     getUserData();
   }, []);
 
@@ -102,27 +106,23 @@ export default function UserProfilePage() {
     return <Card>{state.message}</Card>;
   };
 
-  /* if (!state.isLoggedIn) {
-    return <Redirect to="/user/login" />;
-  } */
-
   return (
-    <div>
+    <>
       <RoledMainMenu role="user" userId={Number(userID)} />
-      <Container style={{ marginTop: 20 }}>
+      <div className="container mx-auto lg:px-4 mt-3 h-max">
         <Card className="text-white bg-dark">
           <CardHeader>
-              <i className="bi bi-card-checklist" /> {state.users ? state.users.fullname : 'Kartica korisnika nije pronađena'}
+            <i className="bi bi-card-checklist mr-2" /> {state.users ? state.users.fullname : 'Kartica korisnika nije pronađena'}
           </CardHeader>
           <CardBody>
             {printOptionalMessage()}
             {state.users ? renderArticleData(state.users) : ''}
           </CardBody>
         </Card>
-      </Container>
-    </div>
+      </div>
+    </>
   );
-
+  
   function responsibilityArticlesOnUser() {
     if (state.users?.articles?.length === 0) {
       return (
@@ -138,18 +138,15 @@ export default function UserProfilePage() {
       );
     }
     return (
-      <div>
+      <div className="xs:w-full">
         <b>Zadužena oprema</b>
         <br />
-          <Table style={{ minWidth: 700,  maxHeight: 300}} aria-label="sticky table">
+          <Table aria-label="sticky table">
             <TableHeader>
-              <TableRow>
-                <TableCell>Naziv</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Datum zaduženja</TableCell>
-                <TableCell>Serijski broj</TableCell>
-                <TableCell>Inventoruni broj broj</TableCell>
-              </TableRow>
+                <TableColumn>Naziv</TableColumn>
+                <TableColumn>Datum zaduženja</TableColumn>
+                <TableColumn>Serijski broj</TableColumn>
+                <TableColumn>Inventoruni broj broj</TableColumn>
             </TableHeader>
             <TableBody>
               {(state.users?.articles || [])?.map((ura, index) => 
@@ -172,45 +169,52 @@ export default function UserProfilePage() {
 
   function renderArticleData(user: UserType) {
     return (
-      <Row>
-        <Col xs="12" lg="3" style={{ backgroundColor: '', padding: 5, paddingLeft: 5 }} key={user.userId}>
-          <ul className="list-group" style={{ borderRadius: '--bs-card-border-radius', overflow: 'hidden' }}>
-            <div>
-              <li className="list-group-item active">
-                <b>Detalji korisnika</b>
-              </li>
-              <li className="list-group-item">Ime: {user.surname}</li>
-              <li className="list-group-item">Prezime: {user.forname}</li>
-              <li className="list-group-item">Email: {user.email}</li>
-              <li className="list-group-item">Sektor: {user.department?.title}</li>
-              <li className="list-group-item">Radno mjesto: {user.job?.title}</li>
-              <li className="list-group-item">Lokacija: {user.location?.name}</li>
-            </div>
-          </ul>
-        </Col>
-        <Col xs="12" lg="9">
-          <Row>{articles()}</Row>
-          <Row style={{ padding: 5 }}>{responsibilityArticlesOnUser()}</Row>
-        </Col>
-      </Row>
+      <div className="flex flex-col lg:flex-row gap-3">
+        <div className="lg:w-4/12 xs:w-full mb-3">
+          <span className='ml-2'>Detalji korisnika</span>
+          <Listbox key={user.userId} className='mt-2 pt-3 bg-gray-800 shadow rounded-2xl'>
+              <ListboxItem 
+                className='w-[95%]'
+                key={user.fullname!} 
+                description={<span className='text-tiny text-gray-400'>Naziv korisnika</span>}
+                >
+                {user.fullname}
+              </ListboxItem>
+              <ListboxItem className='w-[95%]' key={user.email!} description={<span className='text-tiny text-gray-400'>Email</span>}>
+                {user.email}
+              </ListboxItem>
+              <ListboxItem className='w-[95%]' key={user.department?.title!} description={<span className='text-tiny text-gray-400'>Naziv sektora/odjeljenja</span>}>
+                {user.department?.title}
+              </ListboxItem>
+              <ListboxItem className='w-[95%]' key={user.job?.title!} description={<span className='text-tiny text-gray-400'>Naziv radnog mjesta</span>}>
+                {user.job?.title}
+              </ListboxItem>
+              <ListboxItem className='w-[95%]' key={user.location?.name!} description={<span className='text-tiny text-gray-400'>Lokacija</span>}>
+                {user.location?.name}
+              </ListboxItem>
+          </Listbox>
+        </div>
+        <div className="lg:w-8/12 xs:w-full flex flex-col gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+            {articles()}
+          </div>
+          <div>{responsibilityArticlesOnUser()}</div>
+        </div>
+      </div>
     );
   }
 
   function articles() {
     return state.article.map((artikal) => (
-      <Col lg="3" xs="6" style={{ paddingTop: 5, paddingLeft: 16 }} key={artikal.articleId}>
-        <Card  className="mb-3" style={{ backgroundColor: '#316B83' }}>
-          <CardBody style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Badge pill bg="primary">{artikal.category?.name}</Badge>
-            {
-              <div style={{ fontSize: 11, color: 'white' }}>
-                {artikal.stock?.name}
-              </div>
-            }
+      <div key={artikal.articleId} className="mb-3">
+        <Card className="w-full bg-cyan-950">
+          <CardBody className="flex flex-col items-center">
+            <Chip color='primary' size='sm'>{artikal.category?.name}</Chip>
+            <div style={{ fontSize: 11, color: 'white' }}>{artikal.stock?.name}</div>
             <i className={`${artikal.category?.imagePath}`} style={{ fontSize: 52, color: 'white' }} />
           </CardBody>
         </Card>
-      </Col>
+      </div>
     ));
   }
 }

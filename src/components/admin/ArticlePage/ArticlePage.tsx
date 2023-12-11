@@ -463,7 +463,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
     render() {
         /* if(this.state.isLoggedIn === false){
             return (
-                <Redirect to='admin/login'/>
+                <Redirect to='/login'/>
             )
         } */
         return (

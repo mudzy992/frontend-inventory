@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { Card, CardBody, CardFooter, CardHeader, Chip } from '@nextui-org/react';
+import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
 import Tabela from './TableFunction';
 import { Alert } from '../../custom/Alert';
 
@@ -66,7 +66,7 @@ const CategoryPage: React.FC = () => {
         const response = await api(`api/category/${categoryID}`, 'get', {}, 'administrator');
         if (response.status === 'login') {
           setIsLoggedIn(false);
-          navigate('/admin/login')
+          navigate('/login')
           return;
         }
 

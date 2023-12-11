@@ -117,7 +117,7 @@ export default function AdminUserProfilePage() {
     const setLogginState = (isLoggedIn: boolean) => {
         setState({ ...state, isLoggedIn: isLoggedIn });
         if(isLoggedIn === false) {
-            navigate('admin/login')
+            navigate('/login')
         }
     }
 
@@ -304,18 +304,6 @@ export default function AdminUserProfilePage() {
       }, []);
 
     /* HANDLE FUNKCIJE */
-
-    const handleClickShowPassword = () => {
-        setState((prev) => ({...prev, showPassword: !prev.showPassword}))
-    };
-
-    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-    };
-
-    const handleClick = (categoryName: string) => {
-        setState((prev) => ({...prev, open: prev.open === categoryName ? null : categoryName}));
-    };
 
     const printOptionalMessage = () => {
         if (state.message === '') {

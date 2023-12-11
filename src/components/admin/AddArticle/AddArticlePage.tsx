@@ -476,7 +476,7 @@ export default class AddArticlePage extends React.Component<{}>{
     renderArticleData() {
         /* if(this.state.isLoggedIn === false){
             return(
-                navigate('/admin/login')
+                navigate('/login')
             )
         } */
         return(

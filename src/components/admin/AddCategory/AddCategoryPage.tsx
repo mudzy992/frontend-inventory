@@ -186,7 +186,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
     render() {
         /* if(this.state.isLoggedIn === false) {
             return (
-                <Redirect to='admin/login' />
+                <Redirect to='/login' />
             )
         } */
         return (

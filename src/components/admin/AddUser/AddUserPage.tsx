@@ -335,7 +335,7 @@ export default class AddUserPage extends React.Component<{}>{
         } */ 
         return(
             <div>
-                <RoledMainMenu role='administrator'/>
+                <RoledMainMenu/>
                 
                 <Container style={{ marginTop:15}}>
                     {this.printOptionalMessage()}

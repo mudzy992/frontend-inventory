@@ -108,7 +108,7 @@ export default function UserProfilePage() {
 
   return (
     <>
-      <RoledMainMenu role="user" userId={Number(userID)} />
+      <RoledMainMenu />
       <div className="container mx-auto lg:px-4 mt-3 h-max">
         <Card className="text-white bg-dark">
           <CardHeader>

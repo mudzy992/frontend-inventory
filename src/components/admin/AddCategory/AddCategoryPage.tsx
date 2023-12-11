@@ -191,7 +191,7 @@ export default class AddNewCategoryPage extends React.Component<{}> {
         } */
         return (
             <div>
-            <RoledMainMenu role="administrator" />
+            <RoledMainMenu />
             <Container style={{ marginTop:15}}>
                 {this.renderCategoryData()}
                 <AdminMenu />

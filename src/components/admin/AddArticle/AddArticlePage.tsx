@@ -331,7 +331,7 @@ export default class AddArticlePage extends React.Component<{}>{
     render() {
         return(
             <div>
-            <RoledMainMenu role='administrator'/>
+            <RoledMainMenu />
             <Container style={{ marginTop:15}}> 
             {this.printOptionalMessage()}
                 {

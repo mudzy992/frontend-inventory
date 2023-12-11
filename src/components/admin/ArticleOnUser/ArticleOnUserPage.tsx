@@ -502,7 +502,7 @@ const AdminArticleOnUserPage: React.FC = () => {
 
     return (
         <div>
-            <RoledMainMenu role='administrator' />
+            <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <Card>
                     <CardHeader className='grid grid-cols-6 gap-2'>  

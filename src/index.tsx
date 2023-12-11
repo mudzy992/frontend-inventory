@@ -25,6 +25,7 @@ import { NextUIProvider } from '@nextui-org/react';
 import StockPage from './components/admin/StockPage/StockPage';
 import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
 import LoginPage from './components/Login/LoginPage';
+import { UserContextProvider } from './components/UserContext/UserContext';
 /*import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage'; */
 
 const rootElement = document.getElementById('root');
@@ -33,36 +34,36 @@ const App = () => {
   return (
     <React.StrictMode>
     <NextUIProvider>
-      <main className='dark text-foreground bg-background min-h-screen min-w-screen pb-4'>
-      {/* mehanizam rutiranja */}
-          <HashRouter>
-            <Routes>
-              {/* master login */}
-              <Route path='/login/' element={<LoginPage />} />
-              <Route path="/user/profile/:userID" element={<UserProfilePage />} />
-              <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
+      <UserContextProvider>
+        <main className='dark text-foreground bg-background min-h-screen min-w-screen pb-4'>
+        {/* mehanizam rutiranja */}
+            <HashRouter>
+              <Routes>
+                {/* master login */}
+                <Route path='/login/' element={<LoginPage />} />
+                <Route path="/user/profile/:userID" element={<UserProfilePage />} />
+                <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
 
-              {/* <Route path="/user/" element={<UserPage />} /> */}
-              <Route path="/admin/user/:serial" element={<AdminArticleOnUserPage />} />
-              <Route path="/admin/userProfile/:userID" element={<AdminUserProfilePage />} />
-              <Route path="/" element={<HomePage />} />
-              <Route path="/category/:categoryID" element={<CategoryPage />} />
-              {/* <Route path="/article/:articleID" element={<ArticlePage />} /> */}
-              <Route path="/admin/article/" element={<AddArticlePage />} />
-              <Route path="/admin/user/" element={<AddUserPage />} />
-              <Route path="/admin/feature/" element={<AddFeaturePage />} />
-              <Route path="/admin/category/" element={<AddNewCategoryPage />} />
-              <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
-              <Route path="/admin/document/" element={<DocumentsPage />} />
-              <Route path="/admin/stock/:stockID" element={<StockPage />} /> 
-              {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
-            </Routes>
-            
-      </HashRouter>
-      </main>
-      
-    </NextUIProvider>
-    
+                {/* <Route path="/user/" element={<UserPage />} /> */}
+                <Route path="/admin/user/:serial" element={<AdminArticleOnUserPage />} />
+                <Route path="/admin/userProfile/:userID" element={<AdminUserProfilePage />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/category/:categoryID" element={<CategoryPage />} />
+                {/* <Route path="/article/:articleID" element={<ArticlePage />} /> */}
+                <Route path="/admin/article/" element={<AddArticlePage />} />
+                <Route path="/admin/user/" element={<AddUserPage />} />
+                <Route path="/admin/feature/" element={<AddFeaturePage />} />
+                <Route path="/admin/category/" element={<AddNewCategoryPage />} />
+                <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
+                <Route path="/admin/document/" element={<DocumentsPage />} />
+                <Route path="/admin/stock/:stockID" element={<StockPage />} /> 
+                {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
+              </Routes>
+              
+        </HashRouter>
+        </main>
+      </UserContextProvider>  
+      </NextUIProvider>
   </React.StrictMode>
   )
 }

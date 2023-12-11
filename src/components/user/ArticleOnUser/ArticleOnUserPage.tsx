@@ -6,7 +6,6 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LangBa } from '../../../config/lang.ba';
 import ArticleType from '../../../types/ArticleType';
-import { Col, Row } from 'react-bootstrap';
 import saveAs from 'file-saver';
 import { ApiConfig } from '../../../config/api.config';
 import { Alert } from '../../custom/Alert';
@@ -292,7 +291,7 @@ function saveFile (docPath: any) {
                         {article.articleTimelines?.map((timeline) => (
                             <TableRow key={timeline.articleTimelineId}>
                             <TableCell>
-                                <Link isBlock showAnchorIcon color="primary" href={`#/admin/userProfile/${timeline.userId}`}>
+                                <Link isBlock showAnchorIcon color="primary" href={`#/user/profile/${timeline.userId}`}>
                                 {timeline.user?.fullname}
                                 </Link>
                             </TableCell>
@@ -328,7 +327,7 @@ function saveFile (docPath: any) {
 
   return (
     <div>
-            <RoledMainMenu role='administrator' />
+            <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <Card>
                     <CardHeader>

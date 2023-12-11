@@ -468,7 +468,7 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
         } */
         return (
             <div>
-                <RoledMainMenu role='administrator' />
+                <RoledMainMenu />
                 <Container style={{ marginTop: 15 }}>
                     <Card className="text-white bg-dark">
                         <Card.Header >

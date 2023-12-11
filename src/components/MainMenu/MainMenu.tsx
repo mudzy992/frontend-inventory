@@ -22,7 +22,8 @@ export class MainMenuItem {
 interface MainMenuProperties {
     items: MainMenuItem[];
     userId?: number;
-}
+    role?: 'administrator' | 'user';
+  }  
 interface MainMenuState {
     items: MainMenuItem[];
     userId?: number;
@@ -85,10 +86,12 @@ export class MainMenu extends React.Component<MainMenuProperties> {
     }
 
     getNavbarBrandHref() {
-        if (this.props.userId === undefined) {
-            return "#"; // Vraća # ako je uloga administrator ili userId nije definisan
+        const { userId, role } = this.props;
+
+        if (userId === undefined || role === undefined) {
+        return "#";
         } else {
-            return `#/user/profile/${this.props.userId}`; // Vraća odgovarajući URL za ulogu user i definisan userId
+        return role === 'administrator' ? "#" : `#/user/profile/${userId}`;
         }
     }
 }

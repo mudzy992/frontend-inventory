@@ -518,7 +518,7 @@ export default class AddDepartmentAndJob extends React.Component<{}> {
         } */
         return (
             <div>
-                <RoledMainMenu role="administrator" />
+                <RoledMainMenu />
                 <Container style={{ marginTop:15}}>
                     {this.renderCategoryData()}
                     <AdminMenu />

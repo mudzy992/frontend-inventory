@@ -3,6 +3,7 @@ import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api'
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '../../custom/Alert';
 import { Button, Divider, Input } from '@nextui-org/react';
+import { useUserContext } from '../../UserContext/UserContext';
 
 interface UserLoginPageState {
     email: string;
@@ -13,6 +14,8 @@ interface UserLoginPageState {
 }
 
 const UserLoginPage: React.FC = () => {
+
+const { setUserId, setRole } = useUserContext();
 
 const [state, setState] = useState<UserLoginPageState>({
     email: '',
@@ -49,6 +52,9 @@ const setUserID = (userID: number) => {
       ...state,
       userID: userID,
     });
+
+    setUserId(userID)
+    setRole('user')
   
     if (userID) {
       navigate(`/user/profile/${userID}`);
@@ -99,16 +105,11 @@ const doLogin = async () => {
                     setErrorMessage(message);
                     return;
                 }
-                console.log('ID Prije:' + state.userID)
-                await setUserID(res.data.id);
-                console.log('ID Poslije:' + state.userID)
-                await saveToken('user', res.data.token);
-                console.log(saveToken)
-                await saveRefreshToken('user', res.data.refreshToken);
-                console.log('Log Prije:' + state.isLoggedIn)
-                await setLogginState(true);
-                await console.log('Log Poslije:' + state.isLoggedIn)
 
+                await setUserID(res.data.id);
+                await saveToken('user', res.data.token);
+                await saveRefreshToken('user', res.data.refreshToken);
+                await setLogginState(true);
             }
         });
 }

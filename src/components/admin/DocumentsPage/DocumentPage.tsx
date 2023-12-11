@@ -135,7 +135,7 @@ const DocumentsPage: React.FC = () => {
     };
     
     return (
-        <><RoledMainMenu role='administrator' />
+        <><RoledMainMenu />
         <div className="container mx-auto lg:px-4 mt-3 h-max">
         <div className='mb-3'> 
             <Input

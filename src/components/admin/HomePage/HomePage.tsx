@@ -70,7 +70,7 @@ const HomePage: React.FC <HomePageState> = () => {
     return (
         /* prikaz klijentu */
         <>
-            <RoledMainMenu role='administrator'/>
+            <RoledMainMenu/>
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <div className='' >
                     <div>

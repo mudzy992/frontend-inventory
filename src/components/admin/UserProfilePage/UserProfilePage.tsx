@@ -333,7 +333,7 @@ export default function AdminUserProfilePage() {
  
     return (
             <>
-            <RoledMainMenu role='administrator' />
+            <RoledMainMenu/>
             <div className="container mx-auto  mt-3 h-max">
                 <Tabs id="left-tabs-example" aria-label="Options">
                     <Tab key='profile' title='Profil'>

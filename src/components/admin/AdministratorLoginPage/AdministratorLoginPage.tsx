@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
-import { Button, Card, CardBody, CardHeader, Divider, Input } from '@nextui-org/react';
-import { EyeSlashFilledIcon } from '../../../Icons/EyeSlashFilledIcon';
-import { EyeFilledIcon } from '../../../Icons/EyeFilledIcon';
+import { Button, Divider, Input } from '@nextui-org/react';
 import { Alert } from '../../custom/Alert';
+import { useUserContext } from '../../UserContext/UserContext';
 
 interface AdministratorLoginPageState {
     username: string;
     password: string;
-    administratorID: number[];
+    administratorID: number;
     isLoggedIn: boolean;
     isTyping: boolean;
     message: string;
@@ -18,10 +17,11 @@ interface AdministratorLoginPageState {
 const AdministratorLoginPage: React.FC = () => {
     const [isVisible, setIsVisible] = React.useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
+    const { setUserId, setRole } = useUserContext();
     const [state, setState] = useState<AdministratorLoginPageState>({
         username: '',
         password: '',
-        administratorID: [],
+        administratorID: 0,
         isLoggedIn: false,
         isTyping: true,
         message: '',
@@ -54,11 +54,14 @@ const AdministratorLoginPage: React.FC = () => {
         }
     };
 
-    const setAdministratorID = (administratorID: number[]) => {
+    const setAdministratorID = (administratorID: number) => {
         setState({
             ...state,
             administratorID: administratorID,
         });
+
+        setUserId(administratorID)
+        setRole('administrator')
     };
 
     const setErrorMessage = (message: string) => {

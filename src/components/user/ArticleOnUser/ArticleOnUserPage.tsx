@@ -130,7 +130,8 @@ export default function ArticleOnUserPage() {
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
         return (
           <div className='mb-3'>
-            <span className='ml-2'>Detalji korisnika</span><Listbox key={userDet.user?.userId} className='mt-2 pt-3 bg-gray-800 shadow rounded-2xl'>
+            <span className='ml-2'>Detalji korisnika</span>
+            <Listbox key={userDet.user?.userId} className='mt-2 pt-3 bg-default-100 rounded-2xl shadow-sm'>
             <ListboxItem
               className='w-[95%]'
               key={userDet.user?.fullname!}
@@ -172,7 +173,7 @@ export default function ArticleOnUserPage() {
 
     if (state.upgradeFeatures.length !== 0) {
         return (
-            <Card className="mb-3">
+            <Card className="mb-3 shadow-sm">
                 <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C"}}>
                         <div className="col-span-5 text-sm">
                           {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
@@ -267,8 +268,8 @@ function saveFile (docPath: any) {
 
                     <div className="lg:flex">
                         <div className="w-full lg:w-12/12 sm:w-12/12">
-                            <Card className="mb-3">
-                            <CardHeader> <span className='p-2 rounded-lg text-sm bg-gray-800 w-full'>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</span></CardHeader>
+                            <Card className="mb-3 shadow-sm">
+                            <CardHeader> <span className='p-2 rounded-lg text-sm bg-default-100 w-full'>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</span></CardHeader>
                             <CardBody>
                                 <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
                                 {article.stock?.description}
@@ -279,7 +280,7 @@ function saveFile (docPath: any) {
                     </div>
 
                 <div className="lg:flex mb-3">
-                    <Table>
+                    <Table className='shadow-sm'>
                         <TableHeader>
                           <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
                           <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
@@ -309,7 +310,7 @@ function saveFile (docPath: any) {
                 <div className="w-full sm:w-full lg:w-1/3">
                     {userDetails(article)}
                     <div>
-                    <Card className="mb-3">
+                    <Card className="mb-3 shadow-sm">
                         <CardHeader className="grid grid-cols-6 gap-4">
                             <div className="col-span-5">{LangBa.ARTICLE_ON_USER.STATUS.STATUS}</div>
                         </CardHeader>
@@ -331,20 +332,17 @@ function saveFile (docPath: any) {
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <Card>
                     <CardHeader>
-                          <div className='grid grid-cols-12 gap-2 bg-slate-800 rounded-xl p-2'>
-                            <div className='col-span-2'>
-                                <div className='grid grid-col-2'>
+                          <div className='grid grid-cols-3 w-full gap-2 bg-default-100 rounded-xl p-2'>
+                                <div className='grid grid-col-3'>
                                   <div>
                                     <i className={state.article.category?.imagePath?.toString()} style={{fontSize: 20}}/>
                                   </div>
                                       
-                                  <div className='pl-2 col-start-2 items-center flex'>
+                                  <div className='pl-2 col-start-2 col-span-2 items-center flex text-left'>
                                       {state.article.stock?.name}
                                   </div> 
-                              </div>
-                            </div>
-                            
-                            <div className='col-end-13 text-center'>
+                              </div>                            
+                            <div className='col-start-3 text-right'>
                                 {badgeStatus(state.article)} 
                             </div>
                           </div>

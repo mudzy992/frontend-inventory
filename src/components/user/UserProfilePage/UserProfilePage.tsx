@@ -62,42 +62,45 @@ export default function UserProfilePage() {
     setState((prev) => ({ ...prev, isLoggedIn }));
   };
 
-  const getUserData = () => {
-    api(`api/user/${userID}`, 'get', {}, 'user').then((res: ApiResponse) => {
-      if (res.status === 'error') {
-        setUsers(undefined);
-        setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije');
-        return;
-      }
-      if (res.status === 'login') {
-        return setLogginState(false);
-      }
-
-      const data: ApiUserProfileDto = res.data;
-      setErrorMessage('');
-      setUsers(data);
-    });
-
-    api(`api/article/?filter=user.userId||$eq||${userID}`, 'get', {}, 'user').then((res: ApiResponse) => {
-      if (res.status === 'login') {
-        return setLogginState(false);
-      }
-      const articleByUser: ArticleType[] = res.data;
-      setArticleByUser(articleByUser);
-      const features: FeaturesType[] = [];
-
+  const getUserData = async () => {
+    try {
+      const userResponse = await api(`api/user/${userID}`, 'get', {}, 'user');
+      handleApiResponse(userResponse, setUsers, 'Greška prilikom učitavanja korisnika.');
+  
+      const articleResponse = await api(`api/article/?filter=user.userId||$eq||${userID}`, 'get', {}, 'user');
+      handleApiResponse(articleResponse, setArticleByUser, 'Greška prilikom učitavanja artikala.');
+      
+      const articleByUser = articleResponse.data || [];
+      const features = [];
+  
       for (const start of articleByUser) {
         for (const articleFeature of start.stock?.stockFeatures || []) {
           const value = articleFeature.value;
           const articleId = articleFeature.feature?.articleId;
           const name = articleFeature.feature?.name;
-
+  
           features.push({ articleId, name, value });
         }
       }
+  
       setFeaturesData(features);
-    });
+    } catch (error) {
+      console.error('Greška prilikom dohvaćanja podataka:', error);
+      setLogginState(false);
+      setErrorMessage('Došlo je do greške. Osvježite ili pokušajte ponovo kasnije.');
+    }
   };
+  
+  const handleApiResponse = (response:any, setter:any, errorMessage:string) => {
+    if (response.status === 'error' || response.status === 'login') {
+      setLogginState(false);
+      return;
+    }
+  
+    const data = response.data || [];
+    setter(data);
+  };
+  
 
   const printOptionalMessage = () => {
     if (state.message === '') {

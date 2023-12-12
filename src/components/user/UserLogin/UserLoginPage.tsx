@@ -64,7 +64,7 @@ const setUserID = (userID: number) => {
   
 
 const setErrorMessage = (message: string) => {
-    setState((prev) =>({...prev, message: message}))
+    setState((prev) =>({...prev, errorMessage: message}))
 };
 
 const printErrorMessage = () => {
@@ -97,11 +97,12 @@ const doLogin = async () => {
                     let message = '';
 
                     switch (res.data.statusCode) {
-                        case -3001: 
-                        case -3002: 
+                        case -3001:
+                        case -3002:
                             message = 'Neispravni korisnički podaci!';
                             break;
                     }
+
                     setErrorMessage(message);
                     return;
                 }

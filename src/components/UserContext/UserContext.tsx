@@ -34,8 +34,6 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
 export const useUserContext = () => {
   const context = useContext(UserContext);
 
-  console.log('UserContext:', context);
-
   if (!context) {
     throw new Error('useUserContext must be used within a UserContextProvider');
   }

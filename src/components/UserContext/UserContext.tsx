@@ -21,18 +21,33 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [role, setRole] = useState<UserRole | undefined>(initialRole);
 
-  useEffect(() => {
-    const storedUserID = localStorage.getItem(`api_identity_id_${role}`);
-    const storedUserRole = localStorage.getItem(`api_identity_${role}`);
-
+  useEffect(() => {  
+    let storedUserIDKey: string;
+    let storedUserRoleKey: string;
+  
+    // Provjeri je li uloga administrator
+    if (role === 'administrator') {
+      storedUserIDKey = 'api_identity_id_administrator';
+      storedUserRoleKey = 'api_identity_administrator';
+    } else {
+      storedUserIDKey = 'api_identity_id_user';
+      storedUserRoleKey = 'api_identity_user';
+    }
+  
+    const storedUserID = localStorage.getItem(storedUserIDKey);
+    const storedUserRole = localStorage.getItem(storedUserRoleKey);
+  
     if (storedUserID) {
       setUserId(parseInt(storedUserID, 10));
     }
-
+  
     if (storedUserRole) {
       setRole(storedUserRole as UserRole);
+    } else if (initialRole) {
+      setRole(initialRole);
     }
-  }, [role]); // Dodano je "role" kao dependency jer želimo pratiti promjene u ulozi
+  }, [role, initialRole]);
+  
 
   const contextValue: UserContextType = {
     userId,

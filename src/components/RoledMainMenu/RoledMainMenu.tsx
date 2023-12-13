@@ -8,18 +8,17 @@ import type { MainMenuItem } from '../MainMenu/MainMenu';
 
 const RoledMainMenu: React.FC = () => {
   const { userId, role } = useUserContext();
-  console.log('User ID:', userId);
-  console.log('Role:', role);
 
   // Definicija stavki
   const getUserItems = (): MainMenuItem[] => [
     { text: 'Naslovna', link: `/user/profile/${userId}` },
-    { text: 'Log out', link: '/user/logout/' },
+    { text: 'Log out', link: '/logout/' },
   ];
 
   const getAdministratorItems = (): MainMenuItem[] => [
     { text: 'Naslovna', link: '/' },
     { text: 'Dashboard', link: '/admin/dashboard' },
+    { text: 'Log out', link: '/logout/' },
   ];
 
   // Odabir stavki ovisno o roli

@@ -7,6 +7,7 @@ import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 /* import ArticleTable from './ArticleTable'; */
 import ArticleType from '../../../types/ArticleType';
+import { Chip } from '@nextui-org/react';
 /* import { Redirect } from 'react-router-dom'; */
 
 interface ArticlePageProperties {
@@ -519,16 +520,16 @@ export default class ArticlePage extends React.Component<ArticlePageProperties> 
 
         if (status === 0) {
             return (
-                <Badge pill bg="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
+                <Chip color="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     nema na stanju
-                </Badge>
+                </Chip>
                 )
         }
         if (status > 0) {
             return (
-                <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
+                <Chip color="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     dostupno
-                </Badge>
+                </Chip>
                 )
         }
 

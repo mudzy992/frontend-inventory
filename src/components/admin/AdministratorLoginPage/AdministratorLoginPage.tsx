@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
+import api, { ApiResponse, saveIdentity, saveRefreshToken, saveToken } from '../../../API/api';
 import { Button, Divider, Input } from '@nextui-org/react';
 import { Alert } from '../../custom/Alert';
 import { useUserContext } from '../../UserContext/UserContext';
@@ -60,8 +60,9 @@ const AdministratorLoginPage: React.FC = () => {
             administratorID: administratorID,
         });
 
-        setUserId(administratorID)
-        setRole('administrator')
+        if(administratorID){
+            saveIdentity('administrator', administratorID.toString())
+        }
     };
 
     const setErrorMessage = (message: string) => {

@@ -175,7 +175,7 @@ export default function UserProfilePage() {
       <div className="flex flex-col lg:flex-row gap-3">
         <div className="lg:w-4/12 xs:w-full mb-3">
           <span className='ml-2'>Detalji korisnika</span>
-          <Listbox key={user.userId} className='mt-2 pt-3 bg-gray-800 shadow rounded-2xl'>
+          <Listbox aria-label="Odaberi opciju" key={user.userId} className='mt-2 pt-3 bg-gray-800 shadow rounded-2xl'>
               <ListboxItem 
                 className='w-[95%]'
                 key={user.fullname!} 

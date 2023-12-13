@@ -25,7 +25,9 @@ import { NextUIProvider } from '@nextui-org/react';
 import StockPage from './components/admin/StockPage/StockPage';
 import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
 import LoginPage from './components/Login/LoginPage';
+import LogOutPage from './components/Logout/LogoutPage';
 import { UserContextProvider } from './components/UserContext/UserContext';
+
 /*import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage'; */
 
 const rootElement = document.getElementById('root');
@@ -41,6 +43,7 @@ const App = () => {
               <Routes>
                 {/* master login */}
                 <Route path='/login/' element={<LoginPage />} />
+                <Route path='/logout/' element={<LogOutPage />} />
                 <Route path="/user/profile/:userID" element={<UserProfilePage />} />
                 <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
 

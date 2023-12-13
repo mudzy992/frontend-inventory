@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NextUIProvider, Button, Card, CardBody,CardHeader, Badge, Tooltip, Listbox, ListboxItem, Table, TableHeader, TableColumn, TableBody, TableCell, TableRow, ListboxSection, ScrollShadow, Link, Popover, PopoverTrigger, PopoverContent  } from '@nextui-org/react';
+import {  Button, Card, CardBody,CardHeader, Listbox, ListboxItem, Table, TableHeader, TableColumn, TableBody, TableCell, TableRow, ScrollShadow, Link, Popover, PopoverTrigger, PopoverContent, Chip  } from '@nextui-org/react';
 import api, { ApiResponse } from '../../../API/api';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
@@ -115,7 +115,7 @@ export default function ArticleOnUserPage() {
     }
 
     return(
-        <Badge content={stat} color={color}> </Badge>
+        <Chip color={color}> {stat} </Chip>
     )
 }
 
@@ -131,26 +131,48 @@ export default function ArticleOnUserPage() {
         return (
           <div className='mb-3'>
             <span className='ml-2'>Detalji korisnika</span>
-            <Listbox key={userDet.user?.userId} className='mt-2 pt-3 bg-default-100 rounded-2xl shadow-sm'>
-            <ListboxItem
-              className='w-[95%]'
-              key={userDet.user?.fullname!}
-              description={<span className='text-tiny text-gray-400'>Naziv korisnika</span>}
-            >
-              {userDet.user?.fullname}
-            </ListboxItem>
-            <ListboxItem className='w-[95%]' key={userDet.user?.email!} description={<span className='text-tiny text-gray-400'>Email</span>}>
-              {userDet.user?.email}
-            </ListboxItem>
-            <ListboxItem className='w-[95%]' key={userDet.user?.department?.title!} description={<span className='text-tiny text-gray-400'>Naziv sektora/odjeljenja</span>}>
-              {userDet.user?.department?.title}
-            </ListboxItem>
-            <ListboxItem className='w-[95%]' key={userDet.user?.job?.title!} description={<span className='text-tiny text-gray-400'>Naziv radnog mjesta</span>}>
-              {userDet.user?.job?.title}
-            </ListboxItem>
-            <ListboxItem className='w-[95%]' key={userDet.user?.location?.name!} description={<span className='text-tiny text-gray-400'>Lokacija</span>}>
-              {userDet.user?.location?.name}
-            </ListboxItem>
+            <Listbox key={userDet.user?.userId} className='mt-2 pt-3 bg-default-100 rounded-2xl shadow-sm' aria-label='user-details'>
+              <ListboxItem
+                className='w-[95%]'
+                key={userDet.user?.fullname!}
+                description={<span className='text-tiny text-gray-400'>Naziv korisnika</span>}
+                textValue={userDet.user?.fullname}
+                aria-label={`Naziv korisnika: ${userDet.user?.fullname}`}
+              >
+                {userDet.user?.fullname}
+              </ListboxItem>
+              <ListboxItem 
+                textValue={userDet.user?.email} 
+                className='w-[95%]' key={userDet.user?.email!} 
+                description={<span className='text-tiny text-gray-400'>Email</span>}
+                aria-label={`Email korisnika: ${userDet.user?.email}`}
+                >
+                {userDet.user?.email}
+              </ListboxItem>
+              <ListboxItem 
+                textValue={userDet.user?.department?.title} 
+                className='w-[95%]' key={userDet.user?.department?.title!} 
+                description={<span className='text-tiny text-gray-400'>Naziv sektora/odjeljenja</span>}
+                aria-label={`Sektor korisnika: ${userDet.user?.department?.title}`}
+                >
+                  {userDet.user?.department?.title}
+              </ListboxItem>
+              <ListboxItem 
+                textValue={userDet.user?.job?.title} 
+                className='w-[95%]' key={userDet.user?.job?.title!} 
+                description={<span className='text-tiny text-gray-400'>Naziv radnog mjesta</span>}
+                aria-label={`Radno mjesto: ${userDet.user?.job?.title}`}
+                >
+                {userDet.user?.job?.title}
+              </ListboxItem>
+              <ListboxItem 
+                textValue={userDet.user?.location?.name} 
+                className='w-[95%]' key={userDet.user?.location?.name!} 
+                description={<span className='text-tiny text-gray-400'>Lokacija</span>}
+                aria-label={`Lokacija korisnika: ${userDet.user?.location?.name}`}
+                >
+                {userDet.user?.location?.name}
+              </ListboxItem>
           </Listbox>
           </div>
         )
@@ -180,14 +202,14 @@ export default function ArticleOnUserPage() {
                         </div>
 
                 </CardHeader>
-                <Listbox>
+                <Listbox key={'upgrade-features'} aria-label={'upgrade-feature'} >
 
                 {state.upgradeFeatures.map((uf, index) => (
-                        <ListboxItem key={index} className='w-[95%] mt-3'>
+                        <ListboxItem key={index} textValue={uf.name} className='w-[95%] mt-3' aria-label={`Feature ${index + 1}`}>
                             <div className="grid grid-cols gap-2">
                                 <div className='col-span-4 flex flex-nowrap'>
                                     <div>
-                                        <Popover placement='top' showArrow backdrop='blur'>
+                                        <Popover placement='top' showArrow backdrop='blur' aria-label='skoc'>
                                             <PopoverTrigger>
                                                 <i style={{color:"darkgray"}} className="bi bi-info-circle-fill"/>
                                             </PopoverTrigger>
@@ -210,7 +232,7 @@ export default function ArticleOnUserPage() {
 function saveFile (docPath: any) {
   if(!docPath) {
       return (
-          <div><Popover placement='right'>
+          <div><Popover placement='right' showArrow backdrop='blur' aria-label='skoc2'>
               <PopoverTrigger>
                   <Button size='sm' style={{ backgroundColor: "#9D5353" }}>
                       <i className="bi bi-file-earmark-text" style={{ fontSize: 20, color: "white" }} />
@@ -254,9 +276,9 @@ function saveFile (docPath: any) {
                         </div>
                         <div className="lg:w-8/12 xs:w-full">
                             <ScrollShadow hideScrollBar className="w-full h-[250px]">
-                                <Listbox items={mappedStockFeatures} variant="bordered">
+                                <Listbox items={mappedStockFeatures} variant="bordered" aria-label={`Feature`}>
                                     {(item) => (
-                                    <ListboxItem key={item.value}>
+                                    <ListboxItem key={item.value} textValue={item.name} aria-label={`Radno mjesto: ${item.name}`}>
                                         <span className="text-bold text-small text-default-400">{item.name}: </span>{item.value}
                                     </ListboxItem>
                                     )}
@@ -270,40 +292,45 @@ function saveFile (docPath: any) {
                         <div className="w-full lg:w-12/12 sm:w-12/12">
                             <Card className="mb-3 shadow-sm">
                             <CardHeader> <span className='p-2 rounded-lg text-sm bg-default-100 w-full'>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</span></CardHeader>
-                            <CardBody>
-                                <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
-                                {article.stock?.description}
-                                </ScrollShadow>
-                            </CardBody>
+                              <CardBody>
+                                  <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
+                                    {article.stock?.description}
+                                  </ScrollShadow>
+                              </CardBody>
                             </Card>
                         </div>
                     </div>
 
                 <div className="lg:flex mb-3">
-                    <Table className='shadow-sm'>
-                        <TableHeader>
-                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
-                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
-                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
-                          <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
-                          <TableColumn>#</TableColumn>
-                        </TableHeader>
-                        <TableBody>
-                        {article.articleTimelines?.map((timeline) => (
-                            <TableRow key={timeline.articleTimelineId}>
-                            <TableCell>
-                                <Link isBlock showAnchorIcon color="primary" href={`#/user/profile/${timeline.userId}`}>
-                                {timeline.user?.fullname}
-                                </Link>
-                            </TableCell>
-                            <TableCell>{timeline.status}</TableCell>
-                            <TableCell>{timeline.comment}</TableCell>
-                            <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                            <TableCell>{saveFile(timeline.document?.path)}</TableCell>
-                            </TableRow>
-                        )) ?? []}
-                        </TableBody>
-                    </Table>
+                <Table className='shadow-sm'>
+                  <TableHeader>
+                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
+                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
+                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
+                    <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
+                    <TableColumn>#</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    {article.articleTimelines?.map((timeline) => (
+                      <TableRow key={timeline.articleTimelineId}>
+                        <TableCell textValue={timeline.user?.fullname}>
+                          <Link isBlock showAnchorIcon color="primary" href={`#/user/profile/${timeline.userId}`}>
+                            {timeline.user?.fullname}
+                          </Link>
+                        </TableCell>
+                        <TableCell textValue={timeline.status}>{timeline.status}</TableCell>
+                        <TableCell textValue={timeline.comment}>{timeline.comment}</TableCell>
+                        <TableCell textValue={Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}>
+                          {Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}
+                        </TableCell>
+                        <TableCell textValue={'dokument za snimanje'}>
+                          {saveFile(timeline.document?.path)}
+                        </TableCell>
+                      </TableRow>
+                    )) ?? []}
+                  </TableBody>
+                </Table>
+
                 </div>
                 </div>
 
@@ -314,9 +341,9 @@ function saveFile (docPath: any) {
                         <CardHeader className="grid grid-cols-6 gap-4">
                             <div className="col-span-5">{LangBa.ARTICLE_ON_USER.STATUS.STATUS}</div>
                         </CardHeader>
-                        <Listbox variant="flat">
-                        <ListboxItem key="status">Status: <b>{article.status} </b></ListboxItem>
-                        <ListboxItem key="datum-akcije">Datum akcije: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
+                        <Listbox variant="flat" aria-label='status-artikla'>
+                          <ListboxItem textValue={article.status} key="status" aria-label={article.status}>Status: <b>{article.status} </b></ListboxItem>
+                          <ListboxItem textValue={'datum-vrijeme'} key="datum-akcije" aria-label={'Datum akcije'}>Datum akcije: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
                         </Listbox>
                     </Card>
                     </div>
@@ -331,26 +358,23 @@ function saveFile (docPath: any) {
             <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <Card>
-                    <CardHeader>
-                          <div className='grid grid-cols-3 w-full gap-2 bg-default-100 rounded-xl p-2'>
-                                <div className='grid grid-col-3'>
-                                  <div>
-                                    <i className={state.article.category?.imagePath?.toString()} style={{fontSize: 20}}/>
-                                  </div>
-                                      
-                                  <div className='pl-2 col-start-2 col-span-2 items-center flex text-left'>
-                                      {state.article.stock?.name}
-                                  </div> 
-                              </div>                            
-                            <div className='col-start-3 text-right'>
-                                {badgeStatus(state.article)} 
-                            </div>
-                          </div>
-                            
-                    </CardHeader>
-                    <CardBody>
+                <CardHeader>
+                  <div className='flex justify-between items-center w-full bg-default-100 rounded-xl p-2'>
+                    <div className='flex items-center'>
+                      <div>
+                        <i className={state.article.category?.imagePath?.toString()} style={{ fontSize: 20 }} />
+                      </div>
+                      <div className='pl-2 text-left'>
+                        {state.article.stock?.name}
+                      </div>
+                    </div>
+                    <div className='flex items-center'>
+                      {badgeStatus(state.article)} 
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardBody>
                             {printOptionalMessage()}
-
                             {
                                 state.article ?
                                     (renderArticleData(state.article)) :

@@ -50,10 +50,9 @@ const setUserID = (userID: number) => {
       userID: userID,
     });
 
-    saveIdentity('user', userID.toString())
-  
     if (userID) {
-      navigate(`/user/profile/${userID}`);
+        saveIdentity('user', userID.toString())
+        navigate(`/user/profile/${userID}`);
     }
   };
   

@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
+import api, { ApiResponse, saveIdentity, saveRefreshToken, saveToken } from '../../../API/api';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '../../custom/Alert';
 import { Button, Divider, Input } from '@nextui-org/react';
-import { useUserContext } from '../../UserContext/UserContext';
 
 interface UserLoginPageState {
     email: string;
@@ -14,8 +13,6 @@ interface UserLoginPageState {
 }
 
 const UserLoginPage: React.FC = () => {
-
-const { setUserId, setRole } = useUserContext();
 
 const [state, setState] = useState<UserLoginPageState>({
     email: '',
@@ -53,11 +50,9 @@ const setUserID = (userID: number) => {
       userID: userID,
     });
 
-    setUserId(userID)
-    setRole('user')
-  
     if (userID) {
-      navigate(`/user/profile/${userID}`);
+        saveIdentity('user', userID.toString())
+        navigate(`/user/profile/${userID}`);
     }
   };
   

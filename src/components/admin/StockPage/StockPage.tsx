@@ -766,20 +766,24 @@ const StockPage: React.FC = () => {
             <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <Card>
-                    <CardHeader className='grid grid-cols-6 gap-2'>
-                        <div className='col-span-4 flex flex-nowrap'>
-                            <i className={state.stock?.category?.imagePath} />
-                            <div className='pl-2 col-start-2'>
-                                {state.stock ?
+                    <CardHeader>
+                    <div className='flex justify-between items-center w-full bg-default-100 rounded-xl p-2'>
+                        <div className='flex items-center'>
+                            <div>
+                                <i className={state.stock?.category?.imagePath} />
+                            </div>
+                            <div className='pl-2 text-left'>
+                            {state.stock ?
                                     state.stock?.name :
                                     'Oprema nije pronađena'}
                             </div>
                         </div>
-                        <div className='lg:col-end-7 xs:col-end-5 flex justify-center gap-2'>
+                        <div className='flex items-center'>
                             {badgeStatus()}
-                            <Button size='sm' color='success' onClick={() => showEditFeatureModal()}><i className="bi bi-pencil-square" /> Izmjeni</Button>
+                            <Button className='ml-2' size='sm' color='success' onClick={() => showEditFeatureModal()}><i className="bi bi-pencil-square" /> Izmjeni</Button> 
                         </div>
-                    </CardHeader>
+                    </div>
+                </CardHeader>
                     <CardBody>
                         {printOptionalMessage()}
 

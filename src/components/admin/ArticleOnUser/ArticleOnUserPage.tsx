@@ -11,7 +11,7 @@ import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
 import { Autocomplete, AutocompleteItem, Badge, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, 
     ListboxSection, Popover, PopoverContent, Button, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, 
-    TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem } from '@nextui-org/react';
+    TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem, Chip } from '@nextui-org/react';
 import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';
 
@@ -505,17 +505,21 @@ const AdminArticleOnUserPage: React.FC = () => {
             <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <Card>
-                    <CardHeader className='grid grid-cols-6 gap-2'>  
-                            <div className='col-span-4 flex flex-nowrap'>
-                                    <i className={state.article.category?.imagePath?.toString()} style={{fontSize: 20}}/>
-                                <div className='pl-2 col-start-2'>
-                                    {state.article.stock?.name}
-                                </div> 
-                            </div>
-                            <div className='col-end-7 flex justify-center'>
-                                {badgeStatus(state.article)} 
-                            </div>
-                    </CardHeader>
+                    <CardHeader>
+                    <div className='flex justify-between items-center w-full bg-default-100 rounded-xl p-2'>
+                        <div className='flex items-center'>
+                        <div>
+                            <i className={state.article.category?.imagePath?.toString()} style={{fontSize: 20}}/>
+                        </div>
+                        <div className='pl-2 text-left'>
+                            {state.article.stock?.name}
+                        </div>
+                        </div>
+                        <div className='flex items-center'>
+                            {badgeStatus(state.article)} 
+                        </div>
+                    </div>
+                </CardHeader>
                     <CardBody>
                             {printOptionalMessage()}
 
@@ -550,7 +554,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         }
 
         return(
-            <Badge content={stat} color={color}> </Badge>
+            <Chip color={color}>{stat} </Chip>
         )
     }
 

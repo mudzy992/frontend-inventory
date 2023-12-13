@@ -1,24 +1,32 @@
+// RoledMainMenu.tsx
 import React from 'react';
-import { MainMenu, MainMenuItem } from '../MainMenu/MainMenu';
+import MainMenu from '../MainMenu/MainMenu';
 import { useUserContext } from '../UserContext/UserContext';
 
+// Uvoz tipova
+import type { MainMenuItem } from '../MainMenu/MainMenu';
+
 const RoledMainMenu: React.FC = () => {
-    const { userId, role } = useUserContext();
-  
-    const getUserItems = (): MainMenuItem[] => [
-      new MainMenuItem("Naslovna", `/user/profile/${userId}`),
-      new MainMenuItem("Log out", "/user/logout/"),
-    ];
-  
-    const getAdministratorItems = (): MainMenuItem[] => [
-      new MainMenuItem("Naslovna", "/"),
-      new MainMenuItem("Dashboard", "/admin/dashboard"),
-    ];
-  
-    const items = role === 'administrator' ? getAdministratorItems() : getUserItems();
-  
-    return <MainMenu items={items} userId={userId} role={role} />;
-  };
-  
+  const { userId, role } = useUserContext();
+  console.log('User ID:', userId);
+  console.log('Role:', role);
+
+  // Definicija stavki
+  const getUserItems = (): MainMenuItem[] => [
+    { text: 'Naslovna', link: `/user/profile/${userId}` },
+    { text: 'Log out', link: '/user/logout/' },
+  ];
+
+  const getAdministratorItems = (): MainMenuItem[] => [
+    { text: 'Naslovna', link: '/' },
+    { text: 'Dashboard', link: '/admin/dashboard' },
+  ];
+
+  // Odabir stavki ovisno o roli
+  const items = role === 'administrator' ? getAdministratorItems() : getUserItems();
+
+  // Prikazivanje komponente MainMenu s odabranim stavkama
+  return <MainMenu items={items} userId={userId} role={role} />;
+};
 
 export default RoledMainMenu;

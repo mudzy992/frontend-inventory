@@ -96,6 +96,11 @@ export default function api(
     export function saveRefreshToken(role: 'user' | 'administrator', token: string) {
         localStorage.setItem('api_refresh_token_' + role, token);
     }
+
+    export function saveIdentity(role: 'user' | 'administrator', userId: string) {
+        localStorage.setItem('api_identity_' + role, role);
+        localStorage.setItem('api_identity_id_' + role, userId);
+    }
     
     async function refreshToken(role: 'user' | 'administrator'): Promise<string | null> {
         const path = 'auth/' + role + '/refresh';

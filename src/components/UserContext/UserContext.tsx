@@ -1,5 +1,5 @@
 // UserContext.tsx
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 
 type UserRole = 'administrator' | 'user';
 
@@ -21,6 +21,19 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [role, setRole] = useState<UserRole | undefined>(initialRole);
 
+  useEffect(() => {
+    const storedUserID = localStorage.getItem(`api_identity_id_${role}`);
+    const storedUserRole = localStorage.getItem(`api_identity_${role}`);
+
+    if (storedUserID) {
+      setUserId(parseInt(storedUserID, 10));
+    }
+
+    if (storedUserRole) {
+      setRole(storedUserRole as UserRole);
+    }
+  }, [role]); // Dodano je "role" kao dependency jer želimo pratiti promjene u ulozi
+
   const contextValue: UserContextType = {
     userId,
     role,
@@ -30,6 +43,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
 };
+
 
 export const useUserContext = () => {
   const context = useContext(UserContext);

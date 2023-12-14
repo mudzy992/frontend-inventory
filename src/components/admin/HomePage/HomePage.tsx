@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { ApiResponse } from '../../../API/api';
+import api, { ApiResponse, removeIdentity } from '../../../API/api';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
 import AdminMenu from '../AdminMenu/AdminMenu';
@@ -37,10 +37,6 @@ const HomePage: React.FC <HomePageState> = () => {
         }
     }
 
-    const setMessageState = (message: string) => {
-        setState({...state, message: message})
-    }
-
     const putCategoriesInState = (data: CategoryDto[]) => {
         const categories: CategoryType[] = data.map(category => {
             return {
@@ -54,18 +50,29 @@ const HomePage: React.FC <HomePageState> = () => {
 
     useEffect(() => {
         api('api/category/?filter=parentCategoryId||$isnull', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'login') {
-                    setMessageState('Greška prilikom dohvaćanja podataka.')
-                    setLogginState(false)
-                    return;
-                }
-                putCategoriesInState(res.data)
-            })
-    }, [])
-
-
-    
+          .then((res: ApiResponse) => {
+            if (res.status === 'login') {
+              setLogginState(false);
+              removeIdentity('administrator')
+              return;
+            }
+      
+            if (res.status === 'error') {
+              console.error('API error:', res.data);
+              setLogginState(false);
+              removeIdentity('administrator')
+              return;
+            }
+      
+            putCategoriesInState(res.data);
+          })
+          .catch((error) => {
+            console.error('Error during API call:', error);
+            removeIdentity('administrator')
+            setLogginState(false);
+          });
+      }, []);
+      
 
     return (
         /* prikaz klijentu */

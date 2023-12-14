@@ -24,7 +24,8 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
     const fetchUserFromLocalStorage = () => {
       let storedUserIDKey: string;
       let storedUserRoleKey;
-      const storedUserRole = localStorage.getItem('api_identity_role');
+      /* const storedUserRole = localStorage.getItem('api_identity_role'); */
+      const storedUserRole = localStorage.getItem(`api_identity_role`);
 
       if (storedUserRole) {
         storedUserIDKey = `api_identity_id_${storedUserRole}`;
@@ -61,7 +62,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
 
 export function saveIdentity(role: 'user' | 'administrator', userId: string, setRole: (role: UserRole | undefined) => void, setUserId: (id: number | undefined) => void) {
   if (role === 'administrator' || role === 'user') {
-    localStorage.setItem('api_identity_role', role);
+    localStorage.setItem(`api_identity_role`, role);
     localStorage.setItem(`api_identity_id_${role}`, userId);
 
     // Odmah nakon postavljanja u localStorage, ažuriraj kontekst

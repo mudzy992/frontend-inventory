@@ -7,8 +7,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { LangBa } from '../../../config/lang.ba';
 import ArticleType from '../../../types/ArticleType';
 import saveAs from 'file-saver';
-import { ApiConfig } from '../../../config/api.config';
 import { Alert } from '../../custom/Alert';
+import { ApiConfig } from '../../../config/api.config';
 
 interface UpgradeFeaturesType {
   name: string;

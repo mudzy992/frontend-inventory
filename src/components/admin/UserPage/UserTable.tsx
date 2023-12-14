@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import UserType from "../../../types/UserType"
-import api, { ApiResponse } from "../../../API/api";
+import api, { ApiResponse, removeIdentity } from "../../../API/api";
 import React from "react";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, 
     Pagination, SortDescriptor, Selection, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, NextUIProvider, Link } from "@nextui-org/react";
@@ -270,17 +270,25 @@ export const UserTable: React.FC<{}> = () => {
     useEffect(()=>{
         const fatchData = async() => {
             try {
-                const userData = await  api('api/user/', 'get', {}, 'administrator')
-                .then((res: ApiResponse) => {
+                api('api/user/', 'get', {}, 'administrator')
+                .then(async (res: ApiResponse) => {
                     if (res.status === 'error') {
-                        setMessage('Greška prilikom učitavanja korisnika');
+                        setIsLoggedIn(false)
+                        removeIdentity('administrator')
+                        return
                     }
+
                     if (res.status === 'login') {
-                        return setIsLoggedIn(false);
+                        setIsLoggedIn(false);
+                        removeIdentity('administrator')
+                        return 
                     }
                     setUsersData(res.data)
                 })
             } catch (error) {
+                console.error('Error during API call:', error);
+                setIsLoggedIn(false)
+                removeIdentity('administrator')
                 setMessage('Sistemska greška prilikom dohvaćanja podataka o korisnicima. Greška: ' + error)
             }
         }

@@ -81,7 +81,7 @@ export default function api(
 
     function getToken(role: 'user' | 'administrator'): string {
         const token = localStorage.getItem('api_token_' + role);
-        return 'Berer ' + token;
+        return 'Bearer ' + token;
     }
     
     export function saveToken(role: 'user' | 'administrator', token: string) {
@@ -100,7 +100,7 @@ export default function api(
     export function removeIdentity(role: 'user' | 'administrator'){
         localStorage.removeItem('api_token_' + role);
         localStorage.removeItem('api_refresh_token_' + role);
-        localStorage.removeItem('api_identity_' + role)
+        localStorage.removeItem('api_identity_role')
         localStorage.removeItem('api_identity_id_' + role,);
     }
     
@@ -160,3 +160,4 @@ export default function api(
             return resolve(response);
         });
     }
+    

@@ -1,4 +1,3 @@
-// UserContext.tsx
 import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 
 type UserRole = 'administrator' | 'user';
@@ -21,33 +20,34 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [role, setRole] = useState<UserRole | undefined>(initialRole);
 
-  useEffect(() => {  
-    let storedUserIDKey: string;
-    let storedUserRoleKey: string;
-  
-    // Provjeri je li uloga administrator
-    if (role === 'administrator') {
-      storedUserIDKey = 'api_identity_id_administrator';
-      storedUserRoleKey = 'api_identity_administrator';
-    } else {
-      storedUserIDKey = 'api_identity_id_user';
-      storedUserRoleKey = 'api_identity_user';
-    }
-  
-    const storedUserID = localStorage.getItem(storedUserIDKey);
-    const storedUserRole = localStorage.getItem(storedUserRoleKey);
-  
-    if (storedUserID) {
-      setUserId(parseInt(storedUserID, 10));
-    }
-  
-    if (storedUserRole) {
-      setRole(storedUserRole as UserRole);
-    } else if (initialRole) {
-      setRole(initialRole);
-    }
-  }, [role, initialRole]);
-  
+  useEffect(() => {
+    const fetchUserFromLocalStorage = () => {
+      let storedUserIDKey: string;
+      let storedUserRoleKey;
+      const storedUserRole = localStorage.getItem('api_identity_role');
+
+      if (storedUserRole) {
+        storedUserIDKey = `api_identity_id_${storedUserRole}`;
+        storedUserRoleKey = `api_identity_${storedUserRole}`;
+
+        const storedUserID = localStorage.getItem(storedUserIDKey);
+
+        if (storedUserID) {
+          setUserId(parseInt(storedUserID, 10));
+        }
+        setRole(storedUserRole as UserRole);
+      } else if (initialRole) {
+        storedUserIDKey = `api_identity_id_${initialRole}`;
+        storedUserRoleKey = `api_identity_${initialRole}`;
+        setRole(initialRole);
+      } else {
+        storedUserIDKey = 'api_identity_id_default';
+        storedUserRoleKey = 'api_identity_default';
+      }
+
+    };
+    fetchUserFromLocalStorage();
+  }, [initialRole]);
 
   const contextValue: UserContextType = {
     userId,
@@ -59,6 +59,18 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
 };
 
+export function saveIdentity(role: 'user' | 'administrator', userId: string, setRole: (role: UserRole | undefined) => void, setUserId: (id: number | undefined) => void) {
+  if (role === 'administrator' || role === 'user') {
+    localStorage.setItem('api_identity_role', role);
+    localStorage.setItem(`api_identity_id_${role}`, userId);
+
+    // Odmah nakon postavljanja u localStorage, ažuriraj kontekst
+    setRole(role);
+    setUserId(parseInt(userId, 10));
+  } else {
+    console.error('Invalid user role:', role);
+  }
+}
 
 export const useUserContext = () => {
   const context = useContext(UserContext);

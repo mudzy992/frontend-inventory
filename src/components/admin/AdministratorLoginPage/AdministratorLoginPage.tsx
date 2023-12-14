@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { ApiResponse, saveIdentity, saveRefreshToken, saveToken } from '../../../API/api';
+import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
 import { Button, Divider, Input } from '@nextui-org/react';
 import { Alert } from '../../custom/Alert';
-import { useUserContext } from '../../UserContext/UserContext';
+import {  saveIdentity, useUserContext } from '../../UserContext/UserContext';
 
 interface AdministratorLoginPageState {
     username: string;
@@ -59,10 +59,6 @@ const AdministratorLoginPage: React.FC = () => {
             ...state,
             administratorID: administratorID,
         });
-
-        if(administratorID){
-            saveIdentity('administrator', administratorID.toString())
-        }
     };
 
     const setErrorMessage = (message: string) => {
@@ -78,11 +74,11 @@ const AdministratorLoginPage: React.FC = () => {
         );
       };
 
-    const doLogin = () => {
+    const doLogin = async () => {
         api('auth/administrator/login', 'post', {
             username: state.username,
             password: state.password,
-        }).then((res: ApiResponse) => {
+        }).then(async (res: ApiResponse) => {
             if (res.status === 'error') {
                 setErrorMessage('System error... Try again!');
                 return;
@@ -102,12 +98,12 @@ const AdministratorLoginPage: React.FC = () => {
                     setErrorMessage(message);
                     return;
                 }
+                await saveIdentity('administrator', res.data.id, setRole, setUserId);
+                await setAdministratorID(res.data.id);
+                await saveToken('administrator', res.data.token);
+                await saveRefreshToken('administrator', res.data.refreshToken);
 
-                setAdministratorID(res.data.id);
-                saveToken('administrator', res.data.token);
-                saveRefreshToken('administrator', res.data.refreshToken);
-
-                setLogginState(true);
+                await setLogginState(true);
             }
         });
     };

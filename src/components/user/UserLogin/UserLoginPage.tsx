@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import api, { ApiResponse, saveIdentity, saveRefreshToken, saveToken } from '../../../API/api';
+import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '../../custom/Alert';
 import { Button, Divider, Input } from '@nextui-org/react';
+import {  saveIdentity, useUserContext } from '../../UserContext/UserContext';
 
 interface UserLoginPageState {
     email: string;
@@ -25,7 +26,7 @@ const [state, setState] = useState<UserLoginPageState>({
 const navigate = useNavigate();
 const [isVisible, setIsVisible] = React.useState(false);
 const toggleVisibility = () => setIsVisible(!isVisible);
-
+const { setUserId, setRole } = useUserContext();
 
 const formInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({...state, [event.target.id]: event.target.value})
@@ -51,12 +52,10 @@ const setUserID = (userID: number) => {
     });
 
     if (userID) {
-        saveIdentity('user', userID.toString())
+        
         navigate(`/user/profile/${userID}`);
     }
   };
-  
-  
 
 const setErrorMessage = (message: string) => {
     setState((prev) =>({...prev, errorMessage: message}))
@@ -101,11 +100,13 @@ const doLogin = async () => {
                     setErrorMessage(message);
                     return;
                 }
-
-                await setUserID(res.data.id);
-                await saveToken('user', res.data.token);
-                await saveRefreshToken('user', res.data.refreshToken);
-                await setLogginState(true);
+                if (res.status === 'ok') {
+                    await setLogginState(true);
+                    await saveIdentity('user', res.data.id, setRole, setUserId);
+                    await setUserID(res.data.id);
+                    await saveToken('user', res.data.token);
+                    await saveRefreshToken('user', res.data.refreshToken);
+                }
             }
         });
 }

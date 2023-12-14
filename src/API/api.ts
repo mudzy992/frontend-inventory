@@ -97,11 +97,6 @@ export default function api(
         localStorage.setItem('api_refresh_token_' + role, token);
     }
 
-    export function saveIdentity(role: 'user' | 'administrator', userId: string) {
-        localStorage.setItem('api_identity_' + role, role);
-        localStorage.setItem('api_identity_id_' + role, userId);
-    }
-
     export function removeIdentity(role: 'user' | 'administrator'){
         localStorage.removeItem('api_token_' + role);
         localStorage.removeItem('api_refresh_token_' + role);

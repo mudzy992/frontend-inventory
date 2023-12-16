@@ -51,7 +51,7 @@ const AdminMenu = () => {
         >
             
                 {actions.map((action, index) => (
-                    <Tooltip content={action.name} placement='left' showArrow>
+                    <Tooltip content={action.name} placement='left' showArrow key={index}>
                         <Button
                             key={index}
                             onClick={() => handleButtonClick(action.link)}

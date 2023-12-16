@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import Moment from 'moment';
@@ -9,8 +9,8 @@ import saveAs from 'file-saver';
 import { LangBa } from '../../../config/lang.ba'
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
-import { Autocomplete, AutocompleteItem, Badge, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, 
-    ListboxSection, Popover, PopoverContent, Button, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, 
+import { Autocomplete, AutocompleteItem, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, 
+    Popover, PopoverContent, Button, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, 
     TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem, Chip } from '@nextui-org/react';
 import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';

@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import api from "../../../API/api"; 
 import Moment from "moment";
 import { Link, Button, ChipProps, Input, Modal, ModalBody, ModalContent, 
@@ -115,12 +115,12 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                 return articleData.length > 0 ? (
                   <TableRow key={item.serialNumber}>
                     <TableCell key={item.user?.fullname}>
-                      <Link href={`#/admin/userProfile/${item.user?.userId}`}>
+                      <Link href={`#/admin/user/${item.user?.userId}`}>
                         {item.user?.fullname}
                       </Link>
                     </TableCell>
                     <TableCell key={item.serialNumber}>
-                      <Link href={`#/admin/user/${item.serialNumber}`}>
+                      <Link href={`#/admin/article/${item.serialNumber}`}>
                         {item.serialNumber}
                       </Link>
                     </TableCell>

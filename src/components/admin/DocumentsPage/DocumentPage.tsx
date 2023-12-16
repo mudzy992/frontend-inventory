@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ApiConfig } from "../../../config/api.config";
 import api, { ApiResponse } from '../../../API/api';
 import DocumentsType from '../../../types/DocumentsType';
-/* import { Redirect } from 'react-router-dom'; */
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
 import AdminMenu from '../AdminMenu/AdminMenu';
@@ -163,8 +162,8 @@ const DocumentsPage: React.FC = () => {
               <TableColumn key="naziv-artikla">Naziv artikla</TableColumn>
               <TableColumn key="serijski-broj-artikla">Serijski broj</TableColumn>
               <TableColumn key="inv-broj-artikal">Inventurni broj</TableColumn>
-              <TableColumn key="zaduzeni-korisnik">Predao</TableColumn>
-              <TableColumn key="zaduzeni-korisnik">Preuzeo</TableColumn>
+              <TableColumn key="zaduzeni-korisnik-predao">Predao</TableColumn>
+              <TableColumn key="zaduzeni-korisnik-preuzeo">Preuzeo</TableColumn>
               <TableColumn key="dokument-prenosnica">Dokument</TableColumn>
             </TableHeader>
                 <TableBody items={documentsData}>
@@ -173,7 +172,7 @@ const DocumentsPage: React.FC = () => {
                         <TableRow key={item.documentsId}>
                             <TableCell>{item.documentNumber}</TableCell>
                             <TableCell>{item.article?.stock?.name}</TableCell>
-                            <TableCell>{item.article?.serialNumber}</TableCell>
+                            <TableCell><Link className='text-sm' isBlock showAnchorIcon color="primary" href={`#/admin/article/${item.article?.serialNumber}`}>{item.article?.serialNumber}</Link></TableCell>
                             <TableCell>{item.article?.invNumber}</TableCell>
                             <TableCell>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].subbmited?.fullname : null}</TableCell>
                             <TableCell>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].user?.fullname : null}</TableCell>

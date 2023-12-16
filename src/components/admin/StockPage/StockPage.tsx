@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
-/* import {Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Tooltip, } from 'react-bootstrap'; */
 import FeaturesType from '../../../types/FeaturesType';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
@@ -9,7 +8,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ArticleInStockTable from './StockArticleTableNew';
 import { Autocomplete, AutocompleteItem, Button, Card, CardBody, CardHeader, Checkbox, Chip, Input, Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, Select, SelectItem, Textarea, Tooltip } from '@nextui-org/react';
 import { Alert } from '../../custom/Alert';
-/* import { Redirect } from 'react-router-dom'; */
 
 interface userData {
     userId: number;
@@ -620,9 +618,9 @@ const StockPage: React.FC = () => {
                         <div className="lg:w-8/12 xs:w-full">
                             {article.stockFeatures && article.stockFeatures[0] && (
                                 <ScrollShadow hideScrollBar className="h-[180px]">
-                                    <Listbox variant="flat" key={`stockFeatures:${article.stockFeatures[0].featureId}`}>
+                                    <Listbox variant="flat" key={`stockFeatures:${article.stockFeatures[0].featureId}`} aria-label="Box specifikacije">
                                     {article.stockFeatures.map((feature, index) => (
-                                        <ListboxItem textValue={feature.feature?.name} key={index}>
+                                        <ListboxItem textValue={`nadogradnja-${index}`} key={index}>
                                             {feature.feature && <b>{feature.feature.name}:</b>} {feature.value}
                                         </ListboxItem>
                                     ))}
@@ -633,11 +631,11 @@ const StockPage: React.FC = () => {
                     </div>
                     <div className="lg:flex">
                         <div className="w-full lg:w-12/12 sm:w-12/12">
-                            <Card className="mb-3">
-                            <CardHeader>Detaljan opis</CardHeader>
+                            <Card className="mb-3 shadow">
+                            <CardHeader className='bg-default-100'>Detaljan opis</CardHeader>
                             <CardBody>
                                 <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
-                                {article.description}
+                                    {article.description}
                                 </ScrollShadow>
                             </CardBody>
                             </Card>
@@ -645,16 +643,16 @@ const StockPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="w-full sm:w-full lg:w-1/3">
-                    <Card>
-                        <CardHeader className='grid grid-cols-6'>
+                    <Card className='shadow'>
+                        <CardHeader className='grid grid-cols-6 bg-default-100'>
                             <div className="col-span-5">U skladištu</div>
                             <div className="col-end-7 flex justify-end">{changeStatusButton()}</div>
                         </CardHeader>
                         <Listbox aria-label="Odaberi stavku iz liste" variant="flat" key={`stock:${article.stockId}`}>
-                            <ListboxItem textValue={article.valueOnContract?.toString()} key={'trenutno-stanje'}>Stanje po ugovoru: {article.valueOnContract}</ListboxItem>
-                            <ListboxItem textValue={article.valueAvailable?.toString()} key={'dostupno-stanje'}>Trenutno stanje: {article.valueAvailable}</ListboxItem>
-                            <ListboxItem textValue={article.sapNumber} key={'sap-broj'}>SAP broj: {article.sapNumber}</ListboxItem>
-                            <ListboxItem textValue={article.timestamp} key={'datum-akcije'}>Stanje na: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
+                            <ListboxItem textValue={'Stanje po ugovoru'} key={'stanje-po-ugovoru'}>Stanje po ugovoru: {article.valueOnContract}</ListboxItem>
+                            <ListboxItem textValue={'Dostupno stanje'} key={'dostupno-stanje'}>Trenutno stanje: {article.valueAvailable}</ListboxItem>
+                            <ListboxItem textValue={'SAP broj'} key={'sap-broj'}>SAP broj: {article.sapNumber}</ListboxItem>
+                            <ListboxItem textValue={'Datum i vrijeme akcije'} key={'datum-akcije'}>Stanje na: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
                         </Listbox>
                     </Card>
                 </div>

@@ -27,8 +27,7 @@ import DocumentsPage from './components/admin/DocumentsPage/DocumentPage';
 import LoginPage from './components/Login/LoginPage';
 import LogOutPage from './components/Logout/LogoutPage';
 import { UserContextProvider } from './components/UserContext/UserContext';
-
-/*import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage'; */
+import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage';
 
 const rootElement = document.getElementById('root');
 
@@ -60,7 +59,7 @@ const App = () => {
                 <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
                 <Route path="/admin/document/" element={<DocumentsPage />} />
                 <Route path="/admin/stock/:stockID" element={<StockPage />} /> 
-                {/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
+                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
               </Routes>
               
         </HashRouter>

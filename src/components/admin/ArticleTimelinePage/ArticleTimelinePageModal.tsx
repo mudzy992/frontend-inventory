@@ -1,8 +1,8 @@
 import { FC, useEffect, useState } from "react";
 import api from "../../../API/api";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import "./styleArticleTimeline.css";
-import { Avatar } from "@nextui-org/react";
+import { Avatar, Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/react";
 
 interface ArticleTimelineProps {
     show: boolean;
@@ -41,7 +41,7 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({show, onHide, articleTim
     useEffect(() =>{
         if(show){
             setIsLoading(true)
-            api('api/articleTimeline/'+articleTimlineId, 'get', {}, 'administrator')
+            api('api/articleTimeline/'+ articleTimlineId, 'get', {}, 'administrator')
             .then((res) => {
                 if(res.status === 'error') {
                     setIsLoading(true)
@@ -83,56 +83,56 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({show, onHide, articleTim
     }
     return(
         <Modal
-        show={show}
-        onHide={onHide}
+        isOpen={show}
+        onClose={onHide}
         size='lg'
+        backdrop="blur"
         >
-            <Modal.Header closeButton>
-                <Modal.Title>
-                    Vremenska linija artikla
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Row style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
-                    <Col>
-                        <Col className="mb-2" lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                            <Avatar className="avatarmodal" style={{border: `10px solid ${genderPredaoColor}`}}> 
-                                <i className={genderPredao}/>
-                            </Avatar>
-                        </Col>
-                        <Col lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                            {articleTimelineData?.user.fullname}
-                        </Col>
-                    </Col>
-                    <Col style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                        <Row>
-                            {articleTimelineData?.article.stock.name}
-                        </Row>
-                        <Row>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="500" height="20" fill="currentColor" className="bi bi-arrow-right" viewBox="0 0 110 18">
-                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h111.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L113.293 8.5H1.5A.5.5 0 0 1 1 8"/>
-                            </svg>
-                        </Row>
-                        <Row>
-                            <Col>
-                            {articleTimelineData?.invNumber}
+            <ModalContent>            
+                <ModalHeader >
+                        Vremenska linija artikla
+                </ModalHeader>
+                <ModalBody>
+                    <Row style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
+                        <Col >
+                            <Col className="mb-2" lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
+                                <Avatar className="avatarmodal" style={{border: `10px solid ${genderPreuzeoColor}`}}> 
+                                    <i className={genderPruzeo}/>
+                                </Avatar>
                             </Col>
-                        </Row>
-                    </Col>
-                    <Col >
-                        <Col className="mb-2" lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                            <Avatar className="avatar-modal" style={{border: `10px solid ${genderPreuzeoColor}`}}> 
-                                <i className={genderPruzeo}/>
-                            </Avatar>
+                            <Col lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
+                                {articleTimelineData?.subbmited.fullname}
+                            </Col>
                         </Col>
-                        <Col lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                            {articleTimelineData?.subbmited.fullname}
+                        <Col style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
+                            <Row>
+                                {articleTimelineData?.article.stock.name}
+                            </Row>
+                            <Row>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="500" height="20" fill="currentColor" className="bi bi-arrow-right" viewBox="0 0 110 18">
+                                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h111.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L113.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                                </svg>
+                            </Row>
+                            <Row>
+                                <Col>
+                                {articleTimelineData?.invNumber}
+                                </Col>
+                            </Row>
                         </Col>
-                    
-                    </Col>
-                </Row>
-            </Modal.Body>
-
+                        <Col>
+                            <Col className="mb-2" lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
+                                <Avatar className="avatarmodal" style={{border: `10px solid ${genderPredaoColor}`}}> 
+                                    <i className={genderPredao}/>
+                                </Avatar>
+                            </Col>
+                            <Col lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
+                                {articleTimelineData?.user.fullname}
+                            </Col>
+                        </Col>
+                        
+                    </Row>
+                </ModalBody>
+            </ModalContent>
         </Modal>
     )
 }

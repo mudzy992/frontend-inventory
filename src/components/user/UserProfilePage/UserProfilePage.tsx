@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import api, { ApiResponse } from '../../../API/api';
+import api from '../../../API/api';
 import Moment from 'moment';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiUserProfileDto from '../../../dtos/ApiUserProfileDto';
 import FeaturesType from '../../../types/FeaturesType';
-/* import { Redirect } from 'react-router-dom'; */
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';

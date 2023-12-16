@@ -48,8 +48,8 @@ const App = () => {
                 <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
 
                 {/* <Route path="/user/" element={<UserPage />} /> */}
-                <Route path="/admin/user/:serial" element={<AdminArticleOnUserPage />} />
-                <Route path="/admin/userProfile/:userID" element={<AdminUserProfilePage />} />
+                <Route path="/admin/article/:serial" element={<AdminArticleOnUserPage />} />
+                <Route path="/admin/user/:userID" element={<AdminUserProfilePage />} />
                 <Route path="/" element={<HomePage />} />
                 <Route path="/category/:categoryID" element={<CategoryPage />} />
                 {/* <Route path="/article/:articleID" element={<ArticlePage />} /> */}

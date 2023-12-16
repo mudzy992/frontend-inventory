@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import api from "../../../API/api"; 
 import Moment from 'moment';
 import { ApiConfig } from '../../../config/api.config';
@@ -58,7 +58,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
         console.log("Korisnik nije prijavljen.");
       } else {
         setUserArticleData(res.data.results);
-        setTotalResults(Math.max(0, res.data.total)); // Postavi samo pozitivne vrijednosti
+        setTotalResults(Math.max(0, res.data.total));
       }
     } catch (error) {
       console.error("Greška pri dohvaćanju podataka:", error);
@@ -119,12 +119,12 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                 return userArticleData.length > 0 ? (
                   <TableRow key={item.serialNumber}>
                     <TableCell key={item.user?.fullname}>
-                      <Link href={`#/admin/userProfile/${item.user?.userId}`}>
+                      <Link href={`#/admin/user/${item.user?.userId}`}>
                         {item.user?.fullname}
                       </Link>
                     </TableCell>
                     <TableCell key={item.serialNumber}>
-                      <Link href={`#/admin/user/${item.serialNumber}`}>
+                      <Link href={`#/admin/article/${item.serialNumber}`}>
                         {item.serialNumber}
                       </Link>
                     </TableCell>

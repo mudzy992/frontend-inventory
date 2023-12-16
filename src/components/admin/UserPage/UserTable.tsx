@@ -3,7 +3,7 @@ import UserType from "../../../types/UserType"
 import api, { ApiResponse, removeIdentity } from "../../../API/api";
 import React from "react";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, 
-    Pagination, SortDescriptor, Selection, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, NextUIProvider, Link } from "@nextui-org/react";
+    Pagination, SortDescriptor, Selection, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, Link } from "@nextui-org/react";
 
 
 const INITIAL_VISIBLE_COLUMNS = ["fullname", "departmentTitle", "telephone", "locationName", "status"];
@@ -108,7 +108,7 @@ export const UserTable: React.FC<{}> = () => {
         } else {
             gender = 'bi bi-gender-female'
         }
-        const linkUser = `#/admin/userProfile/${user.userId}`
+        const linkUser = `#/admin/user/${user.userId}`
         switch (columnKey) {
           case "fullname":
             return (

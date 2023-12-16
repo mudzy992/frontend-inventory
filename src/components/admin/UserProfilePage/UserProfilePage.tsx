@@ -137,10 +137,6 @@ export default function AdminUserProfilePage() {
         setState((prev) => ({...prev, department: department}));
     }
 
-    const setJob = (job: JobType[]) => {
-        setState((prev) => ({...prev, job: job}));
-    }
-
     const setEditUserNumberFieldState = (fieldName: string, newValue: any) => {
         setState((prev) => ({
           ...prev,
@@ -627,7 +623,7 @@ export default function AdminUserProfilePage() {
                                 <TableRow key={article.articleId}>
                                     <TableCell>{article.stock?.name || 'N/A'}</TableCell>
                                     <TableCell>
-                                        <Link href={`#/admin/user/${article.serialNumber}`}>{article.serialNumber}</Link>
+                                        <Link href={`#/admin/article/${article.serialNumber}`}>{article.serialNumber}</Link>
                                     </TableCell>
                                     <TableCell>{article.invNumber || 'N/A'}</TableCell>
                                     <TableCell>{saveFile(article.documents ? article.documents[0]?.path : 'N/A')}</TableCell>

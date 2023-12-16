@@ -1,5 +1,5 @@
 // RoledMainMenu.tsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import MainMenu from '../MainMenu/MainMenu';
 import { useUserContext } from '../UserContext/UserContext';
 

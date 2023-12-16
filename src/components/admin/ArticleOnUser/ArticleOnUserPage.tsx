@@ -570,17 +570,19 @@ const AdminArticleOnUserPage: React.FC = () => {
         }
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
-                <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 mb-3">
-                    <Listbox className="mb-2">
-                        <ListboxSection title={'Detalji korisnika'}>
-                            <ListboxItem key={'userDet-ime'}>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListboxItem>
-                            <ListboxItem key={'userDet-prezime'}>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListboxItem>
-                            <ListboxItem key={'userDet-email'}>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListboxItem>
-                            <ListboxItem key={'userDet-sektor'}>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListboxItem>
-                            <ListboxItem key={'userDet-radno-mjesto'}>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListboxItem>
-                        </ListboxSection>
-                    </Listbox>
-                </div>
+               /*  <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 mb-3"> */
+                    <Card className='mb-3 shadow'>
+                        <CardHeader className='bg-default-100'>Detalji korisnika</CardHeader>
+                        <CardBody>
+                            <Listbox aria-label='Detalji korisnika'>
+                                <ListboxItem key={'userDet-ime'} textValue='ime' aria-label='Ime korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListboxItem>
+                                <ListboxItem key={'userDet-prezime'}textValue='prezime' aria-label='Prezime korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListboxItem>
+                                <ListboxItem key={'userDet-email'} textValue='email' aria-label='Email korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListboxItem>
+                                <ListboxItem key={'userDet-sektor'} textValue='sektor ili odjeljenje' aria-label='Sektor ili odjeljenje korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListboxItem>
+                                <ListboxItem key={'userDet-radno-mjesto'} textValue='radno mjesto' aria-label='Radno mjesto korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListboxItem>
+                            </Listbox>
+                        </CardBody>
+                    </Card>
             )
         }
     }
@@ -631,7 +633,7 @@ function doDeleteUpgradeFeature(upgradeFeatureId: number) {
 function upgradeFeature(this: any) {
     if (state.upgradeFeature.length === 0) {
         return (
-            <Card className="mb-3">
+            <Card className="mb-3 shadow">
                 <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C", color:'white'}}>
                         <div className="col-span-5">
                             {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
@@ -646,7 +648,7 @@ function upgradeFeature(this: any) {
 
     if (state.upgradeFeature.length !== 0) {
         return (
-            <Card className="mb-3">
+            <Card className="mb-3 shadow">
                 <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C"}}>
                         <div className="col-span-5">
                             {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
@@ -655,10 +657,10 @@ function upgradeFeature(this: any) {
                             {addNewUpgradeFeatureButton()}
                         </div>
                 </CardHeader>
-                <Listbox>
+                <Listbox aria-label='Box nadogradnje'>
 
                 {state.upgradeFeature.map((uf, index) => (
-                        <ListboxItem key={index}>
+                        <ListboxItem key={index} aria-label={`nadogradnja-${index}`} textValue={`${index} + nadogradnja`}>
                             <div className="grid grid-cols gap-2">
                                 <div className='col-span-4 flex flex-nowrap'>
                                     <div>
@@ -689,8 +691,24 @@ function renderArticleData(article: ArticleType) {
     const mappedStockFeatures = state.article.stock?.stockFeatures?.map(stockFeature => ({
         featureId: stockFeature.feature?.featureId || null,
         name: stockFeature.feature?.name || '',
-        value: stockFeature.value || ''
+        value: stockFeature.value || '',
       })) || [];
+
+      if (state.article.serialNumber) {
+        mappedStockFeatures.push({
+          featureId: null,
+          name: 'Serijski broj',
+          value: state.article.serialNumber
+        });
+      }
+      
+      if (state.article.invNumber) {
+        mappedStockFeatures.push({
+          featureId: null, 
+          name: 'Inventurni broj',
+          value: state.article.invNumber
+        });
+      }
 
         return (
             <div className="lg:flex">
@@ -701,13 +719,13 @@ function renderArticleData(article: ArticleType) {
                         </div>
                         <div className="lg:w-8/12 xs:w-full">
                             <ScrollShadow hideScrollBar className="w-full h-[250px]">
-                                <Listbox items={mappedStockFeatures} variant="bordered">
+                                <Listbox items={mappedStockFeatures} variant="bordered" aria-label='box-specifikacije'>
                                     {(item) => (
-                                    <ListboxItem key={item.value}>
+                                    <ListboxItem key={item.value} aria-label={`specifikacija-${item.featureId}`} textValue={`Item-${item.name}`}>
                                         <span className="text-bold text-small text-default-400">{item.name}: </span>{item.value}
                                     </ListboxItem>
                                     )}
-                                </Listbox>
+                                </Listbox>     
                             </ScrollShadow>
                             {upgradeFeature()}
                         </div>
@@ -715,11 +733,11 @@ function renderArticleData(article: ArticleType) {
 
                     <div className="lg:flex">
                         <div className="w-full lg:w-12/12 sm:w-12/12">
-                            <Card className="mb-3">
-                            <CardHeader>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</CardHeader>
+                            <Card className="mb-3 shadow">
+                            <CardHeader className='text-base'>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</CardHeader>
                             <CardBody>
                                 <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
-                                {article.stock?.description}
+                                    {article.stock?.description}
                                 </ScrollShadow>
                             </CardBody>
                             </Card>
@@ -727,26 +745,26 @@ function renderArticleData(article: ArticleType) {
                     </div>
 
                 <div className="lg:flex mb-3">
-                    <Table>
+                    <Table aria-label='tabela-zaduzenja' >
                         <TableHeader>
-                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
-                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
-                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
-                        <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
-                        <TableColumn>#</TableColumn>
+                            <TableColumn key={'korisnik'} aria-label='Naziv korisnika'>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
+                            <TableColumn key={'status'} aria-label='status artikla'>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
+                            <TableColumn key={'komentar'} aria-label='Komentar akcije'>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
+                            <TableColumn key={'datum-vrijeme'} aria-label='Datum i vrijeme akcije'>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
+                            <TableColumn key={'dokument'} aria-label='Prateci dokument'>#</TableColumn>
                         </TableHeader>
                         <TableBody>
-                        {article.articleTimelines?.map((timeline) => (
+                        {article.articleTimelines?.map((timeline, index) => (
                             <TableRow key={timeline.articleTimelineId}>
-                            <TableCell>
-                                <Link isBlock showAnchorIcon color="primary" href={`#/admin/userProfile/${timeline.userId}`}>
-                                {timeline.user?.fullname}
-                                </Link>
-                            </TableCell>
-                            <TableCell>{timeline.status}</TableCell>
-                            <TableCell>{timeline.comment}</TableCell>
-                            <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                            <TableCell>{saveFile(timeline.document?.path)}</TableCell>
+                                <TableCell  key={`korisnik-${timeline.user?.fullname}-${index}`} aria-label='naziv-korisnika'>
+                                    <Link isBlock showAnchorIcon color="primary" href={`#/admin/user/${timeline.userId}`}>
+                                    {timeline.user?.fullname}
+                                    </Link>
+                                </TableCell>
+                                <TableCell key={`korisnik-${timeline.status}-${index}`} aria-label='Naziv korisnika'>{timeline.status}</TableCell>
+                                <TableCell key={`korisnik-${timeline.comment}-${index}`} aria-label='Komentar'>{timeline.comment}</TableCell>
+                                <TableCell key={`datum-vrijeme-${index}`} aria-label='Vrijeme i datum akcije'>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                <TableCell key={`dokument-${index}`} aria-label='DOkument'>{saveFile(timeline.document?.path)}</TableCell>
                             </TableRow>
                         )) ?? []}
                         </TableBody>
@@ -757,27 +775,34 @@ function renderArticleData(article: ArticleType) {
                 <div className="w-full sm:w-full lg:w-1/3">
                     {userDetails(article)}
                     <div>
-                    <Card className="mb-3">
-                        <CardHeader className="grid grid-cols-6 gap-4">
+                    <Card className="mb-3 shadow">
+                        <CardHeader className="bg-default-100 grid grid-cols-6 gap-4">
                             <div className="col-span-5">{LangBa.ARTICLE_ON_USER.STATUS.STATUS}</div>
                             <div className="col-end-7 flex justify-end">{changeStatusButton(article)}</div>
                         </CardHeader>
-                        <Listbox variant="flat">
-                        <ListboxItem key="status">Status: <b>{article.status} </b></ListboxItem>
-                        <ListboxItem key="datum-akcije">Datum akcije: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
-                        </Listbox>
+                        <CardBody>
+                            <Listbox variant="flat" aria-label='box-stanja'>
+                                <ListboxItem key="status" aria-label='status-stanja' textValue={`status-${article.status}`}>Status: <b>{article.status} </b></ListboxItem>
+                                <ListboxItem key="datum-akcije" aria-label='akcije-datum' textValue='Datum i vrijeme akcije'>Datum akcije: {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
+                            </Listbox>
+                        </CardBody>
+                       
                     </Card>
                     </div>
-                    <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 mb-3">
-                    <Listbox variant="flat">
-                        <ListboxSection title={'U skladištu'}>
-                        <ListboxItem key={'stanje-ugovor'}>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListboxItem>
-                        <ListboxItem key={'stanje-trenutno'}>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListboxItem>
-                        <ListboxItem key={'sapBroj'}>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListboxItem>
-                        <ListboxItem key={'datum-akcije'}>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
-                        </ListboxSection>
-                    </Listbox>
-                    </div>
+                    <Card className='shadow'>
+                        <CardHeader className='bg-default-100'>
+                            U skladištu
+                        </CardHeader>
+                        <CardBody>
+                            <Listbox variant="flat" aria-label='box-skladista'>
+                                <ListboxItem key={'stanje-ugovor'} aria-label='Stanje ugovora' textValue={`status-${article.stock?.valueOnContract}`}>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListboxItem>
+                                <ListboxItem key={'stanje-trenutno'} aria-label='Trenutno stanje' textValue={`status-${article.stock?.valueAvailable}`}>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListboxItem>
+                                <ListboxItem key={'sapBroj'} aria-label='SAP broj' textValue={`status-${article.stock?.sapNumber}`}>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListboxItem>
+                                <ListboxItem key={'datum-akcije'} aria-label='Datum i vrijeme akcije' textValue={`vrijeme-akcije`}>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListboxItem>
+                            </Listbox>
+                        </CardBody>
+                    </Card>
+                    
                 </div>
             </div>
 

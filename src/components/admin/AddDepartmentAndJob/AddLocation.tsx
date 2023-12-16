@@ -1,6 +1,7 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
+import { Button, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
+import { ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 /* import { Redirect } from 'react-router-dom'; */
 
 
@@ -138,11 +139,11 @@ export default class AddLocation extends React.Component<{}> {
 
     addForm() {
         return(
-            <div>
-            <Modal.Header closeButton>
-                    <Modal.Title>Detalji sektora/službe/odjeljenja</Modal.Title>
-                </Modal.Header>
-                <Modal.Body >
+            <ModalContent>
+            <ModalHeader>
+                    Detalji sektora/službe/odjeljenja
+                </ModalHeader>
+                <ModalBody>
                     <Form>
                         <Form.Group className="mb-3 ">
                             <FloatingLabel label="Naziv lokacije" className="mb-3 was-validated">
@@ -187,15 +188,15 @@ export default class AddLocation extends React.Component<{}> {
                             </Stack> */}
                         </Form.Group>
                     </Form>
-                    <Modal.Footer className={this.state.add.location.name ? '' : 'd-none'}>
+                    <ModalFooter className={this.state.add.location.name ? '' : 'd-none'}>
                     <Row style={{ alignItems: 'end' }}>
                             <Button onClick={() => this.doAddLocation()} 
                                     variant="success">
                             <i className="bi bi-plus-circle" /> Dodaj lokaciju</Button>
                         </Row>
-                </Modal.Footer>
-                </Modal.Body>                        
-            </div>
+                </ModalFooter>
+                </ModalBody>                        
+            </ModalContent>
         )
     }
 

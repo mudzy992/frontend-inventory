@@ -1,6 +1,7 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
+import { Button, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
+import { ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 /* import { Redirect } from 'react-router-dom'; */
 
 
@@ -139,10 +140,11 @@ export default class AddJob extends React.Component<{}> {
 
     addForm() {
         return(
-            <div><Modal.Header closeButton>
-                    <Modal.Title>Detalji radnog mjesta</Modal.Title>
-                </Modal.Header>
-                <Modal.Body >
+            <ModalContent>
+                <ModalHeader>
+                    Detalji radnog mjesta
+                </ModalHeader>
+                <ModalBody >
                     <Form>
                         <Form.Group className="mb-3 ">
                             <FloatingLabel label="Naziv radnog mjesta" className="mb-3 was-validated" /* className={this.state.add.job.title ? 'false' : 'd-none'} */>
@@ -183,15 +185,15 @@ export default class AddJob extends React.Component<{}> {
                             </Stack> */}
                         </Form.Group>
                     </Form>
-                    <Modal.Footer className={this.state.add.job.title ? '' : 'd-none'}>
+                    <ModalFooter className={this.state.add.job.title ? '' : 'd-none'}>
                     <Row style={{ alignItems: 'end' }}>
                             <Button onClick={() => this.doAddJob()} 
                                     variant="success">
                             <i className="bi bi-plus-circle" /> Dodaj radno mjesto</Button>
                         </Row>
-                </Modal.Footer>
-                </Modal.Body>
-            </div>
+                </ModalFooter>
+                </ModalBody>
+            </ModalContent>
         )
     }
 

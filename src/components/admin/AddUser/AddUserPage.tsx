@@ -1,5 +1,4 @@
-import React from 'react';
-import { Container, Card, Row, Col, Form, FloatingLabel, Button, Alert, Modal,} from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import AdminMenu from '../AdminMenu/AdminMenu';
@@ -10,8 +9,9 @@ import AddDepartment from '../AddDepartmentAndJob/AddDepartment';
 import AddJob from '../AddDepartmentAndJob/AddJob';
 import AddLocation from '../AddDepartmentAndJob/AddLocation';
 import AddDepartmentJobLocation from '../AddDepartmentAndJob/AddDepartmentJobLocation';
-/* import { Redirect } from 'react-router-dom'; */
-import './adduser.css'
+import { Alert } from '../../custom/Alert';
+import { Button, Card, CardBody, CardFooter, CardHeader, Input, Link, Modal, Select, SelectItem } from '@nextui-org/react';
+import { useNavigate } from 'react-router-dom';
 
 
 interface LocationDto {
@@ -63,13 +63,9 @@ interface AddUserPageState{
     job: JobType[];
     errorMessage: string;
 }
-
-export default class AddUserPage extends React.Component<{}>{
-    state: AddUserPageState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
-            message: '',
+const AddUserPage: React.FC = () => {
+    const [state, setState] = useState<AddUserPageState>({
+        message: '',
             isLoggedIn: true,
             addUser: {
                 surname: '',
@@ -103,34 +99,30 @@ export default class AddUserPage extends React.Component<{}>{
             department: [],
             job: [],
             errorMessage: '',
-        }
-    }
+    })
+
+    const navigate = useNavigate()
+    const [isVisible, setIsVisible] = React.useState(false);
+    const toggleVisibility = () => setIsVisible(!isVisible);
     
-    componentDidMount() {
-        this.getData()
-    }
     /* SET */
-    private setErrorMessage(message: string) {
-        const newState = Object.assign(this.state, {
-            errorMessage: message,
-        });
-        this.setState(newState);
+    const setErrorMessage = (message: string) => {
+        setState((prev) => ({...prev, message: message}))
     }
 
-    private setAddUserStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addUser, {
-                [fieldName]: newValue,
-            })))
-    }
-    private setAddUserNumberFieldState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addUser, {
-                [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
+    const setAddUserStringFieldState = (fieldName: string, newValue: string) => {
+        setState((prev) => ({
+            ...prev, addUser: {...prev.addUser, [fieldName]: newValue}
+        }))
     }
 
-    private setLocation(location: LocationDto[]) {
+    const setAddUserNumberFieldState = (fieldName: string, newValue: any) => {
+        setState((prev) => ({
+            ...prev, addUser: {...prev.addUser, [fieldName]: newValue === 'null' ? null : Number(newValue)}
+        }))
+    }
+
+    const setLocation = (location: LocationDto[]) => {
         const locData: LocationType[] = location.map(details => {
             return {
                 locationId: details.locationId,
@@ -139,126 +131,106 @@ export default class AddUserPage extends React.Component<{}>{
                 parentLocationId: details.parentLocationId,
             }
         })
-        this.setState(Object.assign(this.state, {
-            location: locData,
-        }))
+        setState((prev) => ({ ...prev, location: locData}))
     }
 
-    private setDepartment(department: DepartmentType) {
-        this.setState(Object.assign(this.state, {
-            department: department,
-        }))
+    const setDepartment = (department: DepartmentType[]) => {
+        setState((prev) => ({...prev, department: department}))
     }
 
-    private async addJobDepartmentChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        this.setAddUserNumberFieldState('departmentId', event.target.value);
+    const addJobDepartmentChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setAddUserNumberFieldState('departmentId', event.target.value);
 
-        const jobs = await this.getJobsByDepartmentId(this.state.addUser.departmentId);
+        const jobs = await getJobsByDepartmentId(state.addUser.departmentId);
         const stateJobs = jobs.map(job => ({
             jobId: job.jobId,
             title: job.title,
             jobCode: job.jobCode
         }));
 
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state, {
-                job: stateJobs,
-            }),
-        ));
+        setState((prev) => ({...prev, job: stateJobs}))
     }
 
-    private async showDepartmentModal() {
-        this.setDepartmentModalVisibleState(true)
+    const showDepartmentModal = async () => {
+        setDepartmentModalVisibleState(true)
     }
 
-    private setDepartmentModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.department, {
-                visible: newState,
-            })
-        ));
-        this.getData();
+    const setDepartmentModalVisibleState = (newState: boolean) => {
+        setState((prev) => ({...prev, modal: {...prev.modal, department: {...prev.modal.department, visible: newState}}}))
+        getData();
     }
 
-    private async showJobModal() {
-        this.setJobModalVisibleState(true)
+    const showJobModal = async () => {
+        setJobModalVisibleState(true)
     }
 
-    private setJobModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.job, {
-                visible: newState,
-            })
-        ));
-        this.getData();
+    const setJobModalVisibleState = (newState: boolean) => {
+        setState((prev) => ({...prev, modal: {...prev.modal, job: {...prev.modal.job, visible: newState}}}))
+        getData();
     }
 
-    private async showLocationModal() {
-        this.setLocationModalVisibleState(true)
+    const showLocationModal = async () => {
+        setLocationModalVisibleState(true)
     }
 
-    private setLocationModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.location, {
-                visible: newState,
-            })
-        ));
-        this.getData();
+    const setLocationModalVisibleState = (newState: boolean) => {
+        setState((prev) => ({...prev, modal: {...prev.modal, location: {...prev.modal.location, visible: newState}}}))
+        getData();
     }
 
-    private async showDepartmentJobLocationModal() {
-        this.setDepartmentJobLocationModalVisibleState(true)
+    const showDepartmentJobLocationModal = async () => {
+        setDepartmentJobLocationModalVisibleState(true)
     }
 
-    private setDepartmentJobLocationModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.modal.departmentJobLocation, {
-                visible: newState,
-            })
-        ));
-        this.getJobsByDepartmentId(this.state.addUser.departmentId); // Ovo ne radi kako je zamišljeno
+    const setDepartmentJobLocationModalVisibleState = (newState: boolean) => {
+        setState((prev) => ({...prev, modal: {...prev.modal, departmentJobLocation: {...prev.modal.departmentJobLocation, visible: newState}}}))
+        getJobsByDepartmentId(state.addUser.departmentId); // Ovo ne radi kako je zamišljeno
     }
 
-    private setLogginState(isLoggedIn: boolean) {
-        const newState = Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        });
+    const setLogginState = (isLoggedIn: boolean) => {
+        setState((prev) => ({...prev, isLoggedIn:isLoggedIn}))
 
-        this.setState(newState);
+        if(isLoggedIn === false) {
+            navigate('/login/')
+        }
     }
 
     /* Kraj SET */
     /* GET */
-    private getData(){
+    const getData = () =>{
         api('api/location?sort=name,ASC', 'get', {}, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom hvatanja lokacija')
+                setErrorMessage('Greška prilikom hvatanja lokacija')
             }
             if(res.status === 'login') {
-                return this.setLogginState(false)
+                return setLogginState(false)
             }
-            this.setLocation(res.data)
+            setLocation(res.data)
         })
 
         api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
+                setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
             }
-            this.setDepartment(res.data)
+            setDepartment(res.data)
         })
     }
 
-    private async getJobsByDepartmentId(departmentId: number): Promise<JobBaseType[]> {
+    useEffect(() => {
+        getData()
+    }, [])
+
+    const getJobsByDepartmentId = async (departmentId: number): Promise<JobBaseType[]> => {
         return new Promise(resolve => {
             api('api/job/?filter=departmentJobs.departmentId||$eq||' + departmentId + '/&sort=title,ASC', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
                 if(res.status === 'login') {
-                    return this.setLogginState(false)
+                    return setLogginState(false)
                 }
                 if(res.status === 'error') {
-                    this.setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+                    setErrorMessage('Greška prilikom hvatanja radnih mjesta')
                 }
 
                 const jobs: JobBaseType[] = res.data.map((item: any) => ({
@@ -273,294 +245,302 @@ export default class AddUserPage extends React.Component<{}>{
 
     /* Kraj GET */
     /* Dodatne funkcije */
-    private printOptionalMessage() {
-        if (this.state.message === '') {
+    const printOptionalMessage = () => {
+        if (state.message === '') {
             return;
         }
 
         return (
-            <Card.Text>
-                {this.state.message}
-            </Card.Text>
+            <Alert title='info' variant='info' body={state.message} />
         );
     }
 
-    private doAddUser() {
+    const doAddUser = () => {
         api('api/user/add/', 'post', {
-            surname: this.state.addUser.surname,
-            forname: this.state.addUser.forname,
-            password: this.state.addUser.password,
-            email: this.state.addUser.email,
-            localNumber: this.state.addUser.localNumber,
-            telephone: this.state.addUser.telephone,
-            jobId: this.state.addUser.jobId,
-            departmentId: this.state.addUser.departmentId,
-            locationId: this.state.addUser.locationId,
-            status: this.state.addUser.status,
-            code: this.state.addUser.code,
-            gender: this.state.addUser.gender,            
+            surname: state.addUser.surname,
+            forname: state.addUser.forname,
+            password: state.addUser.password,
+            email: state.addUser.email,
+            localNumber: state.addUser.localNumber,
+            telephone: state.addUser.telephone,
+            jobId: state.addUser.jobId,
+            departmentId: state.addUser.departmentId,
+            locationId: state.addUser.locationId,
+            status: state.addUser.status,
+            code: state.addUser.code,
+            gender: state.addUser.gender,            
         }, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'login') {
-                return this.setLogginState(false)
+                return setLogginState(false)
             }
             
             if(res.status === 'ok') {
-                this.setErrorMessage('Korisnik dodan')
-                this.setState({
-                    addUser: {
-                      surname: '',
-                      forname: '',
-                      email: '',
-                      localNumber: '',
-                      telephone: '',
-                      jobId: Number(),
-                      departmentId: Number(),
-                      locationId: Number(),
-                      password: '',
-                      status: '',
-                      code: Number(),
-                      gender: ''
-                    },
-                  });
+                setErrorMessage('Korisnik dodan')
+                setState((prev) => ({
+                    ...prev, addUser: {
+                        surname: '',
+                        forname: '',
+                        email: '',
+                        localNumber: '',
+                        telephone: '',
+                        jobId: Number(),
+                        departmentId: Number(),
+                        locationId: Number(),
+                        password: '',
+                        status: '',
+                        code: Number(),
+                        gender: ''
+                    }
+                }) )
             }
         });
     }
-    /* Kraj dodatnih funkcija */
-    render() {
-         /* if (this.state.isLoggedIn === false) {
-            return (
-                <Redirect to="/login" />
-            );
-        } */ 
-        return(
-            <div>
-                <RoledMainMenu/>
-                
-                <Container style={{ marginTop:15}}>
-                    {this.printOptionalMessage()}
-                    {this.addForm()}
-                    <AdminMenu />
-                </Container>
-            </div>
-        )
-    }
-
-    private addForm() {
+    const addForm = () => {
         return (
             <div> 
             <Card className="mb-3">
-                <Card.Header><i className="bi bi-person-lines-fill"/> Informacije o korisniku</Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 was-validated">
-                        <Row>
-                            <Col lg="6" xs="12">
-                                <FloatingLabel label="Ime" className="mb-3">
-                                <Form.Control 
-                                    id="surname" 
-                                    type="text" 
-                                    placeholder="Ime"
-                                    value={ this.state.addUser.surname }
-                                    onChange={ (e) => this.setAddUserStringFieldState('surname', e.target.value) }
-                                    required />
-                                </FloatingLabel>
-                            </Col>
-                            <Col lg="6" xs="12">
-                                <FloatingLabel label="Prezime" className="mb-3">
-                                <Form.Control 
-                                    id="forname" 
-                                    type="text" 
-                                    placeholder="Naziv"
-                                    value={ this.state.addUser.forname }
-                                    onChange={ (e) => this.setAddUserStringFieldState('forname', e.target.value) }
-                                    required />
-                                </FloatingLabel>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col lg="6" xs="12">
-                                <FloatingLabel label="Email" className="mb-3">
-                                <Form.Control 
-                                id="email" 
-                                type="email" 
-                                placeholder="Email"
-                                value={ this.state.addUser.email }
-                                onChange={ (e) => this.setAddUserStringFieldState('email', e.target.value) }
-                                required />
-                            </FloatingLabel>
-                            </Col>
-                            <Col lg="6" xs="12">
-                                <FloatingLabel label="Lozinka" className="mb-3">
-                                <Form.Control 
-                                id="password" 
-                                type="password" 
-                                placeholder="Lozinka"
-                                value={ this.state.addUser.password }
-                                onChange={ (e) => this.setAddUserStringFieldState('password', e.target.value) }
-                                required />
-                            </FloatingLabel>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col lg="6" xs="12">
-                                <FloatingLabel label="Telefon" className="mb-3">
-                                <Form.Control 
-                                id="telephone" 
-                                type='telephone'
-                                placeholder="Telefon"
-                                value={ this.state.addUser.telephone}
-                                onChange={ (e) => this.setAddUserStringFieldState('telephone', e.target.value) }
-                                required />
-                            </FloatingLabel>
-                            </Col>
-                            <Col lg="6" xs="12">
-                                <FloatingLabel label="Lokalni broj telefona" className="mb-3">
-                                <Form.Control 
-                                    id="local"
-                                    type='number'
-                                    placeholder="Lokal"
-                                    value={ this.state.addUser.localNumber }
-                                    onChange={ (e) => this.setAddUserStringFieldState('localNumber', e.target.value) }
-                                    required />
-                            </FloatingLabel>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col lg="4" xs="12">
-                                <FloatingLabel label="Kadrovski broj" className="mb-3">
-                                <Form.Control 
-                                id="code" 
-                                type='number'
-                                placeholder="Kadrovski broj"
-                                value={ this.state.addUser.code}
-                                onChange={ (e) => this.setAddUserStringFieldState('code', e.target.value) }
-                                required />
-                            </FloatingLabel>
-                            </Col>
-                            <Col lg="4" xs="12">
-                            <FloatingLabel label="Gender" className="mb-3">
-                                    <Form.Select
-                                        id='gender'
-                                        value={this.state.addUser.gender}
-                                        onChange={ (e) => this.setAddUserStringFieldState('gender', e.target.value) }
-                                        required >
-                                        <option value='muško'>muško</option>
-                                        <option value='žensko'>žensko</option>
-                                    </Form.Select>
-                                </FloatingLabel>
-                            </Col>
-                            <Col lg="4" xs="12">
-                                <FloatingLabel label="Status" className="mb-3">
-                                    <Form.Select
-                                        id='status'
-                                        value={this.state.addUser.status}
-                                        onChange={(e) => this.setAddUserStringFieldState('status', e.target.value)}
-                                        required >
-                                        <option value='aktivan'>aktivan</option>
-                                        <option value='neaktivan'>neaktivan</option>
-                                    </Form.Select>
-                                </FloatingLabel>
-                            </Col>
-                        </Row>
+                <CardHeader><i className="bi bi-person-lines-fill"/> Informacije o korisniku</CardHeader>
+                <CardBody className=''>
+                    <div className="flex flex-col lg:flex-row">
+                        <div className='lg:flex w-full'>
+                            <div className='w-full mb-3 mr-3'>
+                                <Input
+                                id="surname" 
+                                type="text" 
+                                label="Ime"
+                                labelPlacement='inside'
+                                value={ state.addUser.surname }
+                                onChange={ (e) => setAddUserStringFieldState('surname', e.target.value) }
+                                >
+                                </Input>
+                            </div>
+                            <div className='w-full mb-3'>
+                                <Input 
+                                id="forname" 
+                                type="text" 
+                                label="Prezime"
+                                labelPlacement='inside'
+                                value={ state.addUser.forname }
+                                onChange={ (e) => setAddUserStringFieldState('forname', e.target.value) }
+                                >
+                                </Input>
+                            </div>
+                        </div>
                         
-                        <Row>
-                        <Col lg="11" xs="11" style={{marginRight:-12}}>
-                            <FloatingLabel label="Sektor" className="mb-3">
-                                <Form.Select
-                                    id='departmentId'
-                                    value={this.state.addUser.departmentId.toString()}
-                                    onChange={e => {this.setAddUserNumberFieldState('departmentId', e.target.value); this.addJobDepartmentChange(e as any)}}
-                                    required >
-                                    <option value=''>izaberi sektor</option>
-                                    {this.state.department.map((dep, index) => (
-                                        <option key={index} value={dep.departmentId?.toString()}> {dep.title} - {dep.departmendCode}</option>
+                    </div>
+                    <div className="flex flex-col lg:flex-row">
+                        <div className='lg:flex w-full'>
+                            <div className='w-full mb-3 mr-3'>
+                                <Input
+                                id="email" 
+                                type="text" 
+                                label="Email"
+                                labelPlacement='inside'
+                                value={ state.addUser.email }
+                                onChange={ (e) => setAddUserStringFieldState('email', e.target.value) }
+                                >
+                                </Input>
+                            </div>
+                            <div className='w-full mb-3'>
+                                <Input 
+                                id="password" 
+                                endContent={<button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                                    {isVisible ? (
+                                        <i className="bi bi-eye-fill text-2xl text-default-400 pointer-events-none" />
+                                    ) : (
+                                        <i className="bi bi-eye-slash-fill text-2xl text-default-400 pointer-events-none" />
+                                    )}
+                                </button>}
+                                type={isVisible ? "text" : "password"} 
+                                label="Lozinka"
+                                labelPlacement='inside'
+                                value={ state.addUser.password }
+                                onChange={ (e) => setAddUserStringFieldState('password', e.target.value) }
+                                >
+                                </Input>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col lg:flex-row">
+                        <div className='lg:flex w-full'>
+                            <div className='w-full mb-3 mr-3'>
+                                <Input
+                                id="telephone" 
+                                type="text" 
+                                label="Telefon"
+                                labelPlacement='inside'
+                                value={ state.addUser.telephone}
+                                onChange={ (e) => setAddUserStringFieldState('telephone', e.target.value) }
+                                >
+                                </Input>
+                            </div>
+                            <div className='w-full mb-3'>
+                                <Input 
+                                id="local" 
+                                type="number" 
+                                label="Broj u lokalu"
+                                labelPlacement='inside'
+                                value={ state.addUser.localNumber }
+                                onChange={ (e) => setAddUserStringFieldState('localNumber', e.target.value) }
+                                >
+                                </Input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row">
+                        <div className='lg:flex w-full'>
+                            <div className='w-full mb-3 mr-3'>
+                                <Input
+                                id="code" 
+                                type="number" 
+                                label="Kadrovski broj"
+                                labelPlacement='inside'
+                                value={state.addUser.code.toString()}
+                                onChange={ (e) => setAddUserStringFieldState('code', e.target.value) }
+                                >
+                                </Input>
+                            </div>
+                            <div className='w-full mb-3 mr-3'>
+                                <Select
+                                id='gender'
+                                label='Spol'
+                                placeholder='Odaberite spol'
+                                value={state.addUser.gender}
+                                onChange={ (e) => setAddUserStringFieldState('gender', e.target.value) }
+                                >
+                                    <SelectItem key={'muško'} value={'muško'}>
+                                        muško
+                                    </SelectItem>
+                                    <SelectItem key={'žensko'} value={'žensko'}>
+                                        žensko
+                                    </SelectItem>
+                                </Select>
+                            </div>
+                            <div className='w-full mb-3'>
+                            <Select
+                                id='status'
+                                label='Status'
+                                placeholder='Odaberite status'
+                                value={state.addUser.status}
+                                onChange={(e) => setAddUserStringFieldState('status', e.target.value)}
+                                >
+                                    <SelectItem key={'aktivan'} value={'aktivan'}>
+                                        aktivan
+                                    </SelectItem>
+                                    <SelectItem key={'neaktivan'} value={'neaktivan'}>
+                                        neaktivan
+                                    </SelectItem>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-row">
+                        <div className='flex w-full'>
+                            <div className='w-full mb-3 mr-3'>
+                                <Select
+                                id='departmentId'
+                                label='Sektor ili odjeljenje'
+                                placeholder='Odaberite sektor ili odjeljenje'
+                                value={state.addUser.departmentId !== null ? state.addUser.departmentId.toString() : ''}
+                                onChange={e => {setAddUserNumberFieldState('departmentId', e.target.value); addJobDepartmentChange(e as any)}}
+                                >
+                                    {state.department.map((dep, index) => (
+                                        <SelectItem key={index} textValue={dep.title} value={dep.departmentId?.toString()}> {dep.title} - {dep.departmendCode} </SelectItem>
                                     ))}
-                                </Form.Select>
-                            </FloatingLabel>
-                            </Col>
-                            <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
-                                <Button size='sm' className='btn-plus' onClick={() => this.showDepartmentModal()}><i className="bi bi-plus-circle-fill" /></Button>
-                                <Modal size="lg" centered show={this.state.modal.department.visible} onHide={() => this.setDepartmentModalVisibleState(false)}>
+                                </Select>
+                            </div>
+                            <div className='flex justify-center items-center mb-3'>
+                                <Button color='warning' variant='flat' size='lg' onClick={() => showDepartmentModal()}><i className="bi bi-plus-circle-fill" /></Button>
+                                <Modal backdrop='blur' size="lg" isOpen={state.modal.department.visible} onClose={() => setDepartmentModalVisibleState(false)}>
                                     <AddDepartment />
                                 </Modal>
-                            </Col>
-                           </Row>
-                           <Row> 
-                            <Col lg="11" xs="11" style={{marginRight:-12}}>
-                                <FloatingLabel label="Radno mjesto" className="mb-3">
-                                    <Form.Select
-                                        id='jobId'
-                                        value={this.state.addUser.jobId.toString()}
-                                        onChange={(e) => this.setAddUserNumberFieldState('jobId', e.target.value)}
-                                        required >
-                                        <option value=''>izaberi radno mjesto</option>
-                                        {this.state.job.map((jo, index) => (
-                                            <option key={index} value={jo.jobId?.toString()}>{jo.jobCode} - {jo.title} </option>
-                                        ))}
-                                    </Form.Select>
-                                </FloatingLabel>
-                            </Col>
-                            <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
-                            <Button size='sm' className='btn-plus' onClick={() => this.showJobModal()}><i className="bi bi-plus-circle-fill" /></Button>
-                            <Modal size="lg" centered show={this.state.modal.job.visible} onHide={() => this.setJobModalVisibleState(false)}>
-                                <AddJob />
-                            </Modal>
-                            </Col>
-                        </Row>
-                        <Row>
-                        <Col lg="11" xs="11">
-                        <Form.Text>
-                            Ukoliko je lista radnih mjesta prazna ili radno mjesto ne postoji u istoj, potrebno je izvršiti povezivanje radnog mjesta sa lokacijom i sektorom. To možete učiniti klikom
-                            <Button className='btn-link-here' onClick={() => this.showDepartmentJobLocationModal()}> <b>ovdje.</b></Button>
-                            <Modal size="lg" centered show={this.state.modal.departmentJobLocation.visible} onHide={() => this.setDepartmentJobLocationModalVisibleState(false)}>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row">
+                        <div className='flex w-full'>
+                            <div className='w-full mb-3 mr-3'>
+                                <Select
+                                id='jobId'
+                                label='Radno mjesto'
+                                placeholder='Odaberite radno mjesto'
+                                value={state.addUser.jobId.toString()}
+                                onChange={(e) => setAddUserNumberFieldState('jobId', e.target.value)}
+                                >
+                                    {state.job.map((jo, index) => (
+                                        <SelectItem key={index} textValue={jo.title} value={jo.jobId?.toString()}>{jo.jobCode} - {jo.title}</SelectItem>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className='flex justify-center items-center mb-3'>
+                                <Button color='warning' variant='flat' size='lg' onClick={() => showJobModal()}><i className="bi bi-plus-circle-fill" /></Button>
+                                <Modal backdrop='blur' size="lg" isOpen={state.modal.job.visible} onClose={() => setJobModalVisibleState(false)}>
+                                    <AddJob />
+                                </Modal>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col lg:flex-row pl-3 text-sm text-default-500 mb-3">
+                        Ukoliko je lista radnih mjesta prazna ili radno mjesto ne postoji u istoj, potrebno je izvršiti povezivanje radnog mjesta sa lokacijom i sektorom. To možete učiniti klikom
+                            <Link className='text-sm pl-1 cursor-pointer' color='danger' showAnchorIcon onClick={() => showDepartmentJobLocationModal()}> ovdje</Link>
+                            <Modal backdrop='blur' size="lg" isOpen={state.modal.departmentJobLocation.visible} onClose={() => setDepartmentJobLocationModalVisibleState(false)}>
                                 <AddDepartmentJobLocation />
                             </Modal>
-                        </Form.Text>
-                        </Col>
-                        </Row>
-                        <Row>
-                            <Col lg="11" xs="11" style={{marginRight:-12}}>
-                                <FloatingLabel label="Lokacija" className="mb-3">
-                                    <Form.Select
-                                        id='locationId'
-                                        value={this.state.addUser.locationId.toString()}
-                                        onChange={(e) => this.setAddUserNumberFieldState('locationId', e.target.value)}
-                                        required >
-                                        <option value=''>izaberi lokaciju</option>
-                                        {this.state.location.map((loc, index) => (
-                                            <option key={index} value={loc.locationId?.toString()}>{loc.code} - {loc.name} </option>
-                                        ))}
-                                    </Form.Select>
-                                </FloatingLabel>
-                            </Col>
-                            <Col lg="1" xs="1" style={{marginRight:12, paddingBottom:10, justifyContent:"center", display:"flex"}}>
-                                <Button size='sm' className='btn-plus' onClick={() => this.showLocationModal()}><i className="bi bi-plus-circle-fill" /></Button>
-                                    <Modal size="lg" centered show={this.state.modal.location.visible} onHide={() => this.setLocationModalVisibleState(false)}>
-                                        <AddLocation />
-                                    </Modal>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-                    </Form>
-                </Card.Body>
-                <Card.Footer>
-                    <Row style={{ alignItems: 'end' }}>
-                        <Button onClick={() => this.doAddUser()} variant="success"> <i className="bi bi-person-check-fill"/>Dodaj korisnika</Button>
-                    </Row>
-                    <Row>
-                    <Alert variant="success"
-                        style={{ marginTop: 15 }}
-                        className={this.state.errorMessage ? '' : 'd-none'}>
-                        <i className="bi bi-exclamation-triangle" />  {this.state.errorMessage}
-                    </Alert>
-                    </Row>
-                </Card.Footer>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row">
+                        <div className='flex w-full'>
+                            <div className='w-full mb-3 mr-3'>
+                                <Select
+                                id='locationId'
+                                label='Lokacija'
+                                placeholder='Odaberite lokaciju'
+                                value={state.addUser.locationId.toString()}
+                                onChange={(e) => setAddUserNumberFieldState('locationId', e.target.value)}
+                                >
+                                    {state.location.map((loc, index) => (
+                                        <SelectItem key={index} textValue={loc.name} value={loc.locationId?.toString()}>{loc.code} - {loc.name} </SelectItem>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className='flex justify-center items-center mb-3'>
+                                <Button color='warning' variant='flat' size='lg' onClick={() => showLocationModal()}><i className="bi bi-plus-circle-fill" /></Button>
+                                <Modal backdrop='blur' size="lg" isOpen={state.modal.location.visible} onClose={() => setLocationModalVisibleState(false)}>
+                                    <AddLocation />
+                                </Modal>
+                            </div>
+                        </div>
+                    </div>
+                </CardBody>
+                <CardFooter className='gap-3'>
+                    <div>
+                        <Button onClick={() => doAddUser()} color="success"> <i className="bi bi-person-check-fill"/>Dodaj korisnika</Button>
+                    </div>
+
+                        <div style={{ marginTop: 15 }} className={state.errorMessage ? '' : 'd-none'}> 
+                            <Alert title='Info' body={state.errorMessage} variant='success'  />
+                        </div>
+                </CardFooter>
             </Card>  
             </div>
         )
-    }    
+    }   
+    /* Kraj dodatnih funkcija */
+    return(
+        <div>
+            <RoledMainMenu/>
+            
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
+                {printOptionalMessage()}
+                {addForm()}
+                <AdminMenu />
+            </div>
+        </div>
+    )
 }
+
+export default AddUserPage

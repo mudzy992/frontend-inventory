@@ -1,6 +1,7 @@
 import React from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Button, Col, Container, FloatingLabel, Form, Modal, Row } from 'react-bootstrap';
+import { Button, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
+import { ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 /* import { Redirect } from 'react-router-dom'; */
 
 interface DepartmentType {
@@ -193,10 +194,11 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
 
     addForm() {
         return(
-            <div><Modal.Header closeButton>
-                <Modal.Title>Modul povezivanja radnog mjesta sa sektorom i lokacijom</Modal.Title>
-            </Modal.Header>
-            <Modal.Body >
+            <ModalContent>
+            <ModalHeader>
+                Modul povezivanja radnog mjesta sa sektorom i lokacijom
+            </ModalHeader>
+            <ModalBody >
                     <Form>
                         <Form.Group className="mb-3 ">
                         <FloatingLabel style={{marginTop:8}} label="Sektor/služba/odjeljenje" className="mb-3">
@@ -246,16 +248,16 @@ export default class AddDepartmentJobLocation extends React.Component<{}> {
                             </Stack> */}
                         </Form.Group>
                     </Form>
-                    <Modal.Footer className={this.state.add.departmentJobLocation?.locationId ? '' : 'd-none'}>
+                    <ModalFooter className={this.state.add.departmentJobLocation?.locationId ? '' : 'd-none'}>
                     <Row style={{ alignItems: 'end' }}>
                             <Button onClick={() => this.doAddDepartmentJobLocation()} 
                                     variant="success"
                                     style={{background:"#70A9A1", color:"#1F363D", border:0, fontSize:18}}>
                             <i className="bi bi-node-plus" /> Poveži </Button>
                         </Row>
-                </Modal.Footer>
-                </Modal.Body>
-            </div>
+                </ModalFooter>
+                </ModalBody>
+            </ModalContent>
         )
     }
 

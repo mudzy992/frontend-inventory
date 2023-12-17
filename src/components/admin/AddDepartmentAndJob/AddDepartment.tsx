@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Button, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import { Button, Input, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea } from '@nextui-org/react';
+import { Alert } from '../../custom/Alert';
 
 /* import { Redirect } from 'react-router-dom'; */
 
@@ -30,11 +30,8 @@ interface AddDepartmentState {
     }
 }
 
-export default class AddDepartment extends React.Component<{}> {
-    state: AddDepartmentState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
+const AddDepartment:React.FC = () => {
+    const [state, setState] = useState<AddDepartmentState>({
             error: {
                 visible: false,
             },
@@ -46,201 +43,174 @@ export default class AddDepartment extends React.Component<{}> {
                     description: '',
                     departmentCode: '',
                 }
-            } 
-        }
-    }
-
-    componentDidMount() {
-        this.getDepartments()
-    }
+            }
+    })
+    useEffect(() => {
+        getDepartments()
+    }, [])
 
     /* SET */
 
-    private setAddNewDepartmentStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.add.department, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state.error, {
-            message: message,
+    const setAddNewDepartmentStringState = (fieldName:string, newValue:string) => {
+        setState((prevState) => ({
+          ...prevState,
+          add: {
+            ...prevState.add,
+            department: {
+              ...prevState.add.department,
+              [fieldName]: newValue,
+            },
+          },
         }));
+    };
+
+    const setErrorMessage = (message: string) => {
+        setState(prev => ({...prev, message: message}))
     }
 
-    private setIsLoggedInStatus(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state.error, {
-            isLoggedIn: isLoggedIn,
-        }));
+    const setIsLoggedInStatus = (isLoggedIn: boolean) => {
+        setState(prev => ({...prev, isLoggedIn: isLoggedIn}))
     }
 
-    private setDepartmentData(departmentData: DepartmentType[]) {
-        this.setState(Object.assign(this.state, {
+    const setDepartmentData = (departmentData: DepartmentType[]) => {
+        setState(Object.assign(state, {
             departmentBase: departmentData,
         }));
     }
 
-    private async showErrorMessage() {
-        this.setErrorMessageVisible(true)
+    const showErrorMessage = async () => {
+        setErrorMessageVisible(true)
     }
 
-    private setErrorMessageVisible(newState: boolean) {
-        this.setState(Object.assign(this.state.error,{
-            visible: newState,
-        }));
+    const setErrorMessageVisible = (newState: boolean) => {
+        setState(Object.assign(state,
+            Object.assign(state.error, {
+                visible: newState,
+            })
+        ));
     }
 
     /* GET */
 
-    private getDepartments() {
+    const getDepartments = () => {
         api('api/department?sort=title,ASC', 'get', {}, 'administrator')
         .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
+                setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
                 return;
             }   
-            this.setDepartmentData(res.data);
+            setDepartmentData(res.data);
         })
     }
 
     /* DODATNE FUNCKIJE */
-    private printOptionalMessage() {
-        if (this.state.error.message === '') {
+    const printOptionalMessage = () => {
+        if (state.error.message === '') {
             return;
         }
 
         return (
-            <div>
-                {this.state.error.message}
-            </div>
+            <Alert title='info' variant='info' body={state.error.message!} />
         );
     }
 
-    private doAddDepartment() {
-        api('api/department/', 'post', this.state.add.department, 'administrator')
+    const doAddDepartment = () => {
+        api('api/department/', 'post', state.add.department, 'administrator')
         .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === "error" ) {
-                this.setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja.');
+                setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja.');
                 return;
             }
-            this.setErrorMessage('Uspješno dodan sektor/služba/odjeljenje');
-            this.showErrorMessage()
-            this.getDepartments();
+            setErrorMessage('Uspješno dodan sektor/služba/odjeljenje');
+            showErrorMessage()
+            getDepartments();
         })
     }
 
-    addForm() {
+    const addForm = () => {
         return(
             <ModalContent>
             <ModalHeader>
                    Detalji sektora/službe/odjeljenja
                 </ModalHeader>
                 <ModalBody >
-                    <Form>
-                        <Form.Group className="mb-3 ">
-                            <FloatingLabel label="Naziv sektora/službe/odjeljenja" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="departmentTitle"
-                                    type="text"
-                                    placeholder="Naziv sektora/službe/odjeljenja"
-                                    value={this.state.add.department.title}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('title', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <FloatingLabel label="Opis" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="departmentDescription"
-                                    as="textarea" 
-                                    rows={5}
-                                    style={{height:100}}
-                                    placeholder="Neobavezno"
-                                    value={this.state.add.department.description}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('description', e.target.value)}
-                                    />
-                            </FloatingLabel>
-                            <FloatingLabel label="Šifra organizacione jedinice" className="mb-3">
-                                <Form.Control
-                                    id="departmentCode"
-                                    type="number"
-                                    placeholder="Šifra organizacione jedinice"
-                                    value={this.state.add.department.departmentCode}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('departmentCode', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <Form.Text>U slučaju da se kreira sektor nije potrebno popuniti polje ispod. Polje se popunjava
-                                isključivo ako se dodaje služba/odjeljenje koje pripada nekom sektoru/službi.
-                            </Form.Text>
-                            <FloatingLabel style={{marginTop:8}} label="Pripada sektoru/službi" className="mb-3">
-                                <Form.Select
-                                    id='parentDepartmentId'
-                                    value={this.state.add.department.parentDepartmentId?.toString()}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('parentDepartmentId', e.target.value)}
-                                    >
-                                    <option value='NULL'>izaberi sektor/službu/odjeljenje</option>
-                                    {this.state.departmentBase.map((data, index) => (
-                                        <option key={index} value={data.departmentId?.toString()}>{data.title}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-                            {/* <Stack spacing={2} sx={{ width: '100%' }}>
-                                <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
-                                    <MuiAlert severity="success" sx={{ width: '100%' }}>
-                                        {this.printOptionalMessage()}
-                                    </MuiAlert>
-                                </Snackbar>
-                            </Stack> */}
-                        </Form.Group>
-                    </Form>
-                <ModalFooter className={this.state.add.department.title ? '' : 'd-none'}>
-                    <Row style={{ alignItems: 'end' }}>
-                        <Button onClick={() => this.doAddDepartment()} 
-                                variant="success">
+                <div className="flex flex-col">
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="departmentTitle" 
+                            type="text" 
+                            label="Naziv sektora/službe/odjeljenja"
+                            labelPlacement='inside'
+                            value={state.add.department.title}
+                            onChange={(e) => setAddNewDepartmentStringState('title', e.target.value)}
+                            >
+                            </Input>
+                        </div>
+                        <div className='w-full mb-3 mr-3'>
+                        <Textarea
+                            id="departmentDescription"
+                            label="Opis"
+                            placeholder="Opišite radno mjesto"
+                            value={state.add.department.description}
+                            onChange={(e) => setAddNewDepartmentStringState('description', e.target.value)}
+                        />
+                        </div>
+                        <div className='w-full mb-3 mr-3'>
+                        <Input
+                            id="departmentCode" 
+                            type="number" 
+                            label="Šifra organizacione jedinice"
+                            labelPlacement='inside'
+                            value={state.add.department.departmentCode}
+                                    onChange={(e) => setAddNewDepartmentStringState('departmentCode', e.target.value)}
+                            >
+                            </Input>
+                        </div>
+                        <div className='lg:flex w-full'> 
+                            <Select
+                                description='U slučaju da se kreira sektor nije potrebno popuniti polje ispod. Polje se popunjava
+                                isključivo ako se dodaje služba/odjeljenje koje pripada nekom sektoru/službi.'
+                                id='parentDepartmentId'
+                                label='Pripada sektoru/službi'
+                                placeholder='Odaberite glavna službu/odjeljenje'
+                                onChange={(e) => setAddNewDepartmentStringState('parentDepartmentId', e.target.value)}
+                            >
+                                {state.departmentBase.map((departmentData, index) => (
+                                    <SelectItem key={departmentData.departmentId || index} textValue={`${departmentData.departmentId} - ${departmentData.title}`} value={Number(departmentData.departmentId)}>
+                                        {departmentData.departmentId} - {departmentData.title}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                            
+                        </div>
+                    </div>
+                <ModalFooter className={state.add.department.title ? '' : 'd-none'}>
+                    <div style={{ alignItems: 'end' }}>
+                        <Button onClick={() => doAddDepartment()} 
+                                color="success">
                         <i className="bi bi-plus-circle" /> Dodaj sektor/službu/odjeljenje
                         </Button>
-                    </Row>
+                    </div>
                 </ModalFooter>
                 </ModalBody>
             </ModalContent>
         )
     }
 
-    /* RENDERER */
-
-    render() {
-        /* if(this.state.isLoggedIn === false) {
-            return (
-                <Redirect to='/login' />
-            )
-        } */
-        return (
+    return (
+        <div>
             <div>
-                <Container style={{ marginTop:15}}>
-                    {this.renderData()}
-                </Container>
+                {addForm()}
             </div>
-        )
-    }
-
-    renderData() {
-        return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
-                            {this.addForm()}
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
+        </div>
+    )
 }
+export default AddDepartment;

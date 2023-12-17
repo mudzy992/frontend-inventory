@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
-import { Button, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
-/* import { Redirect } from 'react-router-dom'; */
-
+import { Button, Input, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Spinner } from '@nextui-org/react';
+import { Alert } from '../../custom/Alert';
 
 interface LocationType {
     locationId: number;
@@ -27,11 +25,8 @@ interface AddLocationState {
     }
 }
 
-export default class AddLocation extends React.Component<{}> {
-    state: AddLocationState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
+const AddLocation: React.FC = () => {
+    const [state, setState] = useState<AddLocationState>({
             error: {
                 visible: false,
             },
@@ -43,48 +38,50 @@ export default class AddLocation extends React.Component<{}> {
                     code: '',
                 },
             } 
-        }
-    }
+    })
 
-    componentDidMount() {
-        this.getLocations()
-    }
+    const [loading, setLoading] = useState<boolean>(false)
+
+    useEffect(() => {
+        getLocations()
+    }, [])
 
     /* SET */
 
-
-    private setAddNewLocationStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.add.location, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state.error, {
-            message: message,
+    const setAddNewLocationStringState = (fieldName:string, newValue:string) => {
+        setState((prevState) => ({
+          ...prevState,
+          add: {
+            ...prevState.add,
+            location: {
+              ...prevState.add.location,
+              [fieldName]: newValue,
+            },
+          },
         }));
+    };
+
+    const setErrorMessage = (message: string) => {
+        setState(prev => ({...prev, message: message}))
     }
 
-    private setIsLoggedInStatus(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state.error, {
-            isLoggedIn: isLoggedIn,
-        }));
+    const setIsLoggedInStatus = (isLoggedIn: boolean) => {
+        setState(prev => ({...prev, isLoggedIn: isLoggedIn}))
     }
 
-    private setLocationData(locationData: LocationType[]) {
-        this.setState(Object.assign(this.state, {
+    const setLocationData = (locationData: LocationType[]) => {
+        setState(Object.assign(state, {
             locationBase: locationData,
         }));
     }
 
-    private async showErrorMessage() {
-        this.setErrorMessageVisible(true)
+    const showErrorMessage = async () => {
+        setErrorMessageVisible(true)
     }
 
-    private setErrorMessageVisible(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.error, {
+    const setErrorMessageVisible = (newState: boolean) => {
+        setState(Object.assign(state,
+            Object.assign(state.error, {
                 visible: newState,
             })
         ));
@@ -92,143 +89,144 @@ export default class AddLocation extends React.Component<{}> {
 
     /* GET */
 
-    private getLocations() {
-        api('api/location?sort=name,ASC', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
-                return;
-            }
-            if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom učitavanja lokacija.');
-                return;
-            }   
-            this.setLocationData(res.data);
-        })
+    const getLocations = async () => {
+        try{
+            setLoading(true)
+            await api('api/location?sort=name,ASC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false);
+                    return;
+                }
+                if (res.status === "error") {
+                    setErrorMessage('Greška prilikom učitavanja lokacija.');
+                    return;
+                }   
+                setLocationData(res.data);
+                setLoading(false)
+            })
+
+        }catch(error) {
+            setErrorMessage('Greška prilikom učitavanja lokacija.');
+            setLoading(false)
+        }
+        
     }
 
     /* DODATNE FUNCKIJE */
-    private printOptionalMessage() {
-        if (this.state.error.message === '') {
+    const printOptionalMessage = () => {
+        if (state.error.message === '') {
             return;
         }
 
         return (
-            <div>
-                {this.state.error.message}
-            </div>
+            <Alert title='info' variant='info' body={state.error.message!} />
         );
     }
 
-    private doAddLocation() {
-        api('api/location/', 'post', this.state.add.location, 'administrator')
-        .then((res: ApiResponse) => {
+    const doAddLocation = async () => {
+        try {
+            setLoading(true)
+            await api('api/location/', 'post', state.add.location, 'administrator')
+            .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom dodavanja lokacije.');
+                setErrorMessage('Greška prilikom dodavanja lokacije.');
                 return;
             }
-            this.setErrorMessage('Uspješno dodana lokacija');
-            this.showErrorMessage()
-            this.getLocations();
+            setErrorMessage('Uspješno dodana lokacija');
+            showErrorMessage()
+            getLocations();
+            setLoading(false)
         })
+
+        } catch(error) {
+            setErrorMessage('Greška prilikom dodavanja lokacije.');
+        }
+        
     }
 
-    addForm() {
+    const addForm = () => {
         return(
             <ModalContent>
             <ModalHeader>
-                    Detalji sektora/službe/odjeljenja
+                    Detalji lokacije
                 </ModalHeader>
                 <ModalBody>
-                    <Form>
-                        <Form.Group className="mb-3 ">
-                            <FloatingLabel label="Naziv lokacije" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="locationName"
-                                    type="text"
-                                    placeholder="Naziv lokacije"
-                                    value={this.state.add.location.name}
-                                    onChange={(e) => this.setAddNewLocationStringState('name', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <FloatingLabel label="Šifra lokacije" className="mb-3">
-                                <Form.Control
-                                    id="locationCode"
-                                    type="text"
-                                    placeholder="Šifra lokacije"
-                                    value={this.state.add.location.code}
-                                    onChange={(e) => this.setAddNewLocationStringState('code', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-
-                            <Form.Text>Opciju koristiti u slučaju da lokacija ne postoji, pa se dodaje pod-lokacija
-                            </Form.Text>
-                            <FloatingLabel style={{marginTop:8}} label="Pripada lokaciji" className="mb-3">
-                                <Form.Select
-                                    id='parentLocationId'
-                                    value={this.state.add.location.parentLocationId?.toString()}
-                                    onChange={(e) => this.setAddNewLocationStringState('parentLocationId', e.target.value)}
+                    <div className="flex flex-col">
+                        {loading ? (
+                            <div className='flex justify-center items-center'>
+                                <Spinner label='Učitavanje...' labelColor='success' color='success' />
+                            </div>
+                        ) : (
+                            <div> 
+                                <div className='w-full mb-3 mr-3'>
+                                    <Input
+                                    id="name" 
+                                    type="text" 
+                                    label="Naziv lokacije"
+                                    labelPlacement='inside'
+                                    value={state.add.location.name}
+                                    onChange={(e) => setAddNewLocationStringState('name', e.target.value)}
                                     >
-                                    <option value='NULL'>izaberi podlokaciju</option>
-                                    {this.state.locationBase.map((locData, index) => (
-                                        <option key={index} value={locData.locationId?.toString()}>{locData.name}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-                            {/* <Stack spacing={2} sx={{ width: '100%' }}>
-                                <Snackbar open={this.state.error.visible} autoHideDuration={6000} onClose={()=> this.setErrorMessageVisible(false)}>
-                                    <MuiAlert severity="success" sx={{ width: '100%' }}>
-                                        {this.printOptionalMessage()}
-                                    </MuiAlert>
-                                </Snackbar>
-                            </Stack> */}
-                        </Form.Group>
-                    </Form>
-                    <ModalFooter className={this.state.add.location.name ? '' : 'd-none'}>
-                    <Row style={{ alignItems: 'end' }}>
-                            <Button onClick={() => this.doAddLocation()} 
-                                    variant="success">
-                            <i className="bi bi-plus-circle" /> Dodaj lokaciju</Button>
-                        </Row>
+                                    </Input>
+                                </div>
+                                <div className='w-full mb-3 mr-3'>
+                                    <Input
+                                    id="code" 
+                                    type="text" 
+                                    label="Šifra lokacije"
+                                    labelPlacement='inside'
+                                    value={state.add.location.code}
+                                    onChange={(e) => setAddNewLocationStringState('code', e.target.value)}
+                                    >
+                                    </Input>
+            
+                                </div>
+                                <div className='lg:flex w-full'> 
+                                    <Select
+                                        description='Opciju koristiti u slučaju da lokacija ne postoji, pa se dodaje pod-lokacija'
+                                        id='parentLocationId'
+                                        label='Glavna lokacija'
+                                        placeholder='Odaberite glavna lokacija'
+                                        onChange={(e) => setAddNewLocationStringState('parentLocationId', e.target.value)}
+                                    >
+                                        {state.locationBase.map((locData, index) => (
+                                            <SelectItem key={locData.locationId || index} textValue={`${locData.locationId} - ${locData.name}`} value={Number(locData.locationId)}>
+                                                {locData.locationId} - {locData.name}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                    
+                                </div>
+                            </div>
+                        )}
+                        
+                    </div>
+                    <ModalFooter className={state.add.location.name ? '' : 'd-none'}>
+                    <div style={{ alignItems: 'end' }}>
+                        {/* <div>
+                            {printOptionalMessage()}
+                        </div> */}
+                        <Button onClick={() => doAddLocation()} 
+                                color="success">
+                        <i className="bi bi-plus-circle" /> Dodaj lokaciju</Button>
+                    </div>
                 </ModalFooter>
                 </ModalBody>                        
             </ModalContent>
         )
     }
-
-    /* RENDERER */
-
-    render() {
-        /* if(this.state.isLoggedIn === false) {
-            return(
-                <Redirect to='/login' />
-            )
-        } */
-        return (
+    return (
+        <div>
             <div>
-                <Container style={{ marginTop:15}}>
-                    {this.renderData()}
-                    
-                </Container>
+                {addForm()}
             </div>
-        )
-    }
-
-    renderData() {
-        return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
-                            {this.addForm()}
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
+        </div>
+    )
 }
+
+export default AddLocation;

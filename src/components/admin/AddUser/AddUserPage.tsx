@@ -138,10 +138,10 @@ const AddUserPage: React.FC = () => {
         setState((prev) => ({...prev, department: department}))
     }
 
-    const addJobDepartmentChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setAddUserNumberFieldState('departmentId', event.target.value);
+    const addJobDepartmentChange = async (selectedValue: any) => {
+        setAddUserNumberFieldState('departmentId', selectedValue);
 
-        const jobs = await getJobsByDepartmentId(state.addUser.departmentId);
+        const jobs = await getJobsByDepartmentId(selectedValue);
         const stateJobs = jobs.map(job => ({
             jobId: job.jobId,
             title: job.title,
@@ -327,7 +327,6 @@ const AddUserPage: React.FC = () => {
                                 </Input>
                             </div>
                         </div>
-                        
                     </div>
                     <div className="flex flex-col lg:flex-row">
                         <div className='lg:flex w-full'>
@@ -444,12 +443,11 @@ const AddUserPage: React.FC = () => {
                                 id='departmentId'
                                 label='Sektor ili odjeljenje'
                                 placeholder='Odaberite sektor ili odjeljenje'
-                                value={state.addUser.departmentId !== null ? state.addUser.departmentId.toString() : ''}
-                                onChange={e => {setAddUserNumberFieldState('departmentId', e.target.value); addJobDepartmentChange(e as any)}}
+                                onChange={(e) => {setAddUserNumberFieldState('departmentId', e.target.value); addJobDepartmentChange(e.target.value)}}
                                 >
-                                    {state.department.map((dep, index) => (
-                                        <SelectItem key={index} textValue={dep.title} value={dep.departmentId?.toString()}> {dep.title} - {dep.departmendCode} </SelectItem>
-                                    ))}
+                                {state.department.map((dep, index) => (
+                                    <SelectItem key={dep.departmentId || index} textValue={dep.title} value={Number(dep.departmentId)}> {dep.title} - {dep.departmendCode} </SelectItem>
+                                ))}
                                 </Select>
                             </div>
                             <div className='flex justify-center items-center mb-3'>
@@ -468,11 +466,10 @@ const AddUserPage: React.FC = () => {
                                 id='jobId'
                                 label='Radno mjesto'
                                 placeholder='Odaberite radno mjesto'
-                                value={state.addUser.jobId.toString()}
                                 onChange={(e) => setAddUserNumberFieldState('jobId', e.target.value)}
                                 >
                                     {state.job.map((jo, index) => (
-                                        <SelectItem key={index} textValue={jo.title} value={jo.jobId?.toString()}>{jo.jobCode} - {jo.title}</SelectItem>
+                                        <SelectItem key={jo.jobId || index} textValue={jo.title} value={jo.jobId}>{jo.jobCode} - {jo.title}</SelectItem>
                                     ))}
                                 </Select>
                             </div>
@@ -499,11 +496,10 @@ const AddUserPage: React.FC = () => {
                                 id='locationId'
                                 label='Lokacija'
                                 placeholder='Odaberite lokaciju'
-                                value={state.addUser.locationId.toString()}
                                 onChange={(e) => setAddUserNumberFieldState('locationId', e.target.value)}
                                 >
                                     {state.location.map((loc, index) => (
-                                        <SelectItem key={index} textValue={loc.name} value={loc.locationId?.toString()}>{loc.code} - {loc.name} </SelectItem>
+                                        <SelectItem key={loc.locationId || index} textValue={loc.name} value={loc.locationId}>{loc.code} - {loc.name} </SelectItem>
                                     ))}
                                 </Select>
                             </div>

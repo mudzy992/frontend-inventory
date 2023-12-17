@@ -290,11 +290,16 @@ const AdminDashboardPage: React.FC = () => {
                                 </CardFooter>
                         </Card>
                     </div>
-                    <div className="lg:w-1/2 w-full bg-default-50 rounded-lg p-2">
+                    <div className="lg:w-1/2 w-full bg-default-50 rounded-2xl shadow p-2 max-h-[292px]">
                         <div className='mb-3 bg-default-100 rounded-lg p-2'>
                             <span>Nepotpisani dokumenti</span> <Chip color="danger"> {unsignedDocumentDataCount}</Chip>
                         </div>
-                            <Table aria-label='Tabela nepotpisanih dokumenta' >
+                            <Table 
+                            hideHeader 
+                            removeWrapper 
+                            aria-label='Tabela nepotpisanih dokumenta' 
+                            classNames={{base: 'max-h-[220px] overflow-y-scroll ',}}
+                            >
                                 <TableHeader>
                                     <TableColumn>Naziv</TableColumn>
                                     <TableColumn>Inv.Broj</TableColumn>
@@ -341,7 +346,7 @@ const AdminDashboardPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="xs:w-full bg-default-50 rounded-lg p-2">
+                <div className="xs:w-full bg-default-50 rounded-2xl shadow p-2">
                     <div className='mb-3 bg-default-100 rounded-lg p-2' >Svi artikli</div>
                     <div className='mb-3 flex flex-row gap-3 items-center'>
                         <div className='w-full'>
@@ -361,7 +366,7 @@ const AdminDashboardPage: React.FC = () => {
                         </div>
                         
                     </div>
-                    <Table aria-label='Tabela artikala'>
+                    <Table selectionMode='single' removeWrapper aria-label='Tabela artikala'>
                         <TableHeader>
                             <TableColumn>Naziv</TableColumn>
                             <TableColumn> Serijski broj</TableColumn>

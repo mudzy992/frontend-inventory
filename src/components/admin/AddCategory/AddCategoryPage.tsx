@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
-import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
-/* import { Redirect } from 'react-router-dom'; */
+import { Alert } from '../../custom/Alert';
+import { Button, Card, CardBody, CardFooter, CardHeader, Input, Select, SelectItem, Spinner } from '@nextui-org/react';
+import { useNavigate } from 'react-router-dom';
 
 interface AddCategoryPageState {
     categories: CategoryType[];
@@ -17,201 +18,189 @@ interface AddCategoryPageState {
     }
 }
 
-export default class AddNewCategoryPage extends React.Component<{}> {
-    state: AddCategoryPageState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
-            categories: [],
-            message: '',
-            isLoggedIn: true,
-            addNewCategory: {
-                name: '',
-                imagePath: '',
-                parentCategoryId: 0,
-            }
+const AddNewCategoryPage: React.FC = () => {
+    const [state, setState] = useState<AddCategoryPageState>({
+        categories: [],
+        message: '',
+        isLoggedIn: true,
+        addNewCategory: {
+            name: '',
+            imagePath: '',
+            parentCategoryId: 0,
         }
-    }
+    })
+    const navigate = useNavigate()
+    const [loading, setLoading] = useState<boolean>(false)
 
-    componentDidMount() {
-        this.getCategories()
-    }
+    useEffect(() => {
+        getCategories()
+    }, [])
 
     /* SET */
 
-    private setAddNewCategoryStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addNewCategory, {
+    const setAddNewCategoryStringState = (fieldName: string, newValue: string) => {
+        setState(Object.assign(state,
+            Object.assign(state.addNewCategory, {
                 [fieldName]: newValue,
             })))
     }
 
-    private setAddNewCategoryNumberState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addNewCategory, {
+    const setAddNewCategoryNumberState = (fieldName: string, newValue: any) => {
+        setState(Object.assign(state,
+            Object.assign(state.addNewCategory, {
                 [fieldName]: (newValue === 'null') ? null : Number(newValue),
             })))
     }
 
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            message: message,
-        }));
+    const setErrorMessage = (message: string) => {
+        setState(prev => ({...prev, message:message}))
     }
 
-    private setIsLoggedInStatus(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        }));
+    const setIsLoggedInStatus = (isLoggedIn: boolean) => {
+        setState((prev) => ({...prev, isLoggedIn:isLoggedIn}))
+
+        if(isLoggedIn === false) {
+            navigate('/login/')
+        }
     }
 
-    private setCategoryData(category: CategoryType) {
-        this.setState(Object.assign(this.state, {
+    const setCategoryData = (category: CategoryType) => {
+        setState(Object.assign(state, {
             categories: category
         }))
     }
 
     /* GET */
 
-    private getCategories() {
-        api('api/category/', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedInStatus(false)
+    const getCategories = async () => {
+        try {
+            setLoading(true);
+    
+            const res = await api('api/category/', 'get', {}, 'administrator');
+    
+            if (res.status === 'login') {
+                setIsLoggedInStatus(false);
                 return;
             }
-            if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom učitavanja kategorija, osvježite stranicu i pokušajte ponovo.');
+    
+            if (res.status === 'error') {
+                setErrorMessage('Greška prilikom učitavanja kategorija, osvježite stranicu i pokušajte ponovo.');
                 return;
-            }   
-            this.setCategoryData(res.data);
-        })
-    }
+            }
+    
+            setCategoryData(res.data);
+            setLoading(false);
+        } catch (error) {
+            setErrorMessage('Došlo je do greške prilikom učitavanja kategorija, osvježite stranicu i pokušajte ponovo.');
+            setLoading(false);
+        }
+    };
 
     /* DODATNE FUNCKIJE */
-    private printOptionalMessage() {
-        if (this.state.message === '') {
+    const printOptionalMessage = () => {
+        if (state.message === '') {
             return;
         }
 
         return (
-            <div>
-                {this.state.message}
-            </div>
+            <Alert title='info' variant='info' body={state.message} />
         );
     }
 
-    private doAddCategory() {
-        api('api/category/', 'post', this.state.addNewCategory, 'administrator')
+    const doAddCategory = () => {
+        api('api/category/', 'post', state.addNewCategory, 'administrator')
         .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false)
+                setIsLoggedInStatus(false)
                 return;
             }
             if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom dodavanja kategorije, pokušajte ponovo.');
+                setErrorMessage('Greška prilikom dodavanja kategorije, pokušajte ponovo.');
                 return;
             }
-            this.setErrorMessage('Kategorija je uspješno dodana.');
+            setErrorMessage('Kategorija je uspješno dodana.');
         })
     }
 
-    private addForm() {
+    const addForm = () => {
         return(
-            <div><Card className="mb-3">
-                <Card.Header>
-                    <Card.Title>Detalji kategorije</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 ">
-                            <FloatingLabel label="Nova kategorija (naziv)" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="name"
-                                    type="text"
-                                    placeholder="Naziv"
-                                    value={this.state.addNewCategory.name}
-                                    onChange={(e) => this.setAddNewCategoryStringState('name', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <FloatingLabel label="Ikona kategorije" className="mb-3">
-                                <Form.Control
-                                    id="imagePath"
-                                    type="text"
-                                    placeholder="Ikona kategorije"
-                                    value={this.state.addNewCategory.imagePath}
-                                    onChange={(e) => this.setAddNewCategoryStringState('imagePath', e.target.value)}
-                                     />
-                                    <Form.Text>
-                                        Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"} rel={"noreferrer"}>ovjde</a> te kopirati class. Primjer <i style={{color:"red"}}>"bi bi-align-center"</i>
-                                    </Form.Text>
-                            </FloatingLabel>
-                            <FloatingLabel label="Kategorija" className="mb-3">
-                                <Form.Select
-                                    id='parentCategoryId'
-                                    value={this.state.addNewCategory.parentCategoryId.toString()}
-                                    onChange={(e) => this.setAddNewCategoryNumberState('parentCategoryId', e.target.value)}
-                                    >
-                                    <option value=''>izaberi kategoriju</option>
-                                    {this.state.categories.map((category, index) => (
-                                        <option key={index} value={category.categoryId?.toString()}>{category.name}</option>
-                                    ))}
-                                </Form.Select>
-                                <Form.Text>U slučaju da se odabere kategorije, kreira se podkategorije</Form.Text>
-                            </FloatingLabel>
-
-                                <Alert variant="info"
-                                    style={{ marginTop: 15 }}
-                                    className={this.state.message ? '' : 'd-none'}>
-                                     <i className="bi bi-exclamation-square" /> {this.printOptionalMessage()}
-                                </Alert>
-
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-                <Card.Footer className={this.state.addNewCategory.name ? '' : 'd-none'}>
-                        <Row style={{ alignItems: 'end' }}>
-                            <Button onClick={() => this.doAddCategory()} 
-                                    variant="success">
-                            <i className="bi bi-plus-circle" /> Dodaj kategoriju</Button>
-                        </Row>
-                    </Card.Footer>
-            </Card>
-            </div>
-        )
-    }
-
-    /* RENDERER */
-
-    render() {
-        /* if(this.state.isLoggedIn === false) {
-            return (
-                <Redirect to='/login' />
-            )
-        } */
-        return (
             <div>
-            <RoledMainMenu />
-            <Container style={{ marginTop:15}}>
-                {this.renderCategoryData()}
-                <AdminMenu />
-            </Container>
+                {loading ? ( 
+                    <div className="flex justify-center items-center h-screen">
+                        <Spinner color='success' />
+                    </div>                   
+                ) : (
+                    <Card className="mb-3">
+                    <CardHeader>
+                        Detalji kategorije
+                    </CardHeader>
+                    <CardBody>
+                    <div className="flex flex-col">
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="name" 
+                            type="text" 
+                            label="Nova kategorija (naziv)"
+                            labelPlacement='inside'
+                            value={state.addNewCategory.name}
+                            onChange={(e) => setAddNewCategoryStringState('name', e.target.value)}
+                            >
+                            </Input>
+                        </div>
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="imagePath" 
+                            type="text" 
+                            label="Ikona kategorije"
+                            labelPlacement='inside'
+                            value={state.addNewCategory.imagePath}
+                            onChange={(e) => setAddNewCategoryStringState('imagePath', e.target.value)}
+                            >
+                            </Input>
+                            <p className='pl-3 pt-3 text-sm text-default-500'>Ikonu kategorije pronaći <a href='https://icons.getbootstrap.com/' target={"_blank"} rel={"noreferrer"}>ovjde</a> te kopirati class. Primjer <i style={{color:"red"}}>"bi bi-align-center"</i></p>
+                        </div>
+                        <div className='lg:flex w-full'> 
+                            <Select
+                                id='categoryId'
+                                label='Podkategorija'
+                                placeholder='Odaberite podkategoriju'
+                                onChange={(e) => setAddNewCategoryNumberState('parentCategoryId', e.target.value)}
+                            >
+                                {state.categories.map((category, index) => (
+                                    <SelectItem key={category.categoryId || index} textValue={`${category.categoryId} - ${category.name}`} value={Number(category.categoryId)}>
+                                        {category.categoryId} - {category.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        </div>
+                    </div>
+                    </CardBody>
+                    <CardFooter className={state.addNewCategory.name ? '' : 'd-none'}>
+                        <div>
+                            {printOptionalMessage()}
+                        </div>
+                        <div style={{ alignItems: 'end' }}>
+                            <Button onClick={() => doAddCategory()} 
+                                    color="success">
+                            <i className="bi bi-plus-circle" /> Dodaj kategoriju</Button>
+                        </div>
+                    </CardFooter>
+                </Card>
+                )}
+                
             </div>
         )
     }
 
-    renderCategoryData() {
-        return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                    
-                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
-                            {this.addForm()}
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
+    return (
+        <div>
+            <RoledMainMenu />
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
+                {addForm()}
+                <AdminMenu />
+            </div>
+        </div>
+    )
 }
+
+export default AddNewCategoryPage;

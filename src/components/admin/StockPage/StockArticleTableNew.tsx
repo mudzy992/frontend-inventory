@@ -3,7 +3,7 @@ import api from "../../../API/api";
 import Moment from 'moment';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
-import { Chip, ChipProps, Input,Table, Pagination, Link, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from '@nextui-org/react';
+import { Button, Chip, ChipProps, Input,Table, Pagination, Link, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from '@nextui-org/react';
 import { useNavigate } from 'react-router-dom';
 
 interface StockTableProps {
@@ -132,26 +132,25 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                     <TableCell key={item.status}><Chip color={color} variant="bordered" startContent={<i className={startContent}></i>}> {item.status}</Chip></TableCell>
                     <TableCell key={item.timestamp}>{Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}</TableCell>
                     <TableCell key='path'>
-                {item.documents && item.documents.length > 0 ? (
-                <Link href="#" onClick={() => item.documents && item.documents.length > 0 && saveFile(item.documents[0]?.path)}>
-                  <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor: "pointer" }} />
-                  </Link>
-                  
-                 ) : (
-                   <div>
-                    <Tooltip id="tooltip-prenosnica" content={'Prenosnica nije generisana'}>
-                      <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }} />
-                      </Tooltip>
-                     </div>
-                   )}
-                   </TableCell>
-                  </TableRow>
-                ) : (
-                  <TableRow key={'nema'}>
-                    <TableCell key='artikala' colSpan={5}>Nema artikala</TableCell>
-                  </TableRow>
-                );
-              }}
+                    {item.documents && item.documents.length > 0 ? (
+                    <Button size='sm' variant='flat' color='success' onClick={() => item.documents && item.documents.length > 0 && saveFile(item.documents[0]?.path)}>
+                      <i className="bi bi-file-earmark-text" style={{ fontSize: 22}} />
+                    </Button>                      
+                    ) : (
+                      <div>
+                        <Tooltip id="tooltip-prenosnica" content={'Prenosnica nije generisana'}>
+                            <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }} />
+                          </Tooltip>
+                        </div>
+                      )}
+                      </TableCell>
+                      </TableRow>
+                    ) : (
+                      <TableRow key={'nema'}>
+                        <TableCell key='artikala' colSpan={5}>Nema artikala</TableCell>
+                      </TableRow>
+                    );
+                  }}
             </TableBody>
           </Table>
           <div className="flex justify-center">

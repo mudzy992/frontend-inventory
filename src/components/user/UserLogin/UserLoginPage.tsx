@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '../../custom/Alert';
@@ -11,6 +11,7 @@ interface UserLoginPageState {
     userID: number;
     errorMessage: string;
     isLoggedIn: boolean;
+    isAlertClosed: boolean,
 }
 
 const UserLoginPage: React.FC = () => {
@@ -21,6 +22,7 @@ const [state, setState] = useState<UserLoginPageState>({
     userID: 0,
     errorMessage: '',
     isLoggedIn: false,
+    isAlertClosed: false,
 })
 
 const navigate = useNavigate();
@@ -57,16 +59,31 @@ const setUserID = (userID: number) => {
     }
   };
 
+
+const closeAlert = () => {
+    setState((prev) => ({ ...prev, isAlertClosed: true }));
+};
+
+const openAlert = () => {
+    setState((prev) => ({ ...prev, isAlertClosed: false }));
+};
+
 const setErrorMessage = (message: string) => {
-    setState((prev) =>({...prev, errorMessage: message}))
+    setState((prev) => ({ ...prev, errorMessage: message, isAlertClosed: false }));
 };
 
 const printErrorMessage = () => {
-    if (!state.errorMessage) {
+    if (!state.errorMessage || state.isAlertClosed) {
         return null;
     }
     return (
-        <Alert showCloseButton={true} variant='danger' title='Upozorenje!' body={state.errorMessage} />
+        <Alert 
+        showCloseButton={true} 
+        variant='danger' 
+        title='Upozorenje!' 
+        body={state.errorMessage}
+        isOpen={!state.isAlertClosed}
+        onClose={closeAlert} />
     );
 };
 
@@ -110,6 +127,12 @@ const doLogin = async () => {
             }
         });
 }
+
+useEffect(() => {
+    if (state.errorMessage && !state.isAlertClosed) {
+      openAlert();
+    }
+  }, [state.errorMessage, state.isAlertClosed]);
 
 return (
     <div className='grid gap-3'>

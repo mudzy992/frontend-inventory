@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
-import { Alert, Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/react';
-/* import { Redirect } from 'react-router-dom'; */
+import { Button, Card, CardBody, CardFooter, CardHeader, Input, Listbox, ListboxItem, ListboxSection, Select, SelectItem } from '@nextui-org/react';
+import { useNavigate } from 'react-router-dom';
+import { Alert } from '../../custom/Alert';
 
 interface AddFeatureState {
     categories: CategoryType[];
@@ -25,127 +25,114 @@ interface AddFeatureState {
 interface FeatureBaseType {
     featureId: number;
     name: string;
+    categoryId: number
 }
 
-export default class AddFeaturePage extends React.Component<{}> {
-    state: AddFeatureState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
-            categories: [],
-            message: '',
-            isLoggedIn: true,
-            addNewFeature: {
-                name: '',
-                categoryId: 0,
-                features: [],
-            }
+const AddFeaturePage: React.FC = () => {
+    const [state, setState] = useState<AddFeatureState>({
+        categories: [],
+        message: '',
+        isLoggedIn: true,
+        addNewFeature: {
+            name: '',
+            categoryId: 0,
+            features: [],
         }
-    }
+    })
 
-    componentDidMount() {
-        this.getCategories();
-    }
+    const navigate = useNavigate()
 
-    /* SET */
-    private setAddNewFeatureStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addNewFeature, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setAddNewFeatureNumberState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addNewFeature, {
-                [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
-    }
-
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            message: message,
-        }));
-    }
-
-    private setLoggedInStatus(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        }));
-    }
-
-    private setCategoryData(category: CategoryType) {
-        this.setState(Object.assign(this.state, {
-            categories: category
+    const setAddNewFeatureStringState = (fieldName: string, newValue: string) => {
+        setState((prev) => ({
+            ...prev, addNewFeature: {...prev.addNewFeature, [fieldName]: newValue}
         }))
     }
 
-    private async addFeatureCategoryChanged(event: React.ChangeEvent<HTMLSelectElement>) {
-        this.setAddNewFeatureNumberState('categoryId', event.target.value);
+    const setAddNewFeatureNumberState = (fieldName: string, newValue: any) => {
+        setState((prev) => ({
+            ...prev, addNewFeature: {...prev.addNewFeature, [fieldName]: (newValue === 'null') ? null : Number(newValue)}
+        }))
+    }
 
-        const features = await this.getFeaturesByCatId(this.state.addNewFeature.categoryId);
+    const setErrorMessage = (message: string) => {
+        setState((prev) => ({...prev, message: message}))
+    }
+
+    const setLogginState = (isLoggedIn: boolean) => {
+        setState((prev) => ({...prev, isLoggedIn:isLoggedIn}))
+
+        if(isLoggedIn === false) {
+            navigate('/login/')
+        }
+    }
+
+    const setCategoryData = (category: CategoryType[]) => {
+        setState((prev) => ({...prev, categories: category}))
+    }
+
+    const addFeatureCategoryChanged = async (selectedValue: any) => {
+        const categoryId = Number(selectedValue.target.value);
+        setAddNewFeatureNumberState('categoryId', categoryId);
+        const features = await getFeaturesByCatId(categoryId);
         const stateFeatures = features.map(feature => ({
             featureId: feature.featureId,
             name: feature.name,
+            categoryId: categoryId,
         }));
 
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addNewFeature, {
-                features: stateFeatures,
-            }),
-        ));
+        setState((prev) => ({...prev, addNewFeature: {...prev.addNewFeature, categoryId: categoryId, features: stateFeatures}}))
     }
 
     /* KRAJ SET */
 
     /* GET */
-    private getCategories() {
+    const getCategories = () => {
         api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
         .then((res : ApiResponse) => {
             if(res.status === 'login') {
-                this.setLoggedInStatus(false);
+                setLogginState(false);
                 return;
             }
-            this.setCategoryData(res.data)
+            setCategoryData(res.data)
         })
     }
 
-    private async getFeaturesByCatId(categoryId: number): Promise<FeatureBaseType[]> {
+    const getFeaturesByCatId = async (categoryId: number): Promise<FeatureBaseType[]> => {
         return new Promise(resolve => {
             api('api/feature/?filter=categoryId||$eq||' + categoryId + '/', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
                 if(res.status === 'login') {
-                    this.setLoggedInStatus(false);
+                    setLogginState(false);
                     return;
                 }
                 if(res.status === 'error') {
-                    this.setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
+                    setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
                 }
             const features: FeatureBaseType[] = res.data.map((item: any) => ({
                 featureId: item.featureId,
                 name: item.name
             }))
             resolve(features)
+            console.log(features)
         })
     })      
     }
 
-    /* KRAJ GET */
+    useEffect(() => {
+        getCategories()        
+    }, [])
 
-    /* DODATNE FUNKCIJE */
-    private printOptionalMessage() {
-        if (this.state.message === '') {
+    const printOptionalMessage = () => {
+        if (state.message === '') {
             return;
         }
 
         return (
-            <Card.Text>
-                {this.state.message}
-            </Card.Text>
+            <Alert title='info' variant='info' body={state.message} />
         );
     }
 
-    private addFeatureInput(feature: any) {
+    const addFeatureInput = (feature: any) => {
         return (
             <ListboxItem key={feature.name}>
                 {feature.name}
@@ -153,124 +140,99 @@ export default class AddFeaturePage extends React.Component<{}> {
         );
     }
 
-    private doAddFeature() {
+    const doAddFeature = () => {
         api('/api/feature/', 'post', {
-            categoryId: this.state.addNewFeature.categoryId,
-            name: this.state.addNewFeature.name,
+            categoryId: state.addNewFeature.categoryId,
+            name: state.addNewFeature.name,
         }, 'administrator')
         .then(async (res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setLoggedInStatus(false);
+                setLogginState(false);
                 return;
             }
             if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom dodavanja nove osobine. Provjerite da li se osobina već nalazi u listi iznad. Osvježite ili pokušajte ponovo kasnije')
+                setErrorMessage('Greška prilikom dodavanja nove osobine. Provjerite da li se osobina već nalazi u listi iznad. Osvježite ili pokušajte ponovo kasnije')
                 return
             }
-            this.setErrorMessage('')
-            const features = await this.getFeaturesByCatId(this.state.addNewFeature.categoryId);
+            setErrorMessage('')
+            const categoryId = Number(state.addNewFeature.categoryId);
+            const features = await getFeaturesByCatId(categoryId);
             const stateFeatures = features.map(feature => ({
                 featureId: feature.featureId,
                 name: feature.name,
+                categoryId: categoryId,
             }));
 
-            this.setState(Object.assign(this.state,
-                Object.assign(this.state.addNewFeature, {
-                    features: stateFeatures,
-                }),
-            ));
+            setState((prev) => ({...prev, addNewFeature: {...prev.addNewFeature, categoryId: categoryId, features: stateFeatures}}));
         });
     }
 
-    private addForm() {
+    const addForm = () => {
         return(
             <div><Card className="mb-3">
-                <Card.Header>
-                    <Card.Title>Detalji osobine</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 was-validated">
-                                <FloatingLabel label="Kategorija" className="mb-3">
-                                    <Form.Select
-                                        id='categoryId'
-                                        value={this.state.addNewFeature.categoryId.toString()}
-                                        onChange={(e) => this.addFeatureCategoryChanged(e as any)}
-                                        required>
-                                        <option value=''>izaberi kategoriju</option>
-                                        {this.state.categories.map((category, index) => (
-                                            <option key={index} value={category.categoryId?.toString()}>{category.name}</option>
-                                        ))}
-                                    </Form.Select>
-                                </FloatingLabel>
-                                <Listbox variant='flat' aria-label="Trenutne osobine">
-                                    <ListboxSection className={this.state.addNewFeature.categoryId ? '' : 'd-none'}>
-                                        {this.state.addNewFeature.features.map(this.addFeatureInput, this)}
-                                    </ListboxSection>                                    
-                                </Listbox>  
-                                
-                            <FloatingLabel label="Nova osobina (naziv)" className="mb-3">
-                                <Form.Control
-                                    id="name"
-                                    type="text"
-                                    placeholder="Naziv"
-                                    value={this.state.addNewFeature.name}
-                                    onChange={(e) => this.setAddNewFeatureStringState('name', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <Row>
-                                <Alert variant="danger"
-                                    style={{ marginTop: 15 }}
-                                    className={this.state.message ? '' : 'd-none'}>
-                                     <i className="bi bi-exclamation-square" /> {this.printOptionalMessage()}
-                                </Alert>
-                                </Row>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-                <Card.Footer>
-                        <Row style={{ alignItems: 'end' }}>
-                            <Button onClick={() => this.doAddFeature()} variant="success" className={this.state.addNewFeature.name ? '' : 'd-none'} ><i className="bi bi-plus-circle" /> Dodaj osobinu</Button>
-                        </Row>
-                    </Card.Footer>
+                <CardHeader>
+                    Detalji osobine
+                </CardHeader>
+                <CardBody>
+                <div className="flex flex-col">
+                    <div className='lg:flex w-full'> 
+                        <div className='w-full mb-3 mr-3'>
+                            <Select
+                                id='categoryId'
+                                label='Kategorija'
+                                placeholder='Odaberite kategoriju'
+                                onChange={(value) => addFeatureCategoryChanged(value)}
+                            >
+                                {state.categories.map((category, index) => (
+                                    <SelectItem key={category.categoryId || index} textValue={`${category.categoryId} - ${category.name}`} value={Number(category.categoryId)}>
+                                        {category.categoryId} - {category.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        </div>
+                    </div>
+                    <div>
+                        <Listbox variant='flat' aria-label="Trenutne osobine">
+                            <ListboxSection className={state.addNewFeature.categoryId ? '' : 'd-none'}>
+                                {state.addNewFeature.features.map(addFeatureInput, this)}
+                            </ListboxSection>                                    
+                        </Listbox>  
+                    </div>
+                    <div className='w-full mb-3 mr-3'>
+                        <Input
+                        id="name" 
+                        type="text" 
+                        label="Nova osobina (naziv)"
+                        labelPlacement='inside'
+                        value={state.addNewFeature.name}
+                        onChange={(e) => setAddNewFeatureStringState('name', e.target.value)}
+                        >
+                        </Input>
+                    </div>
+                </div>
+                </CardBody>
+                <CardFooter>
+                    <div>
+                        {printOptionalMessage()}
+                    </div>
+                    <div style={{ alignItems: 'end' }}>
+                        <Button  onClick={() => doAddFeature()} color="success" className={state.addNewFeature.name ? '' : 'd-none'} ><i className="bi bi-plus-circle" /> Dodaj osobinu</Button>
+                    </div>
+                </CardFooter>
             </Card>
             </div>
         )
     }
-    /* KRAJ DODATNIH FUNKCIJA */
 
-    /* RENDER */
-
-    render() {
-        /* if(this.state.isLoggedIn === false) {
-            return (
-                <Redirect to='/login' />
-            )
-        } */
-        return (
-            <div>
-                <RoledMainMenu />
-                <Container style={{ marginTop:15}}>
-                    {this.renderFeatureData()}
-                    <AdminMenu />
-                </Container>
+    return (
+        <div>
+            <RoledMainMenu />
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
+                {addForm()}
+                <AdminMenu />
             </div>
-        )
-    }
+        </div>
+    )    
+}
 
-    renderFeatureData() {
-        return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                    
-                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
-                            {this.addForm()}
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
-
-}/* KRAJ KODA */
+export default AddFeaturePage;

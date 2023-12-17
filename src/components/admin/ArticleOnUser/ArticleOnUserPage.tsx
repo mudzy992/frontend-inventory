@@ -563,7 +563,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     function userDetails(userDet: ArticleType) {
         let stat = userDet.status
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
-            return (<Alert variant='info' title='Info!' body={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO} />)
+            return (<Alert className='mb-3' variant='warning' title='Info!' body={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO} />)
         }
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
             return (<Alert variant='danger' title='Info!' body={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING} />)
@@ -592,8 +592,8 @@ function saveFile (docPath: any) {
             return (
                 <div><Popover placement='right'>
                     <PopoverTrigger>
-                        <Button size='sm' style={{ backgroundColor: "#9D5353" }}>
-                            <i className="bi bi-file-earmark-text" style={{ fontSize: 20, color: "white" }} />
+                        <Button size='sm' variant='flat' color='danger'>
+                            <i className="bi bi-file-earmark-text" style={{ fontSize: 20}} />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent>
@@ -611,9 +611,7 @@ function saveFile (docPath: any) {
                 );
             }
             return (
-                <Link onClick={() => savedFile(docPath)}>
-                    <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
-                </Link>
+                <Button size='sm' variant='flat' color='success' onClick={() => savedFile(docPath)}><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02"}} /></Button>
             )
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
 import { Button, Divider, Input } from '@nextui-org/react';
@@ -11,7 +11,8 @@ interface AdministratorLoginPageState {
     administratorID: number;
     isLoggedIn: boolean;
     isTyping: boolean;
-    message: string;
+    errorMessage: string;
+    isAlertClosed: boolean,
 }
 
 const AdministratorLoginPage: React.FC = () => {
@@ -24,7 +25,8 @@ const AdministratorLoginPage: React.FC = () => {
         administratorID: 0,
         isLoggedIn: false,
         isTyping: true,
-        message: '',
+        errorMessage: '',
+        isAlertClosed: false,
     });
 
     const navigate = useNavigate();
@@ -61,18 +63,32 @@ const AdministratorLoginPage: React.FC = () => {
         });
     };
 
-    const setErrorMessage = (message: string) => {
-        setState((prev) =>({...prev, message: message}))
+    const closeAlert = () => {
+        setState((prev) => ({ ...prev, isAlertClosed: true }));
     };
-
+    
+    const openAlert = () => {
+        setState((prev) => ({ ...prev, isAlertClosed: false }));
+    };
+    
+    const setErrorMessage = (message: string) => {
+        setState((prev) => ({ ...prev, errorMessage: message, isAlertClosed: false }));
+    };
+    
     const printErrorMessage = () => {
-        if (!state.message) {
-          return null;
+        if (!state.errorMessage || state.isAlertClosed) {
+            return null;
         }
         return (
-          <Alert showCloseButton={true} variant='danger' title='Upozorenje!' body={state.message} />
+            <Alert 
+            showCloseButton={true} 
+            variant='danger' 
+            title='Upozorenje!' 
+            body={state.errorMessage}
+            isOpen={!state.isAlertClosed}
+            onClose={closeAlert} />
         );
-      };
+    };
 
     const doLogin = async () => {
         api('auth/administrator/login', 'post', {
@@ -107,6 +123,12 @@ const AdministratorLoginPage: React.FC = () => {
             }
         });
     };
+
+    useEffect(() => {
+        if (state.errorMessage && !state.isAlertClosed) {
+          openAlert();
+        }
+      }, [state.errorMessage, state.isAlertClosed]);
 
     return (
     <div className='grid gap-3'>

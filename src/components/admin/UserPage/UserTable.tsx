@@ -3,7 +3,7 @@ import UserType from "../../../types/UserType"
 import api, { ApiResponse, removeIdentity } from "../../../API/api";
 import React from "react";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, 
-    Pagination, SortDescriptor, Selection, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, Link } from "@nextui-org/react";
+    Pagination, SortDescriptor, Selection, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, Link, Spinner } from "@nextui-org/react";
 
 
 const INITIAL_VISIBLE_COLUMNS = ["fullname", "departmentTitle", "telephone", "locationName", "status"];
@@ -34,6 +34,7 @@ export const UserTable: React.FC<{}> = () => {
     
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true)
     const [message, setMessage] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
     const [usersData, setUsersData] = useState<UserType[]>();
     const [users, setUsers] = useState<UserBaseType[]>([]);
     const [filterValue, setFilterValue] = useState("");
@@ -270,6 +271,7 @@ export const UserTable: React.FC<{}> = () => {
     useEffect(()=>{
         const fatchData = async() => {
             try {
+              setLoading(true)
                 api('api/user/', 'get', {}, 'administrator')
                 .then(async (res: ApiResponse) => {
                     if (res.status === 'error') {
@@ -284,10 +286,11 @@ export const UserTable: React.FC<{}> = () => {
                         return 
                     }
                     setUsersData(res.data)
+                    setLoading(false)
                 })
             } catch (error) {
-                console.error('Error during API call:', error);
                 setIsLoggedIn(false)
+                setLoading(false)
                 removeIdentity('administrator')
                 setMessage('Sistemska greška prilikom dohvaćanja podataka o korisnicima. Greška: ' + error)
             }
@@ -320,7 +323,13 @@ export const UserTable: React.FC<{}> = () => {
       }, [usersData]);
 
     return (
-          <Card>
+      <div>
+        {loading ? (
+        <div className="flex justify-center items-center">
+            <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+        </div> 
+      ) : (
+        <Card>
               <CardBody>
                   <Table
                       aria-label="Tabela korisnika"
@@ -356,5 +365,7 @@ export const UserTable: React.FC<{}> = () => {
                   </Table>
               </CardBody>
           </Card>
+      )}
+      </div>  
       );
     }

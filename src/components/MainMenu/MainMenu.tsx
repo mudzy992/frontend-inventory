@@ -77,12 +77,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
           <i className="bi bi-shop mr-2 text-xl" />
           <Link href={getNavbarBrandHref()} className="text-white"><span className="font-bold text-inherit">Inventory Database</span>   </Link>
         </NavbarBrand>
-       
-
-          {menuItems.map(makeNavLink)}
-          
-          
-
+           {menuItems.map(makeNavLink)}
       </NavbarContent>
         <NavbarContent justify="end">
             <NavbarItem className="lg:flex">
@@ -91,20 +86,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
         </NavbarContent>
        <NavbarMenu>
        {menuItems.map(makeNavLinkToogle)}
-        {/* {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
-            <Link
-              className="w-full"
-              color={
-                index === 2 ? "warning" : index === menuItems.length - 1 ? "danger" : "foreground"
-              }
-              href={item.link}
-              size="lg"
-            >
-              {item.text}
-            </Link> 
-          </NavbarMenuItem>
-        ))}*/}
       </NavbarMenu> 
     </Navbar></>    
   );

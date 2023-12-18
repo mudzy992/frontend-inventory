@@ -17,7 +17,6 @@ import { Avatar, Button, Card, CardBody, Input, Accordion, AccordionItem,
 import { EyeSlashFilledIcon } from "../../../Icons/EyeSlashFilledIcon";
 import { EyeFilledIcon } from "../../../Icons/EyeFilledIcon";
 
-
 interface LocationDto {
     locationId: number;
     name: string;
@@ -63,7 +62,7 @@ interface AdminUserProfilePageState {
     job: JobType[];
 }
 
-export default function AdminUserProfilePage() {
+const AdminUserProfilePage: React.FC = () => {
     const { userID } = useParams();
     const [isVisible, setIsVisible] = React.useState<boolean>(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
@@ -157,10 +156,10 @@ export default function AdminUserProfilePage() {
         }));
     };
 
-    const addJobDepartmentChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setEditUserNumberFieldState('departmentId', event.target.value)
+    const addJobDepartmentChange = async (selectedValue:any) => {
+        setEditUserNumberFieldState('departmentId', selectedValue.target.value)
         try {
-            const jobs = await getJobsByDepartmentId(state.editUser.departmentId)
+            const jobs = await getJobsByDepartmentId(selectedValue.target.value)
             const stateJobs:any = jobs.map(job => ({
                 jobId: job.jobId,
                 title: job.title,
@@ -176,24 +175,25 @@ export default function AdminUserProfilePage() {
 
 
     /* GET funkcije */
-    const getUserData = () => {
-        api('api/user/' + userID, 'get', {}, 'administrator')
-                .then((res: ApiResponse) => {
-                    if (res.status === 'error') {
-                        setUsers(undefined);
-                        setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                        return;
-                    }
-                    if (res.status === 'login') {
-                        setLogginState(false);
-                        return;
-                    }
-    
-                    const data: UserType = res.data;
-                    setErrorMessage('');
-                    setUsers(data);
-                    putUserDetailsInState(res.data);
-                });
+    const getUserData = async () => {
+        await api('api/user/' + userID, 'get', {}, 'administrator')
+        .then((res: ApiResponse) => {
+            if (res.status === 'error') {
+                setUsers(undefined);
+                setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
+                return;
+            }
+            if (res.status === 'login') {
+                setLogginState(false);
+                return;
+            }
+
+            const data: UserType = res.data;
+            putUserDetailsInState(data);
+            setErrorMessage('');
+            setUsers(data);
+            
+        });
     }
 
     const getArticleData = () => {
@@ -320,11 +320,15 @@ export default function AdminUserProfilePage() {
         setEditUserStringFieldState('localNumber', String(user.localNumber))
         setEditUserStringFieldState('telephone', String(user.telephone))
         setEditUserNumberFieldState('jobId', Number(user.jobId))
-        setEditUserNumberFieldState('departmentId', Number(user.departmentId))
+
+        setEditUserStringFieldState('departmentId', String(user.departmentId))
+
         setEditUserNumberFieldState('locationId', Number(user.locationId))
+
         setEditUserStringFieldState('status', String(user.status))
         setEditUserNumberFieldState('code', Number(user.code))
         setEditUserStringFieldState('gender', String(user.gender))
+        console.log(state.editUser)
     }
  
     return (
@@ -493,11 +497,10 @@ export default function AdminUserProfilePage() {
                             <Select
                                 label='Sektor/odjeljenje'
                                 value={state.editUser.departmentId.toString()}
-                                
-                                onChange={(e:any) => {setEditUserNumberFieldState('departmentId', e.target.value); addJobDepartmentChange(e as any)}}
+                                onChange={(value:any) => {setEditUserNumberFieldState('departmentId', value); addJobDepartmentChange(value)}}
                                 >
                                 {state.department.map((department, index) => (
-                                    <SelectItem key={index} value={department.departmentId?.toString()}>{department.title}</SelectItem>
+                                <SelectItem key={department.departmentId || index} textValue={department.title} value={department.departmentId?.toString()}>{department.title}</SelectItem>
                                 ))}
                             </Select>
                             <Select
@@ -507,7 +510,7 @@ export default function AdminUserProfilePage() {
                                 onChange={(e:any) => {setEditUserNumberFieldState('jobId', e.target.value)}}
                                 >
                                 {state.job.map((job, index) => (
-                                    <SelectItem key={index} value={job.jobId?.toString()}>{job.title}</SelectItem>
+                                    <SelectItem key={index} textValue={job.title} value={job.jobId?.toString()}>{job.title}</SelectItem>
                                 ))}
                             </Select>
                     </div>
@@ -516,21 +519,20 @@ export default function AdminUserProfilePage() {
                             <Select
                                 label='Lokacija'
                                 value={state.editUser.locationId.toString()}
-                               
                                 onChange={(e:any) => {setEditUserNumberFieldState('locationId', e.target.value)}}
                                 >
                                 {state.location.map((location, index) => (
-                                    <SelectItem key={index} value={location.locationId?.toString()}>{location.name}</SelectItem>
+                                    <SelectItem key={index} textValue={location.name} value={location.locationId?.toString()}>{location.name}</SelectItem>
                                 ))}
                             </Select>
                             <Select
                                 label='Spol'
                                 value={state.editUser.gender.toString()}
                                 
-                                onChange={(e:any) => {setEditUserStringFieldState('gender', e.target.value)}}
+                                onChange={(value:any) => {setEditUserStringFieldState('gender', value)}}
                                 >
-                                <SelectItem key='musko' value='muško'>muško</SelectItem>
-                                <SelectItem key='zensko' value='žensko'>žensko</SelectItem>
+                                <SelectItem key='musko' textValue="muško" value='muško'>muško</SelectItem>
+                                <SelectItem key='zensko' textValue="žensko" value='žensko'>žensko</SelectItem>
                             </Select>
                             <Select
                                 label='Status'
@@ -538,8 +540,8 @@ export default function AdminUserProfilePage() {
                                 
                                 onChange={(e:any) => {setEditUserStringFieldState('status', e.target.value)}}
                                 >
-                                <SelectItem key='aktivan' value='aktivan'>aktivan</SelectItem>
-                                <SelectItem key='neaktivan' value='neaktivan'>neaktivan</SelectItem>
+                                <SelectItem key='aktivan' textValue="aktivan" value='aktivan'>aktivan</SelectItem>
+                                <SelectItem key='neaktivan' textValue="neaktivan" value='neaktivan'>neaktivan</SelectItem>
                             </Select>
                         <div className="grid grid-cols gap-2 mb-3">
                             <Input
@@ -634,7 +636,7 @@ export default function AdminUserProfilePage() {
                         </AccordionItem>
                     )
                 })}
-        </Accordion>)
-        
+        </Accordion>)    
     }
 }
+export default AdminUserProfilePage;

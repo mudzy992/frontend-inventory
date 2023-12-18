@@ -233,9 +233,9 @@ const AdminDashboardPage: React.FC = () => {
             <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
 
-            <div className="flex flex-col gap-3">
-                <div className='lg:flex lg:flex-row gap-3'>
-                    <div className="lg:w-1/4 w-full xs:mb-3">
+            <div className="flex flex-col mb-14">
+                <div className='lg:flex lg:flex-row mb-3'>
+                    <div className="lg:w-1/4 w-full mb-3 lg:mr-3">
                         <Card>
                             <CardHeader className='bg-default-100'>
                                 Posljednje dodani artikal na skladište
@@ -258,11 +258,11 @@ const AdminDashboardPage: React.FC = () => {
                                     </ListboxItem> 
                                 </Listbox>
                                 <CardFooter className='flex justify-end'>
-                                     <Button color='warning' variant='flat' onClick={() => navigate(`/admin/stock/${stockData?.stockId}`)} size='sm'>Zaduži</Button>
+                                     <Button color='warning' variant='shadow' onClick={() => navigate(`/admin/stock/${stockData?.stockId}`)} size='sm'>Zaduži</Button>
                                 </CardFooter>
                         </Card>
                     </div>
-                    <div className="lg:w-1/4 w-full xs:mb-3">
+                    <div className="lg:w-1/4 w-full mb-3 lg:mr-3">
                         <Card>
                             <CardHeader className='bg-default-100'>
                                 Posljednje dodani artikal
@@ -286,20 +286,20 @@ const AdminDashboardPage: React.FC = () => {
                                     </ListboxItem>
                                 </Listbox>
                                 <CardFooter className='flex justify-end'>
-                                     <Button color='warning' variant='flat' onClick={() => navigate(`/admin/article/${articleData?.serialNumber}`)} size='sm'>Zaduži</Button>
+                                     <Button color='warning' variant='shadow' onClick={() => navigate(`/admin/article/${articleData?.serialNumber}`)} size='sm'>Zaduži</Button>
                                 </CardFooter>
                         </Card>
                     </div>
-                    <div className="lg:w-1/2 w-full bg-default-50 rounded-2xl shadow p-2 max-h-[292px]">
+                    <div className="lg:w-1/2 w-full bg-default-50 rounded-2xl shadow p-2 max-h-[262px]">
                         <div className='mb-3 bg-default-100 rounded-lg p-2'>
-                            <span>Nepotpisani dokumenti</span> <Chip color="danger"> {unsignedDocumentDataCount}</Chip>
+                            <span>Nepotpisani dokumenti</span> <Chip color="danger" variant='shadow'> {unsignedDocumentDataCount}</Chip>
                         </div>
                             <Table 
                             hideHeader 
                             removeWrapper
                             isStriped 
-                            aria-label='Tabela nepotpisanih dokumenta' 
-                            classNames={{base: 'max-h-[220px] overflow-y-scroll', table: 'min-h-[220px] flex'}}
+                            aria-label='Tabela nepotpisanih dokumenta'
+                            classNames={{base: 'max-h-[190px] overflow-y-scroll ', table: 'min-h-[190px]'}}
                             >
                                 <TableHeader>
                                     <TableColumn>Naziv</TableColumn>
@@ -321,7 +321,7 @@ const AdminDashboardPage: React.FC = () => {
                                             {document?.article?.user?.fullname}
                                         </TableCell>
                                         <TableCell textValue={`Dokument-${index}`}>
-                                            <Button size='sm' color='success' variant='solid' onClick={() => handleButtonClick(document?.documentsId)}> Dodaj
+                                            <Button size='sm' color='success' variant='shadow' onClick={() => handleButtonClick(document?.documentsId)}> Dodaj
                                                 <form encType="multipart/form-data">
                                                     <input id="dropzone-file" type="file" className='hidden' onChange={(e) => handleFileUpload(unsignedDocumentId!, e.target.files![0])} />
                                                 </form>
@@ -336,6 +336,7 @@ const AdminDashboardPage: React.FC = () => {
                                                 }
                                             }}
                                             size='sm'
+                                            variant='shadow'
                                             >
                                             Timeline
                                             </Button>
@@ -351,7 +352,7 @@ const AdminDashboardPage: React.FC = () => {
                     <div className='mb-3 bg-default-100 rounded-lg p-2' >Svi artikli</div>
                     <div className='mb-3 flex flex-row gap-3 items-center'>
                         <div className='w-full'>
-                        <Input
+                            <Input
                             placeholder="Pronađi artikal..."
                             variant='bordered'
                             isClearable
@@ -365,32 +366,35 @@ const AdminDashboardPage: React.FC = () => {
                         />
                         </div>
                         <div>
-                            <Button onClick={() => exportToExcel()} variant='solid' color='success' className='h-[52px]' startContent={<i className="bi bi-filetype-xlsx" style={{ fontSize: "25px"}} />} />
+                            <Button onClick={() => exportToExcel()} variant='shadow' color='success' className='h-[52px]' startContent={<i className="bi bi-filetype-xlsx" style={{ fontSize: "25px"}} />} />
                         </div>
                         
                     </div>
-                    <Table selectionMode='single' removeWrapper aria-label='Tabela artikala'>
-                        <TableHeader>
-                            <TableColumn>Naziv</TableColumn>
-                            <TableColumn> Serijski broj</TableColumn>
-                            <TableColumn>Inventurni broj</TableColumn>
-                            <TableColumn>Kategorija</TableColumn>
-                            <TableColumn>Korisnik</TableColumn>
-                            <TableColumn>Status</TableColumn>
-                        </TableHeader>
-                        <TableBody>
-                            {(paginedArticleData || []).map((artikal, index) => (
-                                <TableRow key={artikal.articleId}>
-                                    <TableCell><Link className='text-sm' showAnchorIcon href={`#/admin/article/${artikal?.serialNumber}`} >{artikal?.stock?.name} </Link></TableCell>
-                                    <TableCell>{artikal?.serialNumber}</TableCell>
-                                    <TableCell>{artikal?.invNumber}</TableCell>
-                                    <TableCell>{artikal?.category?.name}</TableCell>
-                                    <TableCell><Link className='text-sm' showAnchorIcon href={`#/admin/user/${artikal?.userId}`} >{artikal?.user?.fullname}</Link></TableCell>
-                                    <TableCell className={`status-${artikal?.status}`}>{artikal?.status}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <div className='w-full'>
+                        <Table selectionMode='single'  aria-label='Tabela artikala'>
+                            <TableHeader>
+                                <TableColumn>Naziv</TableColumn>
+                                <TableColumn>Serijski broj</TableColumn>
+                                <TableColumn>Inventurni broj</TableColumn>
+                                <TableColumn>Kategorija</TableColumn>
+                                <TableColumn>Korisnik</TableColumn>
+                                <TableColumn>Status</TableColumn>
+                            </TableHeader>
+                            <TableBody>
+                                {(paginedArticleData || []).map((artikal, index) => (
+                                    <TableRow key={artikal.articleId}>
+                                        <TableCell><Link className='text-sm' showAnchorIcon href={`#/admin/article/${artikal?.serialNumber}`} >{artikal?.stock?.name} </Link></TableCell>
+                                        <TableCell>{artikal?.serialNumber}</TableCell>
+                                        <TableCell>{artikal?.invNumber}</TableCell>
+                                        <TableCell>{artikal?.category?.name}</TableCell>
+                                        <TableCell><Link className='text-sm' showAnchorIcon href={`#/admin/user/${artikal?.userId}`} >{artikal?.user?.fullname}</Link></TableCell>
+                                        <TableCell className={`status-${artikal?.status}`}>{artikal?.status}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                        
                     <div className="flex justify-center mt-3">
                         <Pagination
                         color="default"

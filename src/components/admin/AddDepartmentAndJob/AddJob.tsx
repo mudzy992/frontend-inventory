@@ -141,7 +141,7 @@ const AddJob: React.FC = () => {
                     Detalji radnog mjesta
                 </ModalHeader>
                 <ModalBody >
-                <div className="flex flex-col">
+                    <div className="flex flex-col">
                         <div className='w-full mb-3 mr-3'>
                             <Input
                             id="jobTitle" 
@@ -174,12 +174,15 @@ const AddJob: React.FC = () => {
                             </Input> 
                         </div>
                     </div>
-                    <ModalFooter className={state.add.job.title ? '' : 'd-none'}>
+                    <ModalFooter className={state.add.job.title ? '' : 'hidden'}>
                     <div style={{ alignItems: 'end' }}>
-                            <Button onClick={() => doAddJob()} 
-                                    color="success">
-                            <i className="bi bi-plus-circle" /> Dodaj radno mjesto</Button>
-                        </div>
+                        <Button 
+                            onClick={() => doAddJob()} 
+                            color="success">
+                                <i className="bi bi-plus-circle" /> 
+                                Dodaj radno mjesto
+                        </Button>
+                    </div>
                 </ModalFooter>
                 </ModalBody>
             </ModalContent>

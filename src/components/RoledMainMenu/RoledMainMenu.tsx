@@ -9,14 +9,12 @@ const RoledMainMenu: React.FC = () => {
   const { userId, role } = useUserContext();
 
   const getUserItems = (): MainMenuItem[] => [
-    { text: 'Naslovna', link: `/user/profile/${userId}` },
-    { text: 'Log out', link: '/logout/' },
+    { text: 'Naslovna', link: `#/user/profile/${userId}` },
   ];
 
   const getAdministratorItems = (): MainMenuItem[] => [
-    { text: 'Naslovna', link: '/' },
-    { text: 'Dashboard', link: '/admin/dashboard' },
-    { text: 'Log out', link: '/logout/' },
+    { text: 'Naslovna', link: '#/' },
+    { text: 'Dashboard', link: '#/admin/dashboard' },
   ];
 
   const items = role === 'administrator' ? getAdministratorItems() : getUserItems();

@@ -87,7 +87,8 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
         <div className='mb-3'>
               <Input
                 variant="bordered"
-                type="text"
+                type="search"
+                startContent={<i className="bi bi-search text-default-500" />}
                 isClearable
                 placeholder="Pronađi artikal..."
                 value={searchQuery}
@@ -129,11 +130,11 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                       </Link>
                     </TableCell>
                     <TableCell key={item.invNumber}>{item.invNumber}</TableCell>
-                    <TableCell key={item.status}><Chip color={color} variant="bordered" startContent={<i className={startContent}></i>}> {item.status}</Chip></TableCell>
+                    <TableCell key={item.status}><Chip color={color} variant="shadow" startContent={<i className={startContent}></i>}> {item.status}</Chip></TableCell>
                     <TableCell key={item.timestamp}>{Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}</TableCell>
                     <TableCell key='path'>
                     {item.documents && item.documents.length > 0 ? (
-                    <Button size='sm' variant='flat' color='success' onClick={() => item.documents && item.documents.length > 0 && saveFile(item.documents[0]?.path)}>
+                    <Button size='sm' variant='shadow' color='success' onClick={() => item.documents && item.documents.length > 0 && saveFile(item.documents[0]?.path)}>
                       <i className="bi bi-file-earmark-text" style={{ fontSize: 22}} />
                     </Button>                      
                     ) : (

@@ -113,7 +113,6 @@ const AddFeaturePage: React.FC = () => {
                 name: item.name
             }))
             resolve(features)
-            console.log(features)
         })
     })      
     }
@@ -193,7 +192,7 @@ const AddFeaturePage: React.FC = () => {
                     </div>
                     <div>
                         <Listbox variant='flat' aria-label="Trenutne osobine">
-                            <ListboxSection className={state.addNewFeature.categoryId ? '' : 'd-none'}>
+                            <ListboxSection className={state.addNewFeature.categoryId ? '' : 'hidden'}>
                                 {state.addNewFeature.features.map(addFeatureInput, this)}
                             </ListboxSection>                                    
                         </Listbox>  
@@ -216,7 +215,7 @@ const AddFeaturePage: React.FC = () => {
                         {printOptionalMessage()}
                     </div>
                     <div style={{ alignItems: 'end' }}>
-                        <Button  onClick={() => doAddFeature()} color="success" className={state.addNewFeature.name ? '' : 'd-none'} ><i className="bi bi-plus-circle" /> Dodaj osobinu</Button>
+                        <Button  onClick={() => doAddFeature()} color="success" className={state.addNewFeature.name ? '' : 'hidden'} ><i className="bi bi-plus-circle" /> Dodaj osobinu</Button>
                     </div>
                 </CardFooter>
             </Card>

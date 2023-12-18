@@ -296,9 +296,10 @@ const AdminDashboardPage: React.FC = () => {
                         </div>
                             <Table 
                             hideHeader 
-                            removeWrapper 
+                            removeWrapper
+                            isStriped 
                             aria-label='Tabela nepotpisanih dokumenta' 
-                            classNames={{base: 'max-h-[220px] overflow-y-scroll ',}}
+                            classNames={{base: 'max-h-[220px] overflow-y-scroll', table: 'min-h-[220px] flex'}}
                             >
                                 <TableHeader>
                                     <TableColumn>Naziv</TableColumn>
@@ -351,8 +352,10 @@ const AdminDashboardPage: React.FC = () => {
                     <div className='mb-3 flex flex-row gap-3 items-center'>
                         <div className='w-full'>
                         <Input
-                            label="Pretraži artikle"
-                            variant='faded'
+                            placeholder="Pronađi artikal..."
+                            variant='bordered'
+                            isClearable
+                            startContent={<i className="bi bi-search text-default-500" />}
                             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                                 if (e.key === 'Enter') {
                                     const target = e.target as HTMLInputElement;

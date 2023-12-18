@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
 import AdminMenu from '../AdminMenu/AdminMenu';
+import { Alert } from '../../custom/Alert';
+import { Button, Card, CardBody, CardFooter, CardHeader, Input, Select, SelectItem, Spinner, Textarea } from '@nextui-org/react';
 /* import { Redirect } from 'react-router-dom'; */
 
 interface DepartmentType {
@@ -57,487 +58,499 @@ interface AddDepartmentAndJobState {
     }
 }
 
-export default class AddDepartmentAndJob extends React.Component<{}> {
-    state: AddDepartmentAndJobState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
-            departmentBase:[],
-            jobBase: [],
-            locationBase: [],
-            isLoggedIn: true,
-            add: {
-                department: {
-                    title: '',
-                    description: '',
-                    departmentCode: '',
-                },
-                job: {
-                    title: '',
-                    description: '',
-                    jobCode: ''
-                },
-                location: {
-                    name: '',
-                    code: '',
-                },
-                departmentJobLocation: {
-                    departmentId: 0,
-                    jobId: 0,
-                    locationId: 0,
-                }
-            } 
-        }
-    }
+const AddDepartmentAndJob: React.FC = () => {
+    const [state, setState] = useState<AddDepartmentAndJobState>({
+        departmentBase:[],
+        jobBase: [],
+        locationBase: [],
+        isLoggedIn: true,
+        add: {
+            department: {
+                title: '',
+                description: '',
+                departmentCode: '',
+            },
+            job: {
+                title: '',
+                description: '',
+                jobCode: ''
+            },
+            location: {
+                name: '',
+                code: '',
+            },
+            departmentJobLocation: {
+                departmentId: 0,
+                jobId: 0,
+                locationId: 0,
+            }
+        } 
+    })
 
-    componentDidMount() {
-        this.getDepartments()
-    }
+    const [loading, setLoading] = useState<boolean>(false)
+    useEffect(() => {
+        getData()
+    }, [])
 
     /* SET */
 
-    private setAddNewDepartmentStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.add.department, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setAddNewJobStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.add.job, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setAddNewLocationStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.add.location, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setAddNewDepartmentJobLocationStringState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.add.departmentJobLocation, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            message: message,
+    const setAddNewDepartmentStringState = (fieldName:string, newValue:string) => {
+        setState((prevState) => ({
+          ...prevState,
+          add: {
+            ...prevState.add,
+            department: {
+              ...prevState.add.department,
+              [fieldName]: newValue,
+            },
+          },
         }));
-    }
+    };
 
-    private setIsLoggedInStatus(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
+    const setAddNewJobStringState = (fieldName:string, newValue:string) => {
+        setState((prevState) => ({
+          ...prevState,
+          add: {
+            ...prevState.add,
+            job: {
+              ...prevState.add.job,
+              [fieldName]: newValue,
+            },
+          },
         }));
+    };
+
+    const setAddNewLocationStringState = (fieldName:string, newValue:string) => {
+        setState((prevState) => ({
+          ...prevState,
+          add: {
+            ...prevState.add,
+            location: {
+              ...prevState.add.location,
+              [fieldName]: newValue,
+            },
+          },
+        }));
+    };
+
+    const setAddNewDepartmentJobLocationStringState = (fieldName:string, newValue:string) => {
+        setState((prevState) => ({
+          ...prevState,
+          add: {
+            ...prevState.add,
+            departmentJobLocation: {
+              ...prevState.add.departmentJobLocation,
+              [fieldName]: newValue,
+            },
+          },
+        }));
+    };
+
+
+    const setErrorMessage = (message: string) => {
+        setState(prev => ({...prev, message: message}))
     }
 
-    private setDepartmentData(departmentData: DepartmentType[]) {
-        this.setState(Object.assign(this.state, {
+    const setIsLoggedInStatus = (isLoggedIn: boolean) => {
+        setState(prev => ({...prev, isLoggedIn: isLoggedIn}))
+    }
+
+    const setDepartmentData = (departmentData: DepartmentType[]) => {
+        setState(Object.assign(state, {
             departmentBase: departmentData,
         }));
     }
-
-    private setJobData(jobData: JobType[]) {
-        this.setState(Object.assign(this.state, {
+    
+    const setJobData = (jobData: JobType[]) => {
+        setState(Object.assign(state, {
             jobBase: jobData,
         }));
     }
-
-    private setLocationData(locationData: LocationType[]) {
-        this.setState(Object.assign(this.state, {
+    
+    const setLocationData = (locationData: LocationType[]) => {
+        setState(Object.assign(state, {
             locationBase: locationData,
         }));
     }
 
-    /* GET */
 
-    private getDepartments() {
-        api('api/department?sort=title,ASC', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
-                return;
-            }
-            if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
-                return;
-            }   
-            this.setDepartmentData(res.data);
-        })
+    const getData = async () => {
+        try{
+            setLoading(true)
+            await api('api/department?sort=title,ASC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false);
+                    return;
+                }
+                if (res.status === "error") {
+                    setErrorMessage('Greška prilikom učitavanja sektora/službei/odjeljenja.');
+                    return;
+                }   
+                setDepartmentData(res.data);
+            })
 
-        api('api/job?sort=title,ASC', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
-                return;
-            }
-            if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom učitavanja radnih mjesta.');
-                return;
-            }   
-            this.setJobData(res.data);
-        })
+            api('api/job?sort=title,ASC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false);
+                    return;
+                }
+                if (res.status === "error") {
+                    setErrorMessage('Greška prilikom učitavanja radnih mjesta.');
+                    return;
+                }   
+                setJobData(res.data);
+            })
 
-        api('api/location?sort=name,ASC', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
-                return;
-            }
-            if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom učitavanja lokacija.');
-                return;
-            }   
-            this.setLocationData(res.data);
-        })
+            api('api/location?sort=name,ASC', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false);
+                    return;
+                }
+                if (res.status === "error") {
+                    setErrorMessage('Greška prilikom učitavanja lokacija.');
+                    return;
+                }   
+                setLocationData(res.data);
+            })
+            setLoading(false)
+        } catch(err) {
+            setErrorMessage('Došlo je do greške prilikom učitavanja kategorija, osvježite stranicu i pokušajte ponovo.');
+            setLoading(false);
+        }
+        
     }
 
+
     /* DODATNE FUNCKIJE */
-    private printOptionalMessage() {
-        if (this.state.message === '') {
+    const printOptionalMessage = () => {
+        if (state.message === '') {
             return;
         }
 
         return (
-            <div>
-                {this.state.message}
-            </div>
+            <Alert title='info' variant='info' body={state.message!} />
         );
     }
 
-    private doAddDepartment() {
-        api('api/department/', 'post', this.state.add.department, 'administrator')
+    const doAddDepartment = () => {
+        api('api/department/', 'post', state.add.department, 'administrator')
         .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja.');
+                setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja.');
                 return;
             }
-            this.setErrorMessage('Uspješno dodan sektor/služba/odjeljenje');
-            this.getDepartments();
+            setErrorMessage('Uspješno dodan sektor/služba/odjeljenje');
+            getData();
         })
     }
 
-    private doAddJob() {
-        api('api/job/', 'post', this.state.add.job, 'administrator')
+    const doAddJob = () => {
+        api('api/job/', 'post', state.add.job, 'administrator')
         .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom dodavanja radnog mjesta.');
+                setErrorMessage('Greška prilikom dodavanja radnog mjesta.');
                 return;
             }
-            this.setErrorMessage('Uspješno dodano radno mjesto');
-            this.getDepartments();
+            setErrorMessage('Uspješno dodano radno mjesto');
+            getData();
         })
     }
 
-    private doAddLocation() {
-        api('api/location/', 'post', this.state.add.location, 'administrator')
+    const doAddLocation = () => {
+        api('api/location/', 'post', state.add.location, 'administrator')
         .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom dodavanja lokacije.');
+                setErrorMessage('Greška prilikom dodavanja lokacije.');
                 return;
             }
-            this.setErrorMessage('Uspješno dodana lokacija');
-            this.getDepartments();
+            setErrorMessage('Uspješno dodana lokacija');
+            getData();
         })
     }
 
-    private doAddDepartmentJobLocation() {
-        api('api/departmentJob/', 'post', this.state.add.departmentJobLocation, 'administrator')
+    const doAddDepartmentJobLocation = () => {
+        api('api/departmentJob/', 'post', state.add.departmentJobLocation, 'administrator')
         .then((res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedInStatus(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === "error") {
-                this.setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja, pripadajućeg radnog mjesta te lokacije.');
+                setErrorMessage('Greška prilikom dodavanja sektora/službe/odjeljenja, pripadajućeg radnog mjesta te lokacije.');
                 return;
             }
-            this.setErrorMessage('Uspješno dodan sektor/služba/odjeljenje, pripadajuće radno mjesto te lokacija');
-            this.getDepartments();
+            setErrorMessage('Uspješno dodan sektor/služba/odjeljenje, pripadajuće radno mjesto te lokacija');
+            getData();
         })
     }
 
-    addForm() {
+    const addForm = () => {
         return(
-            <div><Card className="mb-3">
-                <Card.Header>
-                    <Card.Title>Detalji sektora/službe/odjeljenja</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 ">
-                            <FloatingLabel label="Naziv sektora/službe/odjeljenja" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="departmentTitle"
-                                    type="text"
-                                    placeholder="Naziv sektora/službe/odjeljenja"
-                                    value={this.state.add.department.title}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('title', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <FloatingLabel label="Opis" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="departmentDescription"
-                                    as="textarea" 
-                                    rows={5}
-                                    style={{height:100}}
-                                    placeholder="Neobavezno"
-                                    value={this.state.add.department.description}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('description', e.target.value)}
-                                    />
-                            </FloatingLabel>
-                            <FloatingLabel label="Šifra organizacione jedinice" className="mb-3">
-                                <Form.Control
-                                    id="departmentCode"
-                                    type="number"
-                                    placeholder="Šifra organizacione jedinice"
-                                    value={this.state.add.department.departmentCode}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('departmentCode', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <Form.Text>U slučaju da se kreira sektor nije potrebno popuniti polje ispod. Polje se popunjava
-                                isključivo ako se dodaje služba/odjeljenje koje pripada nekom sektoru/službi.
-                            </Form.Text>
-                            <FloatingLabel style={{marginTop:8}} label="Pripada sektoru/službi" className="mb-3">
-                                <Form.Select
-                                    id='parentDepartmentId'
-                                    value={this.state.add.department.parentDepartmentId?.toString()}
-                                    onChange={(e) => this.setAddNewDepartmentStringState('parentDepartmentId', e.target.value)}
-                                    >
-                                    <option value='NULL'>izaberi sektor/službu/odjeljenje</option>
-                                    {this.state.departmentBase.map((data, index) => (
-                                        <option key={index} value={data.departmentId?.toString()}>{data.title}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-                            {/* <MuiAlert elevation={6} variant="filled" severity="success" className={this.state.message ? '' : 'd-none'}>
-                                {this.printOptionalMessage()}
-                            </MuiAlert>
-                                 */}
-
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-                <Card.Footer className={this.state.add.department.title ? '' : 'd-none'}>
-                        <Row style={{ alignItems: 'end' }}>
-                            <Button onClick={() => this.doAddDepartment()} 
-                                    variant="success">
-                            <i className="bi bi-plus-circle" /> Dodaj sektor/službu/odjeljenje</Button>
-                        </Row>
-                </Card.Footer>
-            </Card>
-            <Card className="mb-3">
-                <Card.Header>
-                    <Card.Title>Detalji radnog mjesta</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 ">
-                            <FloatingLabel label="Naziv radnog mjesta" className={this.state.add.job.title ? 'false' : 'd-none'}>
-                                <Form.Control
-                                    id="jobTitle"
-                                    type="text"
-                                    placeholder="Naziv radnog mjesta"
-                                    value={this.state.add.job.title}
-                                    onChange={e => {this.setAddNewJobStringState('title', e.target.value)}}
-                                    required />
-                            </FloatingLabel>
-                            <FloatingLabel label="Opis" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="jobDescription"
-                                    as="textarea" 
-                                    rows={5}
-                                    style={{height:100}}
-                                    placeholder="Neobavezno"
-                                    value={this.state.add.job.description}
-                                    onChange={(e) => this.setAddNewJobStringState('description', e.target.value)}
-                                    />
-                            </FloatingLabel>
-                            <FloatingLabel label="Šifra radnog mjesta" className="mb-3">
-                                <Form.Control
-                                    id="jobCode"
-                                    type="text"
-                                    placeholder="Šifra radnog mjesta"
-                                    value={this.state.add.job.jobCode}
-                                    onChange={(e) => this.setAddNewJobStringState('jobCode', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-                <Card.Footer className={this.state.add.job.title ? '' : 'd-none'}>
-                        <Row style={{ alignItems: 'end' }}>
-                            <Button onClick={() => this.doAddJob()} 
-                                    variant="success">
-                            <i className="bi bi-plus-circle" /> Dodaj radno mjesto</Button>
-                        </Row>
-                </Card.Footer>
-            </Card>
-            <Card className="mb-3">
-                <Card.Header>
-                    <Card.Title>Detalji lokacije</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 ">
-                            <FloatingLabel label="Naziv lokacije" className="mb-3 was-validated">
-                                <Form.Control
-                                    id="locationName"
-                                    type="text"
-                                    placeholder="Naziv lokacije"
-                                    value={this.state.add.location.name}
-                                    onChange={(e) => this.setAddNewLocationStringState('name', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-                            <FloatingLabel label="Šifra lokacije" className="mb-3">
-                                <Form.Control
-                                    id="locationCode"
-                                    type="text"
-                                    placeholder="Šifra lokacije"
-                                    value={this.state.add.location.code}
-                                    onChange={(e) => this.setAddNewLocationStringState('code', e.target.value)}
-                                    required />
-                            </FloatingLabel>
-
-                            <Form.Text>Opciju koristiti u slučaju da lokacija ne postoji, pa se dodaje pod-lokacija
-                            </Form.Text>
-                            <FloatingLabel style={{marginTop:8}} label="Pripada lokaciji" className="mb-3">
-                                <Form.Select
-                                    id='parentLocationId'
-                                    value={this.state.add.location.parentLocationId?.toString()}
-                                    onChange={(e) => this.setAddNewLocationStringState('parentLocationId', e.target.value)}
-                                    >
-                                    <option value='NULL'>izaberi podlokaciju</option>
-                                    {this.state.locationBase.map((locData, index) => (
-                                        <option key={index} value={locData.locationId?.toString()}>{locData.name}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-                <Card.Footer className={this.state.add.location.name ? '' : 'd-none'}>
-                        <Row style={{ alignItems: 'end' }}>
-                            <Button onClick={() => this.doAddLocation()} 
-                                    variant="success">
-                            <i className="bi bi-plus-circle" /> Dodaj lokaciju</Button>
-                        </Row>
-                    </Card.Footer>
-            </Card>
-
-            <Card className="mb-3">
-                <Card.Header>
-                    <Card.Title>Povezivanje</Card.Title>
-                    <Card.Subtitle>
-                        <Form.Text>
-                            U ovoj formi izvršavate povezivanje sektora/službe/odjeljenja sa pripadajućim radnim mjesto te lokacijom
-                        </Form.Text>
-                     </Card.Subtitle>
-                </Card.Header>
-               
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 ">
-                        <FloatingLabel style={{marginTop:8}} label="Sektor/služba/odjeljenje" className="mb-3">
-                                <Form.Select
-                                    id='departmentId'
-                                    value={this.state.add.departmentJobLocation?.departmentId.toString()}
-                                    onChange={(e) => this.setAddNewDepartmentJobLocationStringState('departmentId', e.target.value)}
-                                    >
-                                    <option value=''>izaberi sektor/službu/odjeljenje</option>
-                                    {this.state.departmentBase.map((data, index) => (
-                                        <option key={index} value={data.departmentId?.toString()}>{data.title}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-
-                            <FloatingLabel style={{marginTop:8}} label="Naziv radnog mjesta" className={this.state.add.departmentJobLocation?.departmentId ? '' : 'd-none'}>
-                                <Form.Select
-                                    id='jobTitleSelector'
-                                    value={this.state.add.departmentJobLocation?.jobId.toString()}
-                                    onChange={e => {this.setAddNewDepartmentJobLocationStringState('jobId', e.target.value)}}
-                                    >
-                                    <option value=''>izaberi radno mjesto</option>
-                                    {this.state.jobBase.map((jobData, index) => (
-                                        <option key={index} value={jobData.jobId?.toString()}>{jobData.title}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-
-                            <FloatingLabel style={{marginTop:8}} label="Lokacija" className={this.state.add.departmentJobLocation?.jobId ? '' : 'd-none'}>
-                                <Form.Select
-                                    id='location'
-                                    value={this.state.add.departmentJobLocation?.locationId.toString()}
-                                    onChange={(e) => this.setAddNewDepartmentJobLocationStringState('locationId', e.target.value)}
-                                    >
-                                    <option value='NULL'>izaberi lokaciju</option>
-                                    {this.state.locationBase.map((locData, index) => (
-                                        <option key={index} value={locData.locationId?.toString()}>{locData.name}</option>
-                                    ))}
-                                </Form.Select>
-                            </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-                <Card.Footer className={this.state.add.departmentJobLocation?.locationId ? '' : 'd-none'}>
-                        <Row style={{ alignItems: 'end' }}>
-                            <Button onClick={() => this.doAddDepartmentJobLocation()} 
-                                    variant="success">
-                            <i className="bi bi-plus-circle" /> Poveži </Button>
-                        </Row>
-                    </Card.Footer>
-            </Card>
-            </div>
-        )
-    }
-
-    /* RENDERER */
-
-    render() {
-        /* if(this.state.isLoggedIn === false) {
-            return (
-                <Redirect to='/login' />
-            )
-        } */
-        return (
             <div>
-                <RoledMainMenu />
-                <Container style={{ marginTop:15}}>
-                    {this.renderCategoryData()}
-                    <AdminMenu />
-                </Container>
+                <Card className="mb-3">
+                <CardHeader>
+                    Detalji sektora/službe/odjeljenja
+                </CardHeader>
+                <CardBody>
+                    <div className="flex flex-col">
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="departmentTitle" 
+                            type="text" 
+                            label="Naziv sektora/službe/odjeljenja"
+                            labelPlacement='inside'
+                            value={state.add.department.title}
+                            onChange={(e) => setAddNewDepartmentStringState('title', e.target.value)}
+                            >
+                            </Input>
+                        </div>
+                        <div className='w-full mb-3 mr-3'>
+                        <Textarea
+                            id="departmentDescription"
+                            label="Opis"
+                            placeholder="Opišite radno mjesto"
+                            value={state.add.department.description}
+                            onChange={(e) => setAddNewDepartmentStringState('description', e.target.value)}
+                        />
+                        </div>
+                        <div className='w-full mb-3 mr-3'>
+                        <Input
+                            id="departmentCode" 
+                            type="number" 
+                            label="Šifra organizacione jedinice"
+                            labelPlacement='inside'
+                            value={state.add.department.departmentCode}
+                                    onChange={(e) => setAddNewDepartmentStringState('departmentCode', e.target.value)}
+                            >
+                            </Input>
+                        </div>
+                        <div className='lg:flex w-full'> 
+                            <Select
+                                description='U slučaju da se kreira sektor nije potrebno popuniti polje ispod. Polje se popunjava
+                                isključivo ako se dodaje služba/odjeljenje koje pripada nekom sektoru/službi.'
+                                id='parentDepartmentId'
+                                label='Pripada sektoru/službi'
+                                placeholder='Odaberite glavna službu/odjeljenje'
+                                onChange={(e) => setAddNewDepartmentStringState('parentDepartmentId', e.target.value)}
+                            >
+                                {state.departmentBase.map((departmentData, index) => (
+                                    <SelectItem key={departmentData.departmentId || index} 
+                                    textValue={`${departmentData.departmentId} - ${departmentData.title}`} 
+                                    value={Number(departmentData.departmentId)}>
+                                        {departmentData.departmentId} - {departmentData.title}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        </div>
+                    </div>
+                </CardBody>
+                <CardFooter className={state.add.department.title ? '' : 'hidden'}>
+                        <div style={{ alignItems: 'end' }}>
+                            <Button onClick={() => doAddDepartment()} 
+                                    color="success">
+                            <i className="bi bi-plus-circle" /> Dodaj sektor/službu/odjeljenje</Button>
+                        </div>
+                </CardFooter>
+            </Card>
+            <Card className="mb-3">
+                <CardHeader>
+                    Detalji radnog mjesta
+                </CardHeader>
+                <CardBody>
+                    <div className="flex flex-col">
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="jobTitle" 
+                            type="text" 
+                            label="Naziv radnog mjesta"
+                            labelPlacement='inside'
+                            value={state.add.job.title}
+                            onChange={e => {setAddNewJobStringState('title', e.target.value)}}
+                            >
+                            </Input>
+                        </div>
+                        <div className='w-full mb-3 mr-3'>
+                            <Textarea
+                                id="jobDescription"
+                                label="Opis"
+                                placeholder="Opišite radno mjesto"
+                                value={state.add.job.description}
+                                onChange={(e) => setAddNewJobStringState('description', e.target.value)}
+                            />
+                        </div>
+                        <div className='lg:flex w-full'>
+                            <Input
+                            id="jobCode" 
+                            type="text" 
+                            label="Šifra radnog mjesta"
+                            labelPlacement='inside'
+                            value={state.add.job.jobCode}
+                            onChange={(e) => setAddNewJobStringState('jobCode', e.target.value)}
+                            >
+                            </Input> 
+                        </div>   
+                    </div>
+                </CardBody>
+                <CardFooter className={state.add.job.title ? '' : 'hidden'}>
+                        <div style={{ alignItems: 'end' }}>
+                            <Button onClick={() => doAddJob()} 
+                                    color="success">
+                            <i className="bi bi-plus-circle" /> Dodaj radno mjesto</Button>
+                        </div>
+                </CardFooter>
+            </Card>
+            <Card className="mb-3">
+                <CardHeader>
+                    Detalji lokacije
+                </CardHeader>
+                <CardBody>
+                    <div className="flex flex-col">
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="name" 
+                            type="text" 
+                            label="Naziv lokacije"
+                            labelPlacement='inside'
+                            value={state.add.location.name}
+                            onChange={(e) => setAddNewLocationStringState('name', e.target.value)}
+                            >
+                            </Input>
+                        </div>
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="code" 
+                            type="text" 
+                            label="Šifra lokacije"
+                            labelPlacement='inside'
+                            value={state.add.location.code}
+                            onChange={(e) => setAddNewLocationStringState('code', e.target.value)}
+                            >
+                            </Input>
+    
+                        </div>
+                        <div className='lg:flex w-full'> 
+                            <Select
+                                description='Opciju koristiti u slučaju da lokacija ne postoji, pa se dodaje pod-lokacija'
+                                id='parentLocationId'
+                                label='Glavna lokacija'
+                                placeholder='Odaberite glavna lokacija'
+                                onChange={(e) => setAddNewLocationStringState('parentLocationId', e.target.value)}
+                            >
+                                {state.locationBase.map((locData, index) => (
+                                    <SelectItem key={locData.locationId || index} textValue={`${locData.locationId} - ${locData.name}`} value={Number(locData.locationId)}>
+                                        {locData.locationId} - {locData.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                            
+                        </div>  
+                    </div>
+                </CardBody>
+                <CardFooter className={state.add.location.name ? '' : 'hidden'}>
+                    <div style={{ alignItems: 'end' }}>
+                        <Button onClick={() => doAddLocation()} 
+                                color="success">
+                        <i className="bi bi-plus-circle" /> Dodaj lokaciju</Button>
+                    </div>
+                </CardFooter>
+            </Card>
+
+            <Card className="mb-3">
+                <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+                    Povezivanje
+                    <small className="text-default-500">U ovoj formi izvršavate povezivanje sektora/službe/odjeljenja sa pripadajućim radnim mjesto te lokacijom</small>
+                </CardHeader>
+               
+                <CardBody>
+                <div className="flex flex-col">
+                    <div className='lg:flex w-full mb-3'>
+                        <Select
+                            id='departmentId'
+                            label='Sektor/služba/odjeljenje'
+                            placeholder='Odaberite Sektor/služba/odjeljenje'
+                            value={state.add.departmentJobLocation?.departmentId}
+                            onChange={(e) => setAddNewDepartmentJobLocationStringState('departmentId', e.target.value)}
+                        >
+                            {state.departmentBase.map((departmentData, index) => (
+                                <SelectItem key={departmentData.departmentId || index} textValue={`${departmentData.departmentId} - ${departmentData.title}`} value={Number(departmentData.departmentId)}>
+                                    {departmentData.departmentId} - {departmentData.title}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    </div>
+                    <div className={`lg:flex w-full mb-3 ${state.add.departmentJobLocation?.departmentId ? '' : 'hidden'}`}>
+                        <Select
+                            id='jobTitleSelector'
+                            label='Naziv radnog mjesta'
+                            placeholder='Odaberite radno mjesto'
+                            onChange={e => { setAddNewDepartmentJobLocationStringState('jobId', e.target.value); } }
+                        >
+                            {state.jobBase.map((jobData, index) => (
+                                <SelectItem key={jobData.jobId || index} textValue={`${jobData.jobId} - ${jobData.title}`} value={Number(jobData.jobId)}>
+                                    {jobData.jobId} - {jobData.title}
+                                </SelectItem>
+                            ))}
+                        </Select>
+
+                    </div>
+                    <div className={`lg:flex w-full mb-3 ${state.add.departmentJobLocation?.jobId ? '' : 'hidden'}`}>
+                        <Select
+                            id='location'
+                            label='Lokacija'
+                            placeholder='Odaberite lokaciju'
+                            onChange={(e) => setAddNewDepartmentJobLocationStringState('locationId', e.target.value)}
+                        >
+                            {state.locationBase.map((locData, index) => (
+                                <SelectItem key={locData.locationId || index} textValue={`${locData.locationId} - ${locData.name}`} value={Number(locData.locationId)}>
+                                    {locData.locationId} - {locData.name}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    </div>
+                </div>    
+                </CardBody>
+                <CardFooter className={state.add.departmentJobLocation?.locationId ? '' : 'hidden'}>
+                    <div style={{ alignItems: 'end' }}>
+                        <Button onClick={() => doAddDepartmentJobLocation()} 
+                                color="success">
+                        <i className="bi bi-plus-circle" /> Poveži </Button>
+                    </div>
+                </CardFooter>
+            </Card>
             </div>
         )
     }
 
-    renderCategoryData() {
-        return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
-                            {this.addForm()}
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
+    return (
+        <div>
+            <RoledMainMenu />
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
+                {loading ? (
+                    <div className="flex justify-center items-center h-screen">
+                        <Spinner color='danger' label='Učitavanje...' labelColor='danger' />
+                    </div>  
+                ) : (
+                    addForm()
+                )}
+                
+                <AdminMenu />
+            </div>
+        </div>
+    )
 }
+export default AddDepartmentAndJob;

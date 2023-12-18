@@ -35,13 +35,10 @@ const AdminMenu = () => {
 
   return (
     <div
-        onClick={toggleMenuVisibility}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="fixed bottom-2 right-2 group"
+        className="fixed bottom-4 right-4 group"
     >
-      
-
       {isMenuVisible && (
         <div
           id="speed-dial-menu-text-outside-button-square"
@@ -51,7 +48,7 @@ const AdminMenu = () => {
         >
             
                 {actions.map((action, index) => (
-                    <Tooltip content={action.name} placement='left' showArrow key={index}>
+                    <Tooltip isOpen content={action.name} placement='left' showArrow key={index}>
                         <Button
                             key={index}
                             onClick={() => handleButtonClick(action.link)}
@@ -59,6 +56,8 @@ const AdminMenu = () => {
                             className="relative w-[52px] h-[52px]"
                             size='sm'
                             radius='full'
+                            variant='shadow'
+                            color='secondary'
                         >
                         </Button>
                     </Tooltip>
@@ -68,11 +67,14 @@ const AdminMenu = () => {
       )}
       
         <Button
-            className="flex items-center justify-center text-white bg-blue-700 rounded-full w-14 h-14 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
+        variant='shadow'
+        color='primary'
+        onClick={toggleMenuVisibility}
+        className="flex items-center justify-center rounded-full w-14 h-14"
         >
-            <svg className="w-5 h-5 transition-transform group-hover:rotate-45" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+          <svg className="w-5 h-5 transition-transform group-hover:rotate-45" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 1v16M1 9h16" />
-            </svg>
+          </svg>
       </Button>
     </div>
   );

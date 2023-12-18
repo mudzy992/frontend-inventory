@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from "react";
 import api from "../../../API/api";
-import { Col, Row } from "react-bootstrap";
 import "./styleArticleTimeline.css";
 import { Avatar, Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/react";
 
@@ -93,44 +92,38 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({show, onHide, articleTim
                         Vremenska linija artikla
                 </ModalHeader>
                 <ModalBody>
-                    <Row style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
-                        <Col >
-                            <Col className="mb-2" lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                                <Avatar className="avatarmodal" style={{border: `10px solid ${genderPreuzeoColor}`}}> 
-                                    <i className={genderPruzeo}/>
-                                </Avatar>
-                            </Col>
-                            <Col lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                                {articleTimelineData?.subbmited.fullname}
-                            </Col>
-                        </Col>
-                        <Col style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                            <Row>
-                                {articleTimelineData?.article.stock.name}
-                            </Row>
-                            <Row>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="500" height="20" fill="currentColor" className="bi bi-arrow-right" viewBox="0 0 110 18">
-                                    <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h111.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L113.293 8.5H1.5A.5.5 0 0 1 1 8"/>
-                                </svg>
-                            </Row>
-                            <Row>
-                                <Col>
-                                {articleTimelineData?.invNumber}
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col>
-                            <Col className="mb-2" lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                                <Avatar className="avatarmodal" style={{border: `10px solid ${genderPredaoColor}`}}> 
-                                    <i className={genderPredao}/>
-                                </Avatar>
-                            </Col>
-                            <Col lg={12} xs={12} style={{display:'flex', justifyContent:'center', alignItems:'center', flexWrap:'wrap'}}>
-                                {articleTimelineData?.user.fullname}
-                            </Col>
-                        </Col>
-                        
-                    </Row>
+                <div className="flex justify-center items-center">
+                    <div className="flex flex-col items-center">
+                        <div className="mb-2">
+                        <Avatar className="avatarmodal" style={{border: `10px solid ${genderPreuzeoColor}`}}> 
+                                                        <i className={genderPruzeo}/>
+                                                    </Avatar>
+                        </div>
+                        <div className="text-center">{articleTimelineData?.subbmited.fullname}</div>
+                    </div>
+                    <div className="flex justify-center items-center flex-wrap">
+                        <div>
+                        {articleTimelineData?.article.stock.name}
+                        </div>
+                        <div className="mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-right" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h14.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L15.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                        </svg>
+                        </div>
+                        <div className="mt-1">
+                        {articleTimelineData?.invNumber}
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <div className="mb-2">
+                        <Avatar className="avatarmodal" style={{border: `10px solid ${genderPredaoColor}`}}> 
+                                                        <i className={genderPredao}/>
+                                                    </Avatar>
+                        </div>
+                        <div className="text-center">{articleTimelineData?.user.fullname}</div>
+                    </div>
+                    </div>
+
                 </ModalBody>
             </ModalContent>
         </Modal>

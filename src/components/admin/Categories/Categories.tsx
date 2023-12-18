@@ -157,13 +157,7 @@ const CategoryPage: React.FC = () => {
   );
   
 
-  const showArticles = () => {
-    if (!state.category) {
-      return (
-        <Alert variant='info' title='Info!' body='Nema opreme definisane za ovu kategoriju' />
-      );
-    }
-  
+  const showArticles = () => { 
     if (!state.category || state.category.stocks?.length === 0) {
       return (
         <Alert variant='info' title='Info!' body='Nema opreme definisane za ovu kategoriju' />
@@ -178,7 +172,7 @@ const CategoryPage: React.FC = () => {
     <div>
       <RoledMainMenu/>
       <div className="container mx-auto lg:px-4 mt-3 h-max">
-        <div className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'd-none'}>
+        <div className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'hidden'}>
           <h5 style={{ color: 'white' }}>
             <i className="bi bi-list" />
             {state.category?.name}

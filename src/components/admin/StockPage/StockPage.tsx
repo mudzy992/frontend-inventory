@@ -504,14 +504,14 @@ const StockPage: React.FC = () => {
         let status = Number(state.stock?.valueAvailable);
         if (status === 0) {
             return (
-                <Chip color="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
+                <Chip color="danger" variant='flat' style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     nema na stanju
                 </Chip>
                 )
         }
         if (status > 0) {
             return (
-                <Chip color="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
+                <Chip color="success" variant='flat' style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
                     dostupno
                 </Chip>
             )
@@ -778,7 +778,7 @@ const StockPage: React.FC = () => {
                         </div>
                         <div className='flex items-center'>
                             {badgeStatus()}
-                            <Button className='ml-2' size='sm' color='success' onClick={() => showEditFeatureModal()}><i className="bi bi-pencil-square" /> Izmjeni</Button> 
+                            <Button className='ml-2' size='sm' color='success' variant='shadow' onClick={() => showEditFeatureModal()}><i className="bi bi-pencil-square" /> Izmjeni</Button> 
                         </div>
                     </div>
                 </CardHeader>

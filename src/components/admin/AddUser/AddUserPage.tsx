@@ -517,7 +517,7 @@ const AddUserPage: React.FC = () => {
                         <Button onClick={() => doAddUser()} color="success"> <i className="bi bi-person-check-fill"/>Dodaj korisnika</Button>
                     </div>
 
-                        <div style={{ marginTop: 15 }} className={state.errorMessage ? '' : 'd-none'}> 
+                        <div style={{ marginTop: 15 }} className={state.errorMessage ? '' : 'hidden'}> 
                             <Alert title='Info' body={state.errorMessage} variant='success'  />
                         </div>
                 </CardFooter>

@@ -51,9 +51,9 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
 
   const valueStatus = (valueAvailabele: number) => {
     if(valueAvailabele === 0) {
-      return <Chip variant="flat" color="danger" size="sm" > nema na stanju </Chip>
+      return <Chip variant="shadow" color="danger" size="sm" > nema na stanju </Chip>
     } else {
-      return <Chip variant="flat" color="warning" size="sm"> {`Dostupno: ${valueAvailabele}`}</Chip>
+      return <Chip variant="shadow" color="warning" size="sm"> {`Dostupno: ${valueAvailabele}`}</Chip>
     }
   }
 

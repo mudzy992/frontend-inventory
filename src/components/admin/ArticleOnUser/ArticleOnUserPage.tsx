@@ -306,7 +306,7 @@ const AdminArticleOnUserPage: React.FC = () => {
 
     const addNewUpgradeFeatureButton = () => {
         return (
-        <div><Button className='text-sm' color='success' size='sm' onClick={() => showAddUpgradeFeatureModal()} 
+        <div><Button className='text-sm' color='success' variant='shadow' size='sm' onClick={() => showAddUpgradeFeatureModal()} 
                 startContent={<i className="bi bi-node-plus text-base"></i>}>{LangBa.ARTICLE_ON_USER.BTN_UPGRADE}
             </Button>
             <Modal size="lg" backdrop='blur' isOpen={state.upgradeFeatureAdd.visible} onClose={() => setUpgradeModalVisibleState(false)}>
@@ -343,7 +343,7 @@ const AdminArticleOnUserPage: React.FC = () => {
                         />
                     </div>
                     <ModalFooter>
-                        <Button color='success' onClick={() => addNewUpgradeFeature()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
+                        <Button color='success' variant='shadow' onClick={() => addNewUpgradeFeature()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
                     </ModalFooter>
                 </ModalBody>
                 </ModalContent>
@@ -404,6 +404,7 @@ const AdminArticleOnUserPage: React.FC = () => {
                     <Button 
                         color='success' 
                         size='sm'
+                        variant='shadow'
                         startContent={<i className="bi bi-pencil-square"></i>}
                         onClick={() => showChangeStatusModal(state.article)}>
                             {LangBa.ARTICLE_ON_USER.BTN_EDIT}
@@ -474,7 +475,7 @@ const AdminArticleOnUserPage: React.FC = () => {
                                     />
                                 </div>
                                 <ModalFooter>
-                                    <Button color='success' className='text-white' startContent={<i className="bi bi-save"></i>} onClick={() => changeStatus()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
+                                    <Button color='success' variant='shadow' startContent={<i className="bi bi-save"></i>} onClick={() => changeStatus()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
                                 </ModalFooter>
                             </ModalBody>
                     </ModalContent>
@@ -530,7 +531,7 @@ const AdminArticleOnUserPage: React.FC = () => {
                             }
                             <Card
                                 style={{ marginTop: 15 }}
-                                className={state.errorMessage ? '' : 'd-none'}>
+                                className={state.errorMessage ? '' : 'hidden'}>
                                     <CardBody>
                                         <i className="bi bi-exclamation-circle-fill"></i> {state.errorMessage}
                                     </CardBody>
@@ -570,19 +571,18 @@ const AdminArticleOnUserPage: React.FC = () => {
         }
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
-               /*  <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100 mb-3"> */
-                    <Card className='mb-3 shadow'>
-                        <CardHeader className='bg-default-100'>Detalji korisnika</CardHeader>
-                        <CardBody>
-                            <Listbox aria-label='Detalji korisnika'>
-                                <ListboxItem key={'userDet-ime'} textValue='ime' aria-label='Ime korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListboxItem>
-                                <ListboxItem key={'userDet-prezime'}textValue='prezime' aria-label='Prezime korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListboxItem>
-                                <ListboxItem key={'userDet-email'} textValue='email' aria-label='Email korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListboxItem>
-                                <ListboxItem key={'userDet-sektor'} textValue='sektor ili odjeljenje' aria-label='Sektor ili odjeljenje korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListboxItem>
-                                <ListboxItem key={'userDet-radno-mjesto'} textValue='radno mjesto' aria-label='Radno mjesto korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListboxItem>
-                            </Listbox>
-                        </CardBody>
-                    </Card>
+                <Card className='mb-3 shadow'>
+                    <CardHeader className='bg-default-100'>Detalji korisnika</CardHeader>
+                    <CardBody>
+                        <Listbox aria-label='Detalji korisnika'>
+                            <ListboxItem key={'userDet-ime'} textValue='ime' aria-label='Ime korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListboxItem>
+                            <ListboxItem key={'userDet-prezime'}textValue='prezime' aria-label='Prezime korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListboxItem>
+                            <ListboxItem key={'userDet-email'} textValue='email' aria-label='Email korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListboxItem>
+                            <ListboxItem key={'userDet-sektor'} textValue='sektor ili odjeljenje' aria-label='Sektor ili odjeljenje korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListboxItem>
+                            <ListboxItem key={'userDet-radno-mjesto'} textValue='radno mjesto' aria-label='Radno mjesto korisnika'>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListboxItem>
+                        </Listbox>
+                    </CardBody>
+                </Card>
             )
         }
     }
@@ -592,7 +592,7 @@ function saveFile (docPath: any) {
             return (
                 <div><Popover placement='right'>
                     <PopoverTrigger>
-                        <Button size='sm' variant='flat' color='danger'>
+                        <Button size='sm' variant='shadow' color='danger'>
                             <i className="bi bi-file-earmark-text" style={{ fontSize: 20}} />
                     </Button>
                 </PopoverTrigger>
@@ -611,7 +611,7 @@ function saveFile (docPath: any) {
                 );
             }
             return (
-                <Button size='sm' variant='flat' color='success' onClick={() => savedFile(docPath)}><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02"}} /></Button>
+                <Button size='sm' variant='shadow' color='success' onClick={() => savedFile(docPath)}><i className="bi bi-file-earmark-text" style={{ fontSize: 20}} /></Button>
             )
     }
 }

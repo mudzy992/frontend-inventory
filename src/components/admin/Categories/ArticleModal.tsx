@@ -85,8 +85,9 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
         <div>
               <Input
                 variant="bordered"
-                type="text"
+                type="search"
                 isClearable
+                startContent={<i className="bi bi-search text-default-500" />}
                 placeholder="Pronađi artikal..."
                 value={searchQuery}
                 onClear={() => setSearchQuery("")} 

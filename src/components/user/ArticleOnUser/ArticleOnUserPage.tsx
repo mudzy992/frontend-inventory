@@ -382,7 +382,7 @@ function saveFile (docPath: any) {
                             }
                             <Card
                                 style={{ marginTop: 15 }}
-                                className={state.errorMessage ? '' : 'd-none'}>
+                                className={state.errorMessage ? '' : 'hidden'}>
                                     <CardBody>
                                         <i className="bi bi-exclamation-circle-fill"></i> {state.errorMessage}
                                     </CardBody>

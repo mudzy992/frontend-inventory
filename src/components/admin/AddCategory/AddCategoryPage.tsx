@@ -39,17 +39,15 @@ const AddNewCategoryPage: React.FC = () => {
     /* SET */
 
     const setAddNewCategoryStringState = (fieldName: string, newValue: string) => {
-        setState(Object.assign(state,
-            Object.assign(state.addNewCategory, {
-                [fieldName]: newValue,
-            })))
+        setState((prev) => ({
+            ...prev, addNewCategory: {...prev.addNewCategory, [fieldName]: newValue}
+        }))
     }
 
     const setAddNewCategoryNumberState = (fieldName: string, newValue: any) => {
-        setState(Object.assign(state,
-            Object.assign(state.addNewCategory, {
-                [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
+        setState((prev) => ({
+            ...prev, addNewCategory: {...prev.addNewCategory, [fieldName]: (newValue === 'null') ? null : Number(newValue)}
+        }))
     }
 
     const setErrorMessage = (message: string) => {
@@ -175,7 +173,7 @@ const AddNewCategoryPage: React.FC = () => {
                         </div>
                     </div>
                     </CardBody>
-                    <CardFooter className={state.addNewCategory.name ? '' : 'd-none'}>
+                    <CardFooter className={state.addNewCategory.name ? '' : 'hidden'}>
                         <div>
                             {printOptionalMessage()}
                         </div>

@@ -89,7 +89,7 @@ export const Alert: React.FC<AlertProps> = ({ variant, title, body, showCloseBut
   const combinedClassNames = className ? className : '';
 
   return (
-    <div className={`flex items-center p-4 text-sm border-1 rounded-lg ${borderColor} ${backgroundColor} ${textColor} dark:${darkBorderColor} dark:${darkBackgroundColor} dark:${darkTextColor} ${combinedClassNames}`} role="alert">
+    <div className={`flex items-center p-4 m-3 text-sm border-1 rounded-lg ${borderColor} ${backgroundColor} ${textColor} dark:${darkBorderColor} dark:${darkBackgroundColor} dark:${darkTextColor} ${combinedClassNames}`} role="alert">
       {showCloseButton && (
         <button onClick={handleClose} className="flex-shrink-0 inline w-4 h-4 me-3 text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100" aria-label="Zatvori">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,11 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'jquery/dist/jquery.js';
-import 'popper.js/dist/popper.js';
-import 'bootstrap/dist/js/bootstrap.min.js';
-import "bootstrap/js/src/collapse.js";
+// import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'jquery/dist/jquery.js';
+// import 'popper.js/dist/popper.js';
+// import 'bootstrap/dist/js/bootstrap.min.js';
+// import "bootstrap/js/src/collapse.js";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import reportWebVitals from './reportWebVitals';
 import { HashRouter, Routes, Route } from 'react-router-dom';

@@ -1,12 +1,12 @@
-import React from 'react';
-import { Container, Card, Row, Col, Form, FloatingLabel, Button,} from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import ArticleType from '../../../types/ArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import CategoryType from '../../../types/CategoryType';
 import ApiArticleDto from '../../../dtos/ApiArticleDto';
 import AdminMenu from '../AdminMenu/AdminMenu';
-import { useNavigate } from 'react-router-dom';
+import { Alert } from '../../custom/Alert';
+import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Input, Select, SelectItem, Spinner, Textarea, Tooltip } from '@nextui-org/react';
 
 interface AddArticlePageState{
     articles: ArticleType[];
@@ -45,63 +45,55 @@ interface CategoryDto {
 
 
 
-export default class AddArticlePage extends React.Component<{}>{
-    state: AddArticlePageState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
-            articles: [],
-            categories: [],
-            message: '',
-            isLoggedIn: true,
-            addArticle: {
-                name: '',
-                categoryId: 0,
-                excerpt: '',
-                description: '',
-                concract: '',
-                comment: '',
-                sapNumber: '',
-                valueOnConcract: 0,
-                valueAvailable: 0,
-                features: [],
-            }
+const AddArticlePage: React.FC = () => {
+    const [state, setState] = useState<AddArticlePageState>({
+        articles: [],
+        categories: [],
+        message: '',
+        isLoggedIn: true,
+        addArticle: {
+            name: '',
+            categoryId: 0,
+            excerpt: '',
+            description: '',
+            concract: '',
+            comment: '',
+            sapNumber: '',
+            valueOnConcract: 0,
+            valueAvailable: 0,
+            features: [],
         }
-    }
-    
-    componentDidMount() {
-        this.getArticle()
-        this.getCategories()
-    }
-    /* SET */
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            message: message,
-        }));
+    })
+
+    const [loading, setLoading] = useState<boolean>(false)
+
+    useEffect(() => {
+        getArticle()
+        getCategories()
+    },[])
+
+    const setErrorMessage = (message: string) => {
+        setState(prev => ({...prev, message: message}))
     }
 
-    private setIsLoggedIn(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        }));
+    const setIsLoggedInStatus = (isLoggedIn: boolean) => {
+        setState(prev => ({...prev, isLoggedIn: isLoggedIn}))
     }
 
-    private setAddArticleStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                [fieldName]: newValue,
-            })))
+    const setAddArticleStringFieldState = (fieldName: string, newValue: string) => {
+        setState((prev) => ({
+            ...prev, addArticle: {...prev.addArticle, [fieldName]: newValue}
+        }))
     }
 
-    private setAddArticleNumberFieldState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
+    const setAddArticleNumberFieldState = (fieldName: string, newValue: any) => {
+        setState((prev) => ({
+            ...prev, addArticle: {...prev.addArticle, [fieldName]: (newValue === 'null') ? null : Number(newValue)}
+        }))
     }
 
-    private setAddArticleFeatureUse(featureId: number, use: boolean) {
-        const addFeatures: { featureId: number; use: number; }[] = [...this.state.addArticle.features];
+    const setAddArticleFeatureUse = (featureId: number, use: boolean) => {
+        const addFeatures: { featureId: number; use: number; }[] = [...state.addArticle.features];
 
         for (const feature of addFeatures) {
             if (feature.featureId === featureId) {
@@ -110,15 +102,25 @@ export default class AddArticlePage extends React.Component<{}>{
             }
         }
 
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                features: addFeatures,
-            }),
-        ));
+        setState((prev) => ({...prev, features: addFeatures}))
     }
 
-    private clearFormFields() {
-        this.setState({
+    const setAddArticleFeatureValue = (featureId: number, value: string) => {
+        const addFeatures: { featureId: number; value: string; }[] = [...state.addArticle.features];
+
+        for (const feature of addFeatures) {
+            if (feature.featureId === featureId) {
+                feature.value = value;
+                break;
+            }
+        }
+        
+        setState((prev) => ({...prev, features: addFeatures}))
+    }
+
+    const clearFormFields = () => {
+        setState((prevState) => ({
+            ...prevState,
             addArticle: {
                 name: '',
                 categoryId: 0,
@@ -131,43 +133,34 @@ export default class AddArticlePage extends React.Component<{}>{
                 valueAvailable: 0,
                 features: [],
             },
-        });
-    }
+        }));
+    };
     
-
-    private setAddArticleFeatureValue(featureId: number, value: string) {
-        const addFeatures: { featureId: number; value: string; }[] = [...this.state.addArticle.features];
-
-        for (const feature of addFeatures) {
-            if (feature.featureId === featureId) {
-                feature.value = value;
-                break;
-            }
-        }
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                features: addFeatures,
-            }),
-        ));
-    }
     /* Kraj SET */
     /* GET */
-    private getArticle() {
-        api('api/article/?join=articleFeatures&join=features&join=category', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedIn(false);
-                return;
-            }
-            if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije')
-            }
-            this.putArticlesInState(res.data)
-        })
+    const getArticle = async () => {
+        try{
+            setLoading(true)
+            await api('api/article/?join=articleFeatures&join=features&join=category', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false);
+                    return;
+                }
+                if(res.status === 'error') {
+                    setErrorMessage('Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije')
+                }
+                putArticlesInState(res.data)
+                setLoading(false)
+            })
+        } catch(error){
+            setErrorMessage('Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije')
+            setLoading(false)
+        }
+        
     }
 
-    private putArticlesInState(data?: ApiArticleDto[]) {
+    const putArticlesInState = (data?: ApiArticleDto[]) => {
         const articles: ArticleType[] | undefined = data?.map(article => {
             return {
                 articleId: article.articleId,
@@ -183,21 +176,21 @@ export default class AddArticlePage extends React.Component<{}>{
             };
         });
 
-        this.setState(Object.assign(this.state, {
+        setState(Object.assign(state, {
             articles: articles,
         }));
     }
 
-    private async getFeaturesByCatId(categoryId: number): Promise<FeatureBaseType[]> {
+    const getFeaturesByCatId = async (categoryId: number): Promise<FeatureBaseType[]> => {
         return new Promise(resolve => {
             api('api/feature/?filter=categoryId||$eq||' + categoryId + '/', 'get', {}, 'administrator')
             .then((res : ApiResponse) => {
                 if(res.status === 'login') {
-                    this.setIsLoggedIn(false);
+                    setIsLoggedInStatus(false);
                     return;
                 }
             if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
+                setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
             }
 
             const features: FeatureBaseType[] = res.data.map((item: any) => ({
@@ -209,21 +202,28 @@ export default class AddArticlePage extends React.Component<{}>{
     })      
     }
 
-    private getCategories() {
-        api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedIn(false);
-                return;
-            }
-            if (res.status === "error" ) {
-                return;
-            }
-            this.putCategoriesInState(res.data)
-        })
+    const getCategories = async () => {
+        try{
+          
+            await api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
+            .then((res: ApiResponse) => {
+                if(res.status === 'login') {
+                    setIsLoggedInStatus(false);
+                    return;
+                }
+                if (res.status === "error" ) {
+                    return;
+                }
+                putCategoriesInState(res.data)
+                
+            })
+        }catch(error){
+            setErrorMessage('Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije')
+        }
+        
     }
 
-    private putCategoriesInState(data?: CategoryDto[]) {
+    const putCategoriesInState = (data?: CategoryDto[]) => {
         const categories: CategoryType[] | undefined = data?.map(category => {
             return {
                 categoryId: category.categoryId,
@@ -233,80 +233,71 @@ export default class AddArticlePage extends React.Component<{}>{
             };
         });
 
-        this.setState(Object.assign(this.state, {
+        setState(Object.assign(state, {
             categories: categories,
         }));
     }
 
-    private async addArticleCategoryChanged(event: React.ChangeEvent<HTMLSelectElement>) {
-        this.setAddArticleNumberFieldState('categoryId', event.target.value);
+    const addArticleCategoryChanged = async (selectedValue:any) => {
+        console.log(selectedValue.target.value)
+        setAddArticleNumberFieldState('categoryId', selectedValue.target.value);
 
-        const features = await this.getFeaturesByCatId(this.state.addArticle.categoryId);
+        const features = await getFeaturesByCatId(selectedValue.target.value);
         const stateFeatures = features.map(feature => ({
             featureId: feature.featureId,
             name: feature.name,
             value: '',
             use: 0,
         }));
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                features: stateFeatures,
-            }),
-        ));
+        setState((prev) => ({...prev, addArticle: {...prev.addArticle, features: stateFeatures}}))
     }
     /* Kraj GET */
     /* Dodatne funkcije */
-    private printOptionalMessage() {
-        if (this.state.message === '') {
+    const printOptionalMessage = () => {
+        if (state.message === '') {
             return;
         }
 
         return (
-            <Card.Text>
-                {this.state.message}
-            </Card.Text>
+            <Alert title='info' variant='info' body={state.message} />
         );
     }
 
-    private addArticleFeatureInput(feature: any) {
+    const addArticleFeatureInput = (feature: any) => {
         return (
-            <div><Form.Group className="mb-3 was-validated">
-                <Row style={{ alignItems: 'baseline' }}>
-                    <Col xs="4" sm="1" className="text-center">
-                        <input type="checkbox" value="1" checked={feature.use === 1}
-                            onChange={(e) => this.setAddArticleFeatureUse(feature.featureId, e.target.checked)} />
-                    </Col>
-
-                    <Col>
-                        <FloatingLabel label={feature.name} className="mb-3">
-                            <Form.Control
-                                id="name"
-                                type="text"
-                                placeholder="Naziv"
-                                value={feature.value}
-                                onChange={(e) => this.setAddArticleFeatureValue(feature.featureId, e.target.value)}
-                                required />
-                        </FloatingLabel>
-                    </Col>
-                </Row>
-            </Form.Group>
+            <div key={feature.featureId} id='inputi-checkbox' className='flex gap-3 items-center'>
+                <Checkbox
+                    className='mb-3'
+                    isSelected={feature.use === 1}
+                    onValueChange={(value) => setAddArticleFeatureUse(feature.featureId, value)}
+                />
+                <Tooltip showArrow={true} content="U slučaju da se ne označi kvadratić pored, osobina neće biti prikazana">
+                    <Input
+                        type='text'
+                        variant='bordered'
+                        label={feature.name}
+                        placeholder={feature.name}
+                        value={feature.value}
+                        labelPlacement='inside'
+                        onChange={(e) => setAddArticleFeatureValue(feature.featureId, e.target.value)}
+                        className='flex-grow mb-3'
+                    />
+                </Tooltip>
             </div>
-
         );
     }
 
-    private doAddArticle() {
+    const doAddArticle = () => {
         const requestBody = {
-            name: this.state.addArticle.name,
-            excerpt: this.state.addArticle.excerpt,
-            description: this.state.addArticle.description,
-            contract: this.state.addArticle.concract, // Ispravite tipfeler (concract -> contract)
-            categoryId: this.state.addArticle.categoryId,
-            sapNumber: this.state.addArticle.sapNumber,
-            valueOnContract: this.state.addArticle.valueOnConcract, // Ispravite tipfeler (valueOnConcract -> valueOnContract)
-            valueAvailable: this.state.addArticle.valueAvailable,
-            features: this.state.addArticle.features
+            name: state.addArticle.name,
+            excerpt: state.addArticle.excerpt,
+            description: state.addArticle.description,
+            contract: state.addArticle.concract, // Ispravite tipfeler (concract -> contract)
+            categoryId: state.addArticle.categoryId,
+            sapNumber: state.addArticle.sapNumber,
+            valueOnContract: state.addArticle.valueOnConcract, // Ispravite tipfeler (valueOnConcract -> valueOnContract)
+            valueAvailable: state.addArticle.valueAvailable,
+            features: state.addArticle.features
                 .filter(feature => feature.use === 1)
                 .map(feature => ({
                     featureId: feature.featureId,
@@ -316,181 +307,173 @@ export default class AddArticlePage extends React.Component<{}>{
     
         api('/api/stock/', 'post', requestBody, 'administrator').then(async (res: ApiResponse) => {
             if(res.status === 'login') {
-                this.setIsLoggedIn(false);
+                setIsLoggedInStatus(false);
                 return;
             }
             if (res.status === 'ok') {
+                console.log(res.data)
                 // Nakon uspešnog dodavanja, pozovite clearFormFields da biste očistili polja
-                this.clearFormFields();
+                clearFormFields();
             }
             // Dodajte ostatak koda za obradu odgovora ako je potrebno
         });
     }
     
     /* Kraj dodatnih funkcija */
-    render() {
-        return(
-            <div>
-            <RoledMainMenu />
-            <Container style={{ marginTop:15}}> 
-            {this.printOptionalMessage()}
-                {
-                    this.state.articles ?
-                        (this.renderArticleData()) :
-                        ''
-                }{}
-            </Container>
-            </div>
-        )
-    }
 
-    private addForm() {
+
+    const addForm = () => {
         return (
             <div>
             <Card className="mb-3">
-                <Card.Header>Detalji opreme</Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 was-validated">
-                        <FloatingLabel label="Naziv opreme" className="mb-3">
-                            <Form.Control 
+                <CardHeader>Detalji opreme</CardHeader>
+                <CardBody>
+                    <div className="flex flex-col">
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
                             id="name" 
                             type="text" 
-                            placeholder="Naziv"
-                            value={ this.state.addArticle.name }
-                            onChange={ (e) => this.setAddArticleStringFieldState('name', e.target.value) }
-                            required />
-                        </FloatingLabel>
+                            label="Naziv opreme"
+                            labelPlacement='inside'
+                            value={ state.addArticle.name }
+                            onChange={(e) => setAddArticleStringFieldState('name', e.target.value) }
+                            >
+                            </Input>
+                        </div>
 
-                        <FloatingLabel label="Kategorija" className="mb-3">
-                            <Form.Select 
-                            id='categoryId'
-                            value={this.state.addArticle.categoryId.toString()}
-                            onChange={(e) => this.addArticleCategoryChanged(e as any)}
-                            required>
-                                <option value=''>izaberi kategoriju</option>
-                                {this.state.categories.map((category, index) => (
-                                    <option key={index} value={category.categoryId?.toString()}>{category.name}</option>
-                                ))} 
-                            </Form.Select>
-                        </FloatingLabel>
-                        <FloatingLabel label="Kratki opis" className="mb-3">
-                            <Form.Control 
-                            id="excerpt" 
-                            as="textarea" 
-                            rows={3} 
-                            style={{ height: '100px' }}
-                            placeholder="Kratki opis"
-                            value={ this.state.addArticle.excerpt }
-                            onChange={ (e) => this.setAddArticleStringFieldState('excerpt', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel label="Detaljan opis" className="mb-3">
-                            <Form.Control 
-                            id="description" 
-                            as="textarea" 
-                            rows={5} 
-                            style={{ height: '100px' }}
-                            placeholder="Detaljan opis"
-                            value={ this.state.addArticle.description }
-                            onChange={ (e) => this.setAddArticleStringFieldState('description', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel label="SAP broj" className="mb-3">
-                            <Form.Control 
+                        <div className='w-full mb-3 mr-3'>
+                            <Select
+                                id='categoryId'
+                                label='Kategorija'
+                                placeholder='Odaberite kategoriju'
+                                onChange={(value) => addArticleCategoryChanged(value)}
+                            >
+                                {state.categories.map((category, index) => (
+                                    <SelectItem key={category.categoryId || index} textValue={`${category.categoryId} - ${category.name}`} value={Number(category.categoryId)}>
+                                        {category.categoryId} - {category.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        </div>
+
+                        <div className='w-full mb-3 mr-3'>
+                            <Textarea
+                            id="excerpt"
+                            label="Kratki opis"
+                            placeholder="Opišite artikal ukratko"
+                            value={ state.addArticle.excerpt }
+                            onChange={ (e) => setAddArticleStringFieldState('excerpt', e.target.value) }
+                            />
+                        </div>
+
+                        <div className='w-full mb-3 mr-3'>
+                            <Textarea
+                            id="description"
+                            label="Detaljan opis"
+                            placeholder="Opišite detaljno artikal"
+                            value={ state.addArticle.description }
+                            onChange={ (e) => setAddArticleStringFieldState('description', e.target.value) }
+                            />
+                        </div>
+
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
                             id="sapNumber" 
                             type="text" 
-                            placeholder="SAP Broj"
-                            value={ this.state.addArticle.sapNumber }
-                            onChange={ (e) => this.setAddArticleStringFieldState('sapNumber', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel label="Komentar" className="mb-3">
-                            <Form.Control
+                            label="SAP broj"
+                            labelPlacement='inside'
+                            value={ state.addArticle.sapNumber }
+                            onChange={(e) => setAddArticleStringFieldState('sapNumber', e.target.value) }
+                            >
+                            </Input>
+                        </div>
+
+                        <div className='w-full mb-3 mr-3'>
+                            <Textarea
                             id="comment"
-                            as="textarea"
-                            rows={3}
-                            style={{ height: '100px' }}
-                            value={ this.state.addArticle.comment }
-                            onChange={ (e) => this.setAddArticleStringFieldState('comment', e.target.value) }
-                            required
-                            isValid
+                            label="Komentar"
+                            placeholder="Neobavezno"
+                            value={ state.addArticle.comment }
+                            onChange={ (e) => setAddArticleStringFieldState('comment', e.target.value) }
                             />
-                        </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
+                        </div>
+                    </div>
+                </CardBody>
             </Card>
             <Card className="mb-3">
-                <Card.Header>Osobine skladišta</Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 was-validated"> 
-                            <FloatingLabel label="Ugovor" className="mb-3">
-                                    <Form.Control 
-                                    id="concract" 
-                                    type="text" 
-                                    placeholder="Ugovor"
-                                    value={ this.state.addArticle.concract }
-                                    onChange={ (e) => this.setAddArticleStringFieldState('concract', e.target.value) }
-                                    required />
-                                </FloatingLabel>
-                                <FloatingLabel label="Stanje po ugovoru" className="mb-3">
-                                <Form.Control
-                                    id="valueOnConcract"
-                                    type="text"
-                                    placeholder="Stanje po ugovoru"
-                                    onChange={(e) => this.setAddArticleNumberFieldState('valueOnConcract', e.target.value)}
-                                    required />
-                                </FloatingLabel>
-                                <FloatingLabel label="Dostupno stanje" className="mb-3">
-                                <Form.Control
-                                    id="valueAvailable"
-                                    type="text"
-                                    placeholder="Dostupno stanje"
-                                    onChange={(e) => this.setAddArticleNumberFieldState('valueAvailable', e.target.value)}
-                                    required />
-                                </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
+                <CardHeader>Osobine skladišta</CardHeader>
+                <CardBody>
+                <div className="flex flex-col">
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="concract" 
+                            type="text" 
+                            label="Broj ugovora"
+                            labelPlacement='inside'
+                            value={ state.addArticle.concract }
+                            onChange={(e) => setAddArticleStringFieldState('concract', e.target.value) }
+                            >
+                            </Input>
+                        </div>
+
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="valueOnConcract" 
+                            type="number" 
+                            label="Stanje po ugovoru"
+                            labelPlacement='inside'
+                            value={ state.addArticle.valueOnConcract.toString()}
+                            onChange={(e) => setAddArticleNumberFieldState('valueOnConcract', e.target.value) }
+                            >
+                            </Input>
+                        </div>
+
+                        <div className='w-full mb-3 mr-3'>
+                            <Input
+                            id="valueAvailable" 
+                            type="number" 
+                            label="Dostupno stanje"
+                            labelPlacement='inside'
+                            value={ state.addArticle.valueAvailable.toString()}
+                            onChange={(e) => setAddArticleNumberFieldState('valueAvailable', e.target.value) }
+                            >
+                            </Input>
+                        </div>
+                    </div>
+                </CardBody>
             </Card>
-            <Card className={this.state.addArticle.categoryId ? '' : 'd-none mb-3'}>
-                <Card.Header>Detalji opreme</Card.Header>
-                <Card.Body>
-                    <Form key="forma-dodavanja-dodataka-artikla">
-                        {this.state.addArticle.features.map(this.addArticleFeatureInput, this)}
-                    </Form>
-                </Card.Body>
-                <Card.Footer>
-                    <Row style={{ alignItems: 'end' }}>
-                        <Button onClick={() => this.doAddArticle()} variant="success"><i className="bi bi-plus-circle"/> Dodaj opremu</Button>
-                    </Row>
-                </Card.Footer>
+            <Card className={state.addArticle.categoryId ? '' : 'hidden mb-3'}>
+                <CardHeader>Detalji opreme</CardHeader>
+                <CardBody>
+                    <div className="flex flex-col">
+                        {state.addArticle.features.map(addArticleFeatureInput, this)}
+                    </div>
+                </CardBody>
+                <CardFooter>
+                    <div style={{ alignItems: 'end' }}>
+                        <Button onClick={() => doAddArticle()} color="success"><i className="bi bi-plus-circle"/> Dodaj opremu</Button>
+                    </div>
+                </CardFooter>
             </Card>
 
             
             </div>
         )
     }
-    renderArticleData() {
-        /* if(this.state.isLoggedIn === false){
-            return(
-                navigate('/login')
-            )
-        } */
         return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                    
-                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
-                            {this.addForm()}
-                            <AdminMenu />
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
+            <div>
+            <RoledMainMenu />
+            <div className="container mx-auto lg:px-4 mt-3 h-max">
+                {loading ? (
+                    <div className="flex justify-center items-center h-screen">
+                        <Spinner color='danger' label='Učitavanje...' labelColor='danger' />
+                    </div>
+                ) : (
+                    addForm()
+                )}
+                <AdminMenu />
+            </div>
+        </div>
+    )
 }
+export default AddArticlePage

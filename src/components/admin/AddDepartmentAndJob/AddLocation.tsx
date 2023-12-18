@@ -206,7 +206,7 @@ const AddLocation: React.FC = () => {
                         )}
                         
                     </div>
-                    <ModalFooter className={state.add.location.name ? '' : 'd-none'}>
+                    <ModalFooter className={state.add.location.name ? '' : 'hidden'}>
                     <div style={{ alignItems: 'end' }}>
                         {/* <div>
                             {printOptionalMessage()}

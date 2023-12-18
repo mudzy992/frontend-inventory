@@ -227,7 +227,7 @@ const AddDepartmentJobLocation: React.FC = () => {
                                         ))}
                                     </Select>
                                 </div>
-                                <div className={`lg:flex w-full mb-3 ${state.add.departmentJobLocation?.departmentId ? '' : 'd-none'}`}>
+                                <div className={`lg:flex w-full mb-3 ${state.add.departmentJobLocation?.departmentId ? '' : 'hidden'}`}>
                                     <Select
                                         id='jobTitleSelector'
                                         label='Naziv radnog mjesta'
@@ -242,7 +242,7 @@ const AddDepartmentJobLocation: React.FC = () => {
                                     </Select>
 
                                 </div>
-                                <div className={`lg:flex w-full mb-3 ${state.add.departmentJobLocation?.jobId ? '' : 'd-none'}`}>
+                                <div className={`lg:flex w-full mb-3 ${state.add.departmentJobLocation?.jobId ? '' : 'hidden'}`}>
                                     <Select
                                         id='location'
                                         label='Lokacija'
@@ -259,7 +259,7 @@ const AddDepartmentJobLocation: React.FC = () => {
                             </div>
                         )}
                     </div>    
-                    <ModalFooter className={state.add.departmentJobLocation?.locationId ? '' : 'd-none'}>
+                    <ModalFooter className={state.add.departmentJobLocation?.locationId ? '' : 'hidden'}>
                     <div style={{ alignItems: 'end' }}>
                         <Button onClick={() => doAddDepartmentJobLocation()} 
                                 color="success">

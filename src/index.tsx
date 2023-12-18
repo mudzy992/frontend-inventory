@@ -1,17 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import 'jquery/dist/jquery.js';
-// import 'popper.js/dist/popper.js';
-// import 'bootstrap/dist/js/bootstrap.min.js';
-// import "bootstrap/js/src/collapse.js";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import reportWebVitals from './reportWebVitals';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import CategoryPage from './components/admin/Categories/Categories';
 import HomePage from './components/admin/HomePage/HomePage';
-/* import ArticlePage from './components/admin/ArticlePage/ArticlePage';*/
 import UserProfilePage from './components/user/UserProfilePage/UserProfilePage';
 import ArticleOnUserPage from './components/user/ArticleOnUser/ArticleOnUserPage';
 import AdminArticleOnUserPage from './components/admin/ArticleOnUser/ArticleOnUserPage';
@@ -45,13 +39,10 @@ const App = () => {
                 <Route path='/logout/' element={<LogOutPage />} />
                 <Route path="/user/profile/:userID" element={<UserProfilePage />} />
                 <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
-
-                {/* <Route path="/user/" element={<UserPage />} /> */}
                 <Route path="/admin/article/:serial" element={<AdminArticleOnUserPage />} />
                 <Route path="/admin/user/:userID" element={<AdminUserProfilePage />} />
                 <Route path="/" element={<HomePage />} />
                 <Route path="/category/:categoryID" element={<CategoryPage />} />
-                {/* <Route path="/article/:articleID" element={<ArticlePage />} /> */}
                 <Route path="/admin/article/" element={<AddArticlePage />} />
                 <Route path="/admin/user/" element={<AddUserPage />} />
                 <Route path="/admin/feature/" element={<AddFeaturePage />} />

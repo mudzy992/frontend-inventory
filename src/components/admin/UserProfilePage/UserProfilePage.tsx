@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import api, { ApiResponse } from '../../../API/api';
-import FeaturesType from "../../../types/FeaturesType";
 import { useNavigate, useParams } from 'react-router-dom';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
-import DepartmentByIdType from "../../../types/DepartmentByIdType";
 import ArticleType from "../../../types/ArticleType";
 import UserType from "../../../types/UserType";
 import LocationType from "../../../types/LocationType";
@@ -17,126 +15,56 @@ import { Avatar, Button, Card, CardBody, Input, Accordion, AccordionItem,
 import { EyeSlashFilledIcon } from "../../../Icons/EyeSlashFilledIcon";
 import { EyeFilledIcon } from "../../../Icons/EyeFilledIcon";
 
-interface LocationDto {
-    locationId: number;
-    name: string;
-    code: string;
-    parentLocationId: number;
-}
-
-interface JobBaseType {
-    jobId: number;
-    title: string;
-    jobCode: string;
-}
-
 interface AdminUserProfilePageState {
-    /* u ovom dijelu upisuje type npr. ako je kategorija je nekog tipa
-    ako u nazivu tog typa stavimo upitnik, time kažemo da nije obavezno polje dolje ispod u konstruktoru */
-    user?: UserType;
-    users?: UserType;
-    message: string;
-    article: ArticleType[];
-    features: FeaturesType[];
-    isLoggedIn: boolean;
-    departmentJobs: DepartmentByIdType[];
-    open: string | null;
-    showPassword: boolean;
     editUser:{
         forname: string;
         surname: string;
         email: string;
-        password: string;
         localNumber: string;
         telephone: string;
-        jobId: number;
         departmentId: number;
+        jobId: number;
         locationId: number;
         status: string;
         passwordHash: string;
-        code:string;
+        code:number;
         gender: string;
     },
-    location: LocationType[];
-    department: DepartmentType[];
-    job: JobType[];
 }
 
 const AdminUserProfilePage: React.FC = () => {
     const { userID } = useParams();
-    const [isVisible, setIsVisible] = React.useState<boolean>(false);
+    const [isVisible, setIsVisible] = useState<boolean>(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
+    const [user, setUser] = useState<UserType>({})
+    const [departmentData, setDepartmentData] = useState<DepartmentType[]>([])
+    const [jobData, setJobData] = useState<JobType[]>([])
+    const [selectedJobId, setSelectedJobId] = useState('');
+    const [locationData, setLocationData] = useState<LocationType[]>([])
+    const [selectedLocationId, setSelectedLocationId] = useState('');
+    const [errorMessage, setErrorMessage] = useState<string>("")
+    const [dataReady, setDataReady] = useState(false);
 
     const [state, setState] = React.useState<AdminUserProfilePageState>({
-        message: "",
-            article: [],
-            features: [],
-            isLoggedIn: true,
-            departmentJobs: [],
-            open: null,
-            showPassword: false,
             editUser: {
                 forname: "",
                 surname: "",
                 email: "",
-                password: "",
                 localNumber:"",
                 telephone: "",
-                jobId: Number(),
                 departmentId: Number(),
+                jobId: Number(),
                 locationId: Number(),
                 status: "",
                 passwordHash: "", 
-                code: "",
+                code: Number(),
                 gender:"",
-            },
-            location: [],
-            department: [],
-            job: [],
-    });
-
-    const setFeaturesData = (featuresData: FeaturesType[]) => {
-        setState((prev) => ({ ...prev, features: featuresData}));
-    }
-
-    const setUsers = (userProfileData: UserType | undefined) => {
-        setState((prev) => ({ ...prev, users: userProfileData}));
-    }
-
-    const setArticleByUser = (articleData: ArticleType[]) => {
-        setState((prev) => ({ ...prev, article: articleData}));
-    }
-
-    const setErrorMessage = (message: string) => {
-        setState((prev) => ({ ...prev, message: message}));
-    }
-
-    const navigate = useNavigate();
-
-    const setLogginState = (isLoggedIn: boolean) => {
-        setState({ ...state, isLoggedIn: isLoggedIn });
-        if(isLoggedIn === false) {
-            navigate('/login')
-        }
-    }
-
-    const setLocation = (location: LocationDto[]) => {
-        const locData: LocationType[] = location.map(details => {
-            return{
-                locationId: details.locationId,
-                code: details.code,
-                name: details.name,
-                parentLocationId: details.parentLocationId
             }
-        })
-        setState((prev) => ({...prev, location:locData}))
-    }
-
-    const setDepartment = (department: DepartmentType[]) => {
-        setState((prev) => ({...prev, department: department}));
-    }
-
+    });
+    const navigate = useNavigate();
+    
     const setEditUserNumberFieldState = (fieldName: string, newValue: any) => {
+        console.log(fieldName, newValue);
         setState((prev) => ({
           ...prev,
           editUser: {
@@ -147,6 +75,7 @@ const AdminUserProfilePage: React.FC = () => {
       };
 
     const setEditUserStringFieldState = (fieldName: string, newValue: string) => {
+        console.log(fieldName, newValue);
         setState((prev) => ({
           ...prev,
           editUser: {
@@ -156,96 +85,81 @@ const AdminUserProfilePage: React.FC = () => {
         }));
     };
 
-    const addJobDepartmentChange = async (selectedValue:any) => {
-        setEditUserNumberFieldState('departmentId', selectedValue.target.value)
-        try {
-            const jobs = await getJobsByDepartmentId(selectedValue.target.value)
-            const stateJobs:any = jobs.map(job => ({
-                jobId: job.jobId,
-                title: job.title,
-                jobCode: job.jobCode,
-            }))
-
-            setState((prev) => ({...prev, job: stateJobs}))
-        } catch (error) {
-            setErrorMessage('Greška prilikom mapiranja radnik mjesta za traženi sektor/odjelnje. Greška: ' + error)
-        }
-    }
-
-
-
     /* GET funkcije */
     const getUserData = async () => {
-        await api('api/user/' + userID, 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if (res.status === 'error') {
-                setUsers(undefined);
-                setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                return;
-            }
-            if (res.status === 'login') {
-                setLogginState(false);
-                return;
-            }
+        try {
+          const res: ApiResponse = await api('api/user/' + userID, 'get', {}, 'administrator');
+      
+          if (res.status === 'error') {
+            setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije');
+            return navigate('/login');
+          }
+      
+          if (res.status === 'login') {
+            return navigate('/login');
+          }
+      
+          const data: UserType = res.data;
+          setUser(data);
+          setErrorMessage('');
+      
+          return data; // Vraćanje podataka o korisniku
+        } catch (error) {
+          console.error('Greška prilikom dohvatanja korisničkih podataka:', error);
+          // Možete dodati dodatnu logiku ili obradu grešaka prema potrebi
+          throw error; // Bacanje greške kako bi je mogle uhvatiti komponente koje koriste ovu funkciju
+        }
+      };
+      
 
-            const data: UserType = res.data;
-            putUserDetailsInState(data);
-            setErrorMessage('');
-            setUsers(data);
-            
-        });
-    }
+    const getLocationData = async () => {
+        try {
+          const res: ApiResponse = await api('api/location?sort=name,ASC', 'get', {}, 'administrator');
+      
+          if (res.status === 'error') {
+            setErrorMessage('Greška prilikom hvatanja lokacija');
+            return navigate('/login');
+          }
+      
+          if (res.status === 'login') {
+            return navigate('/login');
+          }
+      
+          setLocationData(res.data);
+      
+          return res.data; // Vraćanje podataka o lokacijama
+        } catch (error) {
+          console.error('Greška prilikom dohvatanja lokacija:', error);
+          // Možete dodati dodatnu logiku ili obradu grešaka prema potrebi
+          throw error; // Bacanje greške kako bi je mogle uhvatiti komponente koje koriste ovu funkciju
+        }
+      };
+      
 
-    const getArticleData = () => {
-        api('api/article/?filter=user.userId||$eq||'
-            + userID
-            , 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'login') {
-                    return setLogginState(false);
-                }
-
-                const articleByUser: ArticleType[] = res.data;
-                setArticleByUser(articleByUser)
-                const features: FeaturesType[] = [];
-
-                for (const start of articleByUser) {
-                    for (const articleFeature of start.stock?.stockFeatures || []) {
-                        const value = articleFeature.value;
-                        const articleId = articleFeature.feature?.articleId;
-                        const name = articleFeature.feature?.name;
-
-                        features.push({ articleId, name, value });
-                    }
-                }
-                setFeaturesData(features);
-            }
-        )
-    }
-
-    const getDepartmentAndLocationData = () => {
-        api('api/location?sort=name,ASC', 'get', {}, 'administrator')
-        .then(async (res: ApiResponse) => {
-            if(res.status === 'error') {
-                setErrorMessage('Greška prilikom hvatanja lokacija')
-            }
-            if(res.status === 'login') {
-                return setLogginState(false)
-            }
-            setLocation(res.data)
-        })
-
-        api('api/department?sort=title,ASC', 'get', {}, 'administrator')
-        .then(async (res: ApiResponse) => {
-            if(res.status === 'error') {
-                setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja')
-            }
-            if (res.status === 'login') {
-                return setLogginState(false);
-            }
-            setDepartment(res.data)
-        })
-    }
+      const getDepartmentData = async () => {
+        try {
+          const res: ApiResponse = await api('api/department?sort=title,ASC', 'get', {}, 'administrator');
+      
+          if (res.status === 'error') {
+            setErrorMessage('Greška prilikom hvatanja sektora i odjeljenja');
+            return navigate('/login');
+          }
+      
+          if (res.status === 'login') {
+            return navigate('/login');
+          }
+      
+          const data = res.data; // Ako želite koristiti ovu funkciju i u drugim kontekstima, možda će biti bolje da vratite samo data, a ne da pozivate setDepartmentData ovde
+          setDepartmentData(data);
+      
+          return data; // Vraćanje podataka o sektoru i odjeljenju
+        } catch (error) {
+          console.error('Greška prilikom dohvatanja podataka o sektoru i odjeljenju:', error);
+          // Možete dodati dodatnu logiku ili obradu grešaka prema potrebi
+          throw error; // Bacanje greške kako bi je mogle uhvatiti komponente koje koriste ovu funkciju
+        }
+      };
+      
 
     const getJobsByDepartmentId = async (departmentId: number): Promise<JobType[]> => {
         return new Promise(resolve => {
@@ -253,12 +167,13 @@ const AdminUserProfilePage: React.FC = () => {
             .then((res : ApiResponse) => {
             if(res.status === 'error') {
                 setErrorMessage('Greška prilikom hvatanja radnih mjesta')
+                return navigate('/login');
             }
             if (res.status === 'login') {
-                return setLogginState(false);
+                return navigate('/login')
             }
 
-            const jobs: JobBaseType[] = res.data.map((item: any) => ({
+            const jobs: JobType[] = res.data.map((item: any) => ({
                 jobId: item.jobId,
                 title: item.title,
                 jobCode: item.jobCode
@@ -267,79 +182,101 @@ const AdminUserProfilePage: React.FC = () => {
         })}) 
     }
 
-    useEffect(() => {
+    const addJobDepartmentChange = async (selectedValue:any) => {
+        
+        try {
+            const jobs = await getJobsByDepartmentId(selectedValue)
+            const stateJobs:any = jobs.map(job => ({
+                jobId: job.jobId,
+                title: job.title,
+                jobCode: job.jobCode,
+            }))
+
+            setJobData(stateJobs)
+        } catch (error) {
+            setErrorMessage('Greška prilikom mapiranja radnik mjesta za traženi sektor/odjelnje. Greška: ' + error)
+        }
+    }
+
+    const putUserDetailsInState = async (user: UserType) => {
+        console.log('prije:', user);
+      
+        setState((prev) => ({
+          ...prev,
+          editUser: {
+            forname: user.forname || '',
+            surname: user.surname || '',
+            email: user.email || '',
+            passwordHash: user.passwordHash || '',
+            localNumber: user.localNumber || '',
+            telephone: user.telephone || '',
+            departmentId: user.departmentId || 0,
+            jobId: user.jobId || 0,  
+            locationId: user.locationId || 0, 
+            status: user.status || '',
+            code: user.code || 0, 
+            gender: user.gender || '',
+          },
+        }));
+        
+        console.log('poslije:', state.editUser);
+      };
+      
+      useEffect(() => {
         const fetchData = async () => {
           try {
+            await getDepartmentData();
+            const fetchedLocationData = await getLocationData();
+            setLocationData(fetchedLocationData);
             await getUserData();
-    
-            // Nakon što se getUserData završi, možete sigurno pristupiti state.users
-            await getDepartmentAndLocationData();
-            await getArticleData();
-    
-            const jobs = await getJobsByDepartmentId(state.users?.departmentId ?? 0);
-            
-            // Ažuriranje stanja za radna mesta
-            setState((prev) => ({
-              ...prev,
-              job: jobs,
-            }));
-    
-            // Ako je trenutni department isti kao početni, ažurirajte stanje još jednom
-            if (state.users?.departmentId === state.editUser.departmentId) {
-              setState((prev) => ({
-                ...prev,
-                job: jobs,
-              }));
-            }
           } catch (error) {
             console.error('Greška prilikom dohvaćanja podataka:', error);
+          } finally {
+            // Postavite dataReady na true nakon što su svi podaci dohvaćeni
+            setDataReady(true);
           }
         };
-    
+      
         fetchData();
       }, []);
+      
+      useEffect(() => {
+        const fetchData = async () => {
+          try {
+            await putUserDetailsInState(user);
+            await addJobDepartmentChange(state.editUser.departmentId);
+          } catch (error) {
+            console.error('Greška prilikom postavljanja detalja korisnika ili promjene sektora/odjeljenja:', error);
+          }
+        };
+      
+        if (dataReady) {
+          fetchData();
+        }
+      }, [dataReady, state.editUser.departmentId]);
+      
+
+      useEffect(() => {
+        // Postavite selectedLocationId nakon što su podaci o lokacijama dohvaćeni
+        if (locationData.length > 0) {
+          setSelectedLocationId(state.editUser.locationId ? `${state.editUser.locationId}` : '');
+        }
+      }, [locationData, state.editUser.locationId]);
+
 
     /* HANDLE FUNKCIJE */
 
-    const printOptionalMessage = () => {
-        if (state.message === '') {
-            return;
-        }
-        return (
-            <Card>
-                {state.message}
-            </Card>
-        );
-    }
-
-    const putUserDetailsInState = async (user: UserType) =>{
-        setEditUserStringFieldState('forname', String(user.forname))
-        setEditUserStringFieldState('surname', String(user.surname))
-        setEditUserStringFieldState('email', String(user.email))
-        setEditUserStringFieldState('passwordHash', String(user.passwordHash))
-        setEditUserStringFieldState('localNumber', String(user.localNumber))
-        setEditUserStringFieldState('telephone', String(user.telephone))
-        setEditUserNumberFieldState('jobId', Number(user.jobId))
-
-        setEditUserStringFieldState('departmentId', String(user.departmentId))
-
-        setEditUserNumberFieldState('locationId', Number(user.locationId))
-
-        setEditUserStringFieldState('status', String(user.status))
-        setEditUserNumberFieldState('code', Number(user.code))
-        setEditUserStringFieldState('gender', String(user.gender))
-        console.log(state.editUser)
-    }
+    
  
     return (
-            <>
+        <>
             <RoledMainMenu/>
-            <div className="container mx-auto  mt-3 h-max">
-                <Tabs id="left-tabs-example" aria-label="Options">
+            <div className="container mx-auto mt-3 h-max">
+                <Tabs id="left-tabs-example" aria-label="Options" className="mr-1 ml-1">
                     <Tab key='profile' title='Profil'>
                         <Card>
                             <CardBody>
-                                {state.users ? (userData(state.users)) : ''}
+                                {user ? (userData(user)) : ''}
                             </CardBody>
                         </Card>
                     </Tab>
@@ -350,7 +287,7 @@ const AdminUserProfilePage: React.FC = () => {
                     </Tab>
                 </Tabs>
           
-        </div></>
+        </div></>            
     )
 
     function saveFile (docPath: any) {
@@ -422,8 +359,8 @@ const AdminUserProfilePage: React.FC = () => {
         
         return (
             <div className="container mx-auto">
-            <div className="grid lg:grid-cols-6 xs:grid-cols gap-2 md:mt-5">
-                <div className="user-container col-span-2 md:mb-3 xs:mb-5 lg:shadow-large border-3" >
+            <div className="grid lg:grid-cols-6 grid-cols gap-2 md:mt-5">
+                <div className="user-container col-span-2 md:mb-3 mb-5 lg:shadow-large border-3" >
                     <div className="user-container details">
                         <Avatar className="ikonica " style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
                         <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{user.fullname}</div>
@@ -439,10 +376,10 @@ const AdminUserProfilePage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="lg:col-span-4 xs:col-span-2 md:col-span-2 lg:pl-4">
-                        <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
+                <div className="lg:col-span-4 col-span-2 md:col-span-2 lg:pl-4">
+                        <div className="grid lg:grid-cols-3 grid-cols gap-3 mb-3">
                             <Input
-                                value={state.editUser.surname}
+                                value={user.surname}
                                 type='text'
                                 label='Ime'
                                 variant='bordered'
@@ -459,14 +396,14 @@ const AdminUserProfilePage: React.FC = () => {
                             />
                         
                             <Input
-                                value={state.editUser.code !== '0' ? state.editUser.code : ''}
+                                value={state.editUser.code.toString()}
                                 type='number'
                                 label='Kadrovski broj'
                                 variant='bordered'
                                 onValueChange={(value: string) => setEditUserStringFieldState('code', value)}
                             />
                         </div>
-                        <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
+                        <div className="grid lg:grid-cols-3 grid-cols gap-3 mb-3">
                             <Input
                                 value={state.editUser.email}
                                 type='email'
@@ -493,50 +430,65 @@ const AdminUserProfilePage: React.FC = () => {
                             />
                         </div>
 
-                    <div className="grid lg:grid-cols-2 xs:grid-cols gap-3 mb-3">
-                            <Select
-                                label='Sektor/odjeljenje'
-                                value={state.editUser.departmentId.toString()}
-                                onChange={(value:any) => {setEditUserNumberFieldState('departmentId', value); addJobDepartmentChange(value)}}
-                                >
-                                {state.department.map((department, index) => (
-                                <SelectItem key={department.departmentId || index} textValue={department.title} value={department.departmentId?.toString()}>{department.title}</SelectItem>
-                                ))}
-                            </Select>
+                    <div className="grid lg:grid-cols-2 grid-cols gap-3 mb-3">
+                    <Select
+                        id="departmentId"
+                        label='Sektor/odjeljenje'
+                        selectedKeys={state.editUser.departmentId ? [`${state.editUser.departmentId}`] : []}
+                        onChange={(value: any) => {
+                            setEditUserNumberFieldState('departmentId', value.target.value);
+                            addJobDepartmentChange(value.target.value);
+                        }}
+                        >
+                        {departmentData.map((department, index) => (
+                            <SelectItem
+                            key={department.departmentId ?? index}
+                            textValue={department.title}
+                            value={department.departmentId}
+                            >
+                            {department.departmentId} - {department.title}
+                            </SelectItem>
+                        ))}
+                        </Select>
+
+
+
                             <Select
                                 label='Radno mjesto'
-                                value={state.editUser.jobId.toString()}
-                                
+                                selectedKeys={state.editUser.jobId ? [`${state.editUser.jobId}`] : []}
+                                id="jobId"
                                 onChange={(e:any) => {setEditUserNumberFieldState('jobId', e.target.value)}}
                                 >
-                                {state.job.map((job, index) => (
-                                    <SelectItem key={index} textValue={job.title} value={job.jobId?.toString()}>{job.title}</SelectItem>
+                                {jobData.map((job, index) => (
+                                    <SelectItem key={job.jobId || index} textValue={job.title} value={job.jobId}>{job.title}</SelectItem>
                                 ))}
                             </Select>
                     </div>
 
-                    <div className="grid lg:grid-cols-3 xs:grid-cols gap-3 mb-3">
-                            <Select
-                                label='Lokacija'
-                                value={state.editUser.locationId.toString()}
-                                onChange={(e:any) => {setEditUserNumberFieldState('locationId', e.target.value)}}
-                                >
-                                {state.location.map((location, index) => (
-                                    <SelectItem key={index} textValue={location.name} value={location.locationId?.toString()}>{location.name}</SelectItem>
-                                ))}
-                            </Select>
+                    <div className="grid lg:grid-cols-3 grid-cols gap-3 mb-3">
+                    <Select
+                    label='Lokacija'
+                    selectedKeys={selectedLocationId ? [selectedLocationId] : []}
+                    onChange={(e) => setEditUserNumberFieldState('locationId', e.target.value)}
+                    >
+                    {locationData.map((location, index) => (
+                        <SelectItem key={location.locationId || index} textValue={location.name} value={location.locationId}>
+                        {location.name}
+                        </SelectItem>
+                    ))}
+                    </Select>
                             <Select
                                 label='Spol'
-                                value={state.editUser.gender.toString()}
+                                selectedKeys={state.editUser.gender ? [`${state.editUser.gender}`] : []}
                                 
-                                onChange={(value:any) => {setEditUserStringFieldState('gender', value)}}
+                                onChange={(e:any) => {setEditUserStringFieldState('gender', e.target.value)}}
                                 >
-                                <SelectItem key='musko' textValue="muško" value='muško'>muško</SelectItem>
-                                <SelectItem key='zensko' textValue="žensko" value='žensko'>žensko</SelectItem>
+                                <SelectItem key='muško' textValue="muško" value='muško'>muško</SelectItem>
+                                <SelectItem key='žensko' textValue="žensko" value='žensko'>žensko</SelectItem>
                             </Select>
                             <Select
                                 label='Status'
-                                value={state.editUser.status.toString()}
+                                selectedKeys={state.editUser.status ? [`${state.editUser.status}`] : []}
                                 
                                 onChange={(e:any) => {setEditUserStringFieldState('status', e.target.value)}}
                                 >
@@ -565,7 +517,7 @@ const AdminUserProfilePage: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="grid lg:grid-cols-2 xs:grid-cols gap-2 mb-3">
+                    <div className="grid lg:grid-cols-2 grid-cols gap-2 mb-3">
                         <Button className="col-end-7" onClick={() => doEditUser()}>Snimi izmjene</Button>
                     </div>
                 </div>
@@ -592,8 +544,7 @@ const AdminUserProfilePage: React.FC = () => {
             }, 'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
-                    setLogginState(false);
-                    return;
+                    return navigate('/login')
                 }
                 getUserData();
             });
@@ -603,40 +554,43 @@ const AdminUserProfilePage: React.FC = () => {
     }
 
     function articles() {
-        if (!state || !state.article) {
-            return <div>Loading...</div>; 
+        if (!state || !user || !user.articles) {
+          return <div>Loading...</div>;
         }
-        const uniqueCategories = Array.from(new Set(state.article.map(artikal => artikal.category?.name)));
-        return(
-            <Accordion variant="splitted">
-                {uniqueCategories.map((categoryName, index) => {
-                    const categoryArticles = state.article.filter((artikal) => artikal.category?.name === categoryName)
-                    return(
-                        <AccordionItem key={categoryName} aria-label="Accordion 1" title={categoryName}>
-                            <Table>
-                                <TableHeader>
-                                    <TableColumn>Naziv</TableColumn>
-                                    <TableColumn>Serijski broj</TableColumn>
-                                    <TableColumn>Inventurni broj</TableColumn>
-                                    <TableColumn>Dokument</TableColumn>
-                                </TableHeader>
-                                <TableBody>
-                                {categoryArticles.map((article) => (
-                                <TableRow key={article.articleId}>
-                                    <TableCell>{article.stock?.name || 'N/A'}</TableCell>
-                                    <TableCell>
-                                        <Link href={`#/admin/article/${article.serialNumber}`}>{article.serialNumber}</Link>
-                                    </TableCell>
-                                    <TableCell>{article.invNumber || 'N/A'}</TableCell>
-                                    <TableCell>{saveFile(article.documents ? article.documents[0]?.path : 'N/A')}</TableCell>
-                                </TableRow>
-                            ))}
-                                </TableBody>
-                            </Table>
-                        </AccordionItem>
-                    )
-                })}
-        </Accordion>)    
-    }
+        const uniqueCategories = Array.from(new Set(user.articles.map((article) => article.category?.name)));      
+        return (
+          <Accordion variant="splitted">
+            {uniqueCategories.map((categoryName, index) => {
+              const categoryArticles = user.articles?.filter((article:any) => article.category?.name === categoryName);
+      
+              return (
+                <AccordionItem key={categoryName} aria-label={`Accordion ${index + 1}`} title={categoryName}>
+                  <Table aria-label={`Tabela-artikala-${index}`} hideHeader removeWrapper isStriped>
+                    <TableHeader>
+                      <TableColumn>Naziv</TableColumn>
+                      <TableColumn>Serijski broj</TableColumn>
+                      <TableColumn>Inventurni broj</TableColumn>
+                      <TableColumn>Dokument</TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                    {categoryArticles?.map((article: ArticleType) => (
+                            <TableRow key={article.articleId}>
+                                <TableCell>{article.stock?.name || 'N/A'}</TableCell>
+                                <TableCell>
+                                    <Link href={`#/admin/article/${article.serialNumber}`}>{article.serialNumber}</Link>
+                                </TableCell>
+                                <TableCell>{article.invNumber || 'N/A'}</TableCell>
+                                <TableCell>{saveFile(article.documents ? article.documents[0]?.path : 'N/A')}</TableCell>
+                            </TableRow>
+                        )) || []}
+                    </TableBody>
+                  </Table>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        );
+      }
+      
 }
 export default AdminUserProfilePage;

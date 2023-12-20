@@ -3,10 +3,11 @@ import UserType from "../../../types/UserType"
 import api, { ApiResponse, removeIdentity } from "../../../API/api";
 import React from "react";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, 
-    Pagination, SortDescriptor, Selection, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, Link, Spinner } from "@nextui-org/react";
+    Pagination, SortDescriptor, Selection, Table, TableBody, 
+    TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, Link, Spinner } from "@nextui-org/react";
 
 
-const INITIAL_VISIBLE_COLUMNS = ["fullname", "departmentTitle", "telephone", "locationName", "status"];
+const INITIAL_VISIBLE_COLUMNS = ["fullname", "departmentTitle", "telephone", "locationName", "status", "email"];
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
     aktivan: "success",
@@ -54,10 +55,8 @@ export const UserTable: React.FC<{}> = () => {
     const columns = [
         {name: 'Ime i prezime', uid: 'fullname', sortable: true},
         {name: 'Sektor/Odjeljenje', uid: 'departmentTitle', sortable: true},
-        {name: 'Radno mjesto', uid: 'jobTitle', sortable: true},
         {name: 'Lokacija', uid: 'locationName', sortable: true},
         {name: 'Email', uid: 'email', sortable: false},
-        {name: 'Lokal', uid: 'localNumber', sortable: false},
         {name: 'Telefon', uid: 'telephone', sortable: false},
         {name: 'Spol', uid: 'gender', sortable: false},
         {name: 'Status', uid: 'status', sortable: false},
@@ -336,9 +335,7 @@ export const UserTable: React.FC<{}> = () => {
                       isHeaderSticky
                       bottomContent={bottomContent}
                       bottomContentPlacement="outside"
-                      classNames={{
-                          wrapper: "max-h-[382px]",
-                      }}
+                      removeWrapper
                       sortDescriptor={sortDescriptor}
                       topContent={topContent}
                       topContentPlacement="outside"

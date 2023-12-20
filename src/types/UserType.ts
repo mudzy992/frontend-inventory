@@ -19,7 +19,7 @@ export default class UserType {
     locationId?: number;
     registrationDate?: string;
     lastLoginDate?: string;
-    status?: "string";
+    status?: string;
     code?:number;
     gender?: string;
     articles?: ArticleType[];

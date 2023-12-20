@@ -133,12 +133,12 @@ const CategoryPage: React.FC = () => {
     }
 
     return (
-      <div>
+      <div className='ml-2 mr-2'>
         <h5 style={{ color: 'white' }}>
           <i className="bi bi-list-nested" /> Podkategorije
         </h5>
           {printErrorMessage()}
-        <div className='grid lg:grid-cols-5 lg:gap-3 xs:grid-cols xs:gap md:grid-cols-2 md:gap-3'>{state.subCategory.map(singleCategory)}</div>
+        <div className='grid lg:grid-cols-5 lg:gap-3 grid-cols-2 gap-3 md:grid-cols-2 md:gap-3'>{state.subCategory.map(singleCategory)}</div>
       </div>
     );
   };

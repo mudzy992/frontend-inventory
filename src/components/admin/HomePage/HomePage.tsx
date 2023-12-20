@@ -80,12 +80,12 @@ const HomePage: React.FC <HomePageState> = () => {
             <RoledMainMenu/>
             <div className="container mx-auto lg:px-4 mt-3 h-max">
                 <div className='' >
-                    <div>
+                    <div className='mr-2 ml-2'>
                         {<UserTable /> }
                     </div>
                     
                     <h5 className='mt-3 ml-3' style={{ color:"white"}}> <i className="bi bi-card-list"/> Top level kategorije</h5>
-                    <div className='grid lg:grid-cols-5 lg:gap-5 xs:grid-cols xs:gap'>
+                    <div className='grid lg:grid-cols-5 lg:gap-5 grid-cols-2 ml-2 mr-2 gap-3'>
                     {state.categories && state.categories.map(singleCategory)}
                         <p>{state.message}</p>
                     </div>

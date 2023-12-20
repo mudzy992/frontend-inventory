@@ -2,54 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-body, html {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 15px !important;
-  width: 100% !important;
-  height: 100% !important;
-}
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-
-/* Za md i xs ekrane, postavi min-width na auto */
-@media (max-width: 991.98px) {
-  .nav-link.active {
-    min-width: auto !important;
-  }
-  .nav{
-      flex-wrap: nowrap !important;
-      overflow-x: auto !important;
-  }
-  
-  .card-radius-container {
-      border-bottom-left-radius: 15px;
-      border-bottom-right-radius: 15px;
-  }
-}
-
-/* Za lg ekrane, postavi min-width na minimalno 150px */
-@media (min-width: 992px) {
-  /* .nav-link.active {
-    min-width: 200px !important;
-  } */
-  .nav {
-      display: flex;
-      flex-direction: column;
-  }
-  .card-radius-container {
-      border-top-right-radius: 5px;
-      border-bottom-right-radius: 5px;
-  }
-}
 
 .user-container {
   display: flex;

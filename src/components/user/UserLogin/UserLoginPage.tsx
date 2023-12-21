@@ -29,6 +29,7 @@ const navigate = useNavigate();
 const [isVisible, setIsVisible] = React.useState(false);
 const toggleVisibility = () => setIsVisible(!isVisible);
 const { setUserId, setRole } = useUserContext();
+const [userRole, setUserRole] = useState<string>('')
 
 const formInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({...state, [event.target.id]: event.target.value})
@@ -52,11 +53,6 @@ const setUserID = (userID: number) => {
       ...state,
       userID: userID,
     });
-
-    if (userID) {
-        
-        navigate(`/user/profile/${userID}`);
-    }
   };
 
 
@@ -90,7 +86,7 @@ const printErrorMessage = () => {
 
 const doLogin = async () => {
     api(
-        'auth/user/login',
+        'auth/login',
         'post',
         {
             email: state.email,
@@ -119,10 +115,16 @@ const doLogin = async () => {
                 }
                 if (res.status === 'ok') {
                     await setLogginState(true);
-                    await saveIdentity('user', res.data.id, setRole, setUserId);
+                    await saveIdentity(res.data.role, res.data.id, setRole, setUserId);
                     await setUserID(res.data.id);
-                    await saveToken('user', res.data.token);
-                    await saveRefreshToken('user', res.data.refreshToken);
+                    await saveToken(res.data.token);
+                    await saveRefreshToken(res.data.refreshToken);
+
+                    if(res.data.role === 'user'){
+                        navigate(`/user/profile/${res.data.id}`);
+                    } else if(res.data.role === 'administrator') {
+                        navigate(`/`);   
+                    }
                 }
             }
         });

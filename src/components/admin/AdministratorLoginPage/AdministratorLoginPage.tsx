@@ -116,8 +116,8 @@ const AdministratorLoginPage: React.FC = () => {
                 }
                 await saveIdentity('administrator', res.data.id, setRole, setUserId);
                 await setAdministratorID(res.data.id);
-                await saveToken('administrator', res.data.token);
-                await saveRefreshToken('administrator', res.data.refreshToken);
+                await saveToken(res.data.token);
+                await saveRefreshToken( res.data.refreshToken);
 
                 await setLogginState(true);
             }

@@ -275,13 +275,11 @@ export const UserTable: React.FC<{}> = () => {
                 .then(async (res: ApiResponse) => {
                     if (res.status === 'error') {
                         setIsLoggedIn(false)
-                        removeIdentity('administrator')
                         return
                     }
 
                     if (res.status === 'login') {
                         setIsLoggedIn(false);
-                        removeIdentity('administrator')
                         return 
                     }
                     setUsersData(res.data)
@@ -290,7 +288,7 @@ export const UserTable: React.FC<{}> = () => {
             } catch (error) {
                 setIsLoggedIn(false)
                 setLoading(false)
-                removeIdentity('administrator')
+
                 setMessage('Sistemska greška prilikom dohvaćanja podataka o korisnicima. Greška: ' + error)
             }
         }

@@ -28,6 +28,10 @@ module.exports = {
           foreground: "#FFFFFF",
         },
       },
+      fontFamily: {
+        sans: ['Graphik', 'sans-serif'],
+        serif: ['Merriweather', 'serif'],
+      },
     },
   },
   darkMode: "class",

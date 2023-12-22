@@ -53,14 +53,14 @@ const HomePage: React.FC <HomePageState> = () => {
           .then((res: ApiResponse) => {
             if (res.status === 'login') {
               setLogginState(false);
-              removeIdentity('administrator')
+
               return;
             }
       
             if (res.status === 'error') {
               console.error('API error:', res.data);
               setLogginState(false);
-              removeIdentity('administrator')
+
               return;
             }
       
@@ -68,7 +68,7 @@ const HomePage: React.FC <HomePageState> = () => {
           })
           .catch((error) => {
             console.error('Error during API call:', error);
-            removeIdentity('administrator')
+
             setLogginState(false);
           });
       }, []);

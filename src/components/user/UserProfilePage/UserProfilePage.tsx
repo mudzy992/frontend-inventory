@@ -9,6 +9,8 @@ import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
 import DepartmentByIdType from '../../../types/DepartmentByIdType';
 import { Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import { useUserContext } from '../../UserContext/UserContext';
+import { UserRole } from '../../../types/UserRoleType';
 
 interface UserProfilePageState {
   user?: UserType;
@@ -21,6 +23,7 @@ interface UserProfilePageState {
 }
 
 export default function UserProfilePage() {
+  const { role } = useUserContext()
   const { userID } = useParams();
   const navigate = useNavigate();
 
@@ -63,10 +66,10 @@ export default function UserProfilePage() {
 
   const getUserData = async () => {
     try {
-      const userResponse = await api(`api/user/${userID}`, 'get', {}, 'user');
+      const userResponse = await api(`api/user/${userID}`, 'get', {}, role as UserRole);
       handleApiResponse(userResponse, setUsers, 'Greška prilikom učitavanja korisnika.');
   
-      const articleResponse = await api(`api/article/?filter=user.userId||$eq||${userID}`, 'get', {}, 'user');
+      const articleResponse = await api(`api/article/?filter=user.userId||$eq||${userID}`, 'get', {}, role as UserRole);
       handleApiResponse(articleResponse, setArticleByUser, 'Greška prilikom učitavanja artikala.');
       
       const articleByUser = articleResponse.data || [];
@@ -84,13 +87,15 @@ export default function UserProfilePage() {
   
       setFeaturesData(features);
     } catch (error) {
-      console.error('Greška prilikom dohvaćanja podataka:', error);
       setLogginState(false);
       setErrorMessage('Došlo je do greške. Osvježite ili pokušajte ponovo kasnije.');
     }
   };
   
   const handleApiResponse = (response:any, setter:any, errorMessage:string) => {
+    if(response.status === 'forbidden') {
+      setErrorMessage("Korisnik nema dovoljno prava za učitavanje podataka")
+    }
     if (response.status === 'error' || response.status === 'login') {
       setLogginState(false);
       return;

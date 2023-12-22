@@ -9,6 +9,8 @@ import ArticleType from '../../../types/ArticleType';
 import saveAs from 'file-saver';
 import { Alert } from '../../custom/Alert';
 import { ApiConfig } from '../../../config/api.config';
+import { useUserContext } from '../../UserContext/UserContext';
+import { UserRole } from '../../../types/UserRoleType';
 
 interface UpgradeFeaturesType {
   name: string;
@@ -27,6 +29,7 @@ interface ArticleOnUserPageState {
 }
 
 export default function ArticleOnUserPage() {
+  const { role } = useUserContext()
   const { serial } = useParams();
   const navigate = useNavigate();
 
@@ -83,7 +86,11 @@ export default function ArticleOnUserPage() {
   }, [serial]);
 
   const getArticleData = (serial: string) => {
-    api(`api/article/sb/${serial}`, 'get', {}, 'user').then((res: ApiResponse) => {
+    api(`api/article/sb/${serial}`, 'get', {}, role as UserRole).then((res: ApiResponse) => {
+      if (res.status === 'forbidden') {
+        setErrorMessage('Korisnik nema dovoljno prava za učitavanje ovih podataka.')
+        return
+      }
       if (res.status === 'error') {
         setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije');
         return;
@@ -98,7 +105,13 @@ export default function ArticleOnUserPage() {
       setArticle(data);
     });
 
-    api(`api/upgradeFeature/?filter=serialNumber||$eq||${serial}`, 'get', {}, 'user').then((res: ApiResponse) => {
+    api(`api/upgradeFeature/?filter=serialNumber||$eq||${serial}`, 'get', {}, role as UserRole).then((res: ApiResponse) => {
+      if (res.status === 'forbidden') {
+        setErrorMessage('Korisnik nema dovoljno prava za učitavanje ovih podataka.')
+        return
+      }
+      console.log(serial)
+      console.log(res.data)
       setUpgradeFeatures(res.data);
     });
   };

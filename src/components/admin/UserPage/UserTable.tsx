@@ -5,6 +5,8 @@ import React from "react";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, 
     Pagination, SortDescriptor, Selection, Table, TableBody, 
     TableCell, TableColumn, TableHeader, TableRow, User, Chip, ChipProps, Card, CardBody, Link, Spinner } from "@nextui-org/react";
+import { useUserContext } from "../../UserContext/UserContext";
+import { UserRole } from "../../../types/UserRoleType";
 
 
 const INITIAL_VISIBLE_COLUMNS = ["fullname", "departmentTitle", "telephone", "locationName", "status", "email"];
@@ -32,7 +34,7 @@ interface UserBaseType {
 
 export const UserTable: React.FC<{}> = () => {
     /* Stanja */
-    
+    const {role} = useUserContext();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true)
     const [message, setMessage] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -271,17 +273,21 @@ export const UserTable: React.FC<{}> = () => {
         const fatchData = async() => {
             try {
               setLoading(true)
-                api('api/user/', 'get', {}, 'administrator')
+                api('api/user/', 'get', {},  role as UserRole)
                 .then(async (res: ApiResponse) => {
+                    if (res.status === 'forbidden') {
+                        setMessage('Korisnik nema dovoljno prava za učitavanje ovih podataka.')
+                        return
+                    }
+                 
                     if (res.status === 'error') {
+                        setMessage('Greška prilikom učitavanja podataka')
                         setIsLoggedIn(false)
-                        removeIdentity('administrator')
                         return
                     }
 
                     if (res.status === 'login') {
                         setIsLoggedIn(false);
-                        removeIdentity('administrator')
                         return 
                     }
                     setUsersData(res.data)
@@ -290,7 +296,7 @@ export const UserTable: React.FC<{}> = () => {
             } catch (error) {
                 setIsLoggedIn(false)
                 setLoading(false)
-                removeIdentity('administrator')
+
                 setMessage('Sistemska greška prilikom dohvaćanja podataka o korisnicima. Greška: ' + error)
             }
         }
@@ -352,7 +358,7 @@ export const UserTable: React.FC<{}> = () => {
                           </TableColumn>
                           )}
                       </TableHeader>
-                      <TableBody emptyContent={"Nema pronađenih korisnika"} items={sortedItems}>
+                      <TableBody emptyContent={message} items={sortedItems}>
                           {(item) => (
                           <TableRow key={item.id}>
                               {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

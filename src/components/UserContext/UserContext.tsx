@@ -28,8 +28,8 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
       const storedUserRole = localStorage.getItem(`api_identity_role`);
 
       if (storedUserRole) {
-        storedUserIDKey = `api_identity_id_${storedUserRole}`;
-        storedUserRoleKey = `api_identity_${storedUserRole}`;
+        storedUserIDKey = `api_identity_id`;
+        storedUserRoleKey = `api_identity_role`;
 
         const storedUserID = localStorage.getItem(storedUserIDKey);
 
@@ -38,8 +38,8 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
         }
         setRole(storedUserRole as UserRole);
       } else if (initialRole) {
-        storedUserIDKey = `api_identity_id_${initialRole}`;
-        storedUserRoleKey = `api_identity_${initialRole}`;
+        storedUserIDKey = `api_identity_id`;
+        storedUserRoleKey = `api_identity_role`;
         setRole(initialRole);
       } else {
         storedUserIDKey = 'api_identity_id_default';
@@ -63,7 +63,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
 export function saveIdentity(role: 'user' | 'administrator', userId: string, setRole: (role: UserRole | undefined) => void, setUserId: (id: number | undefined) => void) {
   if (role === 'administrator' || role === 'user') {
     localStorage.setItem(`api_identity_role`, role);
-    localStorage.setItem(`api_identity_id_${role}`, userId);
+    localStorage.setItem(`api_identity_id`, userId);
 
     // Odmah nakon postavljanja u localStorage, ažuriraj kontekst
     setRole(role);

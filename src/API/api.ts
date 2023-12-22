@@ -5,7 +5,7 @@ export default function api(
     path: string,
     method: 'get' | 'post' | 'patch' | 'delete' | 'put',
     body: any | undefined,
-    role: 'user' | 'administrator' = 'user',
+    role: 'user' | 'administrator' | 'moderator' = 'user',
     options: { useMultipartFormData?: boolean } = {},
 ) {
     return new Promise<ApiResponse>((resolve) => {
@@ -43,6 +43,15 @@ export default function api(
                 return await repeatRequest(requestData, resolve);
             }
 
+            if (err.response.status === 403) {
+                // Dodajte novi status "forbidden"
+                const response: ApiResponse = {
+                  status: 'forbidden',
+                  data: err.response.data,
+                };
+                return resolve(response);
+              }
+
             const response: ApiResponse = {
                 status: 'error',
                 data: err
@@ -54,7 +63,7 @@ export default function api(
 }
 
     export interface ApiResponse {
-        status: 'ok' | 'error' | 'login';
+        status: 'ok' | 'error' | 'login' | 'forbidden';
         data: any;
     }
 

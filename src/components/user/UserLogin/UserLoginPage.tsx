@@ -122,7 +122,7 @@ const doLogin = async () => {
 
                     if(res.data.role === 'user'){
                         navigate(`/user/profile/${res.data.id}`);
-                    } else if(res.data.role === 'administrator') {
+                    } else if(res.data.role === 'administrator' || 'moderator') {
                         navigate(`/`);   
                     }
                 }

@@ -8,7 +8,7 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
 import DepartmentByIdType from '../../../types/DepartmentByIdType';
-import { Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import { Card, CardBody, CardHeader, Chip, Link, Listbox, ListboxItem, ListboxSection, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { useUserContext } from '../../UserContext/UserContext';
 import { UserRole } from '../../../types/UserRoleType';
 
@@ -69,7 +69,7 @@ export default function UserProfilePage() {
       const userResponse = await api(`api/user/${userID}`, 'get', {}, role as UserRole);
       handleApiResponse(userResponse, setUsers, 'Greška prilikom učitavanja korisnika.');
   
-      const articleResponse = await api(`api/article/?filter=user.userId||$eq||${userID}`, 'get', {}, role as UserRole);
+      const articleResponse = await api(`api/article/user/${userID}`, 'get', {}, role as UserRole);
       handleApiResponse(articleResponse, setArticleByUser, 'Greška prilikom učitavanja artikala.');
       
       const articleByUser = articleResponse.data || [];
@@ -117,7 +117,7 @@ export default function UserProfilePage() {
     <>
       <RoledMainMenu />
       <div className="container mx-auto lg:px-4 mt-3 h-max">
-        <Card className="text-white bg-dark">
+        <Card >
           <CardHeader>
             <i className="bi bi-card-checklist mr-2" /> {state.users ? state.users.fullname : 'Kartica korisnika nije pronađena'}
           </CardHeader>
@@ -178,27 +178,26 @@ export default function UserProfilePage() {
     return (
       <div className="flex flex-col lg:flex-row gap-3">
         <div className="lg:w-4/12 xs:w-full mb-3">
-          <span className='ml-2'>Detalji korisnika</span>
-          <Listbox aria-label="Odaberi opciju" key={user.userId} className='mt-2 pt-3 bg-gray-800 shadow rounded-2xl'>
+          <Listbox aria-label="Odaberi opciju" key={user.userId} className='mt-2 pt-3 bg-default-50 shadow-md rounded-2xl'>
+            <ListboxSection title={"Detalji korisnika"}>
               <ListboxItem 
-                className='w-[95%]'
                 key={user.fullname!} 
-                description={<span className='text-tiny text-gray-400'>Naziv korisnika</span>}
+                description={<span className='text-tiny text-default-500'>Naziv korisnika</span>}
                 >
                 {user.fullname}
               </ListboxItem>
-              <ListboxItem className='w-[95%]' key={user.email!} description={<span className='text-tiny text-gray-400'>Email</span>}>
+              <ListboxItem  key={user.email!} description={<span className='text-tiny text-default-500'>Email</span>}>
                 {user.email}
               </ListboxItem>
-              <ListboxItem className='w-[95%]' key={user.department?.title!} description={<span className='text-tiny text-gray-400'>Naziv sektora/odjeljenja</span>}>
+              <ListboxItem key={user.department?.title!} description={<span className='text-tiny text-default-500'>Naziv sektora/odjeljenja</span>}>
                 {user.department?.title}
               </ListboxItem>
-              <ListboxItem className='w-[95%]' key={user.job?.title!} description={<span className='text-tiny text-gray-400'>Naziv radnog mjesta</span>}>
+              <ListboxItem key={user.job?.title!} description={<span className='text-tiny text-default-500'>Naziv radnog mjesta</span>}>
                 {user.job?.title}
               </ListboxItem>
-              <ListboxItem className='w-[95%]' key={user.location?.name!} description={<span className='text-tiny text-gray-400'>Lokacija</span>}>
+              <ListboxItem key={user.location?.name!} description={<span className='text-tiny text-default-500'>Lokacija</span>}>
                 {user.location?.name}
-              </ListboxItem>
+              </ListboxItem></ListboxSection>
           </Listbox>
         </div>
         <div className="lg:w-8/12 xs:w-full flex flex-col gap-3">
@@ -214,7 +213,7 @@ export default function UserProfilePage() {
   function articles() {
     return state.article.map((artikal) => (
       <div key={artikal.articleId} className="mb-3">
-        <Card className="w-full bg-cyan-950">
+        <Card className="w-full bg-cyan-950 shadow-md">
           <CardBody className="flex flex-col items-center">
             <Chip color='primary' size='sm'>{artikal.category?.name}</Chip>
             <div style={{ fontSize: 11, color: 'white' }}>{artikal.stock?.name}</div>

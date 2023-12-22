@@ -130,8 +130,11 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
               <p className="font-semibold">Prijavljeni kao</p>
               <p className="font-semibold">{user.fullname ? (user.fullname) : ('Admin')}</p>
             </DropdownItem>
+            <DropdownItem key="profile" textValue="Profil" href={`#/user/profile/${userId}`}>
+              <i className="bi bi-person-square" /> Profil
+            </DropdownItem>
             <DropdownItem key="logout" textValue="Odjavi se" color="danger" href="#/logout">
-            <i className="bi bi-box-arrow-left" /> Odjevi se
+              <i className="bi bi-box-arrow-left" /> Odjevi se
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>

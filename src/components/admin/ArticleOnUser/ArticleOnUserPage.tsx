@@ -14,6 +14,8 @@ import { Autocomplete, AutocompleteItem, Card, CardBody, CardHeader, Link, Listb
     TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem, Chip } from '@nextui-org/react';
 import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';
+import { useUserContext } from '../../UserContext/UserContext';
+import { UserRole } from '../../../types/UserRoleType';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -58,6 +60,7 @@ interface AdminArticleOnUserPageState {
 
 const AdminArticleOnUserPage: React.FC = () => {
     const { serial } = useParams();
+    const { role } = useUserContext()
     const [selectedUser, setSelectedUser] = useState<string>('')
     const [selectedUserIsDisabled, setSelectedUserIdDisabled] = useState<boolean>(true)
     const [state, setState] = useState<AdminArticleOnUserPageState> ({
@@ -248,7 +251,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     
     const getUpgradeFeature = useCallback(async () => {
     try {
-        await api('api/upgradeFeature/?filter=serialNumber||$eq||' + serial, 'get', {}, 'administrator')
+        await api(`api/upgradeFeature/get/${serial}`, 'get', {}, role as UserRole)
         .then((res: ApiResponse) => {
             if (res.status === 'login') {
             return setLogginState(false);

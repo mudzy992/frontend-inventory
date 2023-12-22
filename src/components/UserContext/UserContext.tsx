@@ -26,6 +26,13 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
       let storedUserRoleKey;
       /* const storedUserRole = localStorage.getItem('api_identity_role'); */
       const storedUserRole = localStorage.getItem(`api_identity_role`);
+      const storedUserID = localStorage.getItem(`api_identity_id`);
+      setRole(storedUserRole as UserRole)
+      if (storedUserID) {
+        setUserId(parseInt(storedUserID, 10));
+      }
+      console.log("role", storedUserRole)
+      console.log("role", storedUserID)
 
       if (storedUserRole) {
         storedUserIDKey = `api_identity_id`;
@@ -48,7 +55,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
 
     };
     fetchUserFromLocalStorage();
-  }, [initialRole]);
+  }, []);
 
   const contextValue: UserContextType = {
     userId,

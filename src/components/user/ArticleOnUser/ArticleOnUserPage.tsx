@@ -105,7 +105,7 @@ export default function ArticleOnUserPage() {
       setArticle(data);
     });
 
-    api(`api/upgradeFeature/?filter=serialNumber||$eq||${serial}`, 'get', {}, role as UserRole).then((res: ApiResponse) => {
+    api(`api/upgradeFeature/get/${serial}`, 'get', {}, role as UserRole).then((res: ApiResponse) => {
       if (res.status === 'forbidden') {
         setErrorMessage('Korisnik nema dovoljno prava za učitavanje ovih podataka.')
         return
@@ -327,9 +327,9 @@ function saveFile (docPath: any) {
                     {article.articleTimelines?.map((timeline) => (
                       <TableRow key={timeline.articleTimelineId}>
                         <TableCell textValue={timeline.user?.fullname}>
-                          <Link isBlock showAnchorIcon color="primary" href={`#/user/profile/${timeline.userId}`}>
+                          
                             {timeline.user?.fullname}
-                          </Link>
+
                         </TableCell>
                         <TableCell textValue={timeline.status}>{timeline.status}</TableCell>
                         <TableCell textValue={timeline.comment}>{timeline.comment}</TableCell>

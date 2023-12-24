@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { ApiConfig } from "../config/api.config"
+import { saveIdentity, useUserContext } from "../components/UserContext/UserContext";
 
 export default function api(
     path: string,
@@ -14,12 +15,12 @@ export default function api(
             url: path,
             baseURL: ApiConfig.API_URL,
             data: options.useMultipartFormData ? body : JSON.stringify(body),
+            role: role,
             headers: {
                 'Content-Type': options.useMultipartFormData ? 'multipart/form-data' : 'application/json',
                 'Authorization': getToken(),
             },
         };
-
         // console.log('API Call:', path, method, body);
         axios(requestData)
         .then(res => responseHandler(res, resolve))
@@ -112,7 +113,7 @@ export default function api(
         localStorage.removeItem('api_identity_role')
         localStorage.removeItem('api_identity_id',);
     }
-    
+
     async function refreshToken(): Promise<string | null> {
         const path = '/auth/refresh';
         const data = {

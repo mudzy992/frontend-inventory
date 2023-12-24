@@ -84,6 +84,21 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
     }
   };
 
+  function combineFirstLetters(surname: string, forname: string) {
+    const inicialLetters = surname.charAt(0).toUpperCase() + forname.charAt(0).toUpperCase()
+    return inicialLetters
+  }
+
+  function gender(gender:string) {
+    let genderString
+    if(gender === 'muško'){
+      return genderString = 'Dobrodošao '
+    } else if(gender === 'žensko') {
+      return genderString = 'Dobrodošla '
+    }
+    return gender === ''
+  }
+
   return (
     <>
     <Navbar 
@@ -112,24 +127,20 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
            {menuItems.map(makeNavLink)}
       </NavbarContent>
       <NavbarContent as="div" justify="end">
+        <span className="text-small">{gender(user.gender || '')} {user.surname}</span>
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
-            {/* <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="secondary"
-              name="Jason Hughes"
-              size="sm"
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-            /> */}
-            <Avatar className="ikonica" isBordered > </Avatar>
+            <Avatar
+            as="button"
+            className="transition-transform"
+            color="primary"
+            name={combineFirstLetters(user.surname || '', user.forname || '')}
+            size="sm"
+         /*    className="ikonica"  */
+            isBordered
+            > </Avatar>
           </DropdownTrigger>
           <DropdownMenu aria-label="Akcije profila" variant="flat">
-            <DropdownItem key="profile" textValue="Profil" className="h-14 gap-2">
-              <p className="font-semibold">Prijavljeni kao</p>
-              <p className="font-semibold">{user.fullname ? (user.fullname) : ('Admin')}</p>
-            </DropdownItem>
             <DropdownItem key="profile" textValue="Profil" href={`#/user/profile/${userId}`}>
               <i className="bi bi-person-square" /> Profil
             </DropdownItem>
@@ -139,11 +150,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
           </DropdownMenu>
         </Dropdown>
       </NavbarContent>
-        {/* <NavbarContent justify="end">
-            <NavbarItem className="lg:flex">
-              
-            </NavbarItem>
-        </NavbarContent> */}
        <NavbarMenu>
        {menuItems.map(makeNavLinkToogle)}
       </NavbarMenu> 

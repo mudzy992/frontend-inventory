@@ -19,20 +19,20 @@ interface UserContextProviderProps {
 export const UserContextProvider: React.FC<UserContextProviderProps> = ({ children, initialRole }) => {
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [role, setRole] = useState<UserRole | undefined>(initialRole);
-
   useEffect(() => {
     const fetchUserFromLocalStorage = () => {
       let storedUserIDKey: string;
       let storedUserRoleKey;
-      /* const storedUserRole = localStorage.getItem('api_identity_role'); */
+
       const storedUserRole = localStorage.getItem(`api_identity_role`);
       const storedUserID = localStorage.getItem(`api_identity_id`);
-      setRole(storedUserRole as UserRole)
-      if (storedUserID) {
-        setUserId(parseInt(storedUserID, 10));
+
+      if (!storedUserRole && initialRole) {
+        // Ako nema role u localStorage-u, koristi initialRole (ako postoji)
+        storedUserRoleKey = `api_identity_role`;
+        storedUserIDKey = `api_identity_id`;
+        setRole(initialRole);
       }
-      console.log("role", storedUserRole)
-      console.log("role", storedUserID)
 
       if (storedUserRole) {
         storedUserIDKey = `api_identity_id`;
@@ -52,9 +52,34 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
         storedUserIDKey = 'api_identity_id_default';
         storedUserRoleKey = 'api_identity_default';
       }
-
     };
+
     fetchUserFromLocalStorage();
+  }, [initialRole]); 
+
+  const setupContextOnRefresh = () => {
+    // Implementirajte logiku kako želite postaviti kontekst prilikom osvježavanja
+    // Možete koristiti localStorage, sessionStorage ili druge mehanizme za pohranu stanja između osvježavanja
+    const storedUserRole = localStorage.getItem(`api_identity_role`);
+    const storedUserID = localStorage.getItem(`api_identity_id`);
+
+    if (storedUserRole) {
+      setRole(storedUserRole as UserRole);
+    }
+
+    if (storedUserID) {
+      setUserId(parseInt(storedUserID, 10));
+    }
+  };
+
+  useEffect(() => {
+    // Dodajte event listener za osvježavanje (F5)
+    window.addEventListener('beforeunload', setupContextOnRefresh);
+
+    // Čišćenje event listenera prilikom unmounta komponente
+    return () => {
+      window.removeEventListener('beforeunload', setupContextOnRefresh);
+    };
   }, []);
 
   const contextValue: UserContextType = {

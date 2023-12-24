@@ -101,7 +101,9 @@ const DocumentsPage: React.FC = () => {
     
 
     const getDocumentsData = () => {
-        api(`api/document/s?perPage=${itemsPerPage}&page=${currentPage}&query=${encodeURIComponent(searchQuery)}`, 'get', {}, 'administrator')
+        api(`api/document/s?perPage=${itemsPerPage}&page=${currentPage}&query=${encodeURIComponent(searchQuery)}`, 
+        'get', {}, 
+        'administrator')
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
                     setIsLoggedIn(false);

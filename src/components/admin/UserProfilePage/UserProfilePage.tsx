@@ -64,7 +64,6 @@ const AdminUserProfilePage: React.FC = () => {
     const navigate = useNavigate();
     
     const setEditUserNumberFieldState = (fieldName: string, newValue: any) => {
-        console.log(fieldName, newValue);
         setState((prev) => ({
           ...prev,
           editUser: {
@@ -75,7 +74,6 @@ const AdminUserProfilePage: React.FC = () => {
       };
 
     const setEditUserStringFieldState = (fieldName: string, newValue: string) => {
-        console.log(fieldName, newValue);
         setState((prev) => ({
           ...prev,
           editUser: {
@@ -198,9 +196,7 @@ const AdminUserProfilePage: React.FC = () => {
         }
     }
 
-    const putUserDetailsInState = async (user: UserType) => {
-        console.log('prije:', user);
-      
+    const putUserDetailsInState = async (user: UserType) => {     
         setState((prev) => ({
           ...prev,
           editUser: {
@@ -218,8 +214,6 @@ const AdminUserProfilePage: React.FC = () => {
             gender: user.gender || '',
           },
         }));
-        
-        console.log('poslije:', state.editUser);
       };
       
       useEffect(() => {
@@ -489,7 +483,6 @@ const AdminUserProfilePage: React.FC = () => {
                             <Select
                                 label='Status'
                                 selectedKeys={state.editUser.status ? [`${state.editUser.status}`] : []}
-                                
                                 onChange={(e:any) => {setEditUserStringFieldState('status', e.target.value)}}
                                 >
                                 <SelectItem key='aktivan' textValue="aktivan" value='aktivan'>aktivan</SelectItem>

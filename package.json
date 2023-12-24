@@ -15,6 +15,7 @@
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.6.2",
     "bootstrap-icons": "^1.11.2",
+    "dayjs": "^1.11.10",
     "docxtemplater": "^3.42.2",
     "exceljs": "^4.4.0",
     "framer-motion": "^10.16.12",
@@ -27,6 +28,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.1",
     "react-scripts": "5.0.1",
+    "react-tailwindcss-datepicker": "^1.6.6",
     "typescript": "^4.9.5",
     "web-vitals": "^3.5.0"
   },
@@ -64,6 +66,8 @@
     "file-saver": "^2.0.5",
     "html-webpack-plugin": "^5.5.3",
     "postcss": "^8.4.31",
+    "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.5.9",
     "tailwindcss": "^3.3.5"
   }
 }

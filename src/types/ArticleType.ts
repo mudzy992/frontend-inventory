@@ -1,9 +1,9 @@
-import ArticleFeatureType from "./StockFeaturesType";
 import ArticleTimelineType from "./ArticleTimelineType";
 import CategoryType from "./CategoryType";
 import DocumentsType from "./DocumentsType";
 import StockType from "./UserArticleType";
 import UserType from "./UserType";
+import HelpdeskTicketsType from "./HelpdeskTicketsType";
 
 export default class ArticleType {
     articleId?: number;
@@ -21,4 +21,5 @@ export default class ArticleType {
     stock?: StockType;
     articleTimelines?:ArticleTimelineType[];
     documents?: DocumentsType[];
+    helpdeskTickets?: HelpdeskTicketsType[];    
 }

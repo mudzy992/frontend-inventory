@@ -22,6 +22,7 @@ import LoginPage from './components/Login/LoginPage';
 import LogOutPage from './components/Logout/LogoutPage';
 import { UserContextProvider } from './components/UserContext/UserContext';
 import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage';
+import HelpdeskTicketPage from './components/admin/HelpDesk/main/HelpdeskTicketPage';
 
 const rootElement = document.getElementById('root');
 
@@ -51,6 +52,7 @@ const App = () => {
                 <Route path="/admin/document/" element={<DocumentsPage />} />
                 <Route path="/admin/stock/:stockID" element={<StockPage />} /> 
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
               </Routes>
               
         </HashRouter>

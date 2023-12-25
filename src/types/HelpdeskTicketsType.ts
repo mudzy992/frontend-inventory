@@ -31,5 +31,6 @@ export default class HelpdeskTicketsType {
     article?: ArticleType;
     assignedTo2?: UserType;
     group?: TicketGroupType;
+    groupPartent?: TicketGroupType;
     user?: UserType;   
 }

@@ -1,35 +1,13 @@
-import React, { Key, useEffect, useState } from 'react'
-import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType'
+import React, { useEffect, useState } from 'react'
 import api, { ApiResponse } from '../../../../API/api'
 import { useUserContext } from '../../../UserContext/UserContext';
 import { UserRole } from '../../../../types/UserRoleType';
 import RoledMainMenu from '../../../RoledMainMenu/RoledMainMenu';
-import { Button, Card, CardBody, Chip, Input, Modal, ModalBody, ModalContent, 
-  ModalFooter, ModalHeader, Select, SelectItem, Tab, Table, TableBody, TableCell, TableColumn, 
-  TableHeader, TableRow, Tabs, Textarea, Tooltip, useDisclosure } from '@nextui-org/react';
-import Datepicker from 'react-tailwindcss-datepicker';
+import { Chip, Table, TableBody, TableCell, TableColumn, 
+  TableHeader, TableRow, Tooltip,  } from '@nextui-org/react';
 import TicketGroupType from '../../../../types/TicketGroupType';
 import Moment from 'moment';
-import ModeratorGroupMappingType from '../../../../types/ModeratorGroupMappingType';
-import UserType from '../../../../types/UserType';
-import { useNavigate } from 'react-router-dom';
 import ModalDetails from './ModalDetails';
-
-  type ModalDetailsProps = {
-    isOpen: boolean;
-    onClose: () => void;
-    ticketId: number;
-  };
-
-  interface HelpdeskTicketState {
-    editTicket: {
-      groupId?: number;
-      resolveDescription?: string;
-      duoDate?: string;
-      assignedTo?: number;
-      status?: string;
-    };
-  }
 
 const HelpdeskTicketPage: React.FC = () => {
   const {role, userId} = useUserContext();
@@ -144,9 +122,8 @@ const HelpdeskTicketPage: React.FC = () => {
         >
           <TableHeader>
             <TableColumn key="ticketID">#</TableColumn>
-            <TableColumn key="naziv">Naziv</TableColumn>
-            <TableColumn key="opis">Opis tiketa</TableColumn>
             <TableColumn key="prijavio">Prijavio/la</TableColumn>
+            <TableColumn key="opis">Opis tiketa</TableColumn>
             <TableColumn key="grupa">Grupa</TableColumn>
             <TableColumn key="datum-prijave">Datum prijave</TableColumn>
             <TableColumn key="datum-izvrsetka">Datum izvršetka</TableColumn>
@@ -157,13 +134,12 @@ const HelpdeskTicketPage: React.FC = () => {
           <TableBody emptyContent="Svaka čast, svi tiketi su završeni">
             {groupState
               .flatMap((group) => group.helpdeskTickets || [])
-              .filter((item) => !!item) // Uklanja undefined elemente
+              .filter((item) => !!item)
               .map((item) => (
                 <TableRow key={item.ticketId}>
                   <TableCell>{item.ticketId}</TableCell>
-                  <TableCell>{item.title}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description}</TableCell>
                   <TableCell>{item.user?.fullname}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description}</TableCell>
                   <TableCell>{item.group?.groupName}</TableCell>
                   <TableCell>{Moment(item.createdAt).format('DD.MM.YYYY - HH:mm')}</TableCell>
                   <TableCell>{item.dueDate ? Moment(item.dueDate).format('DD.MM.YYYY - HH:mm') : ""}</TableCell>

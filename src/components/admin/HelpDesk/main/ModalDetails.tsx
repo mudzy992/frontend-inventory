@@ -8,7 +8,7 @@ import { useUserContext } from '../../../UserContext/UserContext';
 import { useNavigate } from 'react-router-dom';
 import ModeratorGroupMappingType from '../../../../types/ModeratorGroupMappingType';
 import UserType from '../../../../types/UserType';
-import Datepicker from 'react-tailwindcss-datepicker';
+import Moment from 'moment';
 
 type ModalDetailsProps = {
   show: boolean;
@@ -16,14 +16,21 @@ type ModalDetailsProps = {
   ticketId: number;
 };
 
+interface PriorityItem {
+    id: number;
+    priority: string;
+    days: number;
+  }
+
 
 interface HelpdeskTicketState {
     editTicket: {
       groupId?: number;
       resolveDescription?: string;
-      duoDate?: string;
+      dueDate?: string;
       assignedTo?: number;
       status?: string;
+      priority?: string;
     };
   }
 
@@ -44,6 +51,16 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         endDate: new Date()
     });
 
+    const PriorityList: PriorityItem[] = [
+        { id: 1, priority: "Problem veće hitnosti ili VIP korisnik", days: 1 },
+        { id: 2, priority: "Problem u radu servisa (za sve korisnike u firmi)", days: 1 },
+        { id: 3, priority: "Poteškoće u radu grupe korisnika", days: 5 },
+        { id: 4, priority: "Povremene poteškoće u radu grupe korisnika", days: 5 },
+        { id: 5, priority: "Poteškoće u radu korisnika", days: 5 },
+        { id: 6, priority: "Zahtjevi za izmjenu/doradu manje složenosti", days: 5 },
+        { id: 7, priority: "Zahtjevi za izmjenu/doradu veće složenosti", days: 5 },
+      ];
+
     const handleGroupChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(Number(value.target.value));
     };
@@ -51,20 +68,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const handleUserChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedUser(Number(value.target.value));
     };
+
     const handleValueChange = (newValue:any) => {
         setValue(newValue); 
-    } 
-
-    function changeStatus(status:string){
-        if(status === 'otvoren'){
-        return (
-            <Button onClick={() => {setEditHelpdeskNumberFieldState('assignedTo', userId); doEditTicket(ticketId)}} color={colorStatus(status)}>Preuzmi zahtjev</Button>
-        )
-        } else if(status === 'izvršenje') {
-        return (
-            <Button color={colorStatus(status)}>Zatvori zahtjev</Button>
-        )
-        }
     }
 
     function colorStatus(status: string) {
@@ -99,7 +105,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             [fieldName]: (newValue === 'null') ? null : Number(newValue),
         },
         }));
-        console.log(fieldName, newValue)
     };
   
     const setEditHelpdeskStringFieldState = (fieldName: string, newValue: string) => {
@@ -110,12 +115,42 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             [fieldName]: newValue,
         },
         }));
+        console.log(fieldName, newValue);
     };
+
+    const handlePriorityChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedPriority = value.target.value;
+        const selectedPriorityItem = PriorityList.find(item => item.priority === selectedPriority);
+        
+        if (selectedPriorityItem) {
+            setEditHelpdeskStringFieldState('priority', selectedPriority);
+            const calculatedDueDate = calculateDueDate(selectedPriorityItem.days);
+            setEditHelpdeskStringFieldState('dueDate', calculatedDueDate);
+        };
+    }
+    
+    const calculateDueDate = (days: number): string => {
+        const dueDate = new Date(helpdeskState?.createdAt || new Date());
+        dueDate.setDate(dueDate.getDate() + days);
+        return dueDate.toISOString();
+    };
+
+    function changeStatus(status:string){
+        if(status === 'otvoren'){
+        return (
+            <Button onClick={() => {setEditHelpdeskNumberFieldState('assignedTo', userId); doEditTicket(ticketId)}} color={colorStatus(status)}>Preuzmi zahtjev</Button>
+        )
+        } else if(status === 'izvršenje') {
+        return (
+            <Button color={colorStatus(status)}>Zatvori zahtjev</Button>
+        )
+        }
+    }
 
     useEffect(() => {
         if (show) {
             getHelpdeskTicketsData();
-            console.log(userId)
+            setSelectedTab('details')
         }
     }, [show, ticketId]);
 
@@ -206,9 +241,10 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         {    
             groupId: editHelpdeskState?.editTicket.groupId,
             resolveDescription: editHelpdeskState?.editTicket.resolveDescription,
-            duoDate: editHelpdeskState?.editTicket.duoDate,
+            duoDate: editHelpdeskState?.editTicket.dueDate,
             assignedTo: editHelpdeskState?.editTicket.assignedTo,
             status: editHelpdeskState?.editTicket.status,
+            priority: editHelpdeskState?.editTicket.priority,
         },
         role as UserRole)
         .then((res: ApiResponse) => {
@@ -249,28 +285,35 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         <div className='grid lg:grid-cols-12 grid-cols gap-2'>
                         <div className='grid lg:col-span-4 col-span gap-2'>
                             <Input label="Korisnik" labelPlacement='inside' value={helpdeskState?.user?.fullname} />
-                            {helpdeskState?.articleId ? (
-                            <div className='grid gap-2'>
-                                <Input label="Naziv opreme" labelPlacement='inside' value={helpdeskState?.article?.stock?.name} />
-                                <Input label="Inventurni broj" labelPlacement='inside' value={helpdeskState?.article?.invNumber} />
-                                <Input label="Serijski broj" labelPlacement='inside' value={helpdeskState?.article?.serialNumber} />
-                            </div>
-                            ) : (<></>)}
                             <Input label="Grupa" labelPlacement='inside' value={helpdeskState?.group?.groupName} />
-                            <div>
-                            <div className='bg-default-100 rounded-xl pl-3 pr-3 pt-1 pb-1'>
-                            <span className='text-xs text-default-700'>Datum prijave i željeni rok</span>
-                            <Datepicker
-                                displayFormat='DD/MM/YYYY'
-                                disabled={true}
-                                separator='do'
-                                value={value}
-                                popoverDirection='up'
-                                inputClassName="w-full bg-default-100 rounded-xl focus:ring-0 text-small text-black" 
-                                onChange={handleValueChange}
-                            />
+                            <div className='grid grid-cols-2 gap-3'>
+                                <Input label="Datum prijave" labelPlacement='inside' value={Moment(helpdeskState?.createdAt).format('DD.MM.YYYY - HH:mm')} />
+                                <Input label="Željeni rok klijenta" labelPlacement='inside' value={Moment(helpdeskState?.clientDuoDate).format('DD.MM.YYYY - HH:mm')} />
                             </div>
-                            <span className='text-[11px] text-default-500 pl-3'>Željeni rok se automacki postavlja 7 dana od dana prijave</span>
+                            <div className='grid gap-2'>
+                                <Select
+                                    id='priority'
+                                    label='Prioritet'
+                                    placeholder='Odaberite prioritet'
+                                    value={editHelpdeskState.editTicket.priority}
+                                    onChange={handlePriorityChange}
+                                    >
+                                    {PriorityList.map((priorityItem) => (
+                                        <SelectItem
+                                        key={priorityItem.priority}
+                                        textValue={priorityItem.priority}
+                                        value={priorityItem.priority}
+                                        >
+                                            <div className="flex gap-2 items-center">
+                                                <div className="flex flex-col">
+                                                <span className="text-small">{priorityItem.priority}</span>
+                                                <span className="text-tiny text-default-400">Predviđeno vrijeme za rješenje {priorityItem.days} dan/a</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+                                <Input label="Predviđeni datum rješenja" labelPlacement='inside' value={Moment(editHelpdeskState.editTicket?.dueDate).format('DD.MM.YYYY - HH:mm')} />
                             </div>
                         </div>
                         <div className='grid lg:col-span-8 col-span gap-3 grid-flow-row auto-rows-max'>
@@ -287,6 +330,13 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                             </div>
                         </div>
                         </div>
+                        </Tab>
+                        <Tab isDisabled={helpdeskState?.articleId === null} key="article" title='Oprema'>
+                            <div className='grid gap-2'>
+                                <Input label="Naziv opreme" labelPlacement='inside' value={helpdeskState?.article?.stock?.name} />
+                                <Input label="Inventurni broj" labelPlacement='inside' value={helpdeskState?.article?.invNumber} />
+                                <Input label="Serijski broj" labelPlacement='inside' value={helpdeskState?.article?.serialNumber} />
+                            </div>
                         </Tab>
                         <Tab isDisabled={helpdeskState?.status !== 'otvoren'} key="forward" title='Proslijedi'>
                             {forwardTicket()}

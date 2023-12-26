@@ -65,11 +65,7 @@ const HelpdeskTicketPage: React.FC = () => {
         <div id='kontejner-tiketa' className="w-full flex flex-col gap-3">
         </div>
         {tiketsTable()}
-        <ModalDetails
-          show={showModal}
-          onHide={handleHideModal}
-          ticketId={selectedTicketId!}
-        />
+        
       </div>
     </div>
   )
@@ -150,7 +146,11 @@ const HelpdeskTicketPage: React.FC = () => {
               ))}
           </TableBody>
         </Table>
-        
+        <ModalDetails
+          show={showModal}
+          onHide={handleHideModal}
+          ticketId={selectedTicketId!}
+        />
       </div>
     )
   }

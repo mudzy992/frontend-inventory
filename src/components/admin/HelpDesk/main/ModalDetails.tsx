@@ -248,8 +248,16 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     }
 
     return (
-            <div className='mb-3'>
-            <Modal isOpen={show} onOpenChange={onHide} backdrop='blur' size='5xl' isDismissable={false}>
+            <div>
+            <Modal 
+            isOpen={show} 
+            onOpenChange={onHide} 
+            backdrop='blur' 
+            size='5xl' 
+            isDismissable={false}
+            className='flex flex-col'
+            /* scrollBehavior={'inside'} */
+            >
                 <ModalContent key={helpdeskState?.ticketId}>
                 <ModalHeader>
                     <div className='flex justify-between w-full'>
@@ -257,8 +265,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                     <Chip className='mr-3 col-end-3' color={colorStatus(helpdeskState?.status!)}>{helpdeskState?.status}</Chip></div>
                 </ModalHeader>
                 <ModalBody>
-                    <div className='container mx-auto'>
-                    
                     <Tabs 
                     aria-label='Opcije'
                     color='primary' 
@@ -350,8 +356,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                             {forwardTicket()}
                         </Tab>
                     </Tabs>
-                    
-                    </div>
                 </ModalBody>
                 <ModalFooter>
                     {changeStatus(helpdeskState?.status!)}

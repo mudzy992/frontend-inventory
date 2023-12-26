@@ -9,7 +9,7 @@ export default class HelpdeskTicketsType {
     groupId?: number;
     description?: string;
     resolveDescription?: string;
-    resolveDate?: string;
+    resolveDate?: Date;
     resolveTimespand?: string;
     createdAt?: Date;
     duoDate?: string;

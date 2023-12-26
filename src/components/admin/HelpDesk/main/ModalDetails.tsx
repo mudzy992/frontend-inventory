@@ -164,11 +164,11 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             || editHelpdeskState.editTicket.resolveResolution 
             || editHelpdeskState.editTicket.resolveTimespand === "" || null){
                 return setMessage("* Obavezno polje")
-        } else {
+        } 
             const date:Date = new Date();
             setEditHelpdeskStringFieldState('status', 'zatvoren')
             await setEditHelpdeskStringFieldState('resolveDate', date)
-        }
+        
         
      };
 

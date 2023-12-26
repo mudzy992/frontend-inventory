@@ -126,8 +126,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             },
         }));
     }
-    
-    
+     
     const setEditHelpdeskStringFieldState = (fieldName: string, newValue: any) => {
         setEdithelpDeskState((prev) => ({
             ...prev,

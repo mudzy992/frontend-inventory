@@ -51,6 +51,7 @@ const HelpdeskTicketPage: React.FC = () => {
 
   const handleHideModal = () => {
     setShowModal(false);
+    getHelpdeskTicketsData()
   };
 
   const openModalWithArticle = (ticketId: number) => {
@@ -138,7 +139,7 @@ const HelpdeskTicketPage: React.FC = () => {
                   <TableCell className="w-[200px] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description}</TableCell>
                   <TableCell>{item.group?.groupName}</TableCell>
                   <TableCell>{Moment(item.createdAt).format('DD.MM.YYYY - HH:mm')}</TableCell>
-                  <TableCell>{item.dueDate ? Moment(item.dueDate).format('DD.MM.YYYY - HH:mm') : ""}</TableCell>
+                  <TableCell>{item.duoDate ? Moment(item.duoDate).format('DD.MM.YYYY - HH:mm') : ""}</TableCell>
                   <TableCell><Chip variant='solid' color={colorStatus(item.status!)}>{item.status}</Chip></TableCell>
                   <TableCell>{item.assignedTo2?.fullname}</TableCell>
                   <TableCell>{actions(item.ticketId!)}</TableCell>

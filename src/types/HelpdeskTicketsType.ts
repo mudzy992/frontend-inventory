@@ -9,10 +9,10 @@ export default class HelpdeskTicketsType {
     groupId?: number;
     description?: string;
     resolveDescription?: string;
-    resolveDate?: Date;
+    resolveDate?: string;
     resolveTimespand?: string;
     createdAt?: Date;
-    dueDate?: string;
+    duoDate?: string;
     clientDuoDate?: Date;
     status?: "otvoren" | "izvršenje" | "zatvoren";
     assignedTo?: number;

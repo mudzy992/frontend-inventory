@@ -26,17 +26,24 @@ interface ResolveResolutionItem {
     id: number;
     resolution: string;
 }
+interface ValidationMessages {
+    priority?: string;
+    resolveResolution?: string;
+    resolveTimespand?: string;
+    resolveDescription?: string;
+  }
+  
 
 interface HelpdeskTicketState {
     editTicket: {
       groupId?: number | null;
       resolveDescription?: string;
-      duoDate?: string;
+      duoDate?: string | null;
       assignedTo?: number | null;
       status?: string;
-      priority?: string;
+      priority?: string | null;
       resolveDate?: Date;
-      resolveResolution?: string;
+      resolveResolution?: string | null;
       resolveTimespand?: string | null;
     };
   }
@@ -46,6 +53,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const [helpdeskState, setHelpdeskState] = useState<HelpdeskTicketsType>()
     const [editHelpdeskState, setEdithelpDeskState] = useState<HelpdeskTicketState>({ editTicket: {} });
     const [message, setMessage] = useState<string>('')
+    const [validateMessages, setValidateMessages] = useState<ValidationMessages>({});
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
     const [selectedTab, setSelectedTab] = useState<string>("details");
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -96,14 +104,14 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         setEdithelpDeskState((prev) => ({
         ...prev, 
         editTicket: {
-            duoDate: helpdeskState?.duoDate || '',
+            duoDate: helpdeskState?.duoDate || null,
             assignedTo: helpdeskState?.assignedTo || null,
             groupId: helpdeskState?.groupId || null,
             resolveDescription: helpdeskState?.resolveDescription || '',
             status: helpdeskState?.status || '',
-            priority: helpdeskState?.priority || '',
+            priority: helpdeskState?.priority || null,
             resolveDate: helpdeskState?.resolveDate || undefined,
-            resolveResolution: helpdeskState?.resolveResolution || '',
+            resolveResolution: helpdeskState?.resolveResolution || null,
             resolveTimespand: helpdeskState?.resolveTimespand || null,
         }
         }))
@@ -130,6 +138,13 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         }));
     };
 
+    const setValidationMessageFieldState = (field: string, value: string) => {
+        setValidateMessages((prev) => ({
+            ...prev,
+            [field]: value,
+          }));
+    }
+
     const handlePriorityChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedPriority = value.target.value;
         const selectedPriorityItem = PriorityList.find(item => item.priority === selectedPriority);
@@ -155,22 +170,29 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     const handleAssiningTicket = async () => {
-       setEditHelpdeskStringFieldState('status', 'izvršenje')
-        await setEditHelpdeskNumberFieldState('assignedTo', userId);
+        if(editHelpdeskState.editTicket.priority){
+            setEditHelpdeskStringFieldState('status', 'izvršenje')
+            await setEditHelpdeskNumberFieldState('assignedTo', userId); 
+        }
+        return setValidationMessageFieldState('priority', '* Odaberite prioritet')
     };
 
     const handleCloseTicket = async () => {
-        if(editHelpdeskState.editTicket.resolveDescription 
-            || editHelpdeskState.editTicket.resolveResolution 
-            || editHelpdeskState.editTicket.resolveTimespand === "" || null){
-                return setMessage("* Obavezno polje")
+        if (
+          editHelpdeskState.editTicket.resolveDescription ||
+          editHelpdeskState.editTicket.resolveResolution ||
+          editHelpdeskState.editTicket.resolveTimespand
+        ) {
+            const date = new Date();
+            setEditHelpdeskStringFieldState('status', 'zatvoren');
+            await setEditHelpdeskStringFieldState('resolveDate', date);
         } else {
-            const date:Date = new Date();
-            setEditHelpdeskStringFieldState('status', 'zatvoren')
-            await setEditHelpdeskStringFieldState('resolveDate', date)
+            setValidationMessageFieldState('resolveDescription', '* Upišite opis rješnja')
+            setValidationMessageFieldState('resolveResolution', '* Odaberite rezoluciju rješnja')
+            setValidationMessageFieldState('resolveTimespand', '* Upišite utrošeno vrijeme')
+            return
         }
-        
-     };
+      };
 
     function changeStatus(status:string){
         if(status === 'otvoren'){
@@ -211,16 +233,20 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     useEffect(() => {
-        doEditTicket(ticketId);
-        getHelpdeskTicketsData()
-        putTicketDetailsInState()
-      }, [editHelpdeskState.editTicket.assignedTo]);
+        if (editHelpdeskState.editTicket.assignedTo) {
+            doEditTicket(ticketId);
+            getHelpdeskTicketsData();
+            putTicketDetailsInState();
+        }
+    }, [editHelpdeskState.editTicket.assignedTo]);
 
     useEffect(() => {
-        doEditTicket(ticketId);
-        getHelpdeskTicketsData()
-        putTicketDetailsInState()
-      }, [editHelpdeskState.editTicket.resolveDate]);
+        if (editHelpdeskState.editTicket.resolveDate) {
+            doEditTicket(ticketId);
+            getHelpdeskTicketsData();
+            putTicketDetailsInState();
+        }
+    }, [editHelpdeskState.editTicket.resolveDate]);;
 
     useEffect(() => {
         if (show) {
@@ -377,8 +403,8 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                             id='priority'
                                             label='Prioritet'
                                             placeholder='Odaberite prioritet'
-                                            errorMessage={message}
-                                            value={editHelpdeskState.editTicket.priority}
+                                            errorMessage={editHelpdeskState.editTicket.priority === null ? validateMessages.priority : ''}
+                                            value={editHelpdeskState.editTicket.priority === null ? '' : editHelpdeskState.editTicket.priority}
                                             selectedKeys={editHelpdeskState.editTicket.priority ? [`${editHelpdeskState.editTicket.priority}`] : []}
                                             onChange={handlePriorityChange}
                                             >
@@ -399,7 +425,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                                 </SelectItem>
                                             ))}
                                         </Select>
-                                        <Input label="Predviđeni datum rješenja" 
+                                        <Input label="Predviđeni datum rješenja"
                                         labelPlacement='inside' 
                                         value={editHelpdeskState.editTicket?.duoDate ? Moment(editHelpdeskState.editTicket?.duoDate).format('DD.MM.YYYY - HH:mm') : ""} />
                                     </div>
@@ -417,8 +443,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                         </div>
                                         <Textarea label="Opis zahtjeva" value={helpdeskState?.description} />
                                     </div>
-                                    <div className=''>
+                                    <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : ''}>
                                         <Textarea
+                                            errorMessage={editHelpdeskState.editTicket.resolveDescription === '' ? validateMessages.resolveDescription : ''}
                                             isReadOnly={isDisabled}
                                             label="Rješenje zahtjeva"
                                             type='text'
@@ -426,15 +453,15 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                             onValueChange={(value: string) => setEditHelpdeskStringFieldState('resolveDescription', value)}
                                             placeholder='Opis rješnja zahtjeva' />
                                     </div>
-                                    <div className='grid grid-cols-3 gap-2'>
+                                    <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : 'grid grid-cols-3 gap-2'}>
                                         <div className='col-span-2'>
                                         <Select
                                             isDisabled={isDisabled}
                                             id='resolveResolution'
                                             label='Rješenje'
                                             placeholder='Odaberite rješnje'
-                                            errorMessage={message}
-                                            value={editHelpdeskState.editTicket.resolveResolution}
+                                            errorMessage={editHelpdeskState.editTicket.resolveResolution === null ? validateMessages.resolveResolution : ''}
+                                            value={editHelpdeskState.editTicket.resolveResolution === null ? "" : editHelpdeskState.editTicket.resolveResolution}
                                             selectedKeys={editHelpdeskState.editTicket.resolveResolution ? [`${editHelpdeskState.editTicket.resolveResolution}`] : []}
                                             onChange={(value) => setEditHelpdeskStringFieldState('resolveResolution', value.target.value)}
                                             >
@@ -455,7 +482,8 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                             ))}
                                         </Select>
                                         </div>
-                                        <Input label="Utrošeno vrijeme (minute)" 
+                                        <Input label="Utrošeno vrijeme (minute)"
+                                        errorMessage={editHelpdeskState.editTicket.resolveTimespand === null ? validateMessages.resolveTimespand : ''}
                                         isDisabled={isDisabled}
                                         labelPlacement='inside'
                                         description={resolvedTimespandDescription()}
@@ -482,7 +510,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         {isDisabled ? (<div className='flex items-center text-small bg-danger shadow-md rounded-xl p-2'>
                             <i className="bi bi-check2-circle mr-2 text-medium text-white font-bold" /> 
                             <span className=' text-white'>
-                            {editHelpdeskState.editTicket?.resolveDate ? Moment(editHelpdeskState.editTicket?.resolveDate).format('DD.MM.YYYY - HH:mm') : ""} 
+                                {editHelpdeskState.editTicket?.resolveDate ? Moment(editHelpdeskState.editTicket?.resolveDate).format('DD.MM.YYYY - HH:mm') : ""} 
                             </span></div>) 
                         : 
                         (<Button  color='success' onPress={() => doEditTicket(helpdeskState?.ticketId!)}>Sačuvaj</Button>)

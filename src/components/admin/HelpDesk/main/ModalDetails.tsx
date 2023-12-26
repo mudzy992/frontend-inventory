@@ -20,8 +20,12 @@ interface PriorityItem {
     id: number;
     priority: string;
     days: number;
-  }
+}
 
+interface ResolveResolutionItem {
+    id: number;
+    resolution: string;
+}
 
 interface HelpdeskTicketState {
     editTicket: {
@@ -31,7 +35,9 @@ interface HelpdeskTicketState {
       assignedTo?: number | null;
       status?: string;
       priority?: string;
-      resolveDate?: string;
+      resolveDate?: Date;
+      resolveResolution?: string;
+      resolveTimespand?: string | null;
     };
   }
 
@@ -59,6 +65,13 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         { id: 6, priority: "Zahtjevi za izmjenu/doradu manje složenosti", days: 5 },
         { id: 7, priority: "Zahtjevi za izmjenu/doradu veće složenosti", days: 5 },
       ];
+
+    const ResolveResolutionList: ResolveResolutionItem[] = [
+        {id: 1, resolution: "Nemoguće riješiti ili je u koliziji sa standardom ili politikom"},
+        {id: 2, resolution: "Riješen - nije potrebna analiza uzroka"},
+        {id: 3, resolution: "Uzrok problema nije otklonjen - privremeno rješenje"},
+        {id: 4, resolution: "Zahtjev je povučen od strane korisnika"},
+    ]
 
     const handleGroupChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(Number(value.target.value));
@@ -89,7 +102,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             resolveDescription: helpdeskState?.resolveDescription || '',
             status: helpdeskState?.status || '',
             priority: helpdeskState?.priority || '',
-            resolveDate: helpdeskState?.resolveDate || '',
+            resolveDate: helpdeskState?.resolveDate || undefined,
+            resolveResolution: helpdeskState?.resolveResolution || '',
+            resolveTimespand: helpdeskState?.resolveTimespand || null,
         }
         }))
     }
@@ -127,10 +142,17 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     }
 
     const calculateDueDate = (days: number): string => {
-        const dueDate = new Date(helpdeskState?.createdAt || new Date());
-        dueDate.setDate(dueDate.getDate() + days);
+        const today = new Date();
+        let dueDate = new Date(helpdeskState?.createdAt || today);
+        while (days > 0) {
+            dueDate.setDate(dueDate.getDate() + 1);
+            if (dueDate.getDay() !== 0 && dueDate.getDay() !== 6) {
+                days--;
+            }
+        }
+    
         return dueDate.toISOString();
-    }
+    };
 
     const handleAssiningTicket = async () => {
        setEditHelpdeskStringFieldState('status', 'izvršenje')
@@ -138,10 +160,16 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     const handleCloseTicket = async () => {
-        const date:Date = new Date();
-        setEditHelpdeskStringFieldState('status', 'zatvoren')
-        setEditHelpdeskStringFieldState('resolveDate', date)
-        //razlog rješenja postaviti
+        if(editHelpdeskState.editTicket.resolveDescription 
+            || editHelpdeskState.editTicket.resolveResolution 
+            || editHelpdeskState.editTicket.resolveTimespand === "" || null){
+                return setMessage("* Obavezno polje")
+        } else {
+            const date:Date = new Date();
+            setEditHelpdeskStringFieldState('status', 'zatvoren')
+            await setEditHelpdeskStringFieldState('resolveDate', date)
+        }
+        
      };
 
     function changeStatus(status:string){
@@ -155,6 +183,32 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             )
         } 
     }
+
+    const resolvedTimespandDescription = () => {
+        const resolvedTimespand = helpdeskState?.resolveTimespand;
+      
+        if (resolvedTimespand) {
+          const minutes = parseInt(resolvedTimespand, 10);
+          const days = Math.floor(minutes / (24 * 60));
+          const hours = Math.floor((minutes % (24 * 60)) / 60);
+          const remainingMinutes = minutes % 60;
+
+          const descriptionText = `Utrošeno: ${days} dan/a, ${hours} sat/i i ${remainingMinutes} minuta`;
+          return descriptionText
+        }
+      };
+
+    const updateResolvedTimespandFromInput = (value: string) => {
+        const resolvedTimespand = helpdeskState?.resolveTimespand;
+        
+        if (resolvedTimespand) {
+            const newValue = parseInt(resolvedTimespand, 10) + parseInt(value, 10);
+            setEditHelpdeskStringFieldState('resolveTimespand', newValue.toString());
+        }
+        if(!resolvedTimespand){
+            setEditHelpdeskStringFieldState('resolveTimespand', value);
+        }
+    };
 
     useEffect(() => {
         doEditTicket(ticketId);
@@ -266,9 +320,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             setMessage('Korisnik nema pravo za izmejne!')
             }
         })
-        
+        getHelpdeskTicketsData()
         } catch(error){
-        setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error)
+            setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error)
         }
     }
 
@@ -363,14 +417,50 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                         </div>
                                         <Textarea label="Opis zahtjeva" value={helpdeskState?.description} />
                                     </div>
-                                    <div>
-                                        <Textarea 
-                                            isDisabled={isDisabled} 
+                                    <div className=''>
+                                        <Textarea
+                                            isReadOnly={isDisabled}
                                             label="Rješenje zahtjeva"
                                             type='text'
                                             value={editHelpdeskState.editTicket.resolveDescription}
                                             onValueChange={(value: string) => setEditHelpdeskStringFieldState('resolveDescription', value)}
                                             placeholder='Opis rješnja zahtjeva' />
+                                    </div>
+                                    <div className='grid grid-cols-3 gap-2'>
+                                        <div className='col-span-2'>
+                                        <Select
+                                            isDisabled={isDisabled}
+                                            id='resolveResolution'
+                                            label='Rješenje'
+                                            placeholder='Odaberite rješnje'
+                                            errorMessage={message}
+                                            value={editHelpdeskState.editTicket.resolveResolution}
+                                            selectedKeys={editHelpdeskState.editTicket.resolveResolution ? [`${editHelpdeskState.editTicket.resolveResolution}`] : []}
+                                            onChange={(value) => setEditHelpdeskStringFieldState('resolveResolution', value.target.value)}
+                                            >
+                                                
+                                            {ResolveResolutionList.map((resolveItem) => (
+                                                <SelectItem
+                                                key={resolveItem.resolution}
+                                                textValue={resolveItem.resolution}
+                                                value={resolveItem.resolution}
+                                                >
+                                                    <div className="flex gap-2 items-center">
+                                                        <div className="flex flex-col">
+                                                            <Tooltip content={resolveItem.resolution} showArrow placement='right'>
+                                                            <span className="text-small">{resolveItem.resolution}</span></Tooltip>
+                                                        </div>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </Select>
+                                        </div>
+                                        <Input label="Utrošeno vrijeme (minute)" 
+                                        isDisabled={isDisabled}
+                                        labelPlacement='inside'
+                                        description={resolvedTimespandDescription()}
+                                        onValueChange={(value: string) => updateResolvedTimespandFromInput(value)}
+                                        />
                                     </div>
                                 </div>
                                 </div>
@@ -392,7 +482,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         {isDisabled ? (<div className='flex items-center text-small bg-danger shadow-md rounded-xl p-2'>
                             <i className="bi bi-check2-circle mr-2 text-medium text-white font-bold" /> 
                             <span className=' text-white'>
-                            Zahtjev zatvoren: {editHelpdeskState.editTicket?.resolveDate ? Moment(editHelpdeskState.editTicket?.resolveDate).format('DD.MM.YYYY - HH:mm') : ""} 
+                            {editHelpdeskState.editTicket?.resolveDate ? Moment(editHelpdeskState.editTicket?.resolveDate).format('DD.MM.YYYY - HH:mm') : ""} 
                             </span></div>) 
                         : 
                         (<Button  color='success' onPress={() => doEditTicket(helpdeskState?.ticketId!)}>Sačuvaj</Button>)

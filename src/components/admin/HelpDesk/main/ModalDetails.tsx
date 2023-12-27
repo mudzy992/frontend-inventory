@@ -177,19 +177,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     const handleCloseTicket = async () => {
-<<<<<<< HEAD
-        if(editHelpdeskState.editTicket.resolveDescription 
-            || editHelpdeskState.editTicket.resolveResolution 
-            || editHelpdeskState.editTicket.resolveTimespand === "" || null){
-                return setMessage("* Obavezno polje")
-        } 
-            const date:Date = new Date();
-            setEditHelpdeskStringFieldState('status', 'zatvoren')
-            await setEditHelpdeskStringFieldState('resolveDate', date)
-        
-        
-     };
-=======
         if (
           editHelpdeskState.editTicket.resolveDescription &&
           editHelpdeskState.editTicket.resolveResolution &&
@@ -205,7 +192,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             return
         }
       };
->>>>>>> cbdc7bdf0e9bbf10a3f21ee8a0ebff3aadda7075
 
     function changeStatus(status:string){
         if(status === 'otvoren'){

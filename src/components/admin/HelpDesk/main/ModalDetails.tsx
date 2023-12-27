@@ -16,6 +16,7 @@ type ModalDetailsProps = {
   ticketId: number;
 };
 
+
 interface PriorityItem {
     id: number;
     priority: string;
@@ -33,7 +34,6 @@ interface ValidationMessages {
     resolveDescription?: string;
   }
   
-
 interface HelpdeskTicketState {
     editTicket: {
       groupId?: number | null;

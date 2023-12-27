@@ -11,6 +11,7 @@ import { Alert } from '../../custom/Alert';
 import { ApiConfig } from '../../../config/api.config';
 import { useUserContext } from '../../UserContext/UserContext';
 import { UserRole } from '../../../types/UserRoleType';
+import NewTicketByArticleModal from '../../admin/HelpDesk/new/ByArticle/NewTicketByArticleModal';
 
 interface UpgradeFeaturesType {
   name: string;
@@ -32,6 +33,7 @@ export default function ArticleOnUserPage() {
   const { role } = useUserContext()
   const { serial } = useParams();
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
 
   const [state, setState] = useState<ArticleOnUserPageState>({
     message: '',
@@ -67,22 +69,32 @@ export default function ArticleOnUserPage() {
               {state.message}            
         </Card>
     );
-}
-  
-  
+  }
 
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
+
+  const handleHideModal = () => {
+    setShowModal(false);
+  };
+
+  const openModalWithArticle = (ticketId: number) => {
+    handleShowModal();
+  };
+
+  
   useEffect(() => {
     if (!serial) {
       return;
-    }
+  }
 
-    if(state.isLoggedIn === false) {
-      return (
-        navigate('/login')
-      )
-    } 
-
-    getArticleData(serial as string);
+  if(state.isLoggedIn === false) {
+    return (
+      navigate('/login')
+    )
+  } 
+  getArticleData(serial as string);
   }, [serial]);
 
   const getArticleData = (serial: string) => {
@@ -284,6 +296,9 @@ function saveFile (docPath: any) {
             <div className="lg:flex">
                 <div className="lg:w-8/12 xs:w-full lg:mr-5">
                     <div className="lg:flex">
+                      <div>
+                        <Button variant='flat' color='danger' size={'sm'}></Button>
+                      </div>
                         <div className="lg:w-4/12 xs:w-full flex justify-center items-center">
                             <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
                         </div>
@@ -321,7 +336,7 @@ function saveFile (docPath: any) {
                     <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
                     <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
                     <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
-                    <TableColumn>#</TableColumn>
+                    <TableColumn>#1</TableColumn>
                   </TableHeader>
                   <TableBody>
                     {article.articleTimelines?.map((timeline) => (
@@ -402,7 +417,12 @@ function saveFile (docPath: any) {
                             </Card>
                     </CardBody>
                 </Card>
-            </div> 
+            </div>
+            <NewTicketByArticleModal 
+            show={showModal}
+            onHide={handleHideModal}
+            data={state.article}
+            />
         </div>
   );
 }

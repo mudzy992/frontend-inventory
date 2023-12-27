@@ -1,5 +1,6 @@
 import ArticleType from "./ArticleType";
 import FeaturesType from "./FeaturesType";
+import TicketGroupType from "./TicketGroupType";
 
 export default class CategoryType {
     categoryId?: number;
@@ -8,4 +9,5 @@ export default class CategoryType {
     parentCategoryId?: number;
     articles?: ArticleType[]
     features?: FeaturesType[];
+    group?: TicketGroupType;
 }

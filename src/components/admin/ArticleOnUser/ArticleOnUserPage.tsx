@@ -16,6 +16,7 @@ import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';
 import { useUserContext } from '../../UserContext/UserContext';
 import { UserRole } from '../../../types/UserRoleType';
+import NewTicketByArticleModal from '../HelpDesk/new/ByArticle/NewTicketByArticleModal';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -63,6 +64,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     const { role } = useUserContext()
     const [selectedUser, setSelectedUser] = useState<string>('')
     const [selectedUserIsDisabled, setSelectedUserIdDisabled] = useState<boolean>(true)
+    const [showModal, setShowModal] = useState(false);
     const [state, setState] = useState<AdminArticleOnUserPageState> ({
             message: "",
             users: [],
@@ -306,6 +308,18 @@ const AdminArticleOnUserPage: React.FC = () => {
         setUpgradeModalVisibleState(true)
     }
 
+    const handleShowModal = () => {
+        setShowModal(true);
+    };
+
+    const handleHideModal = () => {
+        setShowModal(false);
+    };
+
+    const openModalWithArticle = (data:ArticleType) => {
+        handleShowModal();
+    };
+
 
     const addNewUpgradeFeatureButton = () => {
         return (
@@ -541,7 +555,12 @@ const AdminArticleOnUserPage: React.FC = () => {
                             </Card>
                     </CardBody>
                 </Card>
-            </div> 
+            </div>
+            <NewTicketByArticleModal 
+            show={showModal}
+            onHide={handleHideModal}
+            data={state.article}
+            />
         </div>
     )
     
@@ -714,6 +733,7 @@ function renderArticleData(article: ArticleType) {
         return (
             <div className="lg:flex">
                 <div className="lg:w-8/12 xs:w-full lg:mr-5">
+                    <Button size='sm' color='danger' className='absolute' onClick={() => openModalWithArticle(state.article)} > Prijavi problem</Button>
                     <div className="lg:flex">
                         <div className="lg:w-4/12 xs:w-full flex justify-center items-center">
                             <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>

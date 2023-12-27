@@ -127,7 +127,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
            {menuItems.map(makeNavLink)}
       </NavbarContent>
       <NavbarContent as="div" justify="end">
-        <span className="text-small">{gender(user.gender || '')} {user.surname}</span>
+        <span className="text-small lg:inline hidden">{gender(user.gender || '')} {user.surname}</span>
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <Avatar

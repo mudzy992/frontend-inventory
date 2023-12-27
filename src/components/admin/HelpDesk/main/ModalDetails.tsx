@@ -1,6 +1,6 @@
 // ModalDetails.tsx
 import React, { Key, useEffect, useState } from 'react';
-import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner } from '@nextui-org/react';
+import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner, Card } from '@nextui-org/react';
 import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
 import api, { ApiResponse } from '../../../../API/api';
 import { UserRole } from '../../../../types/UserRoleType';
@@ -191,8 +191,8 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
      };
 =======
         if (
-          editHelpdeskState.editTicket.resolveDescription ||
-          editHelpdeskState.editTicket.resolveResolution ||
+          editHelpdeskState.editTicket.resolveDescription &&
+          editHelpdeskState.editTicket.resolveResolution &&
           editHelpdeskState.editTicket.resolveTimespand
         ) {
             const date = new Date();
@@ -366,16 +366,16 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     }
 
     return (
-            <div>
+           
             <Modal 
             isOpen={show} 
             onOpenChange={onHide} 
             backdrop='blur' 
             size='5xl' 
             isDismissable={false}
-            className='flex flex-col'
+            scrollBehavior='inside'
             >
-                    <ModalContent key={helpdeskState?.ticketId}>
+                    <ModalContent key={helpdeskState?.ticketId} className='overflow-auto'>
                     <ModalHeader>
                         <div className='flex justify-between w-full'>
                         <span>Pregled tiketa <span className='text-default-500'>#{helpdeskState?.ticketId}</span></span> 
@@ -386,7 +386,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                     </div>  ) : (
                         <div>
                     <ModalBody>
-                        <Tabs 
+                        <Tabs
                         aria-label='Opcije'
                         color='primary' 
                         radius='full'
@@ -495,11 +495,11 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                             ))}
                                         </Select>
                                         </div>
-                                        <Input label="Utrošeno vrijeme (minute)"
+                                        <Input label={editHelpdeskState.editTicket.resolveTimespand ? 'Dodatno vrijeme (minute)' : 'Utrošeno vrijeme (minute)'}
                                         errorMessage={editHelpdeskState.editTicket.resolveTimespand === null ? validateMessages.resolveTimespand : ''}
                                         isDisabled={isDisabled}
                                         labelPlacement='inside'
-                                        description={resolvedTimespandDescription()}
+                                        description={<span className='text-success'>{resolvedTimespandDescription()}</span>}
                                         onValueChange={(value: string) => updateResolvedTimespandFromInput(value)}
                                         />
                                     </div>
@@ -528,7 +528,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         : 
                         (<Button  color='success' onPress={() => doEditTicket(helpdeskState?.ticketId!)}>Sačuvaj</Button>)
                         }
-                        
                         <Button color='danger' onPress={onHide}>Zatvori</Button>
                     </ModalFooter>
                     </div>
@@ -536,7 +535,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                 </ModalContent>
                     </Modal>
             
-            </div>
+           
     );
 
     function forwardTicket() {

@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { ApiConfig } from "../config/api.config"
-import { saveIdentity, useUserContext } from "../components/UserContext/UserContext";
 
 export default function api(
     path: string,

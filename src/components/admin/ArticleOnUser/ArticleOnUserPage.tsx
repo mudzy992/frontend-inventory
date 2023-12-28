@@ -733,7 +733,7 @@ function renderArticleData(article: ArticleType) {
         return (
             <div className="lg:flex">
                 <div className="lg:w-8/12 xs:w-full lg:mr-5">
-                    <Button size='sm' color='danger' className='absolute' onClick={() => openModalWithArticle(state.article)} > Prijavi problem</Button>
+                    <Button size='sm' color='danger' className='absolute' variant='flat' onClick={() => openModalWithArticle(state.article)} > Prijavi problem</Button>
                     <div className="lg:flex">
                         <div className="lg:w-4/12 xs:w-full flex justify-center items-center">
                             <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>

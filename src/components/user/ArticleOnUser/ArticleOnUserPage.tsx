@@ -79,11 +79,6 @@ export default function ArticleOnUserPage() {
     setShowModal(false);
   };
 
-  const openModalWithArticle = (ticketId: number) => {
-    handleShowModal();
-  };
-
-  
   useEffect(() => {
     if (!serial) {
       return;
@@ -122,8 +117,6 @@ export default function ArticleOnUserPage() {
         setErrorMessage('Korisnik nema dovoljno prava za učitavanje ovih podataka.')
         return
       }
-      console.log(serial)
-      console.log(res.data)
       setUpgradeFeatures(res.data);
     });
   };
@@ -158,7 +151,6 @@ export default function ArticleOnUserPage() {
             <span className='ml-2'>Detalji korisnika</span>
             <Listbox key={userDet.user?.userId} className='mt-2 pt-3 bg-default-100 rounded-2xl shadow-sm' aria-label='user-details'>
               <ListboxItem
-                className='w-[95%]'
                 key={userDet.user?.fullname!}
                 description={<span className='text-tiny text-gray-400'>Naziv korisnika</span>}
                 textValue={userDet.user?.fullname}
@@ -168,7 +160,7 @@ export default function ArticleOnUserPage() {
               </ListboxItem>
               <ListboxItem 
                 textValue={userDet.user?.email} 
-                className='w-[95%]' key={userDet.user?.email!} 
+                key={userDet.user?.email!} 
                 description={<span className='text-tiny text-gray-400'>Email</span>}
                 aria-label={`Email korisnika: ${userDet.user?.email}`}
                 >
@@ -176,7 +168,7 @@ export default function ArticleOnUserPage() {
               </ListboxItem>
               <ListboxItem 
                 textValue={userDet.user?.department?.title} 
-                className='w-[95%]' key={userDet.user?.department?.title!} 
+                 key={userDet.user?.department?.title!} 
                 description={<span className='text-tiny text-gray-400'>Naziv sektora/odjeljenja</span>}
                 aria-label={`Sektor korisnika: ${userDet.user?.department?.title}`}
                 >
@@ -184,7 +176,7 @@ export default function ArticleOnUserPage() {
               </ListboxItem>
               <ListboxItem 
                 textValue={userDet.user?.job?.title} 
-                className='w-[95%]' key={userDet.user?.job?.title!} 
+                key={userDet.user?.job?.title!} 
                 description={<span className='text-tiny text-gray-400'>Naziv radnog mjesta</span>}
                 aria-label={`Radno mjesto: ${userDet.user?.job?.title}`}
                 >
@@ -192,7 +184,7 @@ export default function ArticleOnUserPage() {
               </ListboxItem>
               <ListboxItem 
                 textValue={userDet.user?.location?.name} 
-                className='w-[95%]' key={userDet.user?.location?.name!} 
+                key={userDet.user?.location?.name!} 
                 description={<span className='text-tiny text-gray-400'>Lokacija</span>}
                 aria-label={`Lokacija korisnika: ${userDet.user?.location?.name}`}
                 >
@@ -297,7 +289,12 @@ function saveFile (docPath: any) {
                 <div className="lg:w-8/12 xs:w-full lg:mr-5">
                     <div className="lg:flex">
                       <div>
-                        <Button variant='flat' color='danger' size={'sm'}></Button>
+                        <Button variant='flat' color='danger' size={'sm'} onClick={() => handleShowModal()}> Prijavi problem</Button>
+                        <NewTicketByArticleModal 
+                          show={showModal}
+                          onHide={handleHideModal}
+                          data={state.article}
+                          />
                       </div>
                         <div className="lg:w-4/12 xs:w-full flex justify-center items-center">
                             <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
@@ -330,7 +327,7 @@ function saveFile (docPath: any) {
                     </div>
 
                 <div className="lg:flex mb-3">
-                <Table className='shadow-sm'>
+                <Table className='shadow-sm' aria-label='tabela-artikala'>
                   <TableHeader>
                     <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
                     <TableColumn>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
@@ -418,11 +415,7 @@ function saveFile (docPath: any) {
                     </CardBody>
                 </Card>
             </div>
-            <NewTicketByArticleModal 
-            show={showModal}
-            onHide={handleHideModal}
-            data={state.article}
-            />
+            
         </div>
   );
 }

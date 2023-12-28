@@ -249,19 +249,12 @@ const AdminUserProfilePage: React.FC = () => {
         }
       }, [dataReady, state.editUser.departmentId]);
       
-
       useEffect(() => {
         // Postavite selectedLocationId nakon što su podaci o lokacijama dohvaćeni
         if (locationData.length > 0) {
           setSelectedLocationId(state.editUser.locationId ? `${state.editUser.locationId}` : '');
         }
       }, [locationData, state.editUser.locationId]);
-
-
-    /* HANDLE FUNKCIJE */
-
-    
- 
     return (
         <>
             <RoledMainMenu/>
@@ -275,12 +268,9 @@ const AdminUserProfilePage: React.FC = () => {
                         </Card>
                     </Tab>
                     <Tab key='zaduzeni-artikli' title='Zaduženi artikli'>
-
-                                {articles()}
-
+                        {articles()}
                     </Tab>
                 </Tabs>
-          
         </div></>            
     )
 
@@ -444,9 +434,6 @@ const AdminUserProfilePage: React.FC = () => {
                             </SelectItem>
                         ))}
                         </Select>
-
-
-
                             <Select
                                 label='Radno mjesto'
                                 selectedKeys={state.editUser.jobId ? [`${state.editUser.jobId}`] : []}
@@ -474,7 +461,6 @@ const AdminUserProfilePage: React.FC = () => {
                             <Select
                                 label='Spol'
                                 selectedKeys={state.editUser.gender ? [`${state.editUser.gender}`] : []}
-                                
                                 onChange={(e:any) => {setEditUserStringFieldState('gender', e.target.value)}}
                                 >
                                 <SelectItem key='muško' textValue="muško" value='muško'>muško</SelectItem>

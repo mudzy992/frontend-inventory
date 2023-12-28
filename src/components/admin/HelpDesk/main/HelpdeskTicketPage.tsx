@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { Key, useEffect, useState } from 'react'
 import api, { ApiResponse } from '../../../../API/api'
 import { useUserContext } from '../../../UserContext/UserContext';
 import { UserRole } from '../../../../types/UserRoleType';
 import RoledMainMenu from '../../../RoledMainMenu/RoledMainMenu';
-import { Chip, Table, TableBody, TableCell, TableColumn, 
-  TableHeader, TableRow, Tooltip,  } from '@nextui-org/react';
+import { Chip, Tab, Table, TableBody, TableCell, TableColumn, 
+  TableHeader, TableRow, Tabs, Tooltip,  } from '@nextui-org/react';
 import TicketGroupType from '../../../../types/TicketGroupType';
 import Moment from 'moment';
 import ModalDetails from './ModalDetails';
@@ -16,12 +16,13 @@ const HelpdeskTicketPage: React.FC = () => {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
+  const [selectedTab, setSelectedTab] = useState<string>("unassigned");
   
   useEffect(() => {
     if (userId !== undefined) {
       getHelpdeskTicketsData();
     }
-  }, [userId]);
+  }, [userId, selectedTab]);
 
   //Api za preuzimanje grupa i tiketa iz grupe
   const getHelpdeskTicketsData = () => {
@@ -64,9 +65,27 @@ const HelpdeskTicketPage: React.FC = () => {
       <RoledMainMenu />
       <div className="container mx-auto lg:px-4 mt-3 h-max">
         <div id='kontejner-tiketa' className="w-full flex flex-col gap-3">
-        </div>
-        {tiketsTable()}
-        
+          </div>
+          <Tabs
+          aria-label='Opcije'
+          color='primary' 
+          radius='full'
+          selectedKey={selectedTab}
+          onSelectionChange={(key: Key) => setSelectedTab(key as string)}
+          >
+            <Tab key='all' title="Svi">
+              {allTicketsTable()}
+            </Tab>
+            <Tab key='unassigned' title="Nepreuzeti">
+              {unAssignedTickets()}
+            </Tab>
+            <Tab key='assigned' title='Moji preuzeti'>
+              {assignedByUserTickets()}
+            </Tab>
+            <Tab key='solved' title='Moji završeni'>
+              {assignedByUserSolvedTickets()}
+            </Tab>
+          </Tabs>
       </div>
     </div>
   )
@@ -107,7 +126,7 @@ const HelpdeskTicketPage: React.FC = () => {
     )
   }
 
-  function tiketsTable() {
+  function allTicketsTable() {
     return (
       <div className='w-full'>
         <Table
@@ -132,6 +151,153 @@ const HelpdeskTicketPage: React.FC = () => {
             {groupState
               .flatMap((group) => group.helpdeskTickets || [])
               .filter((item) => !!item)
+              .map((item) => (
+                <TableRow key={item.ticketId}>
+                  <TableCell>{item.ticketId}</TableCell>
+                  <TableCell>{item.user?.fullname}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description}</TableCell>
+                  <TableCell>{item.group?.groupName}</TableCell>
+                  <TableCell>{Moment(item.createdAt).format('DD.MM.YYYY - HH:mm')}</TableCell>
+                  <TableCell>{item.duoDate ? Moment(item.duoDate).format('DD.MM.YYYY - HH:mm') : ""}</TableCell>
+                  <TableCell><Chip variant='solid' color={colorStatus(item.status!)}>{item.status}</Chip></TableCell>
+                  <TableCell>{item.assignedTo2?.fullname}</TableCell>
+                  <TableCell>{actions(item.ticketId!)}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+        <ModalDetails
+          show={showModal}
+          onHide={handleHideModal}
+          ticketId={selectedTicketId!}
+        />
+      </div>
+    )
+  }
+
+  function unAssignedTickets() {
+    return (
+      <div className='w-full'>
+        <Table
+        aria-label='tabla-tiketa'
+        isHeaderSticky
+        isStriped
+        isCompact
+        selectionMode='single'
+        >
+          <TableHeader>
+            <TableColumn key="ticketID">#</TableColumn>
+            <TableColumn key="prijavio">Prijavio/la</TableColumn>
+            <TableColumn key="opis">Opis tiketa</TableColumn>
+            <TableColumn key="grupa">Grupa</TableColumn>
+            <TableColumn key="datum-prijave">Datum prijave</TableColumn>
+            <TableColumn key="datum-izvrsetka">Datum izvršetka</TableColumn>
+            <TableColumn key="status">Status</TableColumn>
+            <TableColumn key="zaduzeni-korisni">Izvršava zadatak</TableColumn>
+            <TableColumn key="action">Akcije</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent="Svaka čast, svi tiketi su završeni"> 
+            {groupState
+              .flatMap((group) => group.helpdeskTickets || [])
+              .filter((item) => !!item && item.assignedTo === null)
+              .map((item) => (
+                <TableRow key={item.ticketId}>
+                  <TableCell>{item.ticketId}</TableCell>
+                  <TableCell>{item.user?.fullname}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description}</TableCell>
+                  <TableCell>{item.group?.groupName}</TableCell>
+                  <TableCell>{Moment(item.createdAt).format('DD.MM.YYYY - HH:mm')}</TableCell>
+                  <TableCell>{item.duoDate ? Moment(item.duoDate).format('DD.MM.YYYY - HH:mm') : ""}</TableCell>
+                  <TableCell><Chip variant='solid' color={colorStatus(item.status!)}>{item.status}</Chip></TableCell>
+                  <TableCell>{item.assignedTo2?.fullname}</TableCell>
+                  <TableCell>{actions(item.ticketId!)}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+        <ModalDetails
+          show={showModal}
+          onHide={handleHideModal}
+          ticketId={selectedTicketId!}
+        />
+      </div>
+    )
+  }
+
+  function assignedByUserTickets() {
+    return (
+      <div className='w-full'>
+        <Table
+        aria-label='tabla-tiketa'
+        isHeaderSticky
+        isStriped
+        isCompact
+        selectionMode='single'
+        >
+          <TableHeader>
+            <TableColumn key="ticketID">#</TableColumn>
+            <TableColumn key="prijavio">Prijavio/la</TableColumn>
+            <TableColumn key="opis">Opis tiketa</TableColumn>
+            <TableColumn key="grupa">Grupa</TableColumn>
+            <TableColumn key="datum-prijave">Datum prijave</TableColumn>
+            <TableColumn key="datum-izvrsetka">Datum izvršetka</TableColumn>
+            <TableColumn key="status">Status</TableColumn>
+            <TableColumn key="zaduzeni-korisni">Izvršava zadatak</TableColumn>
+            <TableColumn key="action">Akcije</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent="Svaka čast, svi tiketi su završeni">
+            {groupState
+              .flatMap((group) => group.helpdeskTickets || [])
+              .filter((item) => !!item && item.assignedTo === userId && item.status === 'izvršenje')
+              .map((item) => (
+                <TableRow key={item.ticketId}>
+                  <TableCell>{item.ticketId}</TableCell>
+                  <TableCell>{item.user?.fullname}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{item.description}</TableCell>
+                  <TableCell>{item.group?.groupName}</TableCell>
+                  <TableCell>{Moment(item.createdAt).format('DD.MM.YYYY - HH:mm')}</TableCell>
+                  <TableCell>{item.duoDate ? Moment(item.duoDate).format('DD.MM.YYYY - HH:mm') : ""}</TableCell>
+                  <TableCell><Chip variant='solid' color={colorStatus(item.status!)}>{item.status}</Chip></TableCell>
+                  <TableCell>{item.assignedTo2?.fullname}</TableCell>
+                  <TableCell>{actions(item.ticketId!)}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+        <ModalDetails
+          show={showModal}
+          onHide={handleHideModal}
+          ticketId={selectedTicketId!}
+        />
+      </div>
+    )
+  }
+
+  function assignedByUserSolvedTickets() {
+    return (
+      <div className='w-full'>
+        <Table
+        aria-label='tabla-tiketa'
+        isHeaderSticky
+        isStriped
+        isCompact
+        selectionMode='single'
+        >
+          <TableHeader>
+            <TableColumn key="ticketID">#</TableColumn>
+            <TableColumn key="prijavio">Prijavio/la</TableColumn>
+            <TableColumn key="opis">Opis tiketa</TableColumn>
+            <TableColumn key="grupa">Grupa</TableColumn>
+            <TableColumn key="datum-prijave">Datum prijave</TableColumn>
+            <TableColumn key="datum-izvrsetka">Datum izvršetka</TableColumn>
+            <TableColumn key="status">Status</TableColumn>
+            <TableColumn key="zaduzeni-korisni">Izvršava zadatak</TableColumn>
+            <TableColumn key="action">Akcije</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent="Svaka čast, svi tiketi su završeni">
+            {groupState
+              .flatMap((group) => group.helpdeskTickets || [])
+              .filter((item) => !!item && item.assignedTo === userId && item.status === 'zatvoren')
               .map((item) => (
                 <TableRow key={item.ticketId}>
                   <TableCell>{item.ticketId}</TableCell>

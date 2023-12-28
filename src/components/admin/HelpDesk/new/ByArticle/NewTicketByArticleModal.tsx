@@ -139,22 +139,19 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
                         onChange={(value) => setAddNewTicketFieldState('groupPartentId', value.target.value)}
                         >
                         {parentGroupState.map((group, index) => (
-  <SelectItem 
-    key={group.groupId || index} 
-    textValue={`${group.groupId} - ${group.groupName}`}
-    value={Number(group.groupId)}
-  >
-    <div className="flex gap-2 items-center">
-      <div className="flex flex-col">
-        <span className="text-small">{group.groupName}</span>
-        <span className="text-tiny text-default-400">{group.location?.name}</span>
-      </div>
-    </div>
-  </SelectItem>
-))}
-
-
-
+                        <SelectItem 
+                            key={group.groupId || index} 
+                            textValue={`${group.groupId} - ${group.groupName}`}
+                            value={Number(group.groupId)}
+                        >
+                            <div className="flex gap-2 items-center">
+                            <div className="flex flex-col">
+                                <span className="text-small">{group.groupName}</span>
+                                <span className="text-tiny text-default-400">{group.location?.name}</span>
+                            </div>
+                            </div>
+                        </SelectItem>
+                        ))}
                     </Select> 
                     <Textarea 
                     label="Opis zahtjeva"

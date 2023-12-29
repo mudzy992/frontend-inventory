@@ -1,6 +1,6 @@
 // ModalDetails.tsx
 import React, { Key, useEffect, useState } from 'react';
-import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner, Card } from '@nextui-org/react';
+import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner, Card, Progress } from '@nextui-org/react';
 import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
 import api, { ApiResponse } from '../../../../API/api';
 import { UserRole } from '../../../../types/UserRoleType';
@@ -57,7 +57,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
     const [selectedTab, setSelectedTab] = useState<string>("details");
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
-    const [selectedUser, setSelectedUser] = useState<number | undefined>(undefined);
+    const [selectedUser, setSelectedUser] = useState<number | null>(null);
     const [moderatorGroupState, setModeratorGroupState] = useState<ModeratorGroupMappingType[]>([])
     const [groupUsers, setGroupUsers] = useState<UserType[]>([]);
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
@@ -83,10 +83,23 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
 
     const handleGroupChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(Number(value.target.value));
+        if(!selectedGroup){
+            setEditHelpdeskNumberFieldState('groupId', value.target.value);
+            setEditHelpdeskStringFieldState('assignedTo', null);
+            setEditHelpdeskStringFieldState('status', 'otvoren');
+        }
+        if(selectedGroup){
+            setEditHelpdeskStringFieldState('groupId', null);
+            setEditHelpdeskStringFieldState('assignedTo', null);
+            setSelectedUser(null)
+        }
+        
     };
     
     const handleUserChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedUser(Number(value.target.value));
+        setEditHelpdeskNumberFieldState('assignedTo', value.target.value);
+        setEditHelpdeskStringFieldState('status', 'izvršenje');
     };
 
     function colorStatus(status: string) {
@@ -168,6 +181,18 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         return dueDate.toISOString();
     };
 
+    const calculateElapsedTime = (createdAt:Date, duoDate:string) => {
+        const createdAtDate = new Date();
+        const duoDateDate = new Date(duoDate);
+        const timeDifference = createdAtDate.getTime() - duoDateDate.getTime();
+        const totalDuration = 24 * 60 * 60 * 1000;
+        const calculate = ((totalDuration - timeDifference) / totalDuration) * 10.00;    
+        const remainingTimePercentage = (100 - calculate)
+        return remainingTimePercentage;
+      };
+
+    const progressValue = calculateElapsedTime(helpdeskState?.createdAt!, editHelpdeskState.editTicket.duoDate!)
+
     const handleAssiningTicket = async () => {
         if(editHelpdeskState.editTicket.priority){
             setEditHelpdeskStringFieldState('status', 'izvršenje')
@@ -232,7 +257,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     useEffect(() => {
-        if (editHelpdeskState.editTicket.assignedTo) {
+        if (editHelpdeskState.editTicket.assignedTo === userId) {
             doEditTicket(ticketId);
             getHelpdeskTicketsData();
             putTicketDetailsInState();
@@ -265,7 +290,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
 
     useEffect(() => {
         if (selectedGroup) {
-        // Filtriraj korisnike koji pripadaju odabranoj grupi
         const filteredUsers = moderatorGroupState
             .filter((group) => group.group?.groupId === selectedGroup)
             .flatMap((group) => group.user || [])
@@ -273,17 +297,18 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         
         setGroupUsers(filteredUsers);
         }
-    }, [selectedGroup, moderatorGroupState]); 
+    }, [selectedGroup, moderatorGroupState, selectedUser]); 
 
     useEffect(() => {
-        if (selectedTab === 'forward') {  
+        if (selectedTab === 'forward') {
+            setSelectedGroup(null)
             getAllModeratorsInGroup();
         }
     }, [selectedTab]);
 
 
     const getHelpdeskTicketsData = () => {
-        setIsLoading(true); // Postavi isLoading na true pre nego što počneš sa zahtevom
+        setIsLoading(true);
     
         api(`/api/helpdesk/ticket/${ticketId}`, "get", {}, role as UserRole)
             .then((res: ApiResponse) => {
@@ -353,175 +378,189 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
 
     return (
            
-            <Modal 
-            isOpen={show} 
-            onOpenChange={onHide} 
-            backdrop='blur' 
-            size='5xl' 
-            isDismissable={false}
-            scrollBehavior='inside'
-            >
-                    <ModalContent key={helpdeskState?.ticketId} className='overflow-auto'>
-                    <ModalHeader>
-                        <div className='flex justify-between w-full'>
-                        <span>Pregled tiketa <span className='text-default-500'>#{helpdeskState?.ticketId}</span></span> 
-                        <Chip className='mr-3 col-end-3' color={colorStatus(helpdeskState?.status!)}>{helpdeskState?.status}</Chip></div>
-                    </ModalHeader>
-                {isLoading ? (<div className="flex justify-center items-center p-6">
-                        <Spinner color='primary' label='Učitavanje...' labelColor='primary' />
-                    </div>  ) : (
-                        <div>
-                    <ModalBody>
-                        <Tabs
-                        aria-label='Opcije'
-                        color='primary' 
-                        radius='full'
-                        selectedKey={selectedTab}
-                        onSelectionChange={(key: Key) => setSelectedTab(key as string)}
-                        >
-                            <Tab key="details" title='Detalji tiketa'>
-                                <div className='grid lg:grid-cols-12 grid-cols gap-3'>
-                                <div className='grid lg:col-span-4 col-span gap-2 grid-flow-row auto-rows-max'>
-                                    <div className='grid gap-2'>
-                                        <div className='grid grid-cols-3 gap-2'>
-                                        <Input className='col-span-2' label="Korisnik" labelPlacement='inside' value={helpdeskState?.user?.fullname} />  
-                                        <Input label="Kontakt" labelPlacement='inside' value={helpdeskState?.user?.localNumber} /> 
-                                        </div>
-                                        <Tooltip content={helpdeskState?.user?.department?.title} showArrow placement='right'>
-                                            <Input label="Sektor/odjeljenje" labelPlacement='inside' value={helpdeskState?.user?.department?.title} />
-                                        </Tooltip>
-                                        <Input label="Lokacija" labelPlacement='inside' value={helpdeskState?.user?.location?.name} /> 
-                                    </div>
-                                    <div className='grid grid-cols-2 gap-2'>
-                                        <Input label="Datum prijave" labelPlacement='inside' value={Moment(helpdeskState?.createdAt).format('DD.MM.YYYY - HH:mm')} />
-                                        <Input label="Željeni rok klijenta" labelPlacement='inside' value={helpdeskState?.clientDuoDate ? Moment(helpdeskState?.clientDuoDate).format('DD.MM.YYYY - HH:mm') : ""} />
-                                    </div>
-                                    <div className='grid gap-2'>
-                                        <Select
-                                            isDisabled={isDisabled}
-                                            id='priority'
-                                            label='Prioritet'
-                                            placeholder='Odaberite prioritet'
-                                            errorMessage={editHelpdeskState.editTicket.priority === null ? validateMessages.priority : ''}
-                                            value={editHelpdeskState.editTicket.priority === null ? '' : editHelpdeskState.editTicket.priority}
-                                            selectedKeys={editHelpdeskState.editTicket.priority ? [`${editHelpdeskState.editTicket.priority}`] : []}
-                                            onChange={handlePriorityChange}
-                                            >
-                                                
-                                            {PriorityList.map((priorityItem) => (
-                                                <SelectItem
-                                                key={priorityItem.priority}
-                                                textValue={priorityItem.priority}
-                                                value={priorityItem.priority}
-                                                >
-                                                    <div className="flex gap-2 items-center">
-                                                        <div className="flex flex-col">
-                                                            <Tooltip content={priorityItem.priority} showArrow placement='right'>
-                                                            <span className="text-small">{priorityItem.priority}</span></Tooltip>
-                                                            <span className="text-tiny text-default-400">Predviđeno vrijeme za rješenje {priorityItem.days} dan/a</span>
-                                                        </div>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </Select>
-                                        <Input label="Predviđeni datum rješenja"
-                                        labelPlacement='inside' 
-                                        value={editHelpdeskState.editTicket?.duoDate ? Moment(editHelpdeskState.editTicket?.duoDate).format('DD.MM.YYYY - HH:mm') : ""} />
-                                    </div>
-                                </div>
-                                <div className='grid lg:col-span-8 col-span gap-2 grid-flow-row auto-rows-max'>
-                                    <div className='grid gap-2'>
-                                        <div className='grid grid-cols-2 gap-2'>
-                                            <Tooltip content={helpdeskState?.group?.groupName} showArrow>
-                                                <Input label="Grupa" labelPlacement='inside' value={helpdeskState?.group?.groupName} />
-                                            </Tooltip>
-                                            <Tooltip content={helpdeskState?.groupPartent?.groupName} showArrow>
-                                                <Input label="Podrgrupa" labelPlacement='inside' value={helpdeskState?.groupPartent?.groupName} />
-                                            </Tooltip>
-                                            
-                                        </div>
-                                        <Textarea label="Opis zahtjeva" value={helpdeskState?.description} />
-                                    </div>
-                                    <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : ''}>
-                                        <Textarea
-                                            errorMessage={editHelpdeskState.editTicket.resolveDescription === '' ? validateMessages.resolveDescription : ''}
-                                            isReadOnly={isDisabled}
-                                            label="Rješenje zahtjeva"
-                                            type='text'
-                                            value={editHelpdeskState.editTicket.resolveDescription}
-                                            onValueChange={(value: string) => setEditHelpdeskStringFieldState('resolveDescription', value)}
-                                            placeholder='Opis rješnja zahtjeva' />
-                                    </div>
-                                    <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : 'grid grid-cols-3 gap-2'}>
-                                        <div className='col-span-2'>
-                                        <Select
-                                            isDisabled={isDisabled}
-                                            id='resolveResolution'
-                                            label='Rješenje'
-                                            placeholder='Odaberite rješnje'
-                                            errorMessage={editHelpdeskState.editTicket.resolveResolution === null ? validateMessages.resolveResolution : ''}
-                                            value={editHelpdeskState.editTicket.resolveResolution === null ? "" : editHelpdeskState.editTicket.resolveResolution}
-                                            selectedKeys={editHelpdeskState.editTicket.resolveResolution ? [`${editHelpdeskState.editTicket.resolveResolution}`] : []}
-                                            onChange={(value) => setEditHelpdeskStringFieldState('resolveResolution', value.target.value)}
-                                            >
-                                                
-                                            {ResolveResolutionList.map((resolveItem) => (
-                                                <SelectItem
-                                                key={resolveItem.resolution}
-                                                textValue={resolveItem.resolution}
-                                                value={resolveItem.resolution}
-                                                >
-                                                    <div className="flex gap-2 items-center">
-                                                        <div className="flex flex-col">
-                                                            <Tooltip content={resolveItem.resolution} showArrow placement='right'>
-                                                            <span className="text-small">{resolveItem.resolution}</span></Tooltip>
-                                                        </div>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </Select>
-                                        </div>
-                                        <Input label={editHelpdeskState.editTicket.resolveTimespand ? 'Dodatno vrijeme (minute)' : 'Utrošeno vrijeme (minute)'}
-                                        errorMessage={editHelpdeskState.editTicket.resolveTimespand === null ? validateMessages.resolveTimespand : ''}
-                                        isDisabled={isDisabled}
-                                        labelPlacement='inside'
-                                        description={<span className='text-success'>{resolvedTimespandDescription()}</span>}
-                                        onValueChange={(value: string) => updateResolvedTimespandFromInput(value)}
-                                        />
-                                    </div>
-                                </div>
-                                </div>
-                            </Tab>
-                            <Tab isDisabled={helpdeskState?.articleId === null} key="article" title='Oprema'>
+        <Modal 
+        isOpen={show} 
+        onOpenChange={onHide} 
+        backdrop='blur' 
+        size='5xl' 
+        isDismissable={false}
+        scrollBehavior='inside'
+        >
+                <ModalContent key={helpdeskState?.ticketId} className='overflow-auto'>
+                <ModalHeader>
+                    <div className='flex justify-between w-full'>
+                    <span>Pregled tiketa <span className='text-default-500'>#{helpdeskState?.ticketId}</span></span> 
+                    <Chip className='mr-3 col-end-3' color={colorStatus(helpdeskState?.status!)}>{helpdeskState?.status}</Chip></div>
+                </ModalHeader>
+            {isLoading ? (<div className="flex justify-center items-center p-6">
+                    <Spinner color='primary' label='Učitavanje...' labelColor='primary' />
+                </div>  ) : (
+                    <div>
+                <ModalBody>
+                    <div className='w-full'>
+                    <Tabs
+                    aria-label='Opcije'
+                    color='primary' 
+                    radius='full'
+                    selectedKey={selectedTab}
+                    onSelectionChange={(key: Key) => setSelectedTab(key as string)}
+                    >
+                        <Tab key="details" title='Detalji tiketa'>
+                        <div className='grid lg:grid-cols-12 grid-cols gap-3'>    
+                            <div className='grid lg:col-span-4 col-span gap-2 grid-flow-row auto-rows-max'>
                                 <div className='grid gap-2'>
-                                    <Input label="Naziv opreme" labelPlacement='inside' value={helpdeskState?.article?.stock?.name} />
-                                    <Input label="Inventurni broj" labelPlacement='inside' value={helpdeskState?.article?.invNumber} />
-                                    <Input label="Serijski broj" labelPlacement='inside' value={helpdeskState?.article?.serialNumber} />
+                                    <div className='grid grid-cols-3 gap-2'>
+                                    <Input className='col-span-2' label="Korisnik" labelPlacement='inside' value={helpdeskState?.user?.fullname} />  
+                                    <Input label="Kontakt" labelPlacement='inside' value={helpdeskState?.user?.localNumber} /> 
+                                    </div>
+                                    <Tooltip content={helpdeskState?.user?.department?.title} showArrow placement='right'>
+                                        <Input label="Sektor/odjeljenje" labelPlacement='inside' value={helpdeskState?.user?.department?.title} />
+                                    </Tooltip>
+                                    <Input label="Lokacija" labelPlacement='inside' value={helpdeskState?.user?.location?.name} /> 
                                 </div>
-                            </Tab>
-                            <Tab isDisabled={helpdeskState?.status !== 'otvoren'} key="forward" title='Proslijedi'>
-                                {forwardTicket()}
-                            </Tab>
-                        </Tabs>
-                    </ModalBody>
-                    <ModalFooter>
-                        {changeStatus(helpdeskState?.status!)}
-                        {isDisabled ? (<div className='flex items-center text-small bg-danger shadow-md rounded-xl p-2'>
-                            <i className="bi bi-check2-circle mr-2 text-medium text-white font-bold" /> 
-                            <span className=' text-white'>
-                                {editHelpdeskState.editTicket?.resolveDate ? Moment(editHelpdeskState.editTicket?.resolveDate).format('DD.MM.YYYY - HH:mm') : ""} 
-                            </span></div>) 
-                        : 
-                        (<Button  color='success' onPress={() => doEditTicket(helpdeskState?.ticketId!)}>Sačuvaj</Button>)
-                        }
-                        <Button color='danger' onPress={onHide}>Zatvori</Button>
-                    </ModalFooter>
+                                <div className='grid grid-cols-2 gap-2'>
+                                    <Input label="Datum prijave" labelPlacement='inside' value={Moment(helpdeskState?.createdAt).format('DD.MM.YYYY - HH:mm')} />
+                                    <Input label="Željeni rok klijenta" labelPlacement='inside' value={helpdeskState?.clientDuoDate ? Moment(helpdeskState?.clientDuoDate).format('DD.MM.YYYY - HH:mm') : ""} />
+                                </div>
+                                <div className='grid gap-2'>
+                                    <Select
+                                        isDisabled={isDisabled}
+                                        id='priority'
+                                        label='Prioritet'
+                                        placeholder='Odaberite prioritet'
+                                        errorMessage={editHelpdeskState.editTicket.priority === null ? validateMessages.priority : ''}
+                                        value={editHelpdeskState.editTicket.priority === null ? '' : editHelpdeskState.editTicket.priority}
+                                        selectedKeys={editHelpdeskState.editTicket.priority ? [`${editHelpdeskState.editTicket.priority}`] : []}
+                                        onChange={handlePriorityChange}
+                                        >
+                                            
+                                        {PriorityList.map((priorityItem) => (
+                                            <SelectItem
+                                            key={priorityItem.priority}
+                                            textValue={priorityItem.priority}
+                                            value={priorityItem.priority}
+                                            >
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col">
+                                                        <Tooltip content={priorityItem.priority} showArrow placement='right'>
+                                                        <span className="text-small">{priorityItem.priority}</span></Tooltip>
+                                                        <span className="text-tiny text-default-400">Predviđeno vrijeme za rješenje {priorityItem.days} dan/a</span>
+                                                    </div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                    <Input label="Predviđeni datum rješenja"
+                                    labelPlacement='inside' 
+                                    value={editHelpdeskState.editTicket?.duoDate ? Moment(editHelpdeskState.editTicket?.duoDate).format('DD.MM.YYYY - HH:mm') : ""} />
+                                </div>
+                            </div>
+                            <div className='grid lg:col-span-8 col-span gap-2 grid-flow-row auto-rows-max'>
+                                <div className='grid gap-2'>
+                                    <div className='grid grid-cols-2 gap-2'>
+                                        <Tooltip content={helpdeskState?.group?.groupName} showArrow>
+                                            <Input label="Grupa" labelPlacement='inside' value={helpdeskState?.group?.groupName} />
+                                        </Tooltip>
+                                        <Tooltip content={helpdeskState?.groupPartent?.groupName} showArrow>
+                                            <Input label="Podrgrupa" labelPlacement='inside' value={helpdeskState?.groupPartent?.groupName} />
+                                        </Tooltip>
+                                        
+                                    </div>
+                                    <Textarea label="Opis zahtjeva" value={helpdeskState?.description} />
+                                </div>
+                                <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : ''}>
+                                    <Textarea
+                                        errorMessage={editHelpdeskState.editTicket.resolveDescription === '' ? validateMessages.resolveDescription : ''}
+                                        isReadOnly={isDisabled}
+                                        label="Rješenje zahtjeva"
+                                        type='text'
+                                        value={editHelpdeskState.editTicket.resolveDescription}
+                                        onValueChange={(value: string) => setEditHelpdeskStringFieldState('resolveDescription', value)}
+                                        placeholder='Opis rješnja zahtjeva' />
+                                </div>
+                                <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : 'grid grid-cols-3 gap-2'}>
+                                    <div className='col-span-2'>
+                                    <Select
+                                        isDisabled={isDisabled}
+                                        id='resolveResolution'
+                                        label='Rješenje'
+                                        placeholder='Odaberite rješnje'
+                                        errorMessage={editHelpdeskState.editTicket.resolveResolution === null ? validateMessages.resolveResolution : ''}
+                                        value={editHelpdeskState.editTicket.resolveResolution === null ? "" : editHelpdeskState.editTicket.resolveResolution}
+                                        selectedKeys={editHelpdeskState.editTicket.resolveResolution ? [`${editHelpdeskState.editTicket.resolveResolution}`] : []}
+                                        onChange={(value) => setEditHelpdeskStringFieldState('resolveResolution', value.target.value)}
+                                        >
+                                            
+                                        {ResolveResolutionList.map((resolveItem) => (
+                                            <SelectItem
+                                            key={resolveItem.resolution}
+                                            textValue={resolveItem.resolution}
+                                            value={resolveItem.resolution}
+                                            >
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col">
+                                                        <Tooltip content={resolveItem.resolution} showArrow placement='right'>
+                                                        <span className="text-small">{resolveItem.resolution}</span></Tooltip>
+                                                    </div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                    </div>
+                                    <Input label={editHelpdeskState.editTicket.resolveTimespand ? 'Dodatno vrijeme (minute)' : 'Utrošeno vrijeme (minute)'}
+                                    errorMessage={editHelpdeskState.editTicket.resolveTimespand === null ? validateMessages.resolveTimespand : ''}
+                                    isDisabled={isDisabled}
+                                    labelPlacement='inside'
+                                    description={<span className='text-success'>{resolvedTimespandDescription()}</span>}
+                                    onValueChange={(value: string) => updateResolvedTimespandFromInput(value)}
+                                    />
+                                </div>
+                            </div>
+                            </div>
+                        </Tab>
+                        <Tab isDisabled={helpdeskState?.articleId === null} key="article" title='Oprema'>
+                            <div className='grid gap-2'>
+                                <Input label="Naziv opreme" labelPlacement='inside' value={helpdeskState?.article?.stock?.name} />
+                                <Input label="Inventurni broj" labelPlacement='inside' value={helpdeskState?.article?.invNumber} />
+                                <Input label="Serijski broj" labelPlacement='inside' value={helpdeskState?.article?.serialNumber} />
+                            </div>
+                        </Tab>
+                        <Tab isDisabled={helpdeskState?.status === 'zatvoren'} key="forward" title='Proslijedi'>
+                            {forwardTicket()}
+                        </Tab>
+                    </Tabs>
                     </div>
-                )}
-                </ModalContent>
-                    </Modal>
-            
-           
+                    
+                    <Progress
+                            size="sm"
+                            radius="sm"
+                            classNames={{
+                                base: "max-w-full",
+                                track: "drop-shadow-md border border-default",
+                                indicator: "bg-gradient-to-r from-green-500 to-red-500",
+                                label: "tracking-wider font-medium text-default-600",
+                                value: "text-foreground/60",
+                            }}
+                            value={progressValue}
+                            />
+                </ModalBody>
+                <ModalFooter>
+                
+                    {changeStatus(helpdeskState?.status!)}
+                    {isDisabled ? (<div className='flex items-center text-small bg-danger shadow-md rounded-xl p-2'>
+                        <i className="bi bi-check2-circle mr-2 text-medium text-white font-bold" /> 
+                        <span className=' text-white'>
+                            {editHelpdeskState.editTicket?.resolveDate ? Moment(editHelpdeskState.editTicket?.resolveDate).format('DD.MM.YYYY - HH:mm') : ""} 
+                        </span></div>) 
+                    : 
+                    (<Button  color='success' onPress={() => doEditTicket(helpdeskState?.ticketId!)}>Sačuvaj</Button>)
+                    }
+                    <Button color='danger' onPress={onHide}>Zatvori</Button>
+                </ModalFooter>
+                </div>
+            )}
+            </ModalContent>
+        </Modal>
     );
 
     function forwardTicket() {
@@ -568,7 +607,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
           </Select>
         ): (<div></div>)} 
 
-        <Button color='warning'>Proslijedi zahtjev</Button>
+        <Button color='warning' onPress={() => doEditTicket(ticketId)}>Proslijedi zahtjev</Button>
       </div>
     );
   }

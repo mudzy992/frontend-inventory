@@ -1,6 +1,7 @@
 // ModalDetails.tsx
 import React, { Key, useEffect, useState } from 'react';
-import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner, Card, Progress } from '@nextui-org/react';
+import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, 
+    Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner } from '@nextui-org/react';
 import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
 import api, { ApiResponse } from '../../../../API/api';
 import { UserRole } from '../../../../types/UserRoleType';
@@ -9,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import ModeratorGroupMappingType from '../../../../types/ModeratorGroupMappingType';
 import UserType from '../../../../types/UserType';
 import Moment from 'moment';
+import TimelineProgressBar from '../../../custom/TimelineProgressBar';
 
 type ModalDetailsProps = {
   show: boolean;
@@ -38,7 +40,7 @@ interface HelpdeskTicketState {
     editTicket: {
       groupId?: number | null;
       resolveDescription?: string;
-      duoDate?: string | null;
+      duoDate?: Date | null;
       assignedTo?: number | null;
       status?: string;
       priority?: string | null;
@@ -180,18 +182,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     
         return dueDate.toISOString();
     };
-
-    const calculateElapsedTime = (createdAt:Date, duoDate:string) => {
-        const createdAtDate = new Date();
-        const duoDateDate = new Date(duoDate);
-        const timeDifference = createdAtDate.getTime() - duoDateDate.getTime();
-        const totalDuration = 24 * 60 * 60 * 1000;
-        const calculate = ((totalDuration - timeDifference) / totalDuration) * 10.00;    
-        const remainingTimePercentage = (100 - calculate)
-        return remainingTimePercentage;
-      };
-
-    const progressValue = calculateElapsedTime(helpdeskState?.createdAt!, editHelpdeskState.editTicket.duoDate!)
 
     const handleAssiningTicket = async () => {
         if(editHelpdeskState.editTicket.priority){
@@ -530,19 +520,14 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         </Tab>
                     </Tabs>
                     </div>
-                    
-                    <Progress
-                            size="sm"
-                            radius="sm"
-                            classNames={{
-                                base: "max-w-full",
-                                track: "drop-shadow-md border border-default",
-                                indicator: "bg-gradient-to-r from-green-500 to-red-500",
-                                label: "tracking-wider font-medium text-default-600",
-                                value: "text-foreground/60",
-                            }}
-                            value={progressValue}
-                            />
+                    <div className='w-full flex justify-between'>
+                        <TimelineProgressBar 
+                            createdAt={new Date(helpdeskState?.createdAt ? helpdeskState.createdAt : 0)}
+                            clientDuo={new Date(helpdeskState?.clientDuoDate ? helpdeskState.clientDuoDate : 0)}
+                            duoDate={new Date(helpdeskState?.duoDate ? helpdeskState.duoDate : 0)}
+                            resolveDate={new Date(helpdeskState?.resolveDate ? helpdeskState.resolveDate : 0)}
+                        />
+                    </div>
                 </ModalBody>
                 <ModalFooter>
                 

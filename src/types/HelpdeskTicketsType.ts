@@ -12,7 +12,7 @@ export default class HelpdeskTicketsType {
     resolveDate?: Date;
     resolveTimespand?: string;
     createdAt?: Date;
-    duoDate?: string;
+    duoDate?: Date;
     clientDuoDate?: Date;
     status?: "otvoren" | "izvršenje" | "zatvoren";
     assignedTo?: number;

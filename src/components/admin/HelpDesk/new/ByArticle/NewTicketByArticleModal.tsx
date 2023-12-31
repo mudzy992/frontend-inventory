@@ -53,7 +53,6 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
             ...prev,
             [fieldName]: newValue,
         }));
-        console.log(fieldName, newValue)
     };
 
     const handleDatePickerChange = (newValue: Value) => {

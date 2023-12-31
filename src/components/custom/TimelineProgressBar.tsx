@@ -34,12 +34,14 @@ const TimelineProgressBar: React.FC<Props> = ({
       const duoDatePercentage = calculateElapsedTime(createdAt, duoDate);
       const currentDatePercentage = calculateElapsedTime(currentDate, duoDate);
       const resolveDatePercentage = calculateElapsedTime(createdAt,resolveDate  );
+
       const createdat = dataEntry(1,"createdAt", createdAt, createdAtPercentage, "Datum prijave");
       const clientDuoDataEntry = dataEntry(2,"clientDuo",  clientDuo, clientDuoPercentage, "Želja klijenta");
       const duoDateDataEntry = dataEntry(3,"duoDate", duoDate, duoDatePercentage, "Predviđeni datum završetka");
       const resolveDateDataEntry = dataEntry(4,"resolvedDate", resolveDate, resolveDatePercentage, "Datum završetka");
       const currentDateDataEntry = dataEntry(5,"currentDate", currentDate, currentDatePercentage, "Trenutni datum");
       const dataList = [createdat, clientDuoDataEntry, duoDateDataEntry, resolveDateDataEntry, currentDateDataEntry];
+      console.log(dataList)
       const sortedDataList = [...dataList]
             .filter(item => item.percentage > 0)
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -50,7 +52,7 @@ const TimelineProgressBar: React.FC<Props> = ({
   const calculateElapsedTime = (start:Date, end: Date) => {
     const timeDifference = start.getTime() - end.getTime();
     const totalDuration = 24 * 60 * 60 * 1000;
-    const calculate = ((totalDuration - timeDifference) / totalDuration) * 10;    
+    const calculate = ((totalDuration - timeDifference) / totalDuration) * 10;
     return calculate;
   };
 
@@ -62,7 +64,7 @@ const TimelineProgressBar: React.FC<Props> = ({
         if (item.percentage > 0) {
             if (item.id !== 5 || !sortedDataList.some((entry) => entry.id === 4)) {
             return (
-                <li className={`relative mb-6 sm:mb-0 w-full`} key={item.id}>
+                <li className={`relative mb-6 sm:mb-0 w-full hidden lg:inline`} key={item.id}>
                 <div className="flex items-center">
                     <div className="z-10 flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full ring-0 ring-white dark:bg-blue-900 sm:ring-8 dark:ring-gray-900 shrink-0">
                     <Tooltip showArrow content={
@@ -75,10 +77,11 @@ const TimelineProgressBar: React.FC<Props> = ({
                     </Tooltip>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-0.5 dark:bg-gray-700">
-                        <div className={`bg-blue-600 h-0.5 w-[${item.percentage}%]`} rounded-full></div>
+                        <div className={`bg-blue-600 h-0.5`} style={{width:`${item.percentage}%`}} rounded-full></div>
                     </div>
-                    {!isLastItem && <div className="hidden sm:flex w-full bg-gray-200 h-0.5 dark:bg-gray-700"></div>}
+                        {!isLastItem && <div className="hidden sm:flex w-full bg-gray-200 h-0.5 dark:bg-gray-700"> </div>}
                 </div>
+                <span className='text-tiny flex justify-center top-3'>{item.date.toLocaleDateString()}</span>
                 </li>
             );
             }

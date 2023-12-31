@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Key, useCallback, useEffect, useState } from 'react';
 import api, { ApiResponse } from '../../../API/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import Moment from 'moment';
@@ -11,12 +11,13 @@ import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
 import { Autocomplete, AutocompleteItem, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, 
     Popover, PopoverContent, Button, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, 
-    TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem, Chip } from '@nextui-org/react';
+    TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem, Chip, Tabs, Tab, Tooltip } from '@nextui-org/react';
 import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';
 import { useUserContext } from '../../UserContext/UserContext';
 import { UserRole } from '../../../types/UserRoleType';
 import NewTicketByArticleModal from '../HelpDesk/new/ByArticle/NewTicketByArticleModal';
+import ViewSingleTicketModal from '../HelpDesk/view/ViewSingleTicket';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -65,6 +66,9 @@ const AdminArticleOnUserPage: React.FC = () => {
     const [selectedUser, setSelectedUser] = useState<string>('')
     const [selectedUserIsDisabled, setSelectedUserIdDisabled] = useState<boolean>(true)
     const [showModal, setShowModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedTab, setSelectedTab] = useState<string>("articles");
+    const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
     const [state, setState] = useState<AdminArticleOnUserPageState> ({
             message: "",
             users: [],
@@ -90,13 +94,6 @@ const AdminArticleOnUserPage: React.FC = () => {
             },
             userArticle: [],
     })
-
-    const onSelectionChange = (selectedItem: UserTypeBase | null) => {
-        if (selectedItem) {
-          const userId = selectedItem.userId;
-          setChangeStatusNumberFieldState('userId', userId || null);
-        }
-      };
 
     const onInputChange = (value: string) => {
     setSelectedUser(value)
@@ -320,6 +317,18 @@ const AdminArticleOnUserPage: React.FC = () => {
         handleShowModal();
     };
 
+    const handleShowViewModal = () => {
+        setShowViewModal(true);
+      };
+    
+      const handleHideViewModal = () => {
+        setShowViewModal(false);
+      };
+    
+      const openViewModalWithArticle = (ticketId: number) => {
+        setSelectedTicketId(ticketId);
+        handleShowViewModal();
+      };
 
     const addNewUpgradeFeatureButton = () => {
         return (
@@ -593,7 +602,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         }
         if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
             return (
-                <Card className='mb-3 shadow'>
+                <Card className='mb-3 shadow text-sm'>
                     <CardHeader className='bg-default-100'>Detalji korisnika</CardHeader>
                     <CardBody>
                         <Listbox aria-label='Detalji korisnika'>
@@ -655,7 +664,7 @@ function upgradeFeature(this: any) {
         return (
             <Card className="mb-3 shadow">
                 <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C", color:'white'}}>
-                        <div className="col-span-5">
+                        <div className="col-span-5 text-sm">
                             {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
                         </div>
                         <div className="col-end-7 flex justify-end">
@@ -670,7 +679,7 @@ function upgradeFeature(this: any) {
         return (
             <Card className="mb-3 shadow">
                 <CardHeader className="grid grid-cols-6 gap-4" style={{backgroundColor:"#00695C"}}>
-                        <div className="col-span-5">
+                        <div className="col-span-5 text-sm">
                             {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
                         </div>
                         <div className="col-end-7 flex justify-end">
@@ -707,6 +716,21 @@ function upgradeFeature(this: any) {
     }
 }
 
+function actions(ticketId: number) {
+    return (
+        <div className="relative flex items-center gap-2">
+            <Tooltip content="Pregledaj" showArrow>
+            <span
+              className="text-lg p-1 text-default-600 cursor-pointer active:opacity-50"
+              onClick={() => openViewModalWithArticle(ticketId)}
+            >
+              <i className="bi bi-eye" />
+            </span>
+            </Tooltip>
+        </div>
+    )
+  }
+  
 function renderArticleData(article: ArticleType) {
     const mappedStockFeatures = state.article.stock?.stockFeatures?.map(stockFeature => ({
         featureId: stockFeature.feature?.featureId || null,
@@ -755,9 +779,9 @@ function renderArticleData(article: ArticleType) {
                     <div className="lg:flex">
                         <div className="w-full lg:w-12/12 sm:w-12/12">
                             <Card className="mb-3 shadow">
-                            <CardHeader className='text-base'>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</CardHeader>
+                            <CardHeader className='text-sm'>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</CardHeader>
                             <CardBody>
-                                <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px]">
+                                <ScrollShadow size={100} hideScrollBar className="w-full max-h-[250px] text-sm">
                                     {article.stock?.description}
                                 </ScrollShadow>
                             </CardBody>
@@ -765,38 +789,80 @@ function renderArticleData(article: ArticleType) {
                         </div>
                     </div>
 
-                <div className="lg:flex mb-3">
-                    <Table aria-label='tabela-zaduzenja' >
-                        <TableHeader>
-                            <TableColumn key={'korisnik'} aria-label='Naziv korisnika'>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
-                            <TableColumn key={'status'} aria-label='status artikla'>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
-                            <TableColumn key={'komentar'} aria-label='Komentar akcije'>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
-                            <TableColumn key={'datum-vrijeme'} aria-label='Datum i vrijeme akcije'>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
-                            <TableColumn key={'dokument'} aria-label='Prateci dokument'>#</TableColumn>
-                        </TableHeader>
-                        <TableBody>
-                        {article.articleTimelines?.map((timeline, index) => (
-                            <TableRow key={timeline.articleTimelineId}>
-                                <TableCell  key={`korisnik-${timeline.user?.fullname}-${index}`} aria-label='naziv-korisnika'>
-                                    <Link isBlock showAnchorIcon color="primary" href={`#/admin/user/${timeline.userId}`}>
-                                    {timeline.user?.fullname}
-                                    </Link>
-                                </TableCell>
-                                <TableCell key={`korisnik-${timeline.status}-${index}`} aria-label='Naziv korisnika'>{timeline.status}</TableCell>
-                                <TableCell key={`korisnik-${timeline.comment}-${index}`} aria-label='Komentar'>{timeline.comment}</TableCell>
-                                <TableCell key={`datum-vrijeme-${index}`} aria-label='Vrijeme i datum akcije'>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                <TableCell key={`dokument-${index}`} aria-label='DOkument'>{saveFile(timeline.document?.path)}</TableCell>
-                            </TableRow>
-                        )) ?? []}
-                        </TableBody>
-                    </Table>
+                <div className="mb-3">
+                    <Tabs
+                    aria-label='Opcije'
+                    color='primary' 
+                    radius='full'
+                    selectedKey={selectedTab}
+                    onSelectionChange={(key: Key) => setSelectedTab(key as string)}
+                    size='sm'
+                    >
+                        <Tab key="articles" title="Kretanje opreme">
+                               <Table aria-label='tabela-zaduzenja' removeWrapper className='shadow-md p-2 rounded-xl'>
+                                <TableHeader>
+                                    <TableColumn key={'korisnik'} aria-label='Naziv korisnika'>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
+                                    <TableColumn key={'status'} aria-label='status artikla'>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
+                                    <TableColumn key={'komentar'} aria-label='Komentar akcije'>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
+                                    <TableColumn key={'datum-vrijeme'} aria-label='Datum i vrijeme akcije'>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
+                                    <TableColumn key={'dokument'} aria-label='Prateci dokument'>#</TableColumn>
+                                </TableHeader>
+                                <TableBody>
+                                {article.articleTimelines?.map((timeline, index) => (
+                                    <TableRow key={timeline.articleTimelineId}>
+                                        <TableCell key={`korisnik-${timeline.user?.fullname}-${index}`} aria-label='naziv-korisnika'>
+                                            <Link className='text-sm' isBlock showAnchorIcon color="primary" href={`#/admin/user/${timeline.userId}`}>
+                                            {timeline.user?.fullname}
+                                            </Link>
+                                        </TableCell>
+                                        <TableCell key={`korisnik-${timeline.status}-${index}`} aria-label='Naziv korisnika'>{timeline.status}</TableCell>
+                                        <TableCell key={`korisnik-${timeline.comment}-${index}`} aria-label='Komentar'>{timeline.comment}</TableCell>
+                                        <TableCell key={`datum-vrijeme-${index}`} aria-label='Vrijeme i datum akcije'>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                        <TableCell key={`dokument-${index}`} aria-label='DOkument'>{saveFile(timeline.document?.path)}</TableCell>
+                                    </TableRow>
+                                )) ?? []}
+                                </TableBody>
+                            </Table>  
+                        </Tab>
+                        <Tab key="tickets" title="Tiketi">
+                            <div className='overflow-x-auto overflow-hidden'>
+                            <Table aria-label='tabela-zaduzenja' removeWrapper className='shadow-md p-2 rounded-xl' isCompact isStriped>
+                                <TableHeader>
+                                    <TableColumn key={'opis'} aria-label='Opis tiketa'>Opis tiketa</TableColumn>
+                                    <TableColumn key={'datum-vrijeme-prijave'} aria-label='Datum prijave'>Datum prijave</TableColumn>
+                                    <TableColumn key={'status'} aria-label='status tiketa'>Status tiketa</TableColumn>
+                                    <TableColumn key={'action'} aria-label='akcija'>Akcija</TableColumn>
+                                </TableHeader>
+                                <TableBody>
+                                {article.helpdeskTickets?.map((ticket, index) => (
+                                    <TableRow key={ticket.ticketId}>
+                                        <TableCell 
+                                        className="max-w-[400px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                        key={`opis-${ticket.description}-${index}`} aria-label='opis-tiketa'>{ticket.description}</TableCell>
+                                        <TableCell key={`datum-vrijeme-${index}`} aria-label='Datum i vrijeme prijave'>{Moment(ticket.createdAt).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                        <TableCell key={`status-${ticket.status}-${index}`} aria-label='Status tiketa'>
+                                           {ticket.status === "zatvoren" ? (<Chip variant='flat' color='success'>{ticket.status}</Chip>):(<Chip variant='flat' color='warning'>{ticket.status}</Chip>)}
+                                        </TableCell>
+                                        <TableCell key={`action-${index}`} aria-label='Akcija'>{actions(ticket.ticketId!)}</TableCell>
+                                    </TableRow>
+                                )) ?? []}
+                                </TableBody>
+                            </Table> </div>
+                        </Tab>
+                    </Tabs>
+                    <ViewSingleTicketModal
+                    show={showViewModal}
+                    onHide={handleHideViewModal}
+                    ticketId={selectedTicketId!}
+                    data={state.article}
+                    />
                 </div>
                 </div>
 
                 <div className="w-full sm:w-full lg:w-1/3">
                     {userDetails(article)}
                     <div>
-                    <Card className="mb-3 shadow">
+                    <Card className="mb-3 shadow text-sm">
                         <CardHeader className="bg-default-100 grid grid-cols-6 gap-4">
                             <div className="col-span-5">{LangBa.ARTICLE_ON_USER.STATUS.STATUS}</div>
                             <div className="col-end-7 flex justify-end">{changeStatusButton(article)}</div>
@@ -810,7 +876,7 @@ function renderArticleData(article: ArticleType) {
                        
                     </Card>
                     </div>
-                    <Card className='shadow'>
+                    <Card className='shadow text-sm'>
                         <CardHeader className='bg-default-100'>
                             U skladištu
                         </CardHeader>

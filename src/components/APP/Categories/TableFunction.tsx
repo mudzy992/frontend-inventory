@@ -121,10 +121,10 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   <TableBody items={items}>
     {(item) => (
       <TableRow key={item.stockId}>
-        <TableCell>{item.name}</TableCell>
-        <TableCell>{valueStatus(item.valueAvailable)}</TableCell>
-        <TableCell>{item.sapNumber}</TableCell>
-        <TableCell>
+        <TableCell className='whitespace-nowrap min-w-fit'>{item.name}</TableCell>
+        <TableCell className='whitespace-nowrap min-w-fit'>{valueStatus(item.valueAvailable)}</TableCell>
+        <TableCell className='whitespace-nowrap min-w-fit'>{item.sapNumber}</TableCell>
+        <TableCell className='whitespace-nowrap min-w-fit'>
           <Button
             color="warning"
             variant="flat"
@@ -136,7 +136,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
             Zaduženja
           </Button>
         </TableCell>
-        <TableCell>
+        <TableCell className='whitespace-nowrap min-w-fit'>
           <Button
             color="warning"
             variant="shadow"

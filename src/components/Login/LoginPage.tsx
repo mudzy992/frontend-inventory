@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import AdministratorLoginPage from '../admin/AdministratorLoginPage/AdministratorLoginPage';
-import { Card, CardBody, Tab, Tabs } from '@nextui-org/react';
-import UserLoginPage from '../user/UserLogin/UserLoginPage';
+import React from 'react';
+import { Card, CardBody} from '@nextui-org/react';
+import UserLoginPage from './UserLoginPage';
 
 const LoginPage: React.FC = () => {
-    const [selected, setSelected] = useState('user')
     return (
         <div className='flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0'>
             <div className='col-span-4 col-start-5 w-full md:mt-0 sm:max-w-md xl:p-0'>
@@ -14,20 +12,7 @@ const LoginPage: React.FC = () => {
                 </div>
                 <Card>
                     <CardBody>
-                        <Tabs
-                        fullWidth
-                        size='md'
-                        aria-label='Forma za prijavu'
-                        selectedKey={selected}
-                        onSelectionChange={(key) => setSelected(key as string)}
-                        >
-                            <Tab key='user' title='Korisnčka prijava'>
-                                <UserLoginPage />
-                            </Tab>
-                            <Tab key='admin' title='Administrator'>
-                                <AdministratorLoginPage />
-                            </Tab>
-                        </Tabs>
+                        <UserLoginPage />
                     </CardBody>
                 </Card>
                 

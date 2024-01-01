@@ -4,7 +4,7 @@ import api, { ApiResponse } from '../../../API/api';
 import DocumentsType from '../../../types/DocumentsType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import saveAs from 'file-saver';
-import AdminMenu from '../AdminMenu/AdminMenu';
+import AdminMenu from '../../admin/AdminMenu/AdminMenu';
 import Moment from 'moment';
 import { Avatar, Button, Input, Link, Modal, ModalBody, ModalContent, ModalHeader, Pagination, Progress, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from '@nextui-org/react';
 
@@ -172,13 +172,13 @@ const DocumentsPage: React.FC = () => {
                     {(item) => 
                     (
                         <TableRow key={item.documentsId}>
-                            <TableCell>{item.documentNumber}</TableCell>
-                            <TableCell>{item.article?.stock?.name}</TableCell>
-                            <TableCell><Link className='text-sm' isBlock showAnchorIcon color="primary" href={`#/admin/article/${item.article?.serialNumber}`}>{item.article?.serialNumber}</Link></TableCell>
-                            <TableCell>{item.article?.invNumber}</TableCell>
-                            <TableCell>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].subbmited?.fullname : null}</TableCell>
-                            <TableCell>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].user?.fullname : null}</TableCell>
-                            <TableCell>{dokumentAction(item.signed_path!, item.documentsId, handleOpenModal)}</TableCell>
+                            <TableCell className='whitespace-nowrap min-w-fit'>{item.documentNumber}</TableCell>
+                            <TableCell className='whitespace-nowrap min-w-fit'>{item.article?.stock?.name}</TableCell>
+                            <TableCell className='whitespace-nowrap min-w-fit'><Link className='text-sm' isBlock showAnchorIcon color="primary" href={`#/admin/article/${item.article?.serialNumber}`}>{item.article?.serialNumber}</Link></TableCell>
+                            <TableCell className='whitespace-nowrap min-w-fit'>{item.article?.invNumber}</TableCell>
+                            <TableCell className='whitespace-nowrap min-w-fit'>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].subbmited?.fullname : null}</TableCell>
+                            <TableCell className='whitespace-nowrap min-w-fit'>{item.articleTimelines && item.articleTimelines.length > 0 ? item.articleTimelines[0].user?.fullname : null}</TableCell>
+                            <TableCell className='whitespace-nowrap min-w-fit'>{dokumentAction(item.signed_path!, item.documentsId, handleOpenModal)}</TableCell>
                         </TableRow>
                     )}
                 </TableBody>

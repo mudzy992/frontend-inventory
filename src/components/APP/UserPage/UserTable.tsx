@@ -25,6 +25,7 @@ interface UserBaseType {
     department: string,
     jobTitle: string,
     locationName: string,
+    parentLocationName: string,
     email: string ,
     localNumber: string,
     telephone: string ,
@@ -116,10 +117,9 @@ export const UserTable: React.FC<{}> = () => {
             return (
               <User
                 avatarProps={{radius: "lg", name:inicials, icon: (<i className={gender}/>)}}
-                description={user.email}
-                name={(<Link isBlock showAnchorIcon color="primary" href={linkUser}>{user.fullName}</Link>)}
+                description={<span className="ml-2 text-default-400">{user.email}</span>}
+                name={(<Link className="text-sm" isBlock showAnchorIcon color="primary" href={linkUser}>{user.fullName}</Link>)}
               >
-                {user.email}
               </User>
             );
           case "departmentTitle":
@@ -141,6 +141,19 @@ export const UserTable: React.FC<{}> = () => {
               <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
                 {cellValue}
               </Chip>
+            );
+            case "email":
+            return (
+              <div className="flex flex-col">
+                <p className="text-bold text-small">{user.email}</p>
+            </div>
+            );
+          case "locationName":
+            return (
+              <div className="flex flex-col">
+                <p className="text-bold text-small capitalize">{user.locationName}</p>
+                <p className="text-bold text-tiny capitalize text-default-400">{user.parentLocationName}</p>
+            </div>
             );
           default:
             return cellValue;
@@ -313,6 +326,7 @@ export const UserTable: React.FC<{}> = () => {
               department: user.department?.title || '', 
               jobTitle: user.job?.title || '', 
               locationName: user.location?.name || '', 
+              parentLocationName: user.location?.parentLocation?.name || '',
               email: user.email || '',
               localNumber: user.localNumber || '',
               telephone: user.telephone || '',
@@ -361,7 +375,7 @@ export const UserTable: React.FC<{}> = () => {
                       <TableBody emptyContent={message} items={sortedItems}>
                           {(item) => (
                           <TableRow key={item.id}>
-                              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                              {(columnKey) => <TableCell className='whitespace-nowrap min-w-fit'>{renderCell(item, columnKey)}</TableCell>}
                           </TableRow>
                           )}
                       </TableBody>

@@ -41,7 +41,6 @@ const TimelineProgressBar: React.FC<Props> = ({
       const resolveDateDataEntry = dataEntry(4,"resolvedDate", resolveDate, resolveDatePercentage, "Datum završetka");
       const currentDateDataEntry = dataEntry(5,"currentDate", currentDate, currentDatePercentage, "Trenutni datum");
       const dataList = [createdat, clientDuoDataEntry, duoDateDataEntry, resolveDateDataEntry, currentDateDataEntry];
-      console.log(dataList)
       const sortedDataList = [...dataList]
             .filter(item => item.percentage > 0)
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());

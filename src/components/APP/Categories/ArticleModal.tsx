@@ -115,23 +115,23 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
                 const { color, startContent } = statusColorMap[item.status];
                 return articleData.length > 0 ? (
                   <TableRow key={item.serialNumber}>
-                    <TableCell key={item.user?.fullname}>
+                    <TableCell className='whitespace-nowrap min-w-fit' key={item.user?.fullname}>
                       <Link href={`#/admin/user/${item.user?.userId}`}>
                         {item.user?.fullname}
                       </Link>
                     </TableCell>
-                    <TableCell key={item.serialNumber}>
+                    <TableCell className='whitespace-nowrap min-w-fit' key={item.serialNumber}>
                       <Link href={`#/admin/article/${item.serialNumber}`}>
                         {item.serialNumber}
                       </Link>
                     </TableCell>
-                    <TableCell key={item.invNumber}>{item.invNumber}</TableCell>
-                    <TableCell key={item.status}><Chip color={color} variant="bordered" startContent={<i className={startContent}></i>}> {item.status}</Chip></TableCell>
-                    <TableCell key={item.timestamp}>{Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}</TableCell>
+                    <TableCell className='whitespace-nowrap min-w-fit' key={item.invNumber}>{item.invNumber}</TableCell>
+                    <TableCell className='whitespace-nowrap min-w-fit' key={item.status}><Chip color={color} variant="bordered" startContent={<i className={startContent}></i>}> {item.status}</Chip></TableCell>
+                    <TableCell className='whitespace-nowrap min-w-fit' key={item.timestamp}>{Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}</TableCell>
                   </TableRow>
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5}>Nema artikala</TableCell>
+                    <TableCell className='whitespace-nowrap min-w-fit' colSpan={5}>Nema artikala</TableCell>
                   </TableRow>
                 );
               }}

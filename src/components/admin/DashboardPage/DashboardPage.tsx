@@ -7,7 +7,7 @@ import StockType from '../../../types/UserArticleType';
 import ArticleType from '../../../types/ArticleType';
 import DocumentsType from '../../../types/DocumentsType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import ArticleTimlineModal from '../ArticleTimelinePage/ArticleTimelinePageModal';
+import ArticleTimlineModal from '../../APP/ArticleTimelinePage/ArticleTimelinePageModal';
 import AdminMenu from '../AdminMenu/AdminMenu';
 import moment from 'moment';
 import { Button, Card, CardFooter, CardHeader, Chip, Input, Link, Listbox, ListboxItem, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
@@ -269,19 +269,19 @@ const AdminDashboardPage: React.FC = () => {
                             </CardHeader>
 
                                 <Listbox key={2-0} aria-label='Posljednje dodani artikli' className='w-[90%]'>
-                                    <ListboxItem key={1} textValue={stockData?.name}>
+                                    <ListboxItem key={1} textValue={articleData?.stock?.name}>
                                         Naziv: {articleData?.stock?.name}
                                     </ListboxItem>
-                                    <ListboxItem key={2} textValue={stockData?.name}>
+                                    <ListboxItem key={2} textValue={articleData?.serialNumber}>
                                         Serijski broj: {articleData?.serialNumber}
                                     </ListboxItem>
-                                    <ListboxItem key={3} textValue={stockData?.valueAvailable?.toString()}>
+                                    <ListboxItem key={3} textValue={articleData?.invNumber}>
                                         Inventurni broj: {articleData?.invNumber}
                                     </ListboxItem>
-                                    <ListboxItem key={4} textValue={stockData?.contract}>
+                                    <ListboxItem key={4} textValue={articleData?.user?.fullname}>
                                         Korisnik: {articleData?.user?.fullname}
                                     </ListboxItem>
-                                    <ListboxItem key={5} textValue={stockData?.sapNumber}>
+                                    <ListboxItem key={5} textValue={articleData?.status}>
                                         Status: <span className={`status-${articleData?.status}`}>{articleData?.status}</span>
                                     </ListboxItem>
                                 </Listbox>
@@ -311,23 +311,23 @@ const AdminDashboardPage: React.FC = () => {
                                 <TableBody>
                                 {(unsignedDocumentData || []).map((document, index) => (
                                     <TableRow key={index}>
-                                        <TableCell textValue={`naziv-${index}`}>
+                                        <TableCell className='whitespace-nowrap min-w-fit' textValue={`naziv-${index}`}>
                                             {document?.article?.stock?.name}
                                         </TableCell>
-                                        <TableCell textValue={`Inventurni broj-${index}`}>
+                                        <TableCell className='whitespace-nowrap min-w-fit' textValue={`Inventurni broj-${index}`}>
                                             {document?.article?.invNumber}
                                         </TableCell>
-                                        <TableCell textValue={`Korisnik-${index}`}>
+                                        <TableCell className='whitespace-nowrap min-w-fit' textValue={`Korisnik-${index}`}>
                                             {document?.article?.user?.fullname}
                                         </TableCell>
-                                        <TableCell textValue={`Dokument-${index}`}>
+                                        <TableCell className='whitespace-nowrap min-w-fit' textValue={`Dokument-${index}`}>
                                             <Button size='sm' color='success' variant='shadow' onClick={() => handleButtonClick(document?.documentsId)}> Dodaj
                                                 <form encType="multipart/form-data">
                                                     <input id="dropzone-file" type="file" className='hidden' onChange={(e) => handleFileUpload(unsignedDocumentId!, e.target.files![0])} />
                                                 </form>
                                            </Button>   
                                         </TableCell>
-                                        <TableCell textValue={`Modal dokument-${index}`}>
+                                        <TableCell className='whitespace-nowrap min-w-fit' textValue={`Modal dokument-${index}`}>
                                         <Button
                                             onClick={(event) => {
                                                 const firstArticleTimeline = document.articleTimelines?.[0];
@@ -383,11 +383,11 @@ const AdminDashboardPage: React.FC = () => {
                             <TableBody>
                                 {(paginedArticleData || []).map((artikal, index) => (
                                     <TableRow key={artikal.articleId}>
-                                        <TableCell><Link className='text-sm' showAnchorIcon href={`#/admin/article/${artikal?.serialNumber}`} >{artikal?.stock?.name} </Link></TableCell>
-                                        <TableCell>{artikal?.serialNumber}</TableCell>
-                                        <TableCell>{artikal?.invNumber}</TableCell>
-                                        <TableCell>{artikal?.category?.name}</TableCell>
-                                        <TableCell><Link className='text-sm' showAnchorIcon href={`#/admin/user/${artikal?.userId}`} >{artikal?.user?.fullname}</Link></TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit'><Link className='text-sm' showAnchorIcon href={`#/admin/article/${artikal?.serialNumber}`} >{artikal?.stock?.name} </Link></TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit'>{artikal?.serialNumber}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit'>{artikal?.invNumber}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit'>{artikal?.category?.name}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit'><Link className='text-sm' showAnchorIcon href={`#/admin/user/${artikal?.userId}`} >{artikal?.user?.fullname}</Link></TableCell>
                                         <TableCell className={`status-${artikal?.status}`}>{artikal?.status}</TableCell>
                                     </TableRow>
                                 ))}
@@ -395,7 +395,7 @@ const AdminDashboardPage: React.FC = () => {
                         </Table>
                     </div>
                         
-                    <div className="flex justify-center mt-3">
+                    <div className="flex justify-center mt-3"> 
                         <Pagination
                         color="default"
                         showControls

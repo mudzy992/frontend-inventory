@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import api, { ApiResponse, saveRefreshToken, saveToken } from '../../../API/api';
+import api, { ApiResponse, saveRefreshToken, saveToken } from '../../API/api';
 import { useNavigate } from 'react-router-dom';
-import { Alert } from '../../custom/Alert';
+import { Alert } from '../custom/Alert';
 import { Button, Divider, Input } from '@nextui-org/react';
-import {  saveIdentity, useUserContext } from '../../UserContext/UserContext';
+import {  saveIdentity, useUserContext } from '../UserContext/UserContext';
 
 interface UserLoginPageState {
     email: string;

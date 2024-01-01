@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { ApiResponse, removeIdentity } from '../../../API/api';
+import api, { ApiResponse } from '../../../API/api';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
-import AdminMenu from '../AdminMenu/AdminMenu';
+import AdminMenu from '../../admin/AdminMenu/AdminMenu';
 import { UserTable } from '../UserPage/UserTable';
 import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
 
@@ -49,7 +49,7 @@ const HomePage: React.FC <HomePageState> = () => {
     }
 
     useEffect(() => {
-        api('api/category/?filter=parentCategoryId||$isnull', 'get', {}, 'administrator')
+        api('api/category/?filter=parentCategoryId||$eq||null', 'get', {}, 'administrator')
           .then((res: ApiResponse) => {
             if (res.status === 'login') {
               setLogginState(false);
@@ -63,8 +63,10 @@ const HomePage: React.FC <HomePageState> = () => {
 
               return;
             }
+
+            const filteredCategories:CategoryDto[] = res.data.filter((category:any) => category.parentCategoryId === null);
       
-            putCategoriesInState(res.data);
+            putCategoriesInState(filteredCategories);
           })
           .catch((error) => {
             console.error('Error during API call:', error);

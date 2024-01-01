@@ -292,10 +292,10 @@ const AddArticlePage: React.FC = () => {
             name: state.addArticle.name,
             excerpt: state.addArticle.excerpt,
             description: state.addArticle.description,
-            contract: state.addArticle.concract, // Ispravite tipfeler (concract -> contract)
+            contract: state.addArticle.concract,
             categoryId: state.addArticle.categoryId,
             sapNumber: state.addArticle.sapNumber,
-            valueOnContract: state.addArticle.valueOnConcract, // Ispravite tipfeler (valueOnConcract -> valueOnContract)
+            valueOnContract: state.addArticle.valueOnConcract,
             valueAvailable: state.addArticle.valueAvailable,
             features: state.addArticle.features
                 .filter(feature => feature.use === 1)
@@ -311,11 +311,8 @@ const AddArticlePage: React.FC = () => {
                 return;
             }
             if (res.status === 'ok') {
-                console.log(res.data)
-                // Nakon uspešnog dodavanja, pozovite clearFormFields da biste očistili polja
                 clearFormFields();
             }
-            // Dodajte ostatak koda za obradu odgovora ako je potrebno
         });
     }
     

@@ -1,7 +1,7 @@
 // ModalDetails.tsx
 import React, { Key, useEffect, useState } from 'react';
 import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, 
-    Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner } from '@nextui-org/react';
+    Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner, Checkbox } from '@nextui-org/react';
 import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
 import api, { ApiResponse } from '../../../../API/api';
 import { UserRole } from '../../../../types/UserRoleType';
@@ -13,9 +13,9 @@ import Moment from 'moment';
 import TimelineProgressBar from '../../../custom/TimelineProgressBar';
 
 type ModalDetailsProps = {
-  show: boolean;
-  onHide: () => void;
-  ticketId: number;
+show: boolean;
+onHide: () => void;
+ticketId: number;
 };
 
 
@@ -34,21 +34,21 @@ interface ValidationMessages {
     resolveResolution?: string;
     resolveTimespand?: string;
     resolveDescription?: string;
-  }
-  
+}
+
 interface HelpdeskTicketState {
     editTicket: {
-      groupId?: number | null;
-      resolveDescription?: string;
-      duoDate?: Date | null;
-      assignedTo?: number | null;
-      status?: string;
-      priority?: string | null;
-      resolveDate?: Date;
-      resolveResolution?: string | null;
-      resolveTimespand?: string | null;
+        groupId?: number | null;
+        resolveDescription?: string;
+        duoDate?: Date | null;
+        assignedTo?: number | null;
+        status?: string;
+        priority?: string | null;
+        resolveDate?: Date;
+        resolveResolution?: string | null;
+        resolveTimespand?: string | null;
     };
-  }
+}
 
 const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) => {
     const {role, userId} = useUserContext();
@@ -64,6 +64,8 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const [groupUsers, setGroupUsers] = useState<UserType[]>([]);
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isSelectedAssignedCheckBox, setIsSelectedAssignedCheckBox] = React.useState(false);
+    const [isSelectedCloseTicketCheckBox, setIsSelectedCloseTicketCheckBox] = React.useState(false);
     const navigate = useNavigate();
 
     const PriorityList: PriorityItem[] = [
@@ -74,7 +76,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         { id: 5, priority: "Poteškoće u radu korisnika", days: 5 },
         { id: 6, priority: "Zahtjevi za izmjenu/doradu manje složenosti", days: 5 },
         { id: 7, priority: "Zahtjevi za izmjenu/doradu veće složenosti", days: 5 },
-      ];
+    ];
 
     const ResolveResolutionList: ResolveResolutionItem[] = [
         {id: 1, resolution: "Nemoguće riješiti ili je u koliziji sa standardom ili politikom"},
@@ -141,22 +143,25 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             },
         }));
     }
-     
+    
     const setEditHelpdeskStringFieldState = (fieldName: string, newValue: any) => {
-        setEdithelpDeskState((prev) => ({
-            ...prev,
-            editTicket: {
+        setEdithelpDeskState((prev) => {
+            const newEditTicket = {
                 ...prev.editTicket,
                 [fieldName]: newValue,
-            },
-        }));
+            };        
+            return {
+                ...prev,
+                editTicket: newEditTicket,
+            };
+        });
     };
-
+    
     const setValidationMessageFieldState = (field: string, value: string) => {
         setValidateMessages((prev) => ({
             ...prev,
             [field]: value,
-          }));
+        }));
     }
 
     const handlePriorityChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
@@ -184,55 +189,56 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     const handleAssiningTicket = async () => {
-        if(editHelpdeskState.editTicket.priority){
-            setEditHelpdeskStringFieldState('status', 'izvršenje')
-            await setEditHelpdeskNumberFieldState('assignedTo', userId); 
+        if (editHelpdeskState.editTicket.priority) {
+            await doEditTicket(ticketId);
         }
-        return setValidationMessageFieldState('priority', '* Odaberite prioritet')
-    };
-
+        return setValidationMessageFieldState('priority', '* Odaberite prioritet');
+    };      
+    
     const handleCloseTicket = async () => {
         if (
-          editHelpdeskState.editTicket.resolveDescription &&
-          editHelpdeskState.editTicket.resolveResolution &&
-          editHelpdeskState.editTicket.resolveTimespand
+        editHelpdeskState.editTicket.resolveDescription &&
+        editHelpdeskState.editTicket.resolveResolution &&
+        editHelpdeskState.editTicket.resolveTimespand
         ) {
-            const date = new Date();
-            setEditHelpdeskStringFieldState('status', 'zatvoren');
-            await setEditHelpdeskStringFieldState('resolveDate', date);
+            await doEditTicket(ticketId);
         } else {
             setValidationMessageFieldState('resolveDescription', '* Upišite opis rješnja')
             setValidationMessageFieldState('resolveResolution', '* Odaberite rezoluciju rješnja')
             setValidationMessageFieldState('resolveTimespand', '* Upišite utrošeno vrijeme')
             return
         }
-      };
+    };
 
     function changeStatus(status:string){
         if(status === 'otvoren'){
             return (        
-                <Button onClick={() => {handleAssiningTicket()}} color={colorStatus(status)}>Preuzmi zahtjev</Button>
+                <Checkbox aria-label='Označi kako bi preuzeo zahtjev' isSelected={isSelectedAssignedCheckBox} onValueChange={setIsSelectedAssignedCheckBox}>
+                    <Button isDisabled={!isSelectedAssignedCheckBox} onClick={() => handleAssiningTicket()} color={colorStatus(status)}>Preuzmi zahtjev</Button>
+                </Checkbox>
             )
         } else if(status === 'izvršenje') {
             return (
-                <Button onClick={() => {handleCloseTicket()}} color={colorStatus(status)}>Zatvori zahtjev</Button>
+                <Checkbox aria-label='Označi kako bi zatvorio zahtjev' isSelected={isSelectedCloseTicketCheckBox} onValueChange={setIsSelectedCloseTicketCheckBox} >
+                    <Button isDisabled={!isSelectedCloseTicketCheckBox} onClick={() => handleCloseTicket()} color={colorStatus(status)}>Zatvori zahtjev</Button>
+                </Checkbox>
             )
         } 
     }
 
     const resolvedTimespandDescription = () => {
         const resolvedTimespand = helpdeskState?.resolveTimespand;
-      
+    
         if (resolvedTimespand) {
-          const minutes = parseInt(resolvedTimespand, 10);
-          const days = Math.floor(minutes / (24 * 60));
-          const hours = Math.floor((minutes % (24 * 60)) / 60);
-          const remainingMinutes = minutes % 60;
+        const minutes = parseInt(resolvedTimespand, 10);
+        const days = Math.floor(minutes / (24 * 60));
+        const hours = Math.floor((minutes % (24 * 60)) / 60);
+        const remainingMinutes = minutes % 60;
 
-          const descriptionText = `Utrošeno: ${days} dan/a, ${hours} sat/i i ${remainingMinutes} minuta`;
-          return descriptionText
+        const descriptionText = `Utrošeno: ${days} dan/a, ${hours} sat/i i ${remainingMinutes} minuta`;
+        return descriptionText
         }
-      };
+    };
 
     const updateResolvedTimespandFromInput = (value: string) => {
         const resolvedTimespand = helpdeskState?.resolveTimespand;
@@ -247,20 +253,19 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     useEffect(() => {
-        if (editHelpdeskState.editTicket.assignedTo === userId) {
-            doEditTicket(ticketId);
-            getHelpdeskTicketsData();
-            putTicketDetailsInState();
+        if(isSelectedAssignedCheckBox){
+            setEditHelpdeskNumberFieldState('assignedTo', userId);
+            setEditHelpdeskStringFieldState('status', 'izvršenje');
         }
-    }, [editHelpdeskState.editTicket.assignedTo]);
+    }, [isSelectedAssignedCheckBox]);
 
     useEffect(() => {
-        if (editHelpdeskState.editTicket.resolveDate) {
-            doEditTicket(ticketId);
-            getHelpdeskTicketsData();
-            putTicketDetailsInState();
+        if(isSelectedCloseTicketCheckBox){
+            const date = new Date();
+            setEditHelpdeskStringFieldState('status', 'zatvoren');
+            setEditHelpdeskStringFieldState('resolveDate', date);
         }
-    }, [editHelpdeskState.editTicket.resolveDate]);;
+    }, [isSelectedCloseTicketCheckBox]);
 
     useEffect(() => {
         if (show) {
@@ -348,26 +353,25 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     }
 
     const doEditTicket = async (ticketId:number) => {
-        try{
-        await api(`api/helpdesk/${ticketId}`, 'put', editHelpdeskState.editTicket,
-        role as UserRole)
-        .then((res: ApiResponse) => {
-            if (res.status === 'login'){
-            return navigate('/login')
-            }
+        try {
+            await api(`api/helpdesk/${ticketId}`, 'put', editHelpdeskState.editTicket,
+            role as UserRole)
+            .then((res: ApiResponse) => {
+                if (res.status === 'login'){
+                return navigate('/login')
 
-            if(res.status === 'forbidden') {
-            setMessage('Korisnik nema pravo za izmejne!')
-            }
-        })
-        getHelpdeskTicketsData()
-        } catch(error){
-            setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error)
+                if(res.status === 'forbidden') {
+                setMessage('Korisnik nema pravo za izmejne!')
+                }
+            })
+            getHelpdeskTicketsData()
+        } catch(error) {
+            setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error);
         }
     }
-
+                
     return (
-           
+        
         <Modal 
         isOpen={show} 
         onOpenChange={onHide} 
@@ -458,7 +462,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                     </div>
                                     <Textarea label="Opis zahtjeva" value={helpdeskState?.description} />
                                 </div>
-                                <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : ''}>
+                                <div className={helpdeskState?.status === 'otvoren' ? 'hidden' : ''}>
                                     <Textarea
                                         errorMessage={editHelpdeskState.editTicket.resolveDescription === '' ? validateMessages.resolveDescription : ''}
                                         isReadOnly={isDisabled}
@@ -468,7 +472,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                         onValueChange={(value: string) => setEditHelpdeskStringFieldState('resolveDescription', value)}
                                         placeholder='Opis rješnja zahtjeva' />
                                 </div>
-                                <div className={editHelpdeskState.editTicket.status === 'otvoren' ? 'hidden' : 'grid grid-cols-3 gap-2'}>
+                                <div className={helpdeskState?.status === 'otvoren' ? 'hidden' : 'grid grid-cols-3 gap-2'}>
                                     <div className='col-span-2'>
                                     <Select
                                         isDisabled={isDisabled}
@@ -550,52 +554,52 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
 
     function forwardTicket() {
     return (
-      <div className='grid gap-3'>
-        <Select
-          id='groupId'
-          label='Grupa'
-          placeholder='Odaberite grupu'
-          value={helpdeskState?.groupId}
-          onChange={handleGroupChange}
-          selectedKeys={selectedGroup ? [`${selectedGroup}`] : []}
-        >
-          {moderatorGroupState.map((group, index) => (
-            <SelectItem 
-              key={group.group?.groupId || index} 
-              textValue={`${group.group?.groupId} - ${group.group?.groupName}`}
-              value={Number(group.groupId)}
+        <div className='grid gap-3'>
+            <Select
+            id='groupId'
+            label='Grupa'
+            placeholder='Odaberite grupu'
+            value={helpdeskState?.groupId}
+            onChange={handleGroupChange}
+            selectedKeys={selectedGroup ? [`${selectedGroup}`] : []}
             >
-              <div className="flex gap-2 items-center">
-                <div className="flex flex-col">
-                  <span className="text-small">{group.group?.groupName}</span>
-                  <span className="text-tiny text-default-400">{group.group?.location?.name}</span>
+            {moderatorGroupState.map((group, index) => (
+                <SelectItem 
+                key={group.group?.groupId || index} 
+                textValue={`${group.group?.groupId} - ${group.group?.groupName}`}
+                value={Number(group.groupId)}
+                >
+                <div className="flex gap-2 items-center">
+                    <div className="flex flex-col">
+                    <span className="text-small">{group.group?.groupName}</span>
+                    <span className="text-tiny text-default-400">{group.group?.location?.name}</span>
+                    </div>
                 </div>
-              </div>
-            </SelectItem>
-          ))}
-        </Select>     
-        {selectedGroup ? (
-          <Select
-            id='userId'
-            label='Korisnik'
-            placeholder='Odaberite korisnika'
-            onChange={handleUserChange}
-            selectedKeys={selectedUser ? [`${selectedUser}`] : []}
-          >
-            {groupUsers.map((user, index) => (
-              <SelectItem
-                key={user?.userId || index}
-                textValue={user?.fullname || ''}
-                value={Number(user?.userId)}
-              > {user.fullname} </SelectItem>
+                </SelectItem>
             ))}
-          </Select>
-        ): (<div></div>)} 
+            </Select>     
+            {selectedGroup ? (
+            <Select
+                id='userId'
+                label='Korisnik'
+                placeholder='Odaberite korisnika'
+                onChange={handleUserChange}
+                selectedKeys={selectedUser ? [`${selectedUser}`] : []}
+            >
+                {groupUsers.map((user, index) => (
+                <SelectItem
+                    key={user?.userId || index}
+                    textValue={user?.fullname || ''}
+                    value={Number(user?.userId)}
+                > {user.fullname} </SelectItem>
+                ))}
+            </Select>
+            ): (<div></div>)} 
 
-        <Button color='warning' onPress={() => doEditTicket(ticketId)}>Proslijedi zahtjev</Button>
-      </div>
+            <Button color='warning' onPress={() => doEditTicket(ticketId)}>Proslijedi zahtjev</Button>
+        </div>
     );
-  }
+}
 };
 
 export default ModalDetails;

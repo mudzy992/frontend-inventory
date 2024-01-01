@@ -16,8 +16,8 @@ import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';
 import { useUserContext } from '../../UserContext/UserContext';
 import { UserRole } from '../../../types/UserRoleType';
-import NewTicketByArticleModal from '../HelpDesk/new/ByArticle/NewTicketByArticleModal';
-import ViewSingleTicketModal from '../HelpDesk/view/ViewSingleTicket';
+import NewTicketByArticleModal from '../../admin/HelpDesk/new/ByArticle/NewTicketByArticleModal';
+import ViewSingleTicketModal from '../../admin/HelpDesk/view/ViewSingleTicket';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -240,7 +240,6 @@ const AdminArticleOnUserPage: React.FC = () => {
                         return {items: []}
                     }
                     return {items: res.data}
-                    /* setUsers(res.data); */
             } catch (err) {
                 setErrorMessage('Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: ' + err);
                 return {items: []}
@@ -413,12 +412,8 @@ const AdminArticleOnUserPage: React.FC = () => {
     function showChangeStatusModal(article: ArticleType) {
         const sb: any = article.serialNumber;
         const inv : any = article.invNumber;
-        /* const sb: any = serijskic.shift(); */
         setChangeStatusVisibleState(true)
         setChangeStatusStringFieldState('serialNumber', sb)
-        if (inv === null) {
-            setChangeStatusStringFieldState('invNumber', 'ne ladi1')
-        }
         setChangeStatusStringFieldState('invNumber', inv)
     }
 
@@ -571,8 +566,7 @@ const AdminArticleOnUserPage: React.FC = () => {
             data={state.article}
             />
         </div>
-    )
-    
+    ) 
 
     function badgeStatus (article: ArticleType) {
         let stat:any = article.status;
@@ -589,8 +583,6 @@ const AdminArticleOnUserPage: React.FC = () => {
             <Chip color={color}>{stat} </Chip>
         )
     }
-
-    
 
     function userDetails(userDet: ArticleType) {
         let stat = userDet.status
@@ -799,30 +791,32 @@ function renderArticleData(article: ArticleType) {
                     size='sm'
                     >
                         <Tab key="articles" title="Kretanje opreme">
+                        <div className='overflow-x-auto overflow-hidden'>
                                <Table aria-label='tabela-zaduzenja' removeWrapper className='shadow-md p-2 rounded-xl'>
                                 <TableHeader>
                                     <TableColumn key={'korisnik'} aria-label='Naziv korisnika'>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableColumn>
                                     <TableColumn key={'status'} aria-label='status artikla'>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableColumn>
                                     <TableColumn key={'komentar'} aria-label='Komentar akcije'>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableColumn>
                                     <TableColumn key={'datum-vrijeme'} aria-label='Datum i vrijeme akcije'>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableColumn>
-                                    <TableColumn key={'dokument'} aria-label='Prateci dokument'>#</TableColumn>
+                                    <TableColumn className='w-min-[150px]' key={'dokument'} aria-label='Prateci dokument'>#</TableColumn>
                                 </TableHeader>
                                 <TableBody>
                                 {article.articleTimelines?.map((timeline, index) => (
                                     <TableRow key={timeline.articleTimelineId}>
-                                        <TableCell key={`korisnik-${timeline.user?.fullname}-${index}`} aria-label='naziv-korisnika'>
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`korisnik-${timeline.user?.fullname}-${index}`} aria-label='naziv-korisnika'>
                                             <Link className='text-sm' isBlock showAnchorIcon color="primary" href={`#/admin/user/${timeline.userId}`}>
                                             {timeline.user?.fullname}
                                             </Link>
                                         </TableCell>
-                                        <TableCell key={`korisnik-${timeline.status}-${index}`} aria-label='Naziv korisnika'>{timeline.status}</TableCell>
-                                        <TableCell key={`korisnik-${timeline.comment}-${index}`} aria-label='Komentar'>{timeline.comment}</TableCell>
-                                        <TableCell key={`datum-vrijeme-${index}`} aria-label='Vrijeme i datum akcije'>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                        <TableCell key={`dokument-${index}`} aria-label='DOkument'>{saveFile(timeline.document?.path)}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`status-${timeline.status}-${index}`} aria-label='Status artikla'>{timeline.status}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`korisnik-${timeline.comment}-${index}`} aria-label='Komentar'>{timeline.comment}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`datum-vrijeme-${index}`} aria-label='Vrijeme i datum akcije'>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`dokument-${index}`} aria-label='DOkument'>{saveFile(timeline.document?.path)}</TableCell>
                                     </TableRow>
                                 )) ?? []}
                                 </TableBody>
-                            </Table>  
+                            </Table> 
+                            </div> 
                         </Tab>
                         <Tab key="tickets" title="Tiketi">
                             <div className='overflow-x-auto overflow-hidden'>
@@ -839,11 +833,11 @@ function renderArticleData(article: ArticleType) {
                                         <TableCell 
                                         className="max-w-[400px] overflow-hidden text-ellipsis whitespace-nowrap"
                                         key={`opis-${ticket.description}-${index}`} aria-label='opis-tiketa'>{ticket.description}</TableCell>
-                                        <TableCell key={`datum-vrijeme-${index}`} aria-label='Datum i vrijeme prijave'>{Moment(ticket.createdAt).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                        <TableCell key={`status-${ticket.status}-${index}`} aria-label='Status tiketa'>
-                                           {ticket.status === "zatvoren" ? (<Chip variant='flat' color='success'>{ticket.status}</Chip>):(<Chip variant='flat' color='warning'>{ticket.status}</Chip>)}
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`datum-vrijeme-${index}`} aria-label='Datum i vrijeme prijave'>{Moment(ticket.createdAt).format('DD.MM.YYYY. - HH:mm')}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`status-${ticket.status}-${index}`} aria-label='Status tiketa'>
+                                           {ticket.status === "zatvoren" ? (<Chip size='sm' variant='flat' color='success'>{ticket.status}</Chip>):(<Chip size='sm' variant='flat' color='warning'>{ticket.status}</Chip>)}
                                         </TableCell>
-                                        <TableCell key={`action-${index}`} aria-label='Akcija'>{actions(ticket.ticketId!)}</TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit' key={`action-${index}`} aria-label='Akcija'>{actions(ticket.ticketId!)}</TableCell>
                                     </TableRow>
                                 )) ?? []}
                                 </TableBody>

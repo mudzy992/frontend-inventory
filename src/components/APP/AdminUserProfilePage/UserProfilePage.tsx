@@ -363,7 +363,7 @@ const AdminUserProfilePage: React.FC = () => {
                 <div className="lg:col-span-4 col-span-2 md:col-span-2 lg:pl-4">
                         <div className="grid lg:grid-cols-3 grid-cols gap-3 mb-3">
                             <Input
-                                value={user.surname}
+                                value={state.editUser.surname}
                                 type='text'
                                 label='Ime'
                                 variant='bordered'

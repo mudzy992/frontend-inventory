@@ -359,6 +359,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             .then((res: ApiResponse) => {
                 if (res.status === 'login'){
                 return navigate('/login')
+                }
 
                 if(res.status === 'forbidden') {
                 setMessage('Korisnik nema pravo za izmejne!')

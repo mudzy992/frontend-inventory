@@ -16,8 +16,8 @@ import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';
 import { useUserContext } from '../../UserContext/UserContext';
 import { UserRole } from '../../../types/UserRoleType';
-import NewTicketByArticleModal from '../../admin/HelpDesk/new/ByArticle/NewTicketByArticleModal';
-import ViewSingleTicketModal from '../../admin/HelpDesk/view/ViewSingleTicket';
+import NewTicketByArticleModal from '../HelpDesk/new/ByArticle/NewTicketByArticleModal';
+import ViewSingleTicketModal from '../HelpDesk/view/ViewSingleTicket';
 
 interface upgradeFeaturesType {
     upgradeFeatureId: number;
@@ -312,7 +312,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         setShowModal(false);
     };
 
-    const openModalWithArticle = (data:ArticleType) => {
+    const openModalWithArticle = () => {
         handleShowModal();
     };
 
@@ -749,7 +749,7 @@ function renderArticleData(article: ArticleType) {
         return (
             <div className="lg:flex">
                 <div className="lg:w-8/12 xs:w-full lg:mr-5">
-                    <Button size='sm' color='danger' className='absolute' variant='flat' onClick={() => openModalWithArticle(state.article)} > Prijavi problem</Button>
+                    <Button size='sm' color='danger' className='absolute' variant='flat' onClick={() => openModalWithArticle()} > Prijavi problem</Button>
                     <div className="lg:flex">
                         <div className="lg:w-4/12 xs:w-full flex justify-center items-center">
                             <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
@@ -804,7 +804,7 @@ function renderArticleData(article: ArticleType) {
                                 {article.articleTimelines?.map((timeline, index) => (
                                     <TableRow key={timeline.articleTimelineId}>
                                         <TableCell className='whitespace-nowrap min-w-fit' key={`korisnik-${timeline.user?.fullname}-${index}`} aria-label='naziv-korisnika'>
-                                            <Link className='text-sm' isBlock showAnchorIcon color="primary" href={`#/admin/user/${timeline.userId}`}>
+                                            <Link className='text-sm' isBlock showAnchorIcon color="primary" href={`#/user/profile/${timeline.userId}`}>
                                             {timeline.user?.fullname}
                                             </Link>
                                         </TableCell>

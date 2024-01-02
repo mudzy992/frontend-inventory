@@ -138,9 +138,9 @@ useEffect(() => {
 
 return (
     <div className='grid gap-3'>
-        <div className='text-center text-3xl text-gray-400'>
-            <p>
-                Korisnička prijava
+        <div className='bg-default-100 mb-2 p-2 rounded-xl text-left text-lg'>
+            <p className=''>
+            <i className="bi bi-person-fill text-default-500 text-xl" /> Korisnička prijava
             </p>
         </div>
         <Input
@@ -178,9 +178,9 @@ return (
                 <i className="bi bi-key-fill text-2xl text-default-400 pointer-events-none"></i>
             }
         />
-        <Divider className="my-4" />
+        <Divider className="my-2" />
         <Button size='lg' variant="solid" color='default' onClick={() => doLogin()}>
-            Prijava
+        <i className="bi bi-box-arrow-in-right text-default-500 text-xl"/> Prijava
         </Button>
         <div>
             {printErrorMessage()}

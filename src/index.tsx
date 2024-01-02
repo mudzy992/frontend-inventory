@@ -5,23 +5,22 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import reportWebVitals from './reportWebVitals';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import CategoryPage from './components/APP/Categories/Categories';
-import HomePage from './components/APP/HomePage/HomePage';
-import UserProfilePage from './components/APP/UserProfilePage/UserProfilePage';
+import HomePage from './components/APP/Home/HomePage';
 import ArticleOnUserPage from './components/APP/ArticleOnUser/ArticleOnUserPage';
-import AdminArticleOnUserPage from './components/APP/AdminArticleOnUser/ArticleOnUserPage';
-import AdminUserProfilePage from './components/APP/AdminUserProfilePage/UserProfilePage';
+import AdminArticleOnUserPage from './components/admin/ArticleOnUser/ArticleOnUserPage';
+import AdminUserProfilePage from './components/APP/UserProfile/UserProfilePage';
 import AddArticlePage from './components/admin/AddArticle/AddArticlePage';
 import AddUserPage from './components/admin/AddUser/AddUserPage';
 import AddFeaturePage from './components/admin/AddFeature/AddFeaturePage';
 import AddNewCategoryPage from './components/admin/AddCategory/AddCategoryPage';
-import AddDepartmentAndJob from './components/admin/AddDepartmentAndJob/AddDepartmetAndJob';
+import AddDepartmentAndJob from './components/admin/AddDepartmentJobLocation/AddDepartmetAndJob';
 import { NextUIProvider } from '@nextui-org/react';
-import StockPage from './components/APP/StockPage/StockPage';
-import DocumentsPage from './components/APP/DocumentsPage/DocumentPage';
+import StockPage from './components/APP/Stock/StockPage';
+import DocumentsPage from './components/APP/Documents/DocumentPage';
 import LoginPage from './components/Login/LoginPage';
 import LogOutPage from './components/Logout/LogoutPage';
 import { UserContextProvider } from './components/UserContext/UserContext';
-import AdminDashboardPage from './components/admin/DashboardPage/DashboardPage';
+import AdminDashboardPage from './components/admin/Dashboard/DashboardPage';
 import HelpdeskTicketPage from './components/admin/HelpDesk/main/HelpdeskTicketPage';
 
 const rootElement = document.getElementById('root');
@@ -38,10 +37,9 @@ const App = () => {
                 {/* master login */}
                 <Route path='/login/' element={<LoginPage />} />
                 <Route path='/logout/' element={<LogOutPage />} />
-                <Route path="/user/profile/:userID" element={<UserProfilePage />} />
                 <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
                 <Route path="/admin/article/:serial" element={<AdminArticleOnUserPage />} />
-                <Route path="/admin/user/:userID" element={<AdminUserProfilePage />} />
+                <Route path="/user/profile/:userID" element={<AdminUserProfilePage />} />
                 <Route path="/" element={<HomePage />} />
                 <Route path="/category/:categoryID" element={<CategoryPage />} />
                 <Route path="/admin/article/" element={<AddArticlePage />} />

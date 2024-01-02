@@ -120,7 +120,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                 return userArticleData.length > 0 ? (
                   <TableRow key={item.serialNumber}>
                     <TableCell className='whitespace-nowrap min-w-fit' key={item.user?.fullname}>
-                      <Link href={`#/admin/user/${item.user?.userId}`}>
+                      <Link href={`#/user/profile/${item.user?.userId}`}>
                         {item.user?.fullname}
                       </Link>
                     </TableCell>

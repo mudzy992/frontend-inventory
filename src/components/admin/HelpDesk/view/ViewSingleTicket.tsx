@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Select, SelectItem, Chip } from '@nextui-org/react';
-import { useNavigate } from 'react-router-dom';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Chip } from '@nextui-org/react';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import ArticleType from '../../../../types/ArticleType';
@@ -19,10 +18,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
 
     useEffect(() => {
         if (show && data.helpdeskTickets) {
-            // Pronađi tiket koji odgovara ticketId
             const selectedTicket = data.helpdeskTickets.find(ticket => ticket.ticketId === ticketId);
-    
-            // Ažuriraj stanje s odabranim tiketom
             setTicketState(selectedTicket);
         }
     }, [show, data.helpdeskTickets, ticketId]);
@@ -63,19 +59,20 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                                     labelPlacement='inside' 
                                     value={Moment(ticketState?.resolveDate).format('DD.MM.YYYY - HH:mm')} />
                                 ) :(<div></div>)}
-                                {ticketState?.assignedTo !== null ? (
+                                {ticketState?.status !== 'otvoren' ? (
                                     <Input 
                                     label="Tiket preuzeo" 
                                     labelPlacement='inside' 
                                     value={ticketState?.assignedTo2?.fullname} />
                                 ) :(<div></div>)}
                             </div>
-                            <div className='grid lg:col-span-8 col-span gap-2 grid-flow-row auto-rows-max'>
+                            <div className='grid lg:col-span-8 col-span gap-2 auto-rows-max w-full'>
                                 <Textarea 
                                 isReadOnly
                                 label="Opis problema"
                                 type='text'
                                 value={ticketState?.description}
+                                className='w-full'
                                 />
                                 {ticketState?.status === 'zatvoren' ? (
                                     <Textarea 

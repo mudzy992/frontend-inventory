@@ -4,7 +4,7 @@ import api, { ApiResponse } from '../../../API/api';
 import CategoryType from '../../../types/CategoryType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu'
 import AdminMenu from '../../admin/AdminMenu/AdminMenu';
-import { UserTable } from '../UserPage/UserTable';
+import { UserTable } from './UserTable';
 import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
 
 interface HomePageState {

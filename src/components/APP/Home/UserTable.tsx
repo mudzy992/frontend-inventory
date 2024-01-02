@@ -111,7 +111,7 @@ export const UserTable: React.FC<{}> = () => {
         } else {
             gender = 'bi bi-gender-female'
         }
-        const linkUser = `#/admin/user/${user.userId}`
+        const linkUser = `#/user/profile/${user.userId}`
         switch (columnKey) {
           case "fullname":
             return (

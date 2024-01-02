@@ -7,7 +7,7 @@ import StockType from '../../../types/UserArticleType';
 import ArticleType from '../../../types/ArticleType';
 import DocumentsType from '../../../types/DocumentsType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import ArticleTimlineModal from '../../APP/ArticleTimelinePage/ArticleTimelinePageModal';
+import ArticleTimlineModal from '../../APP/ArticleTimeline/ArticleTimelinePageModal';
 import AdminMenu from '../AdminMenu/AdminMenu';
 import moment from 'moment';
 import { Button, Card, CardFooter, CardHeader, Chip, Input, Link, Listbox, ListboxItem, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
@@ -387,7 +387,7 @@ const AdminDashboardPage: React.FC = () => {
                                         <TableCell className='whitespace-nowrap min-w-fit'>{artikal?.serialNumber}</TableCell>
                                         <TableCell className='whitespace-nowrap min-w-fit'>{artikal?.invNumber}</TableCell>
                                         <TableCell className='whitespace-nowrap min-w-fit'>{artikal?.category?.name}</TableCell>
-                                        <TableCell className='whitespace-nowrap min-w-fit'><Link className='text-sm' showAnchorIcon href={`#/admin/user/${artikal?.userId}`} >{artikal?.user?.fullname}</Link></TableCell>
+                                        <TableCell className='whitespace-nowrap min-w-fit'><Link className='text-sm' showAnchorIcon href={`#/user/profile/${artikal?.userId}`} >{artikal?.user?.fullname}</Link></TableCell>
                                         <TableCell className={`status-${artikal?.status}`}>{artikal?.status}</TableCell>
                                     </TableRow>
                                 ))}

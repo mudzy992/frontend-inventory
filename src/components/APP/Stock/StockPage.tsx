@@ -6,7 +6,8 @@ import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArticleInStockTable from './StockArticleTableNew';
-import { Autocomplete, AutocompleteItem, Button, Card, CardBody, CardHeader, Checkbox, Chip, Input, Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, Select, SelectItem, Textarea, Tooltip } from '@nextui-org/react';
+import { Autocomplete, AutocompleteItem, Button, Card, CardBody, CardHeader, Checkbox, Chip, Input, Listbox, ListboxItem, Modal, ModalBody, 
+    ModalContent, ModalFooter, ModalHeader, ScrollShadow, Select, SelectItem, Textarea, Tooltip } from '@nextui-org/react';
 import { Alert } from '../../custom/Alert';
 
 interface userData {

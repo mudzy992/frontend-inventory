@@ -8,6 +8,7 @@ import { UserRole } from "../../../types/UserRoleType";
 import UserDetails from "./components/UserDetails";
 import ResponsibilityArticles from "./components/ResponsibilityArticles";
 import { Card, CardBody, Tab, Tabs } from "@nextui-org/react";
+import UserTickets from "./components/UserTickets";
 
 const AdminUserProfilePage: React.FC = () => {
     const { userID } = useParams();
@@ -55,6 +56,9 @@ const AdminUserProfilePage: React.FC = () => {
                     </Tab>
                     <Tab key='zaduzeni-artikli' title='Zaduženi artikli'>
                       <ResponsibilityArticles data={user} />
+                    </Tab>
+                    <Tab key='tiketi' title='Helpdesk'>
+                      <UserTickets data={user} />
                     </Tab>
                 </Tabs>
           </div>

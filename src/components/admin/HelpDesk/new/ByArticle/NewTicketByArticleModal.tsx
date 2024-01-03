@@ -13,7 +13,7 @@ import 'react-calendar/dist/Calendar.css';
 type ModalProps = {
     show: boolean;
     onHide: () => void;
-    data: ArticleType;
+    data?: ArticleType;
   };
 
 interface AddNewTicketState {
@@ -61,7 +61,7 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
 
     useEffect(() => {
         if(show) {
-          putArticleDetailsInState(data);
+          putArticleDetailsInState(data!);
           
         }
         if(addNewTicketState?.groupId){
@@ -115,21 +115,21 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
             isDismissable={false}>
                 <ModalContent>
                     <ModalHeader>
-                        {data.stock?.name}
+                        {data?.stock?.name}
                     </ModalHeader>
                     <ModalBody>
                     <Input 
                     label="Korisnik" 
                     labelPlacement='inside' 
-                    value={data.user?.fullname} />
+                    value={data?.user?.fullname} />
                     <Input 
                     label="Artikal" 
                     labelPlacement='inside' 
-                    value={data.stock?.name} />
+                    value={data?.stock?.name} />
                     <Input 
                     label="Grupa" 
                     labelPlacement='inside' 
-                    value={data.category?.group?.groupName} />
+                    value={data?.category?.group?.groupName} />
                     <Select
                         id='groupId'
                         label='Grupa'

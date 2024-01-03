@@ -58,7 +58,6 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
         ...prev,
         [fieldName]: (newValue === 'null' || newValue === '') ? null : Number(newValue),
         }));
-        console.log(fieldName, newValue)
     };
       
 
@@ -72,9 +71,7 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
     const getLocationData = async () => {
         try {
           const res: ApiResponse = await api('api/location?sort=name,ASC', 'get', {}, role as UserRole);
-      
           setLocationData(res.data);
-      
           return res.data;
         } catch (error) {
           throw error;
@@ -84,11 +81,8 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
       const getDepartmentData = async () => {
         try {
           const res: ApiResponse = await api('api/department?sort=title,ASC', 'get', {}, role as UserRole);
-      
-      
           const data = res.data;
           setDepartmentData(data);
-      
           return data;
         } catch (error) {
           throw error;
@@ -110,7 +104,6 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
     }
 
     const addJobDepartmentChange = async (selectedValue:any) => {
-        console.log(selectedValue)
         try {
             const jobs = await getJobsByDepartmentId(selectedValue)
             const stateJobs:any = jobs.map(job => ({
@@ -118,7 +111,6 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
                 title: job.title,
                 jobCode: job.jobCode,
             }))
-            console.log(stateJobs)
             setJobData(stateJobs)
         } catch (error) {
             console.log('Greška prilikom mapiranja radnik mjesta za traženi sektor/odjelnje. Greška: ' + error)
@@ -146,13 +138,13 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-            await getDepartmentData();
-            const fetchedLocationData = await getLocationData();
-            setLocationData(fetchedLocationData);
+                await getDepartmentData();
+                const fetchedLocationData = await getLocationData();
+                setLocationData(fetchedLocationData);
             } catch (error) {
-            console.error('Greška prilikom dohvaćanja podataka:', error);
+                console.error('Greška prilikom dohvaćanja podataka:', error);
             } finally {
-            setDataReady(true);
+                setDataReady(true);
             }
         };
         
@@ -163,7 +155,6 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
         const fetchData = async () => {
             try {
             await putUserDetailsInState(data);
-            await addJobDepartmentChange(editUserState.departmentId);
             } catch (error) {
             console.error('Greška prilikom postavljanja detalja korisnika ili promjene sektora/odjeljenja:', error);
             }
@@ -172,7 +163,11 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
         if (dataReady) {
             fetchData();
         }
-    }, [dataReady, editUserState.departmentId]);
+    }, [dataReady]);
+
+    useEffect(() => {
+        addJobDepartmentChange(editUserState.departmentId);
+    }, [editUserState.departmentId]);
     
     useEffect(() => {
         if (locationData.length > 0) {
@@ -290,8 +285,7 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
                         label='Sektor/odjeljenje'
                         selectedKeys={editUserState.departmentId ? [`${editUserState.departmentId}`] : []}
                         onChange={(value: any) => {
-                            setEditUserNumberFieldState('departmentId', value.target.value);
-                            addJobDepartmentChange(value.target.value);
+                            setEditUserNumberFieldState('departmentId', value.target.value)
                         }}
                         >
                         {departmentData.map((department, index) => (
@@ -304,16 +298,17 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
                             </SelectItem>
                         ))}
                         </Select>
-                            <Select
-                                label='Radno mjesto'
-                                selectedKeys={editUserState.jobId ? [`${editUserState.jobId}`] : []}
-                                id="jobId"
-                                onChange={(e:any) => {setEditUserNumberFieldState('jobId', e.target.value)}}
-                                >
-                                {jobData.map((job, index) => (
-                                    <SelectItem key={Number(job.jobId)} textValue={job.title} value={job.jobId}>{job.title}</SelectItem>
-                                ))}
-                            </Select>
+                        <Select
+                            label='Radno mjesto'
+                            selectedKeys={jobData.some((job) => job.jobId === editUserState.jobId) ? [`${editUserState.jobId}`] : []}
+                            id="jobId"
+                            onChange={(e: any) => { setEditUserNumberFieldState('jobId', e.target.value) }}
+                            >
+                            {jobData.map((job, index) => (
+                                <SelectItem key={Number(job.jobId)} textValue={job.title} value={job.jobId}>{job.title}</SelectItem>
+                            ))}
+                        </Select>
+
                     </div>
 
                     <div className="grid lg:grid-cols-3 grid-cols gap-3 mb-3">
@@ -400,7 +395,5 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
         }
     }
 }
-
-
 
 export default UserDetails

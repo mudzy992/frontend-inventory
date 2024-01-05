@@ -848,7 +848,7 @@ function renderArticleData(article: ArticleType) {
                     show={showViewModal}
                     onHide={handleHideViewModal}
                     ticketId={selectedTicketId!}
-                    data={state.article}
+                    data={state.article.helpdeskTickets!}
                     />
                 </div>
                 </div>

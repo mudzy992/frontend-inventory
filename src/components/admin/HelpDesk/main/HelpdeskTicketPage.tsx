@@ -17,40 +17,61 @@ const HelpdeskTicketPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [selectedTab, setSelectedTab] = useState<string>("unassigned");
-  const [ticketCurrentPage, setTicketsCurrentPage] = useState<number>(1);
   const [ticketsItemsPerPage] = useState<number>(5);
   const [ticketsTotalPage, setTicketsTotalPage] = useState<number>(0);
   const [ticketsPaginationTableQuery, setTicketsPaginationTableQuery] = useState<string>('');
-  const [assignedToValue, setAssignedToValue] = useState<number | null>(null);
-  const [statusValue, setStatusValue] = useState<string | undefined>(undefined);
+  const [unassignedTicketCurrentPage, setUnassignedTicketsCurrentPage] = useState<number>(1);
+  const [unassignedTicketsPaginationTableQuery, setUnassignedTicketsPaginationTableQuery] = useState<string>('');
+  const [allTicketCurrentPage, setAllTicketsCurrentPage] = useState<number>(1);
+  const [allTicketsPaginationTableQuery, setAllTicketsPaginationTableQuery] = useState<string>('');
+  const [assignedTicketCurrentPage, setAssignedTicketsCurrentPage] = useState<number>(1);
+  const [assignedTicketsPaginationTableQuery, setAssignedTicketsPaginationTableQuery] = useState<string>('');
+  const [solvedTicketCurrentPage, setSolvedTicketsCurrentPage] = useState<number>(1);
+  const [solvedTicketsPaginationTableQuery, setSolvedTicketsPaginationTableQuery] = useState<string>('');
   
   useEffect(() => {
     if (userId !== undefined) {
-      if(selectedTab === "all"){
-        setAssignedToValue(null)
-        setStatusValue(undefined)
-        getHelpdeskTicketsData();
-      } else if(selectedTab === "unassigned"){
-        setAssignedToValue(null);
-        setStatusValue("otvoren");
-        getHelpdeskTicketsData();
-      } else if(selectedTab === "assigned"){
-        setAssignedToValue(userId);
-        setStatusValue("izvršenje");
-        getHelpdeskTicketsData();
-      } else if(selectedTab === "solved"){
-        setAssignedToValue(userId);
-        setStatusValue("zatvoren");
-        getHelpdeskTicketsData();
+      let assignedToValue;
+      let statusValue;
+      let currentPage;
+  
+      if (selectedTab === 'unassigned') {
+        currentPage=unassignedTicketCurrentPage;
+        assignedToValue = null;
+        statusValue = 'otvoren';
+      } else if (selectedTab === 'assigned') {
+        currentPage=assignedTicketCurrentPage;
+        assignedToValue = userId;
+        statusValue = 'izvršenje';
+      } else if (selectedTab === 'solved') {
+        currentPage=solvedTicketCurrentPage;
+        assignedToValue = userId;
+        statusValue = 'zatvoren';
+      } else if(selectedTab === 'all'){
+        currentPage=allTicketCurrentPage;
       }
-/*       getHelpdeskTicketsData(); */
+      getHelpdeskTicketsData(currentPage, assignedToValue, statusValue);
     }
-  }, [userId, selectedTab, assignedToValue, statusValue]);
+  }, [userId, selectedTab, allTicketCurrentPage, unassignedTicketCurrentPage, assignedTicketCurrentPage, solvedTicketCurrentPage,
+     ticketsPaginationTableQuery]);
 
   //Api za preuzimanje grupa i tiketa iz grupe
-  const getHelpdeskTicketsData = () => {
-    api(`api/helpdesk/s/${userId}?perPage=${ticketsItemsPerPage}&page=${ticketCurrentPage}&query=${encodeURIComponent(ticketsPaginationTableQuery)}&assignedTo=${assignedToValue}&status=${statusValue}`, 
-    "get", {}, role as UserRole)
+  const getHelpdeskTicketsData = (currentPage: number | undefined, assignedTo?: number | null, status?: string, query?: string ) => {
+    let apiEndpoint = `api/helpdesk/s/${userId}?perPage=${ticketsItemsPerPage}&page=${currentPage}`;
+
+    if (ticketsPaginationTableQuery) {
+      apiEndpoint += `&query=${encodeURIComponent(ticketsPaginationTableQuery)}`;
+    }
+
+    if (assignedTo !== undefined && assignedTo !== null) {
+      apiEndpoint += `&assignedTo=${assignedTo}`;
+    }
+
+    if (status) {
+      apiEndpoint += `&status=${status}`;
+    }
+
+    api(apiEndpoint, "get", {}, role as UserRole)
       .then((res: ApiResponse) => {
         if(res.status === 'login') {
           setIsLoggedIn(false)
@@ -72,17 +93,12 @@ const HelpdeskTicketPage: React.FC = () => {
       })
   }
 
-  useEffect(() => {
-    getHelpdeskTicketsData()
-  }, [ticketCurrentPage, ticketsItemsPerPage, ticketsPaginationTableQuery]);
-
   const handleShowModal = () => {
     setShowModal(true);
   };
 
   const handleHideModal = () => {
     setShowModal(false);
-    getHelpdeskTicketsData()
   };
 
   const openModalWithArticle = (ticketId: number) => {
@@ -91,9 +107,40 @@ const HelpdeskTicketPage: React.FC = () => {
   };
 
   const handleSearchChange = (query: string) => {
-    setTicketsCurrentPage(1)
     setTicketsPaginationTableQuery(query)        
-}  
+  }
+
+  const tableBottomContent = (currentPage: number, setPageFunction: (page: number) => void) => {
+    return (
+    <div className="flex justify-center mt-3"> 
+        <Pagination
+        color="default"
+        showControls
+        variant='flat'
+        disableCursorAnimation
+        initialPage={currentPage}
+        page={currentPage}
+        total={ticketsTotalPage}
+        onChange={(page) => setPageFunction(page)}
+        />
+    </div>)
+  }
+
+  const tableTopContent = () => {
+    return (
+      <Input
+      placeholder="Pronađi tiket..."
+      variant='bordered'
+      isClearable
+      startContent={<i className="bi bi-search text-default-500" />}
+      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key === 'Enter') {
+              const target = e.target as HTMLInputElement;
+              handleSearchChange(target.value);
+          }
+      }}                            
+  />)
+  }
 
   return (
     <div>
@@ -170,34 +217,8 @@ const HelpdeskTicketPage: React.FC = () => {
         isStriped
         isCompact
         selectionMode='single'
-        topContent={
-          <Input
-            placeholder="Pronađi tiket..."
-            variant='bordered'
-            isClearable
-            startContent={<i className="bi bi-search text-default-500" />}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (e.key === 'Enter') {
-                    const target = e.target as HTMLInputElement;
-                    handleSearchChange(target.value);
-                }
-            }}                            
-        />
-        }
-        bottomContent={
-          <div className="flex justify-center mt-3"> 
-              <Pagination
-              color="default"
-              showControls
-              variant='flat'
-              disableCursorAnimation
-              initialPage={ticketCurrentPage}
-              page={ticketCurrentPage}
-              total={ticketsTotalPage}
-              onChange={(page) => setTicketsCurrentPage(page)}
-              />
-          </div>
-        }
+        topContent={tableTopContent()}
+        bottomContent={tableBottomContent(allTicketCurrentPage, setAllTicketsCurrentPage)}
         >
           <TableHeader>
             <TableColumn key="ticketID">#</TableColumn>
@@ -246,6 +267,8 @@ const HelpdeskTicketPage: React.FC = () => {
         isStriped
         isCompact
         selectionMode='single'
+        topContent={tableTopContent()}
+        bottomContent={tableBottomContent(allTicketCurrentPage, setAllTicketsCurrentPage)}
         >
           <TableHeader>
             <TableColumn key="ticketID">#</TableColumn>
@@ -294,6 +317,8 @@ const HelpdeskTicketPage: React.FC = () => {
         isStriped
         isCompact
         selectionMode='single'
+        topContent={tableTopContent()}
+        bottomContent={tableBottomContent(assignedTicketCurrentPage, setAssignedTicketsCurrentPage)}
         >
           <TableHeader>
             <TableColumn key="ticketID">#</TableColumn>
@@ -342,6 +367,8 @@ const HelpdeskTicketPage: React.FC = () => {
         isStriped
         isCompact
         selectionMode='single'
+        topContent={tableTopContent()}
+        bottomContent={tableBottomContent(solvedTicketCurrentPage, setSolvedTicketsCurrentPage)}
         >
           <TableHeader>
             <TableColumn key="ticketID">#</TableColumn>

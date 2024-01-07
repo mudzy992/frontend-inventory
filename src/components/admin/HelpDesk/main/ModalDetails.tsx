@@ -517,9 +517,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         </Tab>
                         <Tab isDisabled={helpdeskState?.articleId === null} key="article" title='Oprema'>
                             <div className='grid gap-2'>
-                                <Input label="Naziv opreme" labelPlacement='inside' value={helpdeskState?.article?.stock?.name} />
-                                <Input label="Inventurni broj" labelPlacement='inside' value={helpdeskState?.article?.invNumber} />
-                                <Input label="Serijski broj" labelPlacement='inside' value={helpdeskState?.article?.serialNumber} />
+                                <Input label="Naziv opreme" labelPlacement='inside' value={helpdeskState?.article?.stock?.name!} />
+                                <Input label="Inventurni broj" labelPlacement='inside' value={helpdeskState?.article?.invNumber!} />
+                                <Input label="Serijski broj" labelPlacement='inside' value={helpdeskState?.article?.serialNumber!} />
                             </div>
                         </Tab>
                         <Tab isDisabled={helpdeskState?.status === 'zatvoren'} key="forward" title='Proslijedi'>

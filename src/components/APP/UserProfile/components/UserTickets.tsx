@@ -15,7 +15,7 @@ import {
 } from '@nextui-org/react';
 import Moment from 'moment';
 import ViewSingleTicketModal from '../../../admin/HelpDesk/view/ViewSingleTicket';
-import NewTicketByArticleModal from '../../../admin/HelpDesk/new/ByArticle/NewTicketByArticleModal';
+import NewTicketWithoutArticle from '../../../admin/HelpDesk/new/WithoutArticle/NewTicketWithoutArticleModal';
 
 type UserTicketsProps = {
   data: UserType;
@@ -152,9 +152,10 @@ const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
         ticketId={selectedTicketId!}
         data={data.helpdeskTickets2!}
       />
-      <NewTicketByArticleModal
+      <NewTicketWithoutArticle
         show={showAddModal}
         onHide={handleHideAddModal}
+        data={data}
       />
     </div>
   );

@@ -126,11 +126,11 @@ const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
           {paginatedTickets.map((ticket) => (
             <TableRow key={ticket.ticketId}>
               <TableCell>{ticket.ticketId}</TableCell>
-              <TableCell>{ticket.description}</TableCell>
-              <TableCell>
+              <TableCell className="max-w-[200px] lg:max-w-[978px] overflow-hidden text-ellipsis whitespace-nowrap">{ticket.description}</TableCell>
+              <TableCell className="w-[150px] max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap">
                 {Moment(ticket?.createdAt).format('DD.MM.YYYY - HH:mm')}
               </TableCell>
-              <TableCell>
+              <TableCell className="w-[150px] max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap">
                 {ticket.resolveDate
                   ? Moment(ticket?.resolveDate).format('DD.MM.YYYY - HH:mm')
                   : ''}

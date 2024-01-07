@@ -17,14 +17,11 @@ show: boolean;
 onHide: () => void;
 ticketId: number;
 };
-
-
 interface PriorityItem {
     id: number;
     priority: string;
     days: number;
 }
-
 interface ResolveResolutionItem {
     id: number;
     resolution: string;
@@ -35,7 +32,6 @@ interface ValidationMessages {
     resolveTimespand?: string;
     resolveDescription?: string;
 }
-
 interface HelpdeskTicketState {
     editTicket: {
         groupId?: number | null;
@@ -64,8 +60,8 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const [groupUsers, setGroupUsers] = useState<UserType[]>([]);
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [isSelectedAssignedCheckBox, setIsSelectedAssignedCheckBox] = React.useState(false);
-    const [isSelectedCloseTicketCheckBox, setIsSelectedCloseTicketCheckBox] = React.useState(false);
+    const [isSelectedAssignedCheckBox, setIsSelectedAssignedCheckBox] = useState<boolean>(false);
+    const [isSelectedCloseTicketCheckBox, setIsSelectedCloseTicketCheckBox] = useState<boolean>(false);
     const navigate = useNavigate();
 
     const PriorityList: PriorityItem[] = [
@@ -256,6 +252,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         if(isSelectedAssignedCheckBox){
             setEditHelpdeskNumberFieldState('assignedTo', userId);
             setEditHelpdeskStringFieldState('status', 'izvršenje');
+        } else {
+            setEditHelpdeskNumberFieldState('assignedTo', null);
+            setEditHelpdeskStringFieldState('status', 'otvoren');
         }
     }, [isSelectedAssignedCheckBox]);
 
@@ -264,6 +263,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             const date = new Date();
             setEditHelpdeskStringFieldState('status', 'zatvoren');
             setEditHelpdeskStringFieldState('resolveDate', date);
+        } else {
+            setEditHelpdeskStringFieldState('status', helpdeskState?.status);
+            setEditHelpdeskStringFieldState('resolveDate', null);
         }
     }, [isSelectedCloseTicketCheckBox]);
 
@@ -381,24 +383,24 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         isDismissable={false}
         scrollBehavior='inside'
         >
-                <ModalContent key={helpdeskState?.ticketId} className='overflow-auto'>
-                <ModalHeader>
-                    <div className='flex justify-between w-full'>
+            <ModalContent key={helpdeskState?.ticketId} className='overflow-auto'>
+                <ModalHeader className='flex justify-between'>
                     <span>Pregled tiketa <span className='text-default-500'>#{helpdeskState?.ticketId}</span></span> 
-                    <Chip className='mr-3 col-end-3' color={colorStatus(helpdeskState?.status!)}>{helpdeskState?.status}</Chip></div>
+                    <Chip className='mr-3 col-end-3' color={colorStatus(helpdeskState?.status!)}>{helpdeskState?.status}</Chip>
                 </ModalHeader>
-            {isLoading ? (<div className="flex justify-center items-center p-6">
-                    <Spinner color='primary' label='Učitavanje...' labelColor='primary' />
-                </div>  ) : (
-                    <div>
+                
                 <ModalBody>
-                    <div className='w-full'>
+                    {isLoading ? (
+                    <div className="flex justify-center items-center p-6">
+                        <Spinner color='primary' label='Učitavanje...' labelColor='primary' />
+                    </div>  ) : (
+                    <div>
                     <Tabs
-                    aria-label='Opcije'
-                    color='primary' 
-                    radius='full'
-                    selectedKey={selectedTab}
-                    onSelectionChange={(key: Key) => setSelectedTab(key as string)}
+                        aria-label='Opcije'
+                        color='primary' 
+                        radius='full'
+                        selectedKey={selectedTab}
+                        onSelectionChange={(key: Key) => setSelectedTab(key as string)}
                     >
                         <Tab key="details" title='Detalji tiketa'>
                         <div className='grid lg:grid-cols-12 grid-cols gap-3'>    
@@ -457,7 +459,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                             <Input label="Grupa" labelPlacement='inside' value={helpdeskState?.group?.groupName} />
                                         </Tooltip>
                                         <Tooltip content={helpdeskState?.groupPartent?.groupName} showArrow>
-                                            <Input label="Podrgrupa" labelPlacement='inside' value={helpdeskState?.groupPartent?.groupName} />
+                                            <Input label="Vrsta zahtjeva" labelPlacement='inside' value={helpdeskState?.groupPartent?.groupName} />
                                         </Tooltip>
                                         
                                     </div>
@@ -524,7 +526,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                             {forwardTicket()}
                         </Tab>
                     </Tabs>
-                    </div>
                     <div className='w-full flex justify-between'>
                         <TimelineProgressBar 
                             createdAt={new Date(helpdeskState?.createdAt ? helpdeskState.createdAt : 0)}
@@ -533,22 +534,24 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                             resolveDate={new Date(helpdeskState?.resolveDate ? helpdeskState.resolveDate : 0)}
                         />
                     </div>
+                    </div>
+                    )}
                 </ModalBody>
                 <ModalFooter>
-                
                     {changeStatus(helpdeskState?.status!)}
-                    {isDisabled ? (<div className='flex items-center text-small bg-danger shadow-md rounded-xl p-2'>
+                    {isDisabled ? (
+                    <div className='flex items-center text-small bg-danger shadow-md rounded-xl p-2'>
                         <i className="bi bi-check2-circle mr-2 text-medium text-white font-bold" /> 
                         <span className=' text-white'>
                             {editHelpdeskState.editTicket?.resolveDate ? Moment(editHelpdeskState.editTicket?.resolveDate).format('DD.MM.YYYY - HH:mm') : ""} 
-                        </span></div>) 
+                        </span>
+                    </div>) 
                     : 
-                    (<Button  color='success' onPress={() => doEditTicket(helpdeskState?.ticketId!)}>Sačuvaj</Button>)
+                    (<Button className={isSelectedAssignedCheckBox || isSelectedCloseTicketCheckBox ? "hidden" : "inline-block"} color='success' onPress={() => doEditTicket(helpdeskState?.ticketId!)}>Sačuvaj</Button>)
                     }
                     <Button color='danger' onPress={onHide}>Zatvori</Button>
                 </ModalFooter>
-                </div>
-            )}
+                
             </ModalContent>
         </Modal>
     );

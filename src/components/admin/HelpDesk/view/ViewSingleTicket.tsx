@@ -29,15 +29,17 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
             onOpenChange={onHide}
             backdrop='blur'
             size={'5xl'}
-            isDismissable={false}>
+            isDismissable={false}
+            scrollBehavior='inside'
+            >
                 <ModalContent>
                     <ModalHeader className='flex justify-between'>
                          <div>Tiket <span className='text-default-700'>#{ticketState?.ticketId}</span></div> <div className='mr-3'><Chip color='success'>{ticketState?.status}</Chip></div>
                     </ModalHeader>
                     <ModalBody>
                         <Tabs aria-label='Opcije'
-                    color='primary' 
-                    radius='full'>
+                                color='primary' 
+                                radius='full'>
                             <Tab title="Detalji tiketa" key={'ticket-details'}>
                                 <div className='grid grid-cols lg:grid-cols-12 gap-2'>
                                     <div className='grid lg:col-span-4 col-span gap-2 grid-flow-row auto-rows-max' >
@@ -46,7 +48,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                                         labelPlacement='inside' 
                                         value={ticketState?.group?.groupName} />
                                         <Input 
-                                        label="Podgrupa" 
+                                        label="Vrsta zahtjeva" 
                                         labelPlacement='inside' 
                                         value={ticketState?.groupPartent?.groupName} />
                                         <Input 

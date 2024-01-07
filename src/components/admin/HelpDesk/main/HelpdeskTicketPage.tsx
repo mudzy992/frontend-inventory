@@ -3,48 +3,78 @@ import api, { ApiResponse } from '../../../../API/api'
 import { useUserContext } from '../../../UserContext/UserContext';
 import { UserRole } from '../../../../types/UserRoleType';
 import RoledMainMenu from '../../../RoledMainMenu/RoledMainMenu';
-import { Chip, Tab, Table, TableBody, TableCell, TableColumn, 
+import { Chip, Input, Pagination, Tab, Table, TableBody, TableCell, TableColumn, 
   TableHeader, TableRow, Tabs, Tooltip,  } from '@nextui-org/react';
-import TicketGroupType from '../../../../types/TicketGroupType';
 import Moment from 'moment';
 import ModalDetails from './ModalDetails';
+import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
 
 const HelpdeskTicketPage: React.FC = () => {
   const {role, userId} = useUserContext();
-  const [groupState, setGroupState] = useState<TicketGroupType[]>([])
+  const [helpdeskState, setHelpdeskState] = useState<HelpdeskTicketsType[]>([])
   const [showModal, setShowModal] = useState(false); 
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [selectedTab, setSelectedTab] = useState<string>("unassigned");
+  const [ticketCurrentPage, setTicketsCurrentPage] = useState<number>(1);
+  const [ticketsItemsPerPage] = useState<number>(5);
+  const [ticketsTotalPage, setTicketsTotalPage] = useState<number>(0);
+  const [ticketsPaginationTableQuery, setTicketsPaginationTableQuery] = useState<string>('');
+  const [assignedToValue, setAssignedToValue] = useState<number | null>(null);
+  const [statusValue, setStatusValue] = useState<string | undefined>(undefined);
   
   useEffect(() => {
     if (userId !== undefined) {
-      getHelpdeskTicketsData();
+      if(selectedTab === "all"){
+        setAssignedToValue(null)
+        setStatusValue(undefined)
+        getHelpdeskTicketsData();
+      } else if(selectedTab === "unassigned"){
+        setAssignedToValue(null);
+        setStatusValue("otvoren");
+        getHelpdeskTicketsData();
+      } else if(selectedTab === "assigned"){
+        setAssignedToValue(userId);
+        setStatusValue("izvršenje");
+        getHelpdeskTicketsData();
+      } else if(selectedTab === "solved"){
+        setAssignedToValue(userId);
+        setStatusValue("zatvoren");
+        getHelpdeskTicketsData();
+      }
+/*       getHelpdeskTicketsData(); */
     }
-  }, [userId, selectedTab]);
+  }, [userId, selectedTab, assignedToValue, statusValue]);
 
   //Api za preuzimanje grupa i tiketa iz grupe
   const getHelpdeskTicketsData = () => {
-    api(`api/ticket/group/user/${userId}`, "get", {}, role as UserRole)
-    .then((res: ApiResponse) => {
-      if(res.status === 'login') {
-        setIsLoggedIn(false)
-        setMessage('Greška prilikom učitavanja podataka. Korisnik nije prijavljen!')
-        return
-      }
-      if(res.status === 'error'){
-        setMessage('Greška prilikom učitavanja podataka, molimo pokušate ponovo!')
-        return
-      }
-      if(res.status === 'forbidden') {
-        setMessage('Korisnik nema prava za učitavanja ove vrste podataka!')
-        return
-      }
-      setGroupState(res.data)
-    })
+    api(`api/helpdesk/s/${userId}?perPage=${ticketsItemsPerPage}&page=${ticketCurrentPage}&query=${encodeURIComponent(ticketsPaginationTableQuery)}&assignedTo=${assignedToValue}&status=${statusValue}`, 
+    "get", {}, role as UserRole)
+      .then((res: ApiResponse) => {
+        if(res.status === 'login') {
+          setIsLoggedIn(false)
+          setMessage('Greška prilikom učitavanja podataka. Korisnik nije prijavljen!')
+          return
+        }
+        if(res.status === 'error'){
+          setMessage('Greška prilikom učitavanja podataka, molimo pokušate ponovo!')
+          return
+        }
+        if(res.status === 'forbidden') {
+          setMessage('Korisnik nema prava za učitavanja ove vrste podataka!')
+          return
+        }
+        setHelpdeskState(res.data.results)
+        const totalCount: number = res.data.total;
+        const totalPages: number = Math.ceil(totalCount / ticketsItemsPerPage);
+        setTicketsTotalPage(totalPages);
+      })
   }
 
+  useEffect(() => {
+    getHelpdeskTicketsData()
+  }, [ticketCurrentPage, ticketsItemsPerPage, ticketsPaginationTableQuery]);
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -59,6 +89,11 @@ const HelpdeskTicketPage: React.FC = () => {
     setSelectedTicketId(ticketId);
     handleShowModal();
   };
+
+  const handleSearchChange = (query: string) => {
+    setTicketsCurrentPage(1)
+    setTicketsPaginationTableQuery(query)        
+}  
 
   return (
     <div>
@@ -135,6 +170,34 @@ const HelpdeskTicketPage: React.FC = () => {
         isStriped
         isCompact
         selectionMode='single'
+        topContent={
+          <Input
+            placeholder="Pronađi tiket..."
+            variant='bordered'
+            isClearable
+            startContent={<i className="bi bi-search text-default-500" />}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === 'Enter') {
+                    const target = e.target as HTMLInputElement;
+                    handleSearchChange(target.value);
+                }
+            }}                            
+        />
+        }
+        bottomContent={
+          <div className="flex justify-center mt-3"> 
+              <Pagination
+              color="default"
+              showControls
+              variant='flat'
+              disableCursorAnimation
+              initialPage={ticketCurrentPage}
+              page={ticketCurrentPage}
+              total={ticketsTotalPage}
+              onChange={(page) => setTicketsCurrentPage(page)}
+              />
+          </div>
+        }
         >
           <TableHeader>
             <TableColumn key="ticketID">#</TableColumn>
@@ -148,8 +211,7 @@ const HelpdeskTicketPage: React.FC = () => {
             <TableColumn key="action">Akcije</TableColumn>
           </TableHeader>
           <TableBody emptyContent="Svaka čast, svi tiketi su završeni">
-            {groupState
-              .flatMap((group) => group.helpdeskTickets || [])
+            {helpdeskState
               .filter((item) => !!item)
               .map((item) => (
                 <TableRow key={item.ticketId}>
@@ -197,8 +259,7 @@ const HelpdeskTicketPage: React.FC = () => {
             <TableColumn key="action">Akcije</TableColumn>
           </TableHeader>
           <TableBody emptyContent="Svaka čast, svi tiketi su završeni"> 
-            {groupState
-              .flatMap((group) => group.helpdeskTickets || [])
+            {helpdeskState
               .filter((item) => !!item && item.assignedTo === null)
               .map((item) => (
                 <TableRow key={item.ticketId}>
@@ -246,8 +307,7 @@ const HelpdeskTicketPage: React.FC = () => {
             <TableColumn key="action">Akcije</TableColumn>
           </TableHeader>
           <TableBody emptyContent="Svaka čast, svi tiketi su završeni">
-            {groupState
-              .flatMap((group) => group.helpdeskTickets || [])
+            {helpdeskState
               .filter((item) => !!item && item.assignedTo === userId && item.status === 'izvršenje')
               .map((item) => (
                 <TableRow key={item.ticketId}>
@@ -295,8 +355,7 @@ const HelpdeskTicketPage: React.FC = () => {
             <TableColumn key="action">Akcije</TableColumn>
           </TableHeader>
           <TableBody emptyContent="Svaka čast, svi tiketi su završeni">
-            {groupState
-              .flatMap((group) => group.helpdeskTickets || [])
+            {helpdeskState
               .filter((item) => !!item && item.assignedTo === userId && item.status === 'zatvoren')
               .map((item) => (
                 <TableRow key={item.ticketId}>

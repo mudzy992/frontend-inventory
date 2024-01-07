@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import ArticleType from '../../../../../types/ArticleType';
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Select, SelectItem } from '@nextui-org/react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Select, SelectItem, Tooltip } from '@nextui-org/react';
 import { UserRole } from '../../../../../types/UserRoleType';
 import api, { ApiResponse } from '../../../../../API/api';
 import { useUserContext } from '../../../../UserContext/UserContext';
@@ -36,12 +36,13 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
     const {role} = useUserContext();
     const navigate = useNavigate();
     const [message, setMessage] = useState<string>('')
+    const [isVisible, setIsVisible] = useState<boolean>(true)
 
-    const putArticleDetailsInState = async (data: ArticleType) => {
+    const putArticleDetailsInState = async () => {
         setAddNewTicketState({
-          userId: data.userId,
-          articleId: data.articleId,
-          groupId: data.category?.group?.groupId,
+          userId: data?.userId,
+          articleId: data?.articleId,
+          groupId: data?.category?.group?.groupId,
           description: null,
           clientDuoDate: null,
           groupPartentId: null,
@@ -61,13 +62,23 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
 
     useEffect(() => {
         if(show) {
-          putArticleDetailsInState(data!);
+          putArticleDetailsInState();
           
         }
         if(addNewTicketState?.groupId){
             getParentGroupData() 
         }
     }, [show, addNewTicketState?.groupId]);
+
+    useEffect(() => {
+        if(addNewTicketState?.groupPartentId && 
+            addNewTicketState?.description && 
+            addNewTicketState?.clientDuoDate) {
+                return setIsVisible(false)
+        } else {
+            return setIsVisible(true)
+        }
+    }, [addNewTicketState?.clientDuoDate, addNewTicketState?.groupPartentId, addNewTicketState?.description]);
 
     const doAddTicket = async () => {
         try{
@@ -81,6 +92,8 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
             if(res.status === 'forbidden') {
             setMessage('Korisnik nema pravo za izmejne!')
             }
+
+            putArticleDetailsInState()
         })
         } catch(error){
             setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error)
@@ -112,7 +125,8 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
             onOpenChange={onHide}
             backdrop='blur'
             size={'xl'}
-            isDismissable={false}>
+            isDismissable={false}
+            scrollBehavior='inside'>
                 <ModalContent>
                     <ModalHeader>
                         {data?.stock?.name}
@@ -132,8 +146,8 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
                     value={data?.category?.group?.groupName} />
                     <Select
                         id='groupId'
-                        label='Grupa'
-                        placeholder='Odaberite grupu'
+                        label='Vrsta zahtjeva'
+                        placeholder='Odaberite vrstu zahtjeva'
                         value={addNewTicketState?.groupId}
                         onChange={(value) => setAddNewTicketFieldState('groupPartentId', value.target.value)}
                         >
@@ -167,7 +181,7 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({show, onHide, data}) => 
                     </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color='success' onClick={() => doAddTicket()}>Prijavi</Button>
+                        <Button isDisabled={isVisible} color='success' onClick={() => doAddTicket()}>Prijavi</Button>
                         <Button color='danger' onPress={onHide}>Zatvori</Button>
                     </ModalFooter>
                 </ModalContent>

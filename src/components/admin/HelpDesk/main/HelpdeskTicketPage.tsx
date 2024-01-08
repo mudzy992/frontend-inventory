@@ -21,13 +21,9 @@ const HelpdeskTicketPage: React.FC = () => {
   const [ticketsTotalPage, setTicketsTotalPage] = useState<number>(0);
   const [ticketsPaginationTableQuery, setTicketsPaginationTableQuery] = useState<string>('');
   const [unassignedTicketCurrentPage, setUnassignedTicketsCurrentPage] = useState<number>(1);
-  const [unassignedTicketsPaginationTableQuery, setUnassignedTicketsPaginationTableQuery] = useState<string>('');
   const [allTicketCurrentPage, setAllTicketsCurrentPage] = useState<number>(1);
-  const [allTicketsPaginationTableQuery, setAllTicketsPaginationTableQuery] = useState<string>('');
   const [assignedTicketCurrentPage, setAssignedTicketsCurrentPage] = useState<number>(1);
-  const [assignedTicketsPaginationTableQuery, setAssignedTicketsPaginationTableQuery] = useState<string>('');
   const [solvedTicketCurrentPage, setSolvedTicketsCurrentPage] = useState<number>(1);
-  const [solvedTicketsPaginationTableQuery, setSolvedTicketsPaginationTableQuery] = useState<string>('');
   
   useEffect(() => {
     if (userId !== undefined) {
@@ -55,8 +51,7 @@ const HelpdeskTicketPage: React.FC = () => {
   }, [userId, selectedTab, allTicketCurrentPage, unassignedTicketCurrentPage, assignedTicketCurrentPage, solvedTicketCurrentPage,
      ticketsPaginationTableQuery]);
 
-  //Api za preuzimanje grupa i tiketa iz grupe
-  const getHelpdeskTicketsData = (currentPage: number | undefined, assignedTo?: number | null, status?: string, query?: string ) => {
+  const getHelpdeskTicketsData = (currentPage?: number | undefined, assignedTo?: number | null, status?: string, query?: string ) => {
     let apiEndpoint = `api/helpdesk/s/${userId}?perPage=${ticketsItemsPerPage}&page=${currentPage}`;
 
     if (ticketsPaginationTableQuery) {
@@ -98,6 +93,7 @@ const HelpdeskTicketPage: React.FC = () => {
   };
 
   const handleHideModal = () => {
+    getHelpdeskTicketsData()
     setShowModal(false);
   };
 
@@ -268,7 +264,7 @@ const HelpdeskTicketPage: React.FC = () => {
         isCompact
         selectionMode='single'
         topContent={tableTopContent()}
-        bottomContent={tableBottomContent(allTicketCurrentPage, setAllTicketsCurrentPage)}
+        bottomContent={tableBottomContent(allTicketCurrentPage, setUnassignedTicketsCurrentPage)}
         >
           <TableHeader>
             <TableColumn key="ticketID">#</TableColumn>

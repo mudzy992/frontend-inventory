@@ -8,6 +8,7 @@ export default class TicketGroupType {
     locationId?: number;
     parentGroupId?:number;
     parentGroup?: TicketGroupType;
+    ticketGroups?: TicketGroupType[];
     moderatorGroupMappings?: ModeratorGroupMappingType[];
     helpdeskTickets?: HelpdeskTicketsType[];
     location?: LocationType;

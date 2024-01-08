@@ -11,6 +11,7 @@ import ModeratorGroupMappingType from '../../../../types/ModeratorGroupMappingTy
 import UserType from '../../../../types/UserType';
 import Moment from 'moment';
 import TimelineProgressBar from '../../../custom/TimelineProgressBar';
+import TicketGroupType from '../../../../types/TicketGroupType';
 
 type ModalDetailsProps = {
 show: boolean;
@@ -35,6 +36,7 @@ interface ValidationMessages {
 interface HelpdeskTicketState {
     editTicket: {
         groupId?: number | null;
+        groupPartentId?: number | null;
         resolveDescription?: string;
         duoDate?: Date | null;
         assignedTo?: number | null;
@@ -55,7 +57,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
     const [selectedTab, setSelectedTab] = useState<string>("details");
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+    const [groupParent, setGroupParent] = useState<TicketGroupType[]>([]);
     const [selectedUser, setSelectedUser] = useState<number | null>(null);
+    const [selectedGroupParent, setSelectedGroupParent] = useState<number | null>(null);
     const [moderatorGroupState, setModeratorGroupState] = useState<ModeratorGroupMappingType[]>([])
     const [groupUsers, setGroupUsers] = useState<UserType[]>([]);
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
@@ -81,27 +85,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         {id: 4, resolution: "Zahtjev je povučen od strane korisnika"},
     ]
 
-    const handleGroupChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedGroup(Number(value.target.value));
-        if(!selectedGroup){
-            setEditHelpdeskNumberFieldState('groupId', value.target.value);
-            setEditHelpdeskStringFieldState('assignedTo', null);
-            setEditHelpdeskStringFieldState('status', 'otvoren');
-        }
-        if(selectedGroup){
-            setEditHelpdeskStringFieldState('groupId', null);
-            setEditHelpdeskStringFieldState('assignedTo', null);
-            setSelectedUser(null)
-        }
-        
-    };
     
-    const handleUserChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedUser(Number(value.target.value));
-        setEditHelpdeskNumberFieldState('assignedTo', value.target.value);
-        setEditHelpdeskStringFieldState('status', 'izvršenje');
-    };
-
     function colorStatus(status: string) {
         let color
         if(status === 'otvoren'){
@@ -119,6 +103,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         editTicket: {
             duoDate: helpdeskState?.duoDate || null,
             assignedTo: helpdeskState?.assignedTo || null,
+            groupPartentId: helpdeskState?.groupPartentId || null,
             groupId: helpdeskState?.groupId || null,
             resolveDescription: helpdeskState?.resolveDescription || '',
             status: helpdeskState?.status || '',
@@ -160,6 +145,22 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         }));
     }
 
+    const handleGroupChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedGroup(Number(value.target.value));
+        setEditHelpdeskNumberFieldState('groupId', value.target.value);
+    };
+
+    const handleGroupParentChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedGroupParent(Number(value.target.value));
+        setEditHelpdeskNumberFieldState('groupPartentId', value.target.value);
+    };
+    
+    const handleUserChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedUser(Number(value.target.value));
+        setEditHelpdeskNumberFieldState('assignedTo', value.target.value);
+        setEditHelpdeskStringFieldState('status', 'izvršenje');
+    };
+
     const handlePriorityChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedPriority = value.target.value;
         const selectedPriorityItem = PriorityList.find(item => item.priority === selectedPriority);
@@ -189,7 +190,16 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             await doEditTicket(ticketId);
         }
         return setValidationMessageFieldState('priority', '* Odaberite prioritet');
-    };      
+    };
+    
+    const handleForwardTicket = async () => {
+        if (editHelpdeskState.editTicket.priority) {
+            await doEditTicket(ticketId);
+        }
+        setSelectedTab('details')
+        setValidationMessageFieldState('priority', '* Odaberite prioritet');
+        return
+    }; 
     
     const handleCloseTicket = async () => {
         if (
@@ -293,7 +303,15 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             .map((user) => user || []);
         
         setGroupUsers(filteredUsers);
+
+        const filteretParentGroup = moderatorGroupState
+            .filter((group) => group.group?.groupId === selectedGroup)
+            .flatMap((group) => group.group?.ticketGroups || [])
+            .map((parentGroups) => parentGroups || [])
+
+            setGroupParent(filteretParentGroup)
         }
+
     }, [selectedGroup, moderatorGroupState, selectedUser]); 
 
     useEffect(() => {
@@ -581,7 +599,25 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                 </div>
                 </SelectItem>
             ))}
-            </Select>     
+            </Select>
+            {selectedGroup ? (
+            <Select
+                id='groupParentId'
+                label='Vrsta zahtjeva'
+                placeholder='Odaberite vrstu zahtjeva'
+                onChange={handleGroupParentChange}
+                selectedKeys={editHelpdeskState.editTicket.groupPartentId ? [`${editHelpdeskState.editTicket.groupPartentId}`] : []}
+            >
+                {groupParent
+                .map((group) => (
+                <SelectItem
+                    key={Number(group.groupId)}
+                    textValue={`${group.groupId} - ${group.groupName}`}
+                    value={Number(group.groupId)}
+                > {group.groupName} </SelectItem>
+                ))}
+            </Select>
+            ): (<div></div>)}     
             {selectedGroup ? (
             <Select
                 id='userId'
@@ -593,14 +629,14 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                 {groupUsers.map((user, index) => (
                 <SelectItem
                     key={user?.userId || index}
-                    textValue={user?.fullname || ''}
+                    textValue={`${user.userId} - ${user.fullname}`}
                     value={Number(user?.userId)}
                 > {user.fullname} </SelectItem>
                 ))}
             </Select>
             ): (<div></div>)} 
 
-            <Button color='warning' onPress={() => doEditTicket(ticketId)}>Proslijedi zahtjev</Button>
+            <Button color='warning' isDisabled={selectedGroupParent ? false : true} onPress={() => handleForwardTicket()}>Proslijedi zahtjev</Button>
         </div>
     );
 }

@@ -7,6 +7,7 @@ export default class HelpdeskTicketsType {
     userId?: number;
     articleId?: number;
     groupId?: number;
+    groupPartentId?: number;
     description?: string;
     resolveDescription?: string;
     resolveDate?: Date;

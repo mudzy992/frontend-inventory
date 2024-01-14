@@ -1,7 +1,7 @@
 // ModalDetails.tsx
 import React, { Key, useEffect, useState } from 'react';
 import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Modal, 
-    Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner, Checkbox } from '@nextui-org/react';
+    Chip, Tabs, Tab, Select, SelectItem, Tooltip, Spinner, Checkbox, Avatar, Link } from '@nextui-org/react';
 import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
 import api, { ApiResponse } from '../../../../API/api';
 import { UserRole } from '../../../../types/UserRoleType';
@@ -48,10 +48,33 @@ interface HelpdeskTicketState {
     };
 }
 
+interface AddNewComment {
+    text: string;
+    ticketId: number;
+    userId: number;
+    reply:{
+        text?: string;
+        ticketId?: number;
+        userId?: number;
+    }
+}
+
 const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) => {
     const {role, userId} = useUserContext();
     const [helpdeskState, setHelpdeskState] = useState<HelpdeskTicketsType>()
     const [editHelpdeskState, setEdithelpDeskState] = useState<HelpdeskTicketState>({ editTicket: {} });
+    const [addNewCommentState, setAddNewCommentState] = useState<AddNewComment>({
+        text: '',
+        ticketId: 0,
+        userId: 0,
+        reply:{}
+      });
+    const [addNewCommentReplyState, setAddNewCommentReplyState] = useState<AddNewComment>({
+        text: '',
+        ticketId: 0,
+        userId: 0,
+        reply:{}
+    });      
     const [message, setMessage] = useState<string>('')
     const [validateMessages, setValidateMessages] = useState<ValidationMessages>({});
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
@@ -64,6 +87,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const [groupUsers, setGroupUsers] = useState<UserType[]>([]);
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [selectedCommentId, setSelectedCommentId] = useState(null);
     const [isSelectedAssignedCheckBox, setIsSelectedAssignedCheckBox] = useState<boolean>(false);
     const [isSelectedCloseTicketCheckBox, setIsSelectedCloseTicketCheckBox] = useState<boolean>(false);
     const navigate = useNavigate();
@@ -137,6 +161,27 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             };
         });
     };
+      
+    const setAddNewCommentStringFieldState = (fieldName: string, newValue: any) => {
+        setAddNewCommentState((prev) => ({
+            ...prev,
+            [fieldName]: newValue,
+        }));
+    };
+
+    const setAddNewCommentReplyStringFieldState = (fieldName: string, newValue: any) => {
+        setAddNewCommentReplyState((prev) => {
+            const newReply = {
+                ...prev.reply,
+                [fieldName]: newValue,
+            };        
+            return {
+                ...prev,
+                reply: newReply,
+            };
+        });
+    };
+         
     
     const setValidationMessageFieldState = (field: string, value: string) => {
         setValidateMessages((prev) => ({
@@ -215,6 +260,10 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             return
         }
     };
+
+    const handleReplyClick = (commentId: any) => {
+        setSelectedCommentId(commentId);
+      };
 
     function changeStatus(status:string){
         if(status === 'otvoren'){
@@ -390,6 +439,53 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error);
         }
     }
+
+    const doAddNewComment = async () => {
+        try {
+            await api(`api/comment/`, 'post', {
+                text: addNewCommentState.text,
+                ticketId: ticketId,
+                userId: userId,
+            },
+            role as UserRole)
+            .then((res: ApiResponse) => {
+                if (res.status === 'login'){
+                return navigate('/login')
+                }
+
+                if(res.status === 'forbidden') {
+                setMessage('Korisnik nema pravo za izmejne!')
+                }
+            })
+            getHelpdeskTicketsData()
+        } catch(error) {
+            setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error);
+        }
+    }
+
+    const doAddNewReply = async (commentId: number) => {
+        try {
+            await api(`api/comment/reply/${commentId}`, 'post', {
+                text: addNewCommentReplyState.reply?.text,
+                ticketId: ticketId,
+                userId: userId,
+            },
+            role as UserRole)
+            .then((res: ApiResponse) => {
+                if (res.status === 'login'){
+                return navigate('/login')
+                }
+
+                if(res.status === 'forbidden') {
+                setMessage('Korisnik nema pravo za izmejne!')
+                }
+            })
+            getHelpdeskTicketsData()
+            setSelectedCommentId(null)
+        } catch(error) {
+            setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error);
+        }
+    }
                 
     return (
         
@@ -543,6 +639,9 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         <Tab isDisabled={helpdeskState?.status === 'zatvoren'} key="forward" title='Proslijedi'>
                             {forwardTicket()}
                         </Tab>
+                        <Tab isDisabled={helpdeskState?.status === 'zatvoren'} key="conversation" title={<div><span>Komentari</span> {totalComments() > 0 ? (<Chip size='sm' color='danger'>{totalComments()}</Chip>):(<div></div>)}</div>}>
+                            {conversation()}
+                        </Tab>
                     </Tabs>
                     <div className='w-full flex justify-between'>
                         <TimelineProgressBar 
@@ -575,71 +674,154 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     );
 
     function forwardTicket() {
-    return (
-        <div className='grid gap-3'>
-            <Select
-            id='groupId'
-            label='Grupa'
-            placeholder='Odaberite grupu'
-            value={helpdeskState?.groupId}
-            onChange={handleGroupChange}
-            selectedKeys={selectedGroup ? [`${selectedGroup}`] : []}
-            >
-            {moderatorGroupState.map((group, index) => (
-                <SelectItem 
-                key={group.group?.groupId || index} 
-                textValue={`${group.group?.groupId} - ${group.group?.groupName}`}
-                value={Number(group.groupId)}
+        return (
+            <div className='grid gap-3'>
+                <Select
+                id='groupId'
+                label='Grupa'
+                placeholder='Odaberite grupu'
+                value={helpdeskState?.groupId}
+                onChange={handleGroupChange}
+                selectedKeys={selectedGroup ? [`${selectedGroup}`] : []}
                 >
-                <div className="flex gap-2 items-center">
-                    <div className="flex flex-col">
-                    <span className="text-small">{group.group?.groupName}</span>
-                    <span className="text-tiny text-default-400">{group.group?.location?.name}</span>
-                    </div>
-                </div>
-                </SelectItem>
-            ))}
-            </Select>
-            {selectedGroup ? (
-            <Select
-                id='groupParentId'
-                label='Vrsta zahtjeva'
-                placeholder='Odaberite vrstu zahtjeva'
-                onChange={handleGroupParentChange}
-                selectedKeys={editHelpdeskState.editTicket.groupPartentId ? [`${editHelpdeskState.editTicket.groupPartentId}`] : []}
-            >
-                {groupParent
-                .map((group) => (
-                <SelectItem
-                    key={Number(group.groupId)}
-                    textValue={`${group.groupId} - ${group.groupName}`}
+                {moderatorGroupState.map((group, index) => (
+                    <SelectItem 
+                    key={group.group?.groupId || index} 
+                    textValue={`${group.group?.groupId} - ${group.group?.groupName}`}
                     value={Number(group.groupId)}
-                > {group.groupName} </SelectItem>
+                    >
+                    <div className="flex gap-2 items-center">
+                        <div className="flex flex-col">
+                        <span className="text-small">{group.group?.groupName}</span>
+                        <span className="text-tiny text-default-400">{group.group?.location?.name}</span>
+                        </div>
+                    </div>
+                    </SelectItem>
                 ))}
-            </Select>
-            ): (<div></div>)}     
-            {selectedGroup ? (
-            <Select
-                id='userId'
-                label='Korisnik'
-                placeholder='Odaberite korisnika'
-                onChange={handleUserChange}
-                selectedKeys={selectedUser ? [`${selectedUser}`] : []}
-            >
-                {groupUsers.map((user, index) => (
-                <SelectItem
-                    key={user?.userId || index}
-                    textValue={`${user.userId} - ${user.fullname}`}
-                    value={Number(user?.userId)}
-                > {user.fullname} </SelectItem>
-                ))}
-            </Select>
-            ): (<div></div>)} 
+                </Select>
+                {selectedGroup ? (
+                <Select
+                    id='groupParentId'
+                    label='Vrsta zahtjeva'
+                    placeholder='Odaberite vrstu zahtjeva'
+                    onChange={handleGroupParentChange}
+                    selectedKeys={editHelpdeskState.editTicket.groupPartentId ? [`${editHelpdeskState.editTicket.groupPartentId}`] : []}
+                >
+                    {groupParent
+                    .map((group) => (
+                    <SelectItem
+                        key={Number(group.groupId)}
+                        textValue={`${group.groupId} - ${group.groupName}`}
+                        value={Number(group.groupId)}
+                    > {group.groupName} </SelectItem>
+                    ))}
+                </Select>
+                ): (<div></div>)}     
+                {selectedGroup ? (
+                <Select
+                    id='userId'
+                    label='Korisnik'
+                    placeholder='Odaberite korisnika'
+                    onChange={handleUserChange}
+                    selectedKeys={selectedUser ? [`${selectedUser}`] : []}
+                >
+                    {groupUsers.map((user, index) => (
+                    <SelectItem
+                        key={user?.userId || index}
+                        textValue={`${user.userId} - ${user.fullname}`}
+                        value={Number(user?.userId)}
+                    > {user.fullname} </SelectItem>
+                    ))}
+                </Select>
+                ): (<div></div>)} 
 
-            <Button color='warning' isDisabled={selectedGroupParent ? false : true} onPress={() => handleForwardTicket()}>Proslijedi zahtjev</Button>
-        </div>
-    );
-}
+                <Button color='warning' isDisabled={selectedGroupParent ? false : true} onPress={() => handleForwardTicket()}>Proslijedi zahtjev</Button>
+            </div>
+        );
+    }
+
+    function totalComments() {
+        let total: number = 0;
+        const main = helpdeskState?.commentHelpdeskTickets?.length || 0;
+        const replies = (helpdeskState?.commentHelpdeskTickets || []).map((replies) => replies?.comment?.comments?.length || 0);
+        if (replies.length > 0) {
+        total = main + replies.reduce((acc, curr) => acc + curr);
+        } else {
+        total = main;
+        }
+        return total
+    }
+
+    function conversation() {
+        return (
+            <div>
+            {helpdeskState?.commentHelpdeskTickets ? helpdeskState?.commentHelpdeskTickets.map((comm, index) => (
+                <div>
+                    <div id='main-comments' className='p-3 mb-3 text-sm rounded-xl bg-default-100 grid grid-cols-12 shadow-md'>
+                        <div className='flex items-center justify-center flex-col'>
+                            <Avatar
+                            color="primary"
+                            isBordered 
+                            size='sm' />
+                        </div>
+                        <div className='col-span-11'>
+                            <span className='text-sm text-default-700'>{comm.comment?.user?.fullname}</span>
+                            <span className='text-sm text-default-600 ml-2'>{Moment(comm.comment?.createdAt).format('DD.MM.YYYY - HH:mm')}</span>
+                            <Link onClick={() => handleReplyClick(comm.comment?.commentId!) }><span className='text-sm ml-2 cursor-pointer'>Odgovori</span></Link>
+                            <div>
+                                {comm.comment?.text} 
+                            </div>
+                        </div>
+                    </div>
+                    <div className={`col-span-12 ${selectedCommentId === comm.comment?.commentId ? 'inline' : 'hidden'}`} id='reply'>
+                        <Textarea
+                            label="Odgovor"
+                            type='text'
+                            value={addNewCommentReplyState.reply?.text}
+                            onValueChange={(value: string) => setAddNewCommentReplyStringFieldState('text', value)}
+                            placeholder='Upišite odgovor' />
+
+                        <div className="flex justify-end mb-2">
+                            <Button color='primary' size='sm' variant='flat' className='mt-2' onPress={() => doAddNewReply(comm.comment?.commentId!)}>
+                                Odgovori
+                            </Button>
+                        </div>
+                    </div>
+                    {comm.comment?.comments ? (
+                        comm.comment.comments.map((replies) => (
+                            <div id='replies' className='p-3 mb-3 ml-20 text-sm rounded-xl bg-default-50 shadow grid grid-cols-12'>
+                            <div className='flex items-center justify-center flex-col'>
+                                <Avatar color='primary' isBordered size='sm' />
+                            </div>
+                                <div className='col-span-11'>
+                                    <span className='text-sm text-default-700'>{replies.user?.fullname}</span>
+                                    <span className='text-sm text-default-600 ml-2'>{Moment(replies.createdAt).format('DD.MM.YYYY - HH:mm')}</span>
+                                    <div>
+                                        {replies.text}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (<div></div>)}
+                </div>
+            )) : []}
+            <div>
+               <Textarea
+                label="Komentar"
+                type='text'
+                value={addNewCommentState.text}
+                onValueChange={(value: string) => setAddNewCommentStringFieldState('text', value)}
+                placeholder='Upišite svoj komentar' />
+                <div className='flex justify-end'>
+                   <Button color='success' size='sm' variant='flat' className='mt-2' onPress={() => doAddNewComment()}>Dodaj novi komentar</Button>  
+                </div>
+                
+            </div>
+            
+            </div>
+        );
+    }
+    
 };
 
 export default ModalDetails;

@@ -136,7 +136,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
             color="primary"
             name={combineFirstLetters(user.surname || '', user.forname || '')}
             size="sm"
-         /*    className="ikonica"  */
             isBordered
             > </Avatar>
           </DropdownTrigger>

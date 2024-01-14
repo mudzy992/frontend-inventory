@@ -29,7 +29,7 @@ const HelpdeskTicketPage: React.FC = () => {
     if (userId !== undefined) {
       let assignedToValue;
       let statusValue;
-      let currentPage;
+      let currentPage = Number(1);
   
       if (selectedTab === 'unassigned') {
         currentPage=unassignedTicketCurrentPage;
@@ -51,7 +51,7 @@ const HelpdeskTicketPage: React.FC = () => {
   }, [userId, selectedTab, allTicketCurrentPage, unassignedTicketCurrentPage, assignedTicketCurrentPage, solvedTicketCurrentPage,
      ticketsPaginationTableQuery]);
 
-  const getHelpdeskTicketsData = (currentPage?: number | undefined, assignedTo?: number | null, status?: string, query?: string ) => {
+  const getHelpdeskTicketsData = (currentPage: number, assignedTo?: number | null, status?: string, query?: string ) => {
     let apiEndpoint = `api/helpdesk/s/${userId}?perPage=${ticketsItemsPerPage}&page=${currentPage}`;
 
     if (ticketsPaginationTableQuery) {
@@ -93,7 +93,7 @@ const HelpdeskTicketPage: React.FC = () => {
   };
 
   const handleHideModal = () => {
-    getHelpdeskTicketsData()
+    // TODO: Potrebno osvježiti tabelu tiketa na zatvaranju modala
     setShowModal(false);
   };
 

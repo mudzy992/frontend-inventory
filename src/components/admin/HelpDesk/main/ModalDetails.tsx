@@ -754,28 +754,29 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
 
     function conversation() {
         return (
-            <div>
+            <div className='w-full'>
             {helpdeskState?.commentHelpdeskTickets ? helpdeskState?.commentHelpdeskTickets.map((comm, index) => (
-                <div>
-                    <div id='main-comments' className='p-3 mb-3 text-sm rounded-xl bg-default-100 grid grid-cols-12 shadow-md'>
-                        <div className='flex items-center justify-center flex-col'>
+                <div >
+                    <div className='flex'>
+                        <div className='flex items-center mr-5'>
                             <Avatar
                             color="primary"
                             isBordered 
                             size='sm' />
                         </div>
-                        <div className='col-span-11'>
-                            <span className='text-sm text-default-700'>{comm.comment?.user?.fullname}</span>
-                            <span className='text-sm text-default-600 ml-2'>{Moment(comm.comment?.createdAt).format('DD.MM.YYYY - HH:mm')}</span>
-                            <Link onClick={() => handleReplyClick(comm.comment?.commentId!) }><span className='text-sm ml-2 cursor-pointer'>Odgovori</span></Link>
-                            <div>
-                                {comm.comment?.text} 
+                        <div id='main-comments' className='p-3 mb-3 text-sm rounded-xl bg-default-100 shadow-md'>
+                            <div className=''>
+                                <span className='text-sm text-default-700'>{comm.comment?.user?.fullname}</span>
+                                <span className='text-sm text-default-600 ml-2'>{Moment(comm.comment?.createdAt).format('DD.MM.YYYY - HH:mm')}</span>
+                                <Link onClick={() => handleReplyClick(comm.comment?.commentId!) }><span className='text-sm ml-2 cursor-pointer'>Odgovori</span></Link>
+                                <div>
+                                    {comm.comment?.text} 
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div className={`col-span-12 ${selectedCommentId === comm.comment?.commentId ? 'inline' : 'hidden'}`} id='reply'>
                         <Textarea
-                            label="Odgovor"
                             type='text'
                             value={addNewCommentReplyState.reply?.text}
                             onValueChange={(value: string) => setAddNewCommentReplyStringFieldState('text', value)}
@@ -789,17 +790,22 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                     </div>
                     {comm.comment?.comments ? (
                         comm.comment.comments.map((replies) => (
-                            <div id='replies' className='p-3 mb-3 ml-20 text-sm rounded-xl bg-default-50 shadow grid grid-cols-12'>
-                            <div className='flex items-center justify-center flex-col'>
-                                <Avatar color='primary' isBordered size='sm' />
-                            </div>
-                                <div className='col-span-11'>
-                                    <span className='text-sm text-default-700'>{replies.user?.fullname}</span>
-                                    <span className='text-sm text-default-600 ml-2'>{Moment(replies.createdAt).format('DD.MM.YYYY - HH:mm')}</span>
-                                    <div>
-                                        {replies.text}
+                            <div id='kontejner-odgovora-komentara' className='flex lg:ml-20 justify-end' >
+                                <div id='replies' className='mb-3 w-full'>
+                                    <div className='p-3 text-sm rounded-xl bg-default-100 shadow'>
+                                        <span className='text-sm text-default-700'>{replies.user?.fullname}</span>
+                                        <div>
+                                            {replies.text}
+                                        </div>
                                     </div>
+                                    <div>
+                                        <span className='text-sm text-default-600 ml-2'>{Moment(replies.createdAt).format('DD.MM.YYYY - HH:mm')}</span>
+                                    </div>
+                                    
                                 </div>
+                                <div id='avatar-odgovora-komentara' className='flex items-center ml-5'>
+                                        <Avatar color='primary' isBordered size='sm' />
+                                    </div>
                             </div>
                         ))
                     ) : (<div></div>)}

@@ -262,8 +262,12 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     };
 
     const handleReplyClick = (commentId: any) => {
-        setSelectedCommentId(commentId);
-      };
+        if (selectedCommentId === commentId) {
+          setSelectedCommentId(null);
+        } else {
+          setSelectedCommentId(commentId);
+        }
+    };
 
     function changeStatus(status:string){
         if(status === 'otvoren'){
@@ -331,7 +335,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     useEffect(() => {
         if (show) {
             getHelpdeskTicketsData();
-            setSelectedTab('details')
+            setSelectedTab('conversation')
         }
     }, [show]);
 
@@ -368,6 +372,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             setSelectedGroup(null)
             getAllModeratorsInGroup();
         }
+        setSelectedCommentId(null)
     }, [selectedTab]);
 
 
@@ -757,6 +762,36 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         return total
     }
 
+    function combineFirstLetters(surname: string, forname: string) {
+        const inicialLetters = surname.charAt(0).toUpperCase() + forname.charAt(0).toUpperCase()
+        return inicialLetters
+    }
+
+    function formatDateTime(dateTimeString: Date): any {
+        const now: Date = new Date();
+        const pastDate: Date = new Date(dateTimeString);
+        const timeDifference: number = now.getTime() - pastDate.getTime();
+      
+        const seconds: number = Math.floor(timeDifference / 1000);
+        const minutes: number = Math.floor(seconds / 60);
+        const hours: number = Math.floor(minutes / 60);
+        const days: number = Math.floor(hours / 24);
+      
+        if (seconds < 60) {
+          return (<span><i className="bi bi-clock-history"></i> prije {seconds} {seconds === 1 ? 'sekundu' : 'sekundi'}</span>);
+        } else if (minutes < 60) {
+          return (<span><i className="bi bi-clock-history"></i> prije {minutes} {minutes === 1 ? 'minutu' : 'minuta'}</span>);
+        } else if (hours < 24) {
+          return (<span><i className="bi bi-clock-history"></i> prije {hours} {hours === 1 ? 'sat' : 'sata'}</span>);
+        } else if (days < 7) {
+          return (<span><i className="bi bi-calendar4-week"></i> prije {days} {days === 1 ? 'dan' : 'dana'}</span>);
+        } else {
+          const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+          return (<span><i className="bi bi-calendar4-week"></i> {pastDate.toLocaleDateString(undefined, options)}</span>);
+        }
+    }
+      
+
     function conversation() {
         return (
             <div className='w-full'>
@@ -764,26 +799,31 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             .filter((comment) => !comment.parentCommentId)
             .map((comment, index) => (
                 <div >
-                    <div id='kontejner-komentara' className='flex justify-end mb-1' >
+                    <div id='kontejner-komentara' className='flex justify-end mb-2' >
                         <div id='komentar' className=' w-full flex flex-row'>
                             <div className='lg:w-full'>
                                 <div className='flex flex-row mb-1'>
                                     <div id='avatar-komentara' className='flex items-center mr-3'>
-                                        <Avatar color='primary' isBordered size='sm' />
+                                        <Avatar 
+                                        name={combineFirstLetters(comment.user?.surname || '', comment.user?.forname || '')}
+                                        color='warning' 
+                                        isBordered 
+                                        size='md' />
                                     </div>
-                                    <div className='grid grid-rows-2 p-3 text-sm rounded-xl bg-default-100 shadow w-full'>
-                                        <div>
-                                            <span className='text-sm text-default-700'>{comment?.user?.fullname}</span>
-                                            <Link onClick={() => handleReplyClick(comment?.commentId!) }>
+                                    <div className='grid grid-flow-row p-3 text-sm rounded-xl bg-default-100 shadow w-full'>
+                                        <div className='h-full flex justify-between'>
+                                            <span className='text-sm font-bold text-default-700'>{comment?.user?.fullname}</span>
+                                            <Link className='transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110' onClick={() => handleReplyClick(comment?.commentId!) }>
                                                 <span className='text-sm ml-2 cursor-pointer'>Odgovori</span></Link>
                                         </div>
+                                        <Divider className='my-1'/>
                                         <div className='w-full'>
                                             {comment?.text}
                                         </div> 
                                     </div>
                                 </div>
                                 <div className='flex justify-end'>
-                                    <span className='text-xs text-default-600 mr-2'>{Moment(comment?.createdAt!).format('DD.MM.YYYY - HH:mm')}</span>
+                                    <span className='text-tiny text-default-400 mr-2'>{formatDateTime(comment.createdAt!)}</span>
                                 </div>
                             </div>
                         </div>
@@ -804,22 +844,26 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                     </div>
                     {comment?.comments ? (
                         comment.comments.map((replies) => (
-                            <div id='kontejner-odgovora-komentara' className='flex justify-end' >
+                            <div id='kontejner-odgovora-komentara' className='flex justify-end mb-2' >
                                 <div id='replies' className='w-full flex flex-row justify-end'>
                                     <div className='lg:w-full'>
                                         <div className='flex flex-row'>
-                                            <div className='grid grid-rows-2 p-3 text-sm rounded-xl bg-default-100 shadow w-full'>
-                                                <span className='text-sm text-default-700'>{replies.user?.fullname}</span>
+                                            <div className='grid grid-flow-row p-3 text-sm rounded-xl bg-default-100 shadow w-full'>
+                                                <span className='text-sm font-bold text-default-700'>{replies.user?.fullname}</span>
                                                 <div className='w-full'>
                                                     {replies.text}
                                                 </div> 
                                             </div>
                                             <div id='avatar-odgovora-komentara' className='flex items-center ml-3'>
-                                                <Avatar color='primary' isBordered size='sm' />
+                                                <Avatar
+                                                name={combineFirstLetters(replies.user?.surname || '', replies.user?.forname || '')}
+                                                color='default' 
+                                                isBordered 
+                                                size='md' />
                                             </div>
                                         </div>
                                         <div>
-                                            <span className='text-xs text-default-600 ml-2'>{Moment(replies.createdAt).format('DD.MM.YYYY - HH:mm')}</span>
+                                            <span className='text-tiny text-default-400 ml-2'>{formatDateTime(replies.createdAt!)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -838,7 +882,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                     onValueChange={(value: string) => setAddNewCommentStringFieldState('text', value)}
                     placeholder='Upišite svoj komentar' />
                     <div className='flex justify-end'>
-                    <Button color='success' size='sm' variant='flat' className='mt-2' onPress={() => doAddNewComment()}>Dodaj novi komentar</Button>  
+                        <Button size='sm' variant='flat' className='mt-2' onPress={() => doAddNewComment()}>Dodaj novi komentar</Button>  
                     </div>
                     
                 </div>

@@ -1,4 +1,4 @@
-import CommentHelpdeksTicketsType from "./CommentHelpdeksTickets.Type";
+import HelpdeskTicketsType from "./HelpdeskTicketsType";
 import UserType from "./UserType";
 
 export default class Comments {
@@ -7,8 +7,9 @@ export default class Comments {
   userId?: number;
   createdAt?: Date;
   parentCommentId?: number | null;
+  ticketId?: number;
 
-  commentHelpdeskTickets?: CommentHelpdeksTicketsType[];
+  ticket?: HelpdeskTicketsType;
   parentComment?: Comments;
   comments?: Comments[];
   user?: UserType;

@@ -1,5 +1,5 @@
 import ArticleType from "./ArticleType";
-import CommentHelpdeksTicketsType from "./CommentHelpdeksTickets.Type";
+import Comments from "./CommentsType";
 import TicketGroupType from "./TicketGroupType";
 import UserType from "./UserType";
 
@@ -30,7 +30,7 @@ export default class HelpdeskTicketsType {
     | "Riješen - nije potrebna analiza uzroka"
     | "Uzrok problema nije otklonjen - privremeno rješenje"
     | "Zahtjev je povučen od strane korisnika";
-    commentHelpdeskTickets?: CommentHelpdeksTicketsType[]
+    comments?: Comments[]
     article?: ArticleType;
     assignedTo2?: UserType;
     group?: TicketGroupType;

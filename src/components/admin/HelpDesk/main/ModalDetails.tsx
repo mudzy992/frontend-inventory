@@ -508,7 +508,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                     <div className="flex justify-center items-center p-6">
                         <Spinner color='primary' label='Učitavanje...' labelColor='primary' />
                     </div>  ) : (
-                    <div>
+                    <div className='flex w-full flex-col'>
                     <Tabs
                         aria-label='Opcije'
                         color='primary' 

@@ -335,7 +335,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     useEffect(() => {
         if (show) {
             getHelpdeskTicketsData();
-            setSelectedTab('conversation')
+            setSelectedTab('details')
         }
     }, [show]);
 

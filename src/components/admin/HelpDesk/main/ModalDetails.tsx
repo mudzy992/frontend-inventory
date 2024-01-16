@@ -434,7 +434,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     }
                 
     return (
-        
         <Modal 
         isOpen={show} 
         onOpenChange={onHide} 

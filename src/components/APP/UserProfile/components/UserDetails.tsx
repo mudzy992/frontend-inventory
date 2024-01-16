@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import UserType from '../../../../types/UserType'
-import { Avatar, Button, Input, Select, SelectItem } from '@nextui-org/react'
+import { Avatar, Button, Input, Select, SelectItem, Spinner } from '@nextui-org/react'
 import DepartmentType from '../../../../types/DepartmentType'
 import JobType from '../../../../types/JobType'
 import LocationType from '../../../../types/LocationType'
@@ -37,6 +37,7 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
     const [locationData, setLocationData] = useState<LocationType[]>([])
     const [selectedLocationId, setSelectedLocationId] = useState('');
     const [dataReady, setDataReady] = useState(false);
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
     const [editUserState, setEditUserState] = React.useState<EdistUserStateProps>({
         forname: "",
@@ -138,6 +139,7 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true)
                 await getDepartmentData();
                 const fetchedLocationData = await getLocationData();
                 setLocationData(fetchedLocationData);
@@ -145,9 +147,9 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
                 console.error('Greška prilikom dohvaćanja podataka:', error);
             } finally {
                 setDataReady(true);
+                setLoading(false)
             }
         };
-        
         fetchData();
     }, []);
       
@@ -211,6 +213,11 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
     }
 
     return (
+        loading ? (
+            <div className="container mx-auto flex justify-center items-center">
+              <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+            </div>
+        ):(       
         <div className="container mx-auto">
             <div className="grid lg:grid-cols-6 grid-cols gap-2 md:mt-5">
                 <div className="user-container col-span-2 md:mb-3 mb-5 border-3 ml-3" >
@@ -367,6 +374,7 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
                 </div>
             </div>
          </div>
+        )
     )
 
     function doEditUser() {

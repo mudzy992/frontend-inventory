@@ -52,11 +52,6 @@ interface AddNewComment {
     text: string;
     ticketId: number;
     userId: number;
-    reply:{
-        text?: string;
-        ticketId?: number;
-        userId?: number;
-    }
 }
 
 const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) => {
@@ -67,14 +62,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         text: '',
         ticketId: 0,
         userId: 0,
-        reply:{}
-      });
-    const [addNewCommentReplyState, setAddNewCommentReplyState] = useState<AddNewComment>({
-        text: '',
-        ticketId: 0,
-        userId: 0,
-        reply:{}
-    });      
+      });     
     const [message, setMessage] = useState<string>('')
     const [validateMessages, setValidateMessages] = useState<ValidationMessages>({});
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
@@ -87,7 +75,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
     const [groupUsers, setGroupUsers] = useState<UserType[]>([]);
     const [isDisabled, setIsDisabled] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [selectedCommentId, setSelectedCommentId] = useState(null);
     const [isSelectedAssignedCheckBox, setIsSelectedAssignedCheckBox] = useState<boolean>(false);
     const [isSelectedCloseTicketCheckBox, setIsSelectedCloseTicketCheckBox] = useState<boolean>(false);
     const navigate = useNavigate();
@@ -108,7 +95,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         {id: 3, resolution: "Uzrok problema nije otklonjen - privremeno rješenje"},
         {id: 4, resolution: "Zahtjev je povučen od strane korisnika"},
     ]
-
     
     function colorStatus(status: string) {
         let color
@@ -168,20 +154,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             [fieldName]: newValue,
         }));
     };
-
-    const setAddNewCommentReplyStringFieldState = (fieldName: string, newValue: any) => {
-        setAddNewCommentReplyState((prev) => {
-            const newReply = {
-                ...prev.reply,
-                [fieldName]: newValue,
-            };        
-            return {
-                ...prev,
-                reply: newReply,
-            };
-        });
-    };
-         
     
     const setValidationMessageFieldState = (field: string, value: string) => {
         setValidateMessages((prev) => ({
@@ -258,14 +230,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             setValidationMessageFieldState('resolveResolution', '* Odaberite rezoluciju rješnja')
             setValidationMessageFieldState('resolveTimespand', '* Upišite utrošeno vrijeme')
             return
-        }
-    };
-
-    const handleReplyClick = (commentId: any) => {
-        if (selectedCommentId === commentId) {
-          setSelectedCommentId(null);
-        } else {
-          setSelectedCommentId(commentId);
         }
     };
 
@@ -372,13 +336,11 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             setSelectedGroup(null)
             getAllModeratorsInGroup();
         }
-        setSelectedCommentId(null)
     }, [selectedTab]);
 
 
     const getHelpdeskTicketsData = () => {
         setIsLoading(true);
-    
         api(`/api/helpdesk/ticket/${ticketId}`, "get", {}, role as UserRole)
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
@@ -466,32 +428,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
             })
             getHelpdeskTicketsData()
             setAddNewCommentStringFieldState('text', '')
-        } catch(error) {
-            setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error);
-        }
-    }
-
-    const doAddNewReply = async (commentId: number) => {
-        try {
-            setIsLoading(true)
-            await api(`api/comment/reply/${commentId}`, 'post', {
-                text: addNewCommentReplyState.reply?.text,
-                ticketId: ticketId,
-                userId: userId,
-            },
-            role as UserRole)
-            .then((res: ApiResponse) => {
-                if (res.status === 'login'){
-                return navigate('/login')
-                }
-
-                if(res.status === 'forbidden') {
-                setMessage('Korisnik nema pravo za izmejne!')
-                }
-            })
-            getHelpdeskTicketsData()
-            setSelectedCommentId(null)
-            setAddNewCommentReplyStringFieldState('text', '')
         } catch(error) {
             setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error);
         }
@@ -778,11 +714,20 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         const days: number = Math.floor(hours / 24);
       
         if (seconds < 60) {
-          return (<span><i className="bi bi-clock-history"></i> prije {seconds} {seconds === 1 ? 'sekundu' : 'sekundi'}</span>);
+            <span>
+            <i className="bi bi-clock-history"></i> prije{' '}
+            {seconds === 1 ? ' sekundu' :
+              ([21, 31, 41, 51].includes(seconds)) ? ' sekunda' :
+                ([2, 3, 4, 22, 23, 24, 32, 33, 34, 42, 43, 44, 52, 53, 54].includes(seconds)) ? 'sekunde' :
+                  ' sekundi'}
+          </span>
         } else if (minutes < 60) {
           return (<span><i className="bi bi-clock-history"></i> prije {minutes} {minutes === 1 ? 'minutu' : 'minuta'}</span>);
         } else if (hours < 24) {
-          return (<span><i className="bi bi-clock-history"></i> prije {hours} {hours === 1 ? 'sat' : 'sata'}</span>);
+          return (<span>
+            <i className="bi bi-clock-history"></i> prije {hours}
+            {hours === 1 ? ' sat' : (hours === 21 ? ' sat' : ([2,3,4,22,23,24].includes(seconds)) ? ' sata' : ' sati')}
+          </span>);
         } else if (days < 7) {
           return (<span><i className="bi bi-calendar4-week"></i> prije {days} {days === 1 ? 'dan' : 'dana'}</span>);
         } else {
@@ -791,7 +736,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
         }
     }
       
-
     function conversation() {
         return (
             <div className='w-full'>
@@ -813,8 +757,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                     <div className='grid grid-flow-row p-3 text-sm rounded-xl bg-default-100 shadow w-full'>
                                         <div className='h-full flex justify-between'>
                                             <span className='text-sm font-bold text-default-700'>{comment?.user?.fullname}</span>
-                                            <Link className='transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110' onClick={() => handleReplyClick(comment?.commentId!) }>
-                                                <span className='text-sm ml-2 cursor-pointer'>Odgovori</span></Link>
                                         </div>
                                         <Divider className='my-1'/>
                                         <div className='w-full'>
@@ -829,19 +771,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                         </div>
                     </div>
 
-                    <div className={`col-span-12 ${selectedCommentId === comment?.commentId ? 'inline' : 'hidden'}`} id='reply'>
-                        <Textarea
-                            type='text'
-                            value={addNewCommentReplyState.reply?.text}
-                            onValueChange={(value: string) => setAddNewCommentReplyStringFieldState('text', value)}
-                            placeholder='Upišite odgovor' />
-
-                        <div className="flex justify-end mb-2">
-                            <Button color='primary' size='sm' variant='flat' className='mt-2' onPress={() => doAddNewReply(comment?.commentId!)}>
-                                Odgovori
-                            </Button>
-                        </div>
-                    </div>
                     {comment?.comments ? (
                         comment.comments.map((replies) => (
                             <div id='kontejner-odgovora-komentara' className='flex justify-end mb-2' >
@@ -850,6 +779,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                                         <div className='flex flex-row'>
                                             <div className='grid grid-flow-row p-3 text-sm rounded-xl bg-default-100 shadow w-full'>
                                                 <span className='text-sm font-bold text-default-700'>{replies.user?.fullname}</span>
+                                                <Divider className='my-1'/>
                                                 <div className='w-full'>
                                                     {replies.text}
                                                 </div> 
@@ -876,13 +806,13 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                 <div >
                 <Divider className='my-4' />
                 <Textarea
-                    label="Komentar"
+                    label="Informacija"
                     type='text'
                     value={addNewCommentState.text}
                     onValueChange={(value: string) => setAddNewCommentStringFieldState('text', value)}
-                    placeholder='Upišite svoj komentar' />
+                    placeholder='Opišite informaciju' />
                     <div className='flex justify-end'>
-                        <Button size='sm' variant='flat' className='mt-2' onPress={() => doAddNewComment()}>Dodaj novi komentar</Button>  
+                        <Button size='sm' variant='flat' className='mt-2' onPress={() => doAddNewComment()}>Pošalji</Button>  
                     </div>
                     
                 </div>

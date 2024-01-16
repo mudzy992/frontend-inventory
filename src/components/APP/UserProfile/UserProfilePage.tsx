@@ -7,44 +7,50 @@ import { useUserContext } from "../../UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
 import UserDetails from "./components/UserDetails";
 import ResponsibilityArticles from "./components/ResponsibilityArticles";
-import { Card, CardBody, Tab, Tabs } from "@nextui-org/react";
+import { Card, CardBody, Spinner, Tab, Tabs } from "@nextui-org/react";
 import UserTickets from "./components/UserTickets";
 
 const AdminUserProfilePage: React.FC = () => {
     const { userID } = useParams();
     const { role } = useUserContext()
     const [user, setUser] = useState<UserType>({})
-
+    const [loading, setLoading] = useState<boolean>(false)
 
     const navigate = useNavigate();
     const getUserData = async () => {
-        try {
-          const res: ApiResponse = await api('api/user/' + userID, 'get', {}, role as UserRole);
-      
-          if (res.status === 'error') {
-            return navigate('/login');
-          }
-      
-          if (res.status === 'login') {
-            return navigate('/login');
-          }
-      
-          const data: UserType = res.data;
-          setUser(data);      
-          return data;
-        } catch (error) {
-          console.error('Greška prilikom dohvatanja korisničkih podataka:', error);
-          throw error;
+      try {
+        setLoading(true);
+    
+        const res: ApiResponse = await api('api/user/' + userID, 'get', {}, role as UserRole);
+    
+        if (res.status === 'error' || res.status === 'login') {
+          return navigate('/login');
         }
-      };     
+    
+        const data: UserType = res.data;
+        setUser(data);
+    
+        return data;
+      } catch (error) {
+        console.error('Greška prilikom dohvatanja korisničkih podataka:', error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    };        
 
-      useEffect(() => {
-        getUserData();
-      }, []);
+    useEffect(() => {
+      getUserData();
+    }, []);
 
     return (
         <>
           <RoledMainMenu/>
+          {loading ? (
+            <div className="container mx-auto flex justify-center items-center">
+              <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+            </div> 
+          ) : (
             <div className="container mx-auto mt-3 h-max">
                 <Tabs id="left-tabs-example" aria-label="Options" className="mr-1 ml-1">
                     <Tab key='profile' title='Profil'>
@@ -62,6 +68,8 @@ const AdminUserProfilePage: React.FC = () => {
                     </Tab>
                 </Tabs>
           </div>
+          )}
+            
       </>            
     )     
 }

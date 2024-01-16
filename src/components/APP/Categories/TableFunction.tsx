@@ -1,7 +1,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import api from "../../../API/api";
 import ArticleModal from "./ArticleModal";
-import {  Button, Chip, Link, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import {  Button, Chip, Link, Pagination, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 
 
 interface ArticleType {
@@ -19,7 +19,7 @@ interface TabelaProps {
 
 const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   const [data, setData] = useState<ArticleType[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false); 
   const [selectedStockId, setSelectedStockId] = useState<number | null>(null);
@@ -60,6 +60,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   useEffect(() => {
     // Pozovite funkciju za dohvaćanje podataka o artiklima
     const fetchData = async () => {
+      setLoading(true)
       try {
         const response = await api(`api/stock/c/${categoryId}`, 'get', {}, 'administrator');
         if (response.status === 'error') {
@@ -68,13 +69,14 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         }
 
         if(response.status === 'login') {
-          setIsLoggedIn(false);
+          setLoading(true);
           return;
         }
 
         // Dobijte podatke o artiklima iz response-a
         const stocks = response.data as ArticleType[];
         setData(stocks);
+        setLoading(false)
       } catch (error) {
         console.error("Greška:", error);
       }
@@ -89,8 +91,12 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   }
     
   return (
+    loading ? (
+      <div className="flex justify-center items-center">
+            <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+          </div> 
+    ) : (
     <>
-    
     <Table 
     aria-label="Tabela korisnika zaduženja"
     className="mb-3"
@@ -100,7 +106,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         isCompact
         showControls
         showShadow
-        color="secondary"
+        color="primary"
         page={page}
         total={pages}
         onChange={(page) => setPage(page)}
@@ -158,6 +164,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         stockId={selectedStockId!} 
       />
     </>
+    )
   );
 };
 

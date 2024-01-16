@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../API/api';
 import StockType from '../../../types/UserArticleType';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { Card, CardBody, CardFooter, CardHeader} from '@nextui-org/react';
+import { Card, CardBody, CardFooter, CardHeader, Spinner} from '@nextui-org/react';
 import Tabela from './TableFunction';
 import { Alert } from '../../custom/Alert';
 
@@ -52,7 +52,7 @@ interface CategoryType {
 
 const CategoryPage: React.FC = () => {
   const { categoryID } = useParams<{ categoryID: string }>();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [state, setState] = useState<CategoryPageState>({
     subCategory: [],
     message: '',
@@ -62,10 +62,10 @@ const CategoryPage: React.FC = () => {
 
     useEffect(() => {
     const getCategoriesData = async () => {
+      setLoading(true)
       try {
         const response = await api(`api/category/${categoryID}`, 'get', {}, 'administrator');
         if (response.status === 'login') {
-          setIsLoggedIn(false);
           navigate('/login')
           return;
         }
@@ -94,6 +94,7 @@ const CategoryPage: React.FC = () => {
           })
         );
         setSubcategories(subcategories);
+        setLoading(false)
       } catch (error) {
         return setErrorMessage(
           'Greška prilikom učitavanja pod-kategorije. Osvježite ili pokušajte ponovo kasnije. Greška: ' + error
@@ -172,14 +173,19 @@ const CategoryPage: React.FC = () => {
     <div>
       <RoledMainMenu/>
       <div className="container mx-auto lg:px-4 mt-3 h-max">
-        <div className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'hidden'}>
-          <h5 style={{ color: 'white' }}>
-            <i className="bi bi-list" />
-            {state.category?.name}
-          </h5>
-          <div>{showArticles()}</div>
-        </div>
-          {showSubcategories()}
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+          </div> 
+        ) : (
+        <><div className={state.category?.stocks?.length && state.category.stocks.length > 0 ? 'mt-3' : 'hidden'}>
+              <h5 style={{ color: 'white' }}>
+                <i className="bi bi-list" />
+                {state.category?.name}
+              </h5>
+              <div>{showArticles()}</div>
+            </div><div>{showSubcategories()}</div></>
+        )}
       </div>
     </div>
   );

@@ -4,10 +4,10 @@ import FeaturesType from '../../../types/FeaturesType';
 import Moment from 'moment';
 import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import StockType from '../../../types/StockType';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ArticleInStockTable from './StockArticleTableNew';
 import { Autocomplete, AutocompleteItem, Button, Card, CardBody, CardHeader, Checkbox, Chip, Input, Listbox, ListboxItem, Modal, ModalBody, 
-    ModalContent, ModalFooter, ModalHeader, ScrollShadow, Select, SelectItem, Textarea, Tooltip } from '@nextui-org/react';
+    ModalContent, ModalFooter, ModalHeader, ScrollShadow, Select, SelectItem, Spinner, Textarea, Tooltip } from '@nextui-org/react';
 import { Alert } from '../../custom/Alert';
 
 interface userData {
@@ -67,7 +67,7 @@ const StockPage: React.FC = () => {
     const{stockID} = useParams<{stockID: string}>()
     const [categoryID, setCategoryId] = useState<number | undefined>(0)
     const [selectedUser, setSelectedUser] = useState<string>('')
-    const navigate = useNavigate()
+    const [loading, setLoading] = useState<boolean>(false)
     const [state, setState] = useState<StockPageState>({
         error: {
             message: '',
@@ -250,6 +250,7 @@ const StockPage: React.FC = () => {
     }, [stockID, categoryID])
 
     const getStockData = () => {
+        setLoading(true)
         try {
             api('api/stock/' + stockID, 'get', {}, 'administrator')
             .then((res: ApiResponse) => {
@@ -264,12 +265,15 @@ const StockPage: React.FC = () => {
                 return;
             }
             const data: StockType = res.data;
-            setCategoryId(data.categoryId)
             setStocks(data)
+            setCategoryId(data.categoryId)
             putArticleDetailsInState(res.data)
             editFeatureCategoryChanged()            
             }
         )
+        .finally(() => (
+            setLoading(false)
+        ))
     } catch (error) {
 
     }}
@@ -312,8 +316,7 @@ const StockPage: React.FC = () => {
             features: updatedFeatures,
         }));
         } catch (error) {
-        setIsLoggedInStatus(false);
-        setErrorMessage('Greška prilikom dohvatanja osobina. Greška: ' + error, 'danger', 'err-edit-features')
+            setErrorMessage('Greška prilikom dohvatanja osobina. Greška: ' + error, 'danger', 'err-edit-features')
         }
     };
     
@@ -764,6 +767,11 @@ const StockPage: React.FC = () => {
         <div>
             <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
+                {loading ? (
+                    <div className="flex justify-center items-center">
+                        <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+                    </div> 
+                ) : (
                 <Card>
                     <CardHeader>
                     <div className='flex justify-between items-center w-full bg-default-100 rounded-xl p-2'>
@@ -791,6 +799,7 @@ const StockPage: React.FC = () => {
                             ''}
                     </CardBody>
                 </Card>
+                )}
             </div>
         </div>   
     )

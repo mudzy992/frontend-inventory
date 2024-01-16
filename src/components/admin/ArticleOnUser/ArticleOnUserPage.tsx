@@ -11,7 +11,7 @@ import UserType from '../../../types/UserType';
 import ArticleType from '../../../types/ArticleType';
 import { Autocomplete, AutocompleteItem, Card, CardBody, CardHeader, Link, Listbox, ListboxItem, 
     Popover, PopoverContent, Button, PopoverTrigger, ScrollShadow, Table, TableBody, TableCell, TableColumn, TableHeader, 
-    TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem, Chip, Tabs, Tab, Tooltip } from '@nextui-org/react';
+    TableRow, Modal, ModalHeader, ModalBody, ModalFooter, ModalContent, Input, Textarea, Select, SelectItem, Chip, Tabs, Tab, Tooltip, Spinner } from '@nextui-org/react';
 import { useAsyncList } from '@react-stately/data';
 import { Alert } from '../../custom/Alert';
 import { useUserContext } from '../../UserContext/UserContext';
@@ -69,6 +69,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("articles");
     const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
     const [state, setState] = useState<AdminArticleOnUserPageState> ({
             message: "",
             users: [],
@@ -263,12 +264,15 @@ const AdminArticleOnUserPage: React.FC = () => {
     
     useEffect(() => {
     const fetchData = async () => {
+        setLoading(true)
         try {
         await getArticleData();
         await getUserData();
         await getUpgradeFeature();
+        setLoading(false)
         } catch (err) {
-        setErrorMessage('Error fetching data:' + err);
+            setLoading(true)
+            setErrorMessage('Error fetching data:' + err);
         }
     };
 
@@ -526,6 +530,11 @@ const AdminArticleOnUserPage: React.FC = () => {
         <div>
             <RoledMainMenu />
             <div className="container mx-auto lg:px-4 mt-3 h-max">
+                {loading ? (
+                    <div className="flex justify-center items-center">
+                        <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+                    </div> 
+                ) : (
                 <Card>
                     <CardHeader>
                     <div className='flex justify-between items-center w-full bg-default-100 rounded-xl p-2'>
@@ -559,6 +568,7 @@ const AdminArticleOnUserPage: React.FC = () => {
                             </Card>
                     </CardBody>
                 </Card>
+                )}
             </div>
             <NewTicketByArticleModal 
             show={showModal}

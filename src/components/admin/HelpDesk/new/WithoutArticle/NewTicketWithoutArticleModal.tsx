@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Select, SelectItem, Tooltip } from '@nextui-org/react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Select, SelectItem, Tooltip, Spinner } from '@nextui-org/react';
 import { UserRole } from '../../../../../types/UserRoleType';
 import api, { ApiResponse } from '../../../../../API/api';
 import { useUserContext } from '../../../../UserContext/UserContext';
@@ -9,7 +9,6 @@ import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import UserType from '../../../../../types/UserType';
-import ArticleType from '../../../../../types/ArticleType';
 
 type ModalProps = {
     show: boolean;
@@ -35,6 +34,7 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
     const [groupsState, setGroupsState] = useState<TicketGroupType[]>()
     const [groupsTypeState, setGroupsTypeState] = useState<TicketGroupType[]>()
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+    const [loading, setLoading] = useState<boolean>(false)
     const [selectedTypeGroup, setSelectedTypeGroup] = useState<number | null>(null);
     const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
     const [parentGroupState, setParentGroupState] = useState<TicketGroupType[]>([])
@@ -94,7 +94,6 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
             const filteredGroups = groupsState?.filter((group) => group.parentGroupId === selectedGroup);
             setGroupsTypeState(filteredGroups);
         } else {
-            // Ako nije odabrana grupa, možda želite očistiti ili postaviti drugu vrijednost
             setGroupsTypeState([]);
         }
     }, [selectedGroup, groupsState]);
@@ -111,6 +110,7 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
 
     const doAddTicket = async () => {
         try{
+        setLoading(true)
         await api(`api/helpdesk/`, 'post', addNewTicketState,
         role as UserRole)
         .then((res: ApiResponse) => {
@@ -121,15 +121,18 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
             if(res.status === 'forbidden') {
             setMessage('Korisnik nema pravo za izmejne!')
             }
-
             putArticleDetailsInState()
         })
+        .finally(() => (
+            setLoading(false)
+        ))
         } catch(error){
             setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error)
         }
     }
 
-    const getGroupsData = () => {   
+    const getGroupsData = () => {
+        setLoading(true)
         api(`api/ticket/group/`, "get", {}, role as UserRole)
             .then((res: ApiResponse) => {
                 if (res.status === 'login') {
@@ -146,6 +149,9 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
                 }
                 setGroupsState(res.data);
             })
+            .finally(() => (
+                setLoading(false)
+            ))
     }
 
     return (
@@ -161,34 +167,39 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
                         Novi tiket
                     </ModalHeader>
                     <ModalBody>
-                    <Input 
-                    label="Korisnik" 
-                    labelPlacement='inside' 
-                    value={data?.fullname} />
-                    
-                    <Select
-                        id='groupId'
-                        label='Grupa'
-                        placeholder='Odaberite grupu'
-                        value={addNewTicketState?.groupId === null ? '' : addNewTicketState?.groupId}
-                        onChange={handleGroupChange}
-                        >
-                        {groupsState ? groupsState
-                        .filter((group) => group.parentGroupId === null)
-                        .map((group, index) => (
-                        <SelectItem 
-                            key={group.groupId || index} 
-                            textValue={`${group.groupId} - ${group.groupName}`}
-                            value={Number(group.groupId)}
-                        >
-                            <div className="flex gap-2 items-center">
-                            <div className="flex flex-col">
-                                <span className="text-small">{group.groupName}</span>
-                            </div>
-                            </div>
-                        </SelectItem>
-                        )):[]}
-                    </Select>
+                        {loading ? (
+                        <div className="flex justify-center items-center">
+                            <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+                        </div> 
+                        ) : (                        
+                    <>
+                        <Input
+                            label="Korisnik"
+                            labelPlacement='inside'
+                            value={data?.fullname} /><Select
+                                id='groupId'
+                                label='Grupa'
+                                placeholder='Odaberite grupu'
+                                value={addNewTicketState?.groupId === null ? '' : addNewTicketState?.groupId}
+                                onChange={handleGroupChange}
+                            >
+                                {groupsState ? groupsState
+                                    .filter((group) => group.parentGroupId === null)
+                                    .map((group, index) => (
+                                        <SelectItem
+                                            key={group.groupId || index}
+                                            textValue={`${group.groupId} - ${group.groupName}`}
+                                            value={Number(group.groupId)}
+                                        >
+                                            <div className="flex gap-2 items-center">
+                                                <div className="flex flex-col">
+                                                    <span className="text-small">{group.groupName}</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
+                                    )) : []}
+                            </Select>
+                        
                     {selectedGroup ? (
                         <Select
                             id='parentGroupId'
@@ -254,6 +265,8 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
                         value={addNewTicketState?.clientDuoDate || null} 
                         />
                     </div>
+                    </>
+                    )}
                     </ModalBody>
                     <ModalFooter>
                         <Button isDisabled={isVisible} color='success' onClick={() => doAddTicket()}>Prijavi</Button>

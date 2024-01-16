@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Chip, Tabs, Tab, Avatar, Divider, Link } from '@nextui-org/react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Chip, Tabs, Tab, Avatar, Divider, Link, Spinner } from '@nextui-org/react';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
@@ -31,7 +31,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
     const {role, userId} = useUserContext();
     const [ticketState, setTicketState]= useState<HelpdeskTicketsType>();
     const [selectedCommentId, setSelectedCommentId] = useState(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const [message, setMessage] = useState<string>('')
     const [addNewCommentReplyState, setAddNewCommentReplyState] = useState<AddNewComment>({
         text: '',
@@ -87,8 +87,11 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                 setMessage('Korisnik nema pravo za izmejne!')
                 }
             })
-            setSelectedCommentId(null)
-            setAddNewCommentReplyStringFieldState('text', '')
+            .finally(() => {
+                setSelectedCommentId(null)
+                setAddNewCommentReplyStringFieldState('text', '')
+                setIsLoading(false)
+            })
         } catch(error) {
             setMessage('Došlo je do greške prilikom izmjene tiketa. Greška: ' + error);
         }
@@ -182,7 +185,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                                     </div>
                                 </div>
                             </Tab>
-                            <Tab key="conversation" title={<div><span>Informacija</span> {totalComments() > 0 ? (<Chip size='sm' color='danger'>{totalComments()}</Chip>):(<div></div>)}</div>}>
+                            <Tab key="conversation" isDisabled={totalComments() === 0} title={<div><span>Informacija</span> {totalComments() > 0 ? (<Chip size='sm' color='danger'>{totalComments()}</Chip>):(<div></div>)}</div>}>
                                 {conversation()}
                             </Tab>
                         </Tabs>
@@ -197,6 +200,10 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
 
     function conversation() {
         return (
+            isLoading ? (
+            <div className="flex justify-center items-center">
+                <Spinner label="Učitavanje..." labelColor="warning" color='warning' />
+            </div> ) : (
             <div className='w-full'>
             {ticketState?.comments ? ticketState?.comments
             .filter((comment) => !comment.parentCommentId)
@@ -267,7 +274,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                                             </div>
                                         </div>
                                         <div>
-                                            <span className='text-tiny text-default-400 ml-2'>{formatDateTime(replies.createdAt!)}</span>
+                                            {formatDateTime(replies.createdAt!)}
                                         </div>
                                     </div>
                                 </div>
@@ -277,7 +284,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                 </div>
             )) : []}
             </div>
-        );
+        ));
     }
 
     function totalComments() {
@@ -308,25 +315,21 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
         const days: number = Math.floor(hours / 24);
       
         if (seconds < 60) {
-            <span>
-            <i className="bi bi-clock-history"></i> prije{' '}
-            {seconds === 1 ? ' sekundu' :
-              ([21, 31, 41, 51].includes(seconds)) ? ' sekunda' :
-                ([2, 3, 4, 22, 23, 24, 32, 33, 34, 42, 43, 44, 52, 53, 54].includes(seconds)) ? 'sekunde' :
-                  ' sekundi'}
+            <span className='text-tiny text-default-400 ml-2'>
+            <i className="bi bi-clock-history"></i> prije nekoliko trenutaka
           </span>
         } else if (minutes < 60) {
-          return (<span><i className="bi bi-clock-history"></i> prije {minutes} {minutes === 1 ? 'minutu' : 'minuta'}</span>);
+          return (<span className='text-tiny text-default-400 ml-2'><i className="bi bi-clock-history"></i> prije {minutes} {minutes === 1 ? 'minutu' : 'minuta'}</span>);
         } else if (hours < 24) {
-          return (<span>
+          return (<span className='text-tiny text-default-400 ml-2'>
             <i className="bi bi-clock-history"></i> prije {hours}
             {hours === 1 ? ' sat' : (hours === 21 ? ' sat' : ([2,3,4,22,23,24].includes(seconds)) ? ' sata' : ' sati')}
           </span>);
         } else if (days < 7) {
-          return (<span><i className="bi bi-calendar4-week"></i> prije {days} {days === 1 ? 'dan' : 'dana'}</span>);
+          return (<span className='text-tiny text-default-400 ml-2'><i className="bi bi-calendar4-week"></i> prije {days} {days === 1 ? 'dan' : 'dana'}</span>);
         } else {
           const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-          return (<span><i className="bi bi-calendar4-week"></i> {pastDate.toLocaleDateString(undefined, options)}</span>);
+          return (<span className='text-tiny text-default-400 ml-2'><i className="bi bi-calendar4-week"></i> {pastDate.toLocaleDateString(undefined, options)}</span>);
         }
     }
 }

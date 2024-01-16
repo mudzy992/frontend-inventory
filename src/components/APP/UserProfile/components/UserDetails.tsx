@@ -219,10 +219,10 @@ const UserDetails: React.FC<UserProps> = ({data}) => {
             </div>
         ):(       
         <div className="container mx-auto">
-            <div className="grid lg:grid-cols-6 grid-cols gap-2 md:mt-5">
-                <div className="user-container col-span-2 md:mb-3 mb-5 border-3 ml-3" >
+            <div className="grid lg:grid-cols-6 grid-cols lg:p-2 gap-3">
+                <div className="user-container col-span-2 border-3" >
                     <div className="user-container details">
-                        <Avatar className="ikonica " style={{border: `10px solid ${genderColor}`}}> <i className={gender}/></Avatar>
+                        <Avatar className="ikonica" style={{border: `10px solid ${genderColor}`}}> </Avatar>
                         <div style={{fontSize:"25px", fontWeight:"bold", marginTop:"5px"}}>{data.fullname}</div>
                         <div style={{fontSize:"14px"}}>{data.email}</div>
                         <div style={{fontSize:"14px"}}>{data.job?.title}</div>

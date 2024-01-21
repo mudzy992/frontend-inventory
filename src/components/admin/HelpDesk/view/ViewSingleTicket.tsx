@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Chip, Tabs, Tab, Avatar, Divider, Link, Spinner } from '@nextui-org/react';
-import 'react-date-picker/dist/DatePicker.css';
-import 'react-calendar/dist/Calendar.css';
 import HelpdeskTicketsType from '../../../../types/HelpdeskTicketsType';
 import Moment from 'moment';
 import { useUserContext } from '../../../UserContext/UserContext';

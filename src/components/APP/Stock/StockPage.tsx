@@ -299,6 +299,7 @@ const StockPage: React.FC = () => {
         const features = await getFeaturesByCategoryId();
         const updatedFeatures = state.editFeature.features.map((feature) => ({
             ...feature,
+            
             use: 0,
         }));
 

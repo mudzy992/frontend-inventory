@@ -801,7 +801,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({ show, onHide, ticketId }) =
                     ) : (<div></div>)}
                 </div>
             )) : []}
-            {role !== "user" ? (
+            {role !== "user" && helpdeskState?.status !== "zatvoren" ? (
                 <div >
                 <Divider className='my-4' />
                 <Textarea

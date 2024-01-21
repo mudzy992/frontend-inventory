@@ -224,7 +224,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                                         <div className='h-full flex justify-between'>
                                             <span className='text-sm font-bold text-default-700'>{comment?.user?.fullname}</span>
                                             <Link onClick={() => handleReplyClick(comment?.commentId!) }>
-                                                <span className='text-sm cursor-pointer'>Odgovori</span></Link>
+                                                <span className='ml-2 text-sm cursor-pointer'>Odgovori</span></Link>
                                         </div>
                                         <Divider className='my-1'/>
                                         <div className='w-full'>

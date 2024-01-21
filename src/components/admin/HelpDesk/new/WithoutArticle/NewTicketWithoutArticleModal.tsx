@@ -5,9 +5,8 @@ import api, { ApiResponse } from '../../../../../API/api';
 import { useUserContext } from '../../../../UserContext/UserContext';
 import { useNavigate } from 'react-router-dom';
 import TicketGroupType from '../../../../../types/TicketGroupType';
-import DatePicker from 'react-date-picker';
-import 'react-date-picker/dist/DatePicker.css';
-import 'react-calendar/dist/Calendar.css';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import UserType from '../../../../../types/UserType';
 
 type ModalProps = {
@@ -24,10 +23,6 @@ interface AddNewTicketState {
     clientDuoDate?: Date | null;
     groupPartentId?: number | null
 }
-
-type ValuePiece = Date | null;
-
-type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => {
     const [addNewTicketState, setAddNewTicketState] = useState<AddNewTicketState>()
@@ -63,7 +58,7 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
         console.log(fieldName,newValue)
     };
 
-    const handleDatePickerChange = (newValue: Value) => {
+    const handleDatePickerChange = (newValue: Date) => {
         setAddNewTicketFieldState('clientDuoDate', newValue);
     };
 
@@ -261,8 +256,14 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({show, onHide, data}) => 
                     <div className={'pr-3 pl-3 pt-3 pb-2 bg-default-100 rounded-xl w-full grid grid-rows-2'}  style={{zIndex:1000}}>
                         <span className='text-xs text-default-600'>Željeni datum rješenja</span>
                         <DatePicker
-                        onChange={handleDatePickerChange} 
-                        value={addNewTicketState?.clientDuoDate || null} 
+                            className='w-full bg-default-100 text-sm'
+                            placeholderText='Odaberite datum'
+                            minDate={new Date()}
+                            onChange={handleDatePickerChange}
+                            startDate={addNewTicketState?.clientDuoDate || null}
+                            withPortal
+                            selected={addNewTicketState?.clientDuoDate}
+                            calendarStartDay={1}
                         />
                     </div>
                     </>

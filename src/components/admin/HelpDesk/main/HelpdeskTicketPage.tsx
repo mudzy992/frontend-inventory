@@ -17,7 +17,7 @@ const HelpdeskTicketPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [selectedTab, setSelectedTab] = useState<string>("unassigned");
-  const [ticketsItemsPerPage] = useState<number>(5);
+  const [ticketsItemsPerPage] = useState<number>(10);
   const [ticketsTotalPage, setTicketsTotalPage] = useState<number>(0);
   const [ticketsPaginationTableQuery, setTicketsPaginationTableQuery] = useState<string>('');
   const [unassignedTicketCurrentPage, setUnassignedTicketsCurrentPage] = useState<number>(1);
@@ -182,11 +182,11 @@ const HelpdeskTicketPage: React.FC = () => {
   function actions(ticketId: number) {
     return (
       <div className="relative flex items-center gap-2">
-            <Tooltip content="Preuzmi" showArrow>
+           {/*  <Tooltip content="Preuzmi" showArrow>
               <span className="text-lg text-default-600 cursor-pointer active:opacity-50">
               <i className="bi bi-person-up"/>
               </span>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip content="Pregledaj" showArrow>
             <span
               className="text-lg p-1 text-default-600 cursor-pointer active:opacity-50"
@@ -195,11 +195,11 @@ const HelpdeskTicketPage: React.FC = () => {
               <i className="bi bi-eye" />
             </span>
             </Tooltip>
-            <Tooltip color="success" content="Zatvori zahtjev" showArrow>
+            {/* <Tooltip color="success" content="Zatvori zahtjev" showArrow>
               <span  className="text-lg text-success cursor-pointer active:opacity-50">
                 <i className="bi bi-check2-circle" />
               </span>
-            </Tooltip>
+            </Tooltip> */}
           </div>
     )
   }

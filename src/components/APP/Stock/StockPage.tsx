@@ -325,10 +325,10 @@ const StockPage: React.FC = () => {
         return new Promise(async (resolve) => {
           try {   
             const res = await api(
-              '/api/feature/?filter=categoryId||$eq||' + categoryID,
-              'get',
-              {},
-              'administrator'
+                `/api/feature/cat/${categoryID}`,
+                'get',
+                {},
+                'administrator'
             );
       
             if (res.status === 'login') {

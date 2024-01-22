@@ -163,24 +163,24 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({show, onHide, data, ticket
                                     </div>
                                 </div>
                             </Tab>
-                            <Tab className={ticketState?.article === undefined ? "hidden" : "inline"} title="Detalji opreme" key={'article-details'}>
-                                <div className='grid grid-cols lg:grid-cols-12 gap-2'>
-                                    <div className='grid lg:col-span-4 col-span gap-2 grid-flow-row auto-rows-max' >
+                            <Tab className={ticketState?.article?.articleId === null ? "hidden" : "inline"} title="Detalji opreme" key={'article-details'}>
+                                <div className='grid grid-cols gap-2'>
+
                                         <Input 
                                         label="Naziv" 
                                         labelPlacement='inside' 
                                         value={ticketState?.article?.stock?.name} />
 
                                         <Input 
-                                        label="Podgrupa" 
+                                        label="Inventurni broj" 
                                         labelPlacement='inside' 
                                         value={ticketState?.article?.invNumber} />
 
                                         <Input 
-                                        label="Datum prijave" 
+                                        label="Serijski broj" 
                                         labelPlacement='inside' 
                                         value={ticketState?.article?.serialNumber} />
-                                    </div>
+                                   
                                 </div>
                             </Tab>
                             <Tab key="conversation" isDisabled={totalComments() === 0} title={<div><span>Informacija</span> {totalComments() > 0 ? (<Chip size='sm' color='danger'>{totalComments()}</Chip>):(<div></div>)}</div>}>

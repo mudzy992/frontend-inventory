@@ -24,11 +24,15 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
   const [user, setUser] = useState<UserType>({})
 
   useEffect(() => {
-    setMenuItems(items);
+    if(items !== undefined){
+      setMenuItems(items);
+    }
   }, [items]);
 
   useEffect(() => {
-    setMenuUserId(userId);
+    if (userId !== undefined) {
+      setMenuUserId(userId);
+    } 
   }, [userId]);
 
   const getUserData = async () => {
@@ -55,8 +59,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
         console.error('Greška prilikom dohvaćanja korisničkih podataka kroz useEffect:', error);
       }
     };
-  
-    fetchData();
+    if(menuUserId !== undefined && role !== undefined){
+      fetchData();
+    }
   }, [menuUserId, role]);
   
 

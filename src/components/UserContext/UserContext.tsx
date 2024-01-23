@@ -1,6 +1,12 @@
-import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 
-type UserRole = 'administrator' | 'user';
+type UserRole = "administrator" | "user";
 
 interface UserContextType {
   userId: number | undefined;
@@ -16,7 +22,10 @@ interface UserContextProviderProps {
   initialRole?: UserRole;
 }
 
-export const UserContextProvider: React.FC<UserContextProviderProps> = ({ children, initialRole }) => {
+export const UserContextProvider: React.FC<UserContextProviderProps> = ({
+  children,
+  initialRole,
+}) => {
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [role, setRole] = useState<UserRole | undefined>(initialRole);
   useEffect(() => {
@@ -49,13 +58,13 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
         storedUserRoleKey = `api_identity_role`;
         setRole(initialRole);
       } else {
-        storedUserIDKey = 'api_identity_id_default';
-        storedUserRoleKey = 'api_identity_default';
+        storedUserIDKey = "api_identity_id_default";
+        storedUserRoleKey = "api_identity_default";
       }
     };
 
     fetchUserFromLocalStorage();
-  }, [initialRole]); 
+  }, [initialRole]);
 
   const setupContextOnRefresh = () => {
     // Implementirajte logiku kako želite postaviti kontekst prilikom osvježavanja
@@ -74,11 +83,11 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
 
   useEffect(() => {
     // Dodajte event listener za osvježavanje (F5)
-    window.addEventListener('beforeunload', setupContextOnRefresh);
+    window.addEventListener("beforeunload", setupContextOnRefresh);
 
     // Čišćenje event listenera prilikom unmounta komponente
     return () => {
-      window.removeEventListener('beforeunload', setupContextOnRefresh);
+      window.removeEventListener("beforeunload", setupContextOnRefresh);
     };
   }, []);
 
@@ -89,11 +98,18 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({ childr
     setRole,
   };
 
-  return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
+  );
 };
 
-export function saveIdentity(role: 'user' | 'administrator', userId: string, setRole: (role: UserRole | undefined) => void, setUserId: (id: number | undefined) => void) {
-  if (role === 'administrator' || role === 'user') {
+export function saveIdentity(
+  role: "user" | "administrator",
+  userId: string,
+  setRole: (role: UserRole | undefined) => void,
+  setUserId: (id: number | undefined) => void,
+) {
+  if (role === "administrator" || role === "user") {
     localStorage.setItem(`api_identity_role`, role);
     localStorage.setItem(`api_identity_id`, userId);
 
@@ -101,7 +117,7 @@ export function saveIdentity(role: 'user' | 'administrator', userId: string, set
     setRole(role);
     setUserId(parseInt(userId, 10));
   } else {
-    console.error('Invalid user role:', role);
+    console.error("Invalid user role:", role);
   }
 }
 
@@ -109,7 +125,7 @@ export const useUserContext = () => {
   const context = useContext(UserContext);
 
   if (!context) {
-    throw new Error('useUserContext must be used within a UserContextProvider');
+    throw new Error("useUserContext must be used within a UserContextProvider");
   }
 
   return context;

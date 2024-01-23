@@ -1,5 +1,5 @@
 // MainMenu.tsx
-import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Button, Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@nextui-org/react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Button, Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
 import React, { useState, useEffect } from 'react';
 import './style.css'
 import UserType from "../../types/UserType";
@@ -24,7 +24,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
   const [user, setUser] = useState<UserType>({})
 
   useEffect(() => {
-    if(items !== undefined){
+    if (items !== undefined) {
       setMenuItems(items);
     }
   }, [items]);
@@ -32,16 +32,16 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
   useEffect(() => {
     if (userId !== undefined) {
       setMenuUserId(userId);
-    } 
+    }
   }, [userId]);
 
   const getUserData = async () => {
     try {
       const res: ApiResponse = await api('api/user/' + menuUserId, 'get', {}, role);
-  
+
       const data: UserType = res.data || {}; // Ako nema podataka, postavi prazan objekat
       setUser(data);
-  
+
       return data; // Vraćanje podataka o korisniku
     } catch (error) {
       console.error('Greška prilikom dohvatanja korisničkih podataka:', error);
@@ -49,7 +49,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
       throw error; // Bacanje greške kako bi je mogle uhvatiti komponente koje koriste ovu funkciju
     }
   };
-  
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,11 +59,11 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
         console.error('Greška prilikom dohvaćanja korisničkih podataka kroz useEffect:', error);
       }
     };
-    if(menuUserId !== undefined && role !== undefined){
+    if (menuUserId !== undefined && role !== undefined) {
       fetchData();
     }
   }, [menuUserId, role]);
-  
+
 
   const makeNavLink = (item: MainMenuItem, index: number) => (
     <NavbarItem key={index}>
@@ -94,11 +94,11 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
     return inicialLetters
   }
 
-  function gender(gender:string) {
+  function gender(gender: string) {
     let genderString
-    if(gender === 'muško'){
+    if (gender === 'muško') {
       return genderString = 'Dobrodošao '
-    } else if(gender === 'žensko') {
+    } else if (gender === 'žensko') {
       return genderString = 'Dobrodošla '
     }
     return gender === ''
@@ -106,58 +106,58 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
 
   return (
     <>
-    <Navbar 
-    classNames={{wrapper:'max-w-[100%]'}} 
-    className="justify-normal" 
-    disableAnimation
-    isBordered
-    isMenuOpen={isMenuOpen}
-    onMenuOpenChange={setIsMenuOpen}
+      <Navbar
+        classNames={{ wrapper: 'max-w-[100%]' }}
+        className="justify-normal"
+        disableAnimation
+        isBordered
+        isMenuOpen={isMenuOpen}
+        onMenuOpenChange={setIsMenuOpen}
       >
-      <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Zatvori meni" : "Otvori meni"} />
-      </NavbarContent>
-      <NavbarContent className="sm:hidden pr-3" justify="center">
-        <NavbarBrand className="justify-start">
-          <i className="bi bi-shop mr-2 text-xl" />
-          <Link href={getNavbarBrandHref()} className="text-white"><span className="font-bold text-inherit">Inventory Database</span>   </Link>
-        </NavbarBrand>
-      </NavbarContent>
-        
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarBrand className="justify-start">
-          <i className="bi bi-shop mr-2 text-xl" />
-          <Link href={getNavbarBrandHref()} className="text-white"><span className="font-bold text-inherit">Inventory Database</span>   </Link>
-        </NavbarBrand>
-           {menuItems.map(makeNavLink)}
-      </NavbarContent>
-      <NavbarContent as="div" justify="end">
-        <span className="text-small lg:inline hidden">{gender(user.gender || '')} {user.surname}</span>
-        <Dropdown placement="bottom-end">
-          <DropdownTrigger>
-            <Avatar
-            as="button"
-            className="transition-transform"
-            color="primary"
-            name={combineFirstLetters(user.surname || '', user.forname || '')}
-            size="sm"
-            isBordered
-            > </Avatar>
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Akcije profila" variant="flat">
-            <DropdownItem key="profile" textValue="Profil" href={`#/user/profile/${userId}`}>
-              <i className="bi bi-person-square" /> Profil
-            </DropdownItem>
-            <DropdownItem key="logout" textValue="Odjavi se" color="danger" href="#/logout">
-              <i className="bi bi-box-arrow-left" /> Odjevi se
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </NavbarContent>
-       <NavbarMenu>
-       {menuItems.map(makeNavLinkToogle)}
-      </NavbarMenu> 
-    </Navbar></>    
+        <NavbarContent className="sm:hidden" justify="start">
+          <NavbarMenuToggle aria-label={isMenuOpen ? "Zatvori meni" : "Otvori meni"} />
+        </NavbarContent>
+        <NavbarContent className="sm:hidden pr-3" justify="center">
+          <NavbarBrand className="justify-start">
+            <i className="bi bi-shop mr-2 text-xl" />
+            <Link href={getNavbarBrandHref()} className="text-white"><span className="font-bold text-inherit">Inventory Database</span>   </Link>
+          </NavbarBrand>
+        </NavbarContent>
+
+        <NavbarContent className="hidden sm:flex gap-4" justify="center">
+          <NavbarBrand className="justify-start">
+            <i className="bi bi-shop mr-2 text-xl" />
+            <Link href={getNavbarBrandHref()} className="text-white"><span className="font-bold text-inherit">Inventory Database</span>   </Link>
+          </NavbarBrand>
+          {menuItems.map(makeNavLink)}
+        </NavbarContent>
+        <NavbarContent as="div" justify="end">
+          <span className="text-small lg:inline hidden">{gender(user.gender || '')} {user.surname}</span>
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <Avatar
+                as="button"
+                className="transition-transform"
+                color="primary"
+                name={combineFirstLetters(user.surname || '', user.forname || '')}
+                size="sm"
+                isBordered
+              > </Avatar>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Akcije profila" variant="flat">
+              <DropdownItem key="profile" textValue="Profil" href={`#/user/profile/${userId}`}>
+                <i className="bi bi-person-square" /> Profil
+              </DropdownItem>
+              <DropdownItem key="logout" textValue="Odjavi se" color="danger" href="#/logout">
+                <i className="bi bi-box-arrow-left" /> Odjevi se
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </NavbarContent>
+        <NavbarMenu>
+          {menuItems.map(makeNavLinkToogle)}
+        </NavbarMenu>
+      </Navbar></>
   );
 };
 

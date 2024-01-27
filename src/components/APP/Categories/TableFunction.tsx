@@ -79,7 +79,6 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
   };
 
   useEffect(() => {
-    // Pozovite funkciju za dohvaćanje podataka o artiklima
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -100,8 +99,6 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
           setLoading(true);
           return;
         }
-
-        // Dobijte podatke o artiklima iz response-a
         const stocks = response.data as ArticleType[];
         setData(stocks);
         setLoading(false);
@@ -129,9 +126,7 @@ const Tabela: FC<TabelaProps> = ({ categoryId }) => {
         bottomContent={
           <div className="flex w-full justify-center">
             <Pagination
-              isCompact
               showControls
-              showShadow
               color="primary"
               page={page}
               total={pages}

@@ -10,7 +10,6 @@ import {
   Textarea,
   Select,
   SelectItem,
-  Tooltip,
   Spinner,
 } from "@nextui-org/react";
 import { UserRole } from "../../../../../types/UserRoleType";
@@ -48,14 +47,6 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
   const [groupsTypeState, setGroupsTypeState] = useState<TicketGroupType[]>();
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedTypeGroup, setSelectedTypeGroup] = useState<number | null>(
-    null,
-  );
-  const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
-  const [parentGroupState, setParentGroupState] = useState<TicketGroupType[]>(
-    [],
-  );
-
   const { role } = useUserContext();
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>("");
@@ -87,7 +78,6 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
   };
 
   const handleArticleChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedArticle(Number(value.target.value));
     setAddNewTicketFieldState("articleId", Number(value.target.value));
   };
 
@@ -99,7 +89,6 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
   const handleGroupTypeChange = (
     value: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    setSelectedTypeGroup(Number(value.target.value));
     setAddNewTicketFieldState("groupPartentId", value.target.value);
   };
 

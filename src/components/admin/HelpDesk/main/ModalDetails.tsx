@@ -18,7 +18,6 @@ import {
   Spinner,
   Checkbox,
   Avatar,
-  Link,
   Divider,
 } from "@nextui-org/react";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
@@ -91,7 +90,6 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
   const [validateMessages, setValidateMessages] = useState<ValidationMessages>(
     {},
   );
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState<string>("details");
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [groupParent, setGroupParent] = useState<TicketGroupType[]>([]);
@@ -99,9 +97,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
   const [selectedGroupParent, setSelectedGroupParent] = useState<number | null>(
     null,
   );
-  const [moderatorGroupState, setModeratorGroupState] = useState<
-    ModeratorGroupMappingType[]
-  >([]);
+  const [groupState, setGroupState] = useState<TicketGroupType[]>([]);
   const [groupUsers, setGroupUsers] = useState<UserType[]>([]);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -401,21 +397,32 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
 
   useEffect(() => {
     if (selectedGroup) {
-      const filteredUsers = moderatorGroupState
-        .filter((group) => group.group?.groupId === selectedGroup)
-        .flatMap((group) => group.user || [])
-        .map((user) => user || []);
+      const filteredUsers = groupState
+        .filter((group) => group.groupId === selectedGroup)
+        .flatMap((group) => {
+          const moderatorMappings: ModeratorGroupMappingType[] | undefined =
+            group.moderatorGroupMappings;
+          if (moderatorMappings && moderatorMappings.length) {
+            return moderatorMappings
+              .filter((mapping) => mapping.user !== undefined)
+              .map((mapping) => mapping.user as UserType);
+          }
+          return [];
+        });
 
       setGroupUsers(filteredUsers);
 
-      const filteretParentGroup = moderatorGroupState
-        .filter((group) => group.group?.groupId === selectedGroup)
-        .flatMap((group) => group.group?.ticketGroups || [])
-        .map((parentGroups) => parentGroups || []);
+      const filteredParentGroup = groupState
+        .filter((group) => group.groupId === selectedGroup)
+        .flatMap((group) =>
+          (group.ticketGroups || []).filter(
+            (ticketGroup) => ticketGroup.groupId !== null,
+          ),
+        );
 
-      setGroupParent(filteretParentGroup);
+      setGroupParent(filteredParentGroup);
     }
-  }, [selectedGroup, moderatorGroupState, selectedUser]);
+  }, [selectedGroup, groupState, selectedUser]);
 
   useEffect(() => {
     if (selectedTab === "forward") {
@@ -429,7 +436,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
     api(`/api/helpdesk/ticket/${ticketId}`, "get", {}, role as UserRole)
       .then((res: ApiResponse) => {
         if (res.status === "login") {
-          setIsLoggedIn(false);
+          navigate('/login');
           setMessage(
             "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!",
           );
@@ -455,10 +462,10 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
   const getAllModeratorsInGroup = () => {
     setIsLoading(true);
 
-    api(`api/moderator/group`, "get", {}, role as UserRole)
+    api(`api/ticket/group`, "get", {}, role as UserRole)
       .then((res: ApiResponse) => {
         if (res.status === "login") {
-          setIsLoggedIn(false);
+          navigate('/login');
           setMessage(
             "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!",
           );
@@ -474,7 +481,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
           setMessage("Korisnik nema prava za učitavanje ove vrste podataka!");
           return;
         }
-        setModeratorGroupState(res.data);
+        setGroupState(res.data);
       })
       .finally(() => {
         setIsLoading(false);
@@ -960,22 +967,24 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
           onChange={handleGroupChange}
           selectedKeys={selectedGroup ? [`${selectedGroup}`] : []}
         >
-          {moderatorGroupState.map((group, index) => (
-            <SelectItem
-              key={group.group?.groupId || index}
-              textValue={`${group.group?.groupId} - ${group.group?.groupName}`}
-              value={Number(group.groupId)}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col">
-                  <span className="text-small">{group.group?.groupName}</span>
-                  <span className="text-tiny text-default-400">
-                    {group.group?.location?.name}
-                  </span>
+          {groupState
+            .filter((group) => group.parentGroupId === null)
+            .map((group, index) => (
+              <SelectItem
+                key={group.groupId || index}
+                textValue={`${group.groupId} - ${group.groupName}`}
+                value={Number(group.groupId)}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-small">{group.groupName}</span>
+                    <span className="text-tiny text-default-400">
+                      {group.location?.name}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </SelectItem>
-          ))}
+              </SelectItem>
+            ))}
         </Select>
         {selectedGroup ? (
           <Select

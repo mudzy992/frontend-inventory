@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ApiConfig } from "../../../config/api.config";
 import api from "../../../API/api";
 import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
@@ -33,7 +32,6 @@ import { useNavigate } from "react-router-dom";
 // Funkcionalna komponenta AdminDashboardPage
 const AdminDashboardPage: React.FC = () => {
   // State hook za stanje komponente
-  const [isLoggedIn, setLoggedIn] = useState<boolean>(true);
   const [stockData, setStock] = useState<StockType>();
   const [articleData, setArticle] = useState<ArticleType>();
   const [paginedArticleData, setPaginedArticle] = useState<ArticleType[]>();
@@ -47,8 +45,6 @@ const AdminDashboardPage: React.FC = () => {
   const [unsignedDocumentDataCount, setUnsignedDocumentCount] =
     useState<number>();
   const [unsignedDocumentId, setUnsignedDocumentId] = useState<number>();
-  const [selectedDocument, setSelectedDocument] =
-    useState<DocumentsType | null>(null);
   const [open, setOpen] = React.useState(false);
   const [messageData, setMessage] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
@@ -68,7 +64,7 @@ const AdminDashboardPage: React.FC = () => {
           "administrator",
         );
         if (stockResponse.status === "login") {
-          setLoggedIn(false);
+          navigate('/login');
           return;
         }
 
@@ -94,7 +90,7 @@ const AdminDashboardPage: React.FC = () => {
           "administrator",
         );
         if (articleResponse.status === "login") {
-          setLoggedIn(false);
+          navigate('/login');
           return;
         }
 
@@ -117,7 +113,7 @@ const AdminDashboardPage: React.FC = () => {
           "administrator",
         );
         if (unsignedDocumentResponse.status === "login") {
-          setLoggedIn(false);
+          navigate('/login');
           return;
         }
 
@@ -149,7 +145,7 @@ const AdminDashboardPage: React.FC = () => {
         );
 
         if (paginatedArticleResponse.status === "login") {
-          setLoggedIn(false);
+          navigate('/login');
           return;
         }
 
@@ -189,7 +185,7 @@ const AdminDashboardPage: React.FC = () => {
       const response = await api(apiUrl, "get", {}, "administrator");
 
       if (response.status === "login") {
-        setLoggedIn(false);
+        navigate('/login');
         return [];
       }
 

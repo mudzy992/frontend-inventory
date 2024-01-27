@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
   Chip,
+  Spinner,
 } from "@nextui-org/react";
 
 interface ResponsibilityArticleBaseType {
@@ -63,7 +64,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
   const [totalResults, setTotalResults] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
   useEffect(() => {
@@ -115,105 +116,128 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
       <ModalContent>
         <ModalHeader>Detalji zaduženja </ModalHeader>
         <ModalBody>
-          <div>
-            <Input
-              variant="bordered"
-              type="search"
-              isClearable
-              startContent={<i className="bi bi-search text-default-500" />}
-              placeholder="Pronađi artikal..."
-              value={searchQuery}
-              onClear={() => setSearchQuery("")}
-              onValueChange={(value) => setSearchQuery(value || "")}
-              onKeyDown={handleKeyPress}
-            />
-          </div>
-          <Table
-            aria-label="Article modal tabela"
-            isHeaderSticky
-            classNames={{
-              wrapper: "max-h-[382px]",
-            }}
-          >
-            <TableHeader>
-              <TableColumn key="fullname">Ime i prezime</TableColumn>
-              <TableColumn key="sapNumber">Serijski broj</TableColumn>
-              <TableColumn key="invNumber">Inventurni broj</TableColumn>
-              <TableColumn key="timestamp">Status</TableColumn>
-              <TableColumn key="status">Datum akcije</TableColumn>
-            </TableHeader>
-            <TableBody items={articleData}>
-              {(item) => {
-                const { color, startContent } = statusColorMap[item.status];
-                return articleData.length > 0 ? (
-                  <TableRow key={item.serialNumber}>
-                    <TableCell
-                      className="min-w-fit whitespace-nowrap"
-                      key={item.user?.fullname}
-                    >
-                      <Link href={`#/user/profile/${item.user?.userId}`}>
-                        {item.user?.fullname}
-                      </Link>
-                    </TableCell>
-                    <TableCell
-                      className="min-w-fit whitespace-nowrap"
-                      key={item.serialNumber}
-                    >
-                      <Link href={`#/admin/article/${item.serialNumber}`}>
-                        {item.serialNumber}
-                      </Link>
-                    </TableCell>
-                    <TableCell
-                      className="min-w-fit whitespace-nowrap"
-                      key={item.invNumber}
-                    >
-                      {item.invNumber}
-                    </TableCell>
-                    <TableCell
-                      className="min-w-fit whitespace-nowrap"
-                      key={item.status}
-                    >
-                      <Chip
-                        color={color}
-                        variant="bordered"
-                        startContent={<i className={startContent}></i>}
-                      >
-                        {" "}
-                        {item.status}
-                      </Chip>
-                    </TableCell>
-                    <TableCell
-                      className="min-w-fit whitespace-nowrap"
-                      key={item.timestamp}
-                    >
-                      {Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      className="min-w-fit whitespace-nowrap"
-                      colSpan={5}
-                    >
-                      Nema artikala
-                    </TableCell>
-                  </TableRow>
-                );
-              }}
-            </TableBody>
-          </Table>
-          <div className="flex justify-center">
-            <Pagination
-              showControls
-              showShadow
-              page={currentPage}
-              total={totalPages}
-              onChange={(page) => setCurrentPage(page)}
-            />
-          </div>
+          {isLoading ? (
+            <div><Spinner label="Učitavanje..." color="warning" /></div>
+          ) : (
+            <>
+              <Table
+                aria-label="Article modal tabela"
+                isHeaderSticky
+                removeWrapper
+                topContent={
+                  <Input
+                    variant="bordered"
+                    type="search"
+                    isClearable
+                    startContent={
+                      <i className="bi bi-search text-default-500" />
+                    }
+                    placeholder="Pronađi artikal..."
+                    value={searchQuery}
+                    onClear={() => setSearchQuery("")}
+                    onValueChange={(value) => setSearchQuery(value || "")}
+                    onKeyDown={handleKeyPress}
+                  />
+                }
+              >
+                <TableHeader>
+                  <TableColumn key="fullname">Ime i prezime</TableColumn>
+                  <TableColumn key="sapNumber">Serijski broj</TableColumn>
+                  <TableColumn key="invNumber">Inventurni broj</TableColumn>
+                  <TableColumn key="timestamp">Status</TableColumn>
+                  <TableColumn key="status">Datum akcije</TableColumn>
+                </TableHeader>
+                <TableBody items={articleData}>
+                  {(item) => {
+                    const { color, startContent } = statusColorMap[item.status];
+                    return articleData.length > 0 ? (
+                      <TableRow key={item.serialNumber}>
+                        <TableCell
+                          className="min-w-fit whitespace-nowrap"
+                          key={item.user?.fullname}
+                        >
+                          <Link
+                            isBlock
+                            showAnchorIcon
+                            className="text-sm"
+                            href={`#/user/profile/${item.user?.userId}`}
+                          >
+                            {item.user?.fullname}
+                          </Link>
+                        </TableCell>
+                        <TableCell
+                          className="min-w-fit whitespace-nowrap"
+                          key={item.serialNumber}
+                        >
+                          <Link
+                            isBlock
+                            showAnchorIcon
+                            className="text-sm"
+                            href={`#/admin/article/${item.serialNumber}`}
+                          >
+                            {item.serialNumber}
+                          </Link>
+                        </TableCell>
+                        <TableCell
+                          className="min-w-fit whitespace-nowrap"
+                          key={item.invNumber}
+                        >
+                          {item.invNumber}
+                        </TableCell>
+                        <TableCell
+                          className="min-w-fit whitespace-nowrap"
+                          key={item.status}
+                        >
+                          <Chip
+                            color={color}
+                            size="sm"
+                            variant="flat"
+                            startContent={<i className={startContent}></i>}
+                          >
+                            {" "}
+                            {item.status}
+                          </Chip>
+                        </TableCell>
+                        <TableCell
+                          className="min-w-fit whitespace-nowrap"
+                          key={item.timestamp}
+                        >
+                          {Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          className="min-w-fit whitespace-nowrap"
+                          colSpan={5}
+                        >
+                          Nema artikala
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }}
+                </TableBody>
+              </Table>
+
+              {totalPages <= 1 ? (
+                <div></div>
+              ) : (
+                <div className="flex justify-center">
+                  <Pagination
+                    showControls
+                    showShadow
+                    page={currentPage}
+                    total={totalPages}
+                    size="sm"
+                    onChange={(page) => setCurrentPage(page)}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </ModalBody>
         <ModalFooter>
-          <Button color="success" onClick={onHide}>
+          <Button size="sm" color="success" onClick={onHide}>
             Zatvori
           </Button>
         </ModalFooter>

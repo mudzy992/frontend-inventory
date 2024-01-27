@@ -16,9 +16,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip,
 } from "@nextui-org/react";
-import { useNavigate } from "react-router-dom";
 
 interface StockTableProps {
   stockId: number;
@@ -59,12 +57,10 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
     ResponsibilityArticleBaseType[]
   >([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoggedIn] = useState(true);
   const [itemsPerPage] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     stockArticleData();
@@ -113,10 +109,16 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
 
   return (
     <div>
-      {" "}
-      {/* kolona div */}
       <div className="mb-3">
-        <Input
+        
+      </div>
+      <Table
+        aria-label="Article modal tabela"
+        isHeaderSticky
+        className="mb-3"
+        removeWrapper
+        topContent={
+          <Input
           variant="bordered"
           type="search"
           startContent={<i className="bi bi-search text-default-500" />}
@@ -127,11 +129,18 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
           onValueChange={(value) => setSearchQuery(value || "")}
           onKeyDown={handleKeyPress}
         />
-      </div>
-      <Table
-        aria-label="Article modal tabela"
-        isHeaderSticky
-        className="mb-3"
+        }
+        bottomContent={
+          <div className="flex justify-center">
+          <Pagination
+          showControls
+          showShadow
+          page={currentPage}
+          total={totalPages}
+          onChange={(page) => setCurrentPage(page)}
+        />
+        </div>
+        }
         classNames={{
           wrapper: "max-h-[382px]",
         }}
@@ -142,7 +151,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
           <TableColumn key="invNumber">Inventurni broj</TableColumn>
           <TableColumn key="timestamp">Status</TableColumn>
           <TableColumn key="status">Datum akcije</TableColumn>
-          <TableColumn key="path">Datum akcije</TableColumn>
+          <TableColumn className="flex justify-center items-center" key="path">Datum akcije</TableColumn>
         </TableHeader>
         <TableBody items={userArticleData}>
           {(item) => {
@@ -153,7 +162,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                   className="min-w-fit whitespace-nowrap"
                   key={item.user?.fullname}
                 >
-                  <Link href={`#/user/profile/${item.user?.userId}`}>
+                  <Link isBlock showAnchorIcon className="text-sm" href={`#/user/profile/${item.user?.userId}`}>
                     {item.user?.fullname}
                   </Link>
                 </TableCell>
@@ -161,7 +170,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                   className="min-w-fit whitespace-nowrap"
                   key={item.serialNumber}
                 >
-                  <Link href={`#/admin/article/${item.serialNumber}`}>
+                  <Link isBlock showAnchorIcon className="text-sm" href={`#/admin/article/${item.serialNumber}`}>
                     {item.serialNumber}
                   </Link>
                 </TableCell>
@@ -176,6 +185,7 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                   key={item.status}
                 >
                   <Chip
+                    size="sm"
                     color={color}
                     variant="shadow"
                     startContent={<i className={startContent}></i>}
@@ -190,36 +200,20 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
                 >
                   {Moment(item.timestamp).format("DD.MM.YYYY. - HH:mm")}
                 </TableCell>
-                <TableCell key="path">
-                  {item.documents && item.documents.length > 0 ? (
+                <TableCell className="flex justify-center" key="path">
                     <Button
                       size="sm"
-                      variant="shadow"
-                      color="success"
+                      color="primary"
+                      isDisabled={item.documents && item.documents.length < 0}
+                      startContent={<i className="bi bi-download" />}
                       onClick={() =>
                         item.documents &&
                         item.documents.length > 0 &&
                         saveFile(item.documents[0]?.path)
                       }
                     >
-                      <i
-                        className="bi bi-file-earmark-text"
-                        style={{ fontSize: 22 }}
-                      />
+                      Prenosnica
                     </Button>
-                  ) : (
-                    <div>
-                      <Tooltip
-                        id="tooltip-prenosnica"
-                        content={"Prenosnica nije generisana"}
-                      >
-                        <i
-                          className="bi bi-file-earmark-text"
-                          style={{ fontSize: 22, color: "red" }}
-                        />
-                      </Tooltip>
-                    </div>
-                  )}
                 </TableCell>
               </TableRow>
             ) : (
@@ -236,15 +230,6 @@ const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
           }}
         </TableBody>
       </Table>
-      <div className="flex justify-center">
-        <Pagination
-          showControls
-          showShadow
-          page={currentPage}
-          total={totalPages}
-          onChange={(page) => setCurrentPage(page)}
-        />
-      </div>
     </div>
   );
 };

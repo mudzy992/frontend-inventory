@@ -94,7 +94,6 @@ interface AdminArticleOnUserPageState {
 const AdminArticleOnUserPage: React.FC = () => {
   const { serial } = useParams();
   const { role } = useUserContext();
-  const [selectedUser, setSelectedUser] = useState<string>("");
   const [selectedUserIsDisabled, setSelectedUserIdDisabled] =
     useState<boolean>(true);
   const [showModal, setShowModal] = useState(false);
@@ -129,7 +128,6 @@ const AdminArticleOnUserPage: React.FC = () => {
   });
 
   const onInputChange = (value: string) => {
-    setSelectedUser(value);
     const selectedUser = state.users.find((user) => user.fullname === value);
     if (selectedUser) {
       const userId = selectedUser.userId;

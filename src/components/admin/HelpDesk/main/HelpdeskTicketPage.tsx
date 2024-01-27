@@ -20,13 +20,13 @@ import {
 import Moment from "moment";
 import ModalDetails from "./ModalDetails";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
+import { useNavigate } from "react-router-dom";
 
 const HelpdeskTicketPage: React.FC = () => {
   const { role, userId } = useUserContext();
   const [helpdeskState, setHelpdeskState] = useState<HelpdeskTicketsType[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<string>("unassigned");
   const [ticketsItemsPerPage] = useState<number>(10);
@@ -40,6 +40,7 @@ const HelpdeskTicketPage: React.FC = () => {
     useState<number>(1);
   const [solvedTicketCurrentPage, setSolvedTicketsCurrentPage] =
     useState<number>(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userId !== undefined) {
@@ -96,7 +97,7 @@ const HelpdeskTicketPage: React.FC = () => {
 
     api(apiEndpoint, "get", {}, role as UserRole).then((res: ApiResponse) => {
       if (res.status === "login") {
-        setIsLoggedIn(false);
+        navigate('/login');
         setMessage(
           "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!",
         );

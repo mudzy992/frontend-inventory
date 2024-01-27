@@ -88,7 +88,6 @@ interface StockPageState {
 const StockPage: React.FC = () => {
   const { stockID } = useParams<{ stockID: string }>();
   const [categoryID, setCategoryId] = useState<number | undefined>(0);
-  const [selectedUser, setSelectedUser] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [state, setState] = useState<StockPageState>({
     error: {
@@ -275,7 +274,6 @@ const StockPage: React.FC = () => {
   };
 
   const onInputChange = (value: string) => {
-    setSelectedUser(value);
     const selectedUser = state.users.find((user) => user.fullname === value);
     if (selectedUser) {
       const userId = selectedUser.userId;

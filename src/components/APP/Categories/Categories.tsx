@@ -140,7 +140,7 @@ const CategoryPage: React.FC = () => {
     if (state.subCategory.length === 0) {
       return (
         <div className="mb-4 mt-4">
-          <Alert variant="info" title="Info!" body="Nema podkategorija" />
+          <Alert variant="info" body="Nema podkategorija" />
         </div>
       );
     }

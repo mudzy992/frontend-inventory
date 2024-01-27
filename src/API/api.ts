@@ -5,7 +5,7 @@ export default function api(
     path: string,
     method: 'get' | 'post' | 'patch' | 'delete' | 'put',
     body: any | undefined,
-    role: 'user' | 'administrator' = 'user',
+    role: 'user' | 'administrator' | 'moderator' = 'user',
     options: { useMultipartFormData?: boolean } = {},
 ) {
     return new Promise<ApiResponse>((resolve) => {
@@ -14,18 +14,18 @@ export default function api(
             url: path,
             baseURL: ApiConfig.API_URL,
             data: options.useMultipartFormData ? body : JSON.stringify(body),
+            role: role,
             headers: {
                 'Content-Type': options.useMultipartFormData ? 'multipart/form-data' : 'application/json',
-                'Authorization': getToken(role),
+                'Authorization': getToken(),
             },
         };
-
         // console.log('API Call:', path, method, body);
         axios(requestData)
         .then(res => responseHandler(res, resolve))
         .catch(async err => {
             if (err.response.status === 401) {
-                const newToken = await refreshToken(role);
+                const newToken = await refreshToken();
     
                 if (!newToken) {
                     const response: ApiResponse = {
@@ -36,12 +36,21 @@ export default function api(
                     return resolve(response);
                 }
     
-                saveToken(role, newToken);
+                saveToken(newToken);
     
-                requestData.headers['Authorization'] = getToken(role);
+                requestData.headers['Authorization'] = getToken();
     
                 return await repeatRequest(requestData, resolve);
             }
+
+            if (err.response.status === 403) {
+                // Dodajte novi status "forbidden"
+                const response: ApiResponse = {
+                  status: 'forbidden',
+                  data: err.response.data,
+                };
+                return resolve(response);
+              }
 
             const response: ApiResponse = {
                 status: 'error',
@@ -54,7 +63,7 @@ export default function api(
 }
 
     export interface ApiResponse {
-        status: 'ok' | 'error' | 'login';
+        status: 'ok' | 'error' | 'login' | 'forbidden';
         data: any;
     }
 
@@ -79,29 +88,36 @@ export default function api(
         return resolve(response);
     }
 
-    function getToken(role: 'user' | 'administrator'): string {
-        const token = localStorage.getItem('api_token_' + role);
-        return 'Berer ' + token;
+    function getToken(): string {
+        const token = localStorage.getItem('api_token');
+        return 'Bearer ' + token;
     }
     
-    export function saveToken(role: 'user' | 'administrator', token: string) {
-        localStorage.setItem('api_token_' + role, token);
+    export function saveToken(token: string) {
+        localStorage.setItem('api_token', token);
     }
     
-    function getRefreshToken(role: 'user' | 'administrator'): string {
-        const token = localStorage.getItem('api_refresh_token_' + role);
+    function getRefreshToken(): string {
+        const token = localStorage.getItem('api_refresh_token');
         return token + '';
     }
     
-    export function saveRefreshToken(role: 'user' | 'administrator', token: string) {
-        localStorage.setItem('api_refresh_token_' + role, token);
+    export function saveRefreshToken(token: string) {
+        localStorage.setItem('api_refresh_token', token);
     }
-    
-    async function refreshToken(role: 'user' | 'administrator'): Promise<string | null> {
-        const path = 'auth/' + role + '/refresh';
+
+    export function removeIdentity(){
+        localStorage.removeItem('api_token' );
+        localStorage.removeItem('api_refresh_token');
+        localStorage.removeItem('api_identity_role')
+        localStorage.removeItem('api_identity_id',);
+    }
+
+    async function refreshToken(): Promise<string | null> {
+        const path = '/auth/refresh';
         const data = {
-            token: getRefreshToken(role),
-        }
+            token: getRefreshToken(),
+        };
     
         const refreshTokenRequestData: AxiosRequestConfig = {
             method: 'post',
@@ -113,14 +129,20 @@ export default function api(
             },
         };
     
-        const rtr: { data: { token: string | undefined } } = await axios(refreshTokenRequestData);
+        try {
+            const rtr: { data: { token: string | undefined } } = await axios(refreshTokenRequestData);
     
-        if (!rtr.data.token) {
+            if (!rtr.data.token) {
+                return null;
+            }
+    
+            return rtr.data.token;
+        } catch (error) {
+            console.error('Error refreshing token:', error);
             return null;
         }
-    
-        return rtr.data.token;
     }
+    
     
     async function repeatRequest(
         requestData: AxiosRequestConfig,
@@ -153,3 +175,4 @@ export default function api(
             return resolve(response);
         });
     }
+    

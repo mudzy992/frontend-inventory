@@ -1,816 +1,1327 @@
-import React from 'react';
-import api, { ApiResponse } from '../../../API/api';
-import { Alert, Badge, Button, Card, Col, Container, FloatingLabel, Form, ListGroup, Modal, OverlayTrigger, Row, Stack, Tooltip } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
-import Paper from '@mui/material/Paper';
-import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Link, Autocomplete, TextField } from "@mui/material";
-import Moment from 'moment';
-import UserArticleDto from '../../../dtos/UserArticleDto';
-import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import { ApiConfig } from '../../../config/api.config';
-import saveAs from 'file-saver';
-import { LangBa, ModalMessageArticleOnUser} from '../../../config/lang.ba'
-import UserType from '../../../types/UserType';
-import ArticleType from '../../../types/ArticleType';
-import { KeyboardDoubleArrowDown, KeyboardDoubleArrowUp } from '@mui/icons-material';
-import "./article.on.user.page.css";
-interface AdminArticleOnUserPageProperties {
-    match: {
-        params: {
-            serial: string;
-        }
-    }
-}
+import React, { Key, useCallback, useEffect, useState } from "react";
+import api, { ApiResponse } from "../../../API/api";
+import { useNavigate, useParams } from "react-router-dom";
+import Moment from "moment";
+import UserArticleDto from "../../../dtos/UserArticleDto";
+import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
+import { ApiConfig } from "../../../config/api.config";
+import saveAs from "file-saver";
+import { LangBa } from "../../../config/lang.ba";
+import UserType from "../../../types/UserType";
+import ArticleType from "../../../types/ArticleType";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Card,
+  CardBody,
+  CardHeader,
+  Link,
+  Listbox,
+  ListboxItem,
+  Popover,
+  PopoverContent,
+  Button,
+  PopoverTrigger,
+  ScrollShadow,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalContent,
+  Input,
+  Textarea,
+  Select,
+  SelectItem,
+  Chip,
+  Tabs,
+  Tab,
+  Tooltip,
+  Spinner,
+} from "@nextui-org/react";
+import { useAsyncList } from "@react-stately/data";
+import { Alert } from "../../custom/Alert";
+import { useUserContext } from "../../UserContext/UserContext";
+import { UserRole } from "../../../types/UserRoleType";
+import NewTicketByArticleModal from "../HelpDesk/new/ByArticle/NewTicketByArticleModal";
+import ViewSingleTicketModal from "../HelpDesk/view/ViewSingleTicket";
 
 interface upgradeFeaturesType {
-    upgradeFeatureId: number;
-    name: string;
-    value: string;
-    serialNumber: string;
-    comment: string;
-    timestamp: string;
+  upgradeFeatureId: number;
+  name: string;
+  value: string;
+  serialNumber: string;
+  comment: string;
+  timestamp: string;
 }
+
+type UserTypeBase = {
+  userId: string;
+  fullname: string;
+};
 
 interface AdminArticleOnUserPageState {
-    userArticle: UserArticleDto[];
-    message: string;
-    article: ArticleType;
-    users: UserType[];
-    isLoggedIn: boolean;
-    errorMessage: string;
-    expandedCards: boolean[];
+  userArticle: UserArticleDto[];
+  message: string;
+  article: ArticleType;
+  users: UserType[];
+  isLoggedIn: boolean;
+  errorMessage: string;
+  expandedCards: boolean[];
+  changeStatus: {
+    visible: boolean;
+    userId: number | null;
+    articleId: number | null;
+    comment: string;
+    serialNumber: string;
+    invNumber: string;
+    status: string;
+  };
+  upgradeFeature: upgradeFeaturesType[];
+  upgradeFeatureAdd: {
+    visible: boolean;
+    name: string;
+    value: string;
+    comment: string;
+  };
+}
+
+const AdminArticleOnUserPage: React.FC = () => {
+  const { serial } = useParams();
+  const { role } = useUserContext();
+  const [selectedUser, setSelectedUser] = useState<string>("");
+  const [selectedUserIsDisabled, setSelectedUserIdDisabled] =
+    useState<boolean>(true);
+  const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<string>("articles");
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [state, setState] = useState<AdminArticleOnUserPageState>({
+    message: "",
+    users: [],
+    article: {},
+    isLoggedIn: true,
+    errorMessage: "",
+    expandedCards: new Array(2).fill(false),
     changeStatus: {
-        visible: boolean;
-        userId: number | null;
-        articleId: number | null;
-        comment: string;
-        serialNumber: string;
-        invNumber: string;
-        status: string;
+      userId: Number(),
+      articleId: 0,
+      comment: "",
+      serialNumber: "",
+      invNumber: "",
+      status: "",
+      visible: false,
     },
-    upgradeFeature: upgradeFeaturesType[],
+    upgradeFeature: [],
     upgradeFeatureAdd: {
-        visible: boolean;
-        name: string;
-        value: string;
-        comment: string;
+      visible: false,
+      name: "",
+      value: "",
+      comment: "",
+    },
+    userArticle: [],
+  });
+
+  const onInputChange = (value: string) => {
+    setSelectedUser(value);
+    const selectedUser = state.users.find((user) => user.fullname === value);
+    if (selectedUser) {
+      const userId = selectedUser.userId;
+      setChangeStatusNumberFieldState("userId", userId || null);
     }
+  };
 
-}
-
-export default class AdminArticleOnUserPage extends React.Component<
-  AdminArticleOnUserPageProperties,
-  AdminArticleOnUserPageState
-> {
-    constructor(props: Readonly<AdminArticleOnUserPageProperties>) {
-        super(props);
-        this.state = {
-            message: "",
-            users: [],
-            article: {},
-            isLoggedIn: true,
-            errorMessage: '',
-            expandedCards: new Array(2).fill(false),
-            changeStatus: {
-                userId: Number(),
-                articleId: 0,
-                comment: '',
-                serialNumber: '',
-                invNumber: '',
-                status: '',
-                visible: false,
-            },
-            upgradeFeature: [], 
-            upgradeFeatureAdd: {
-                visible: false,
-                name: "",
-                value: "",
-                comment: "",
-            },
-            userArticle: [],
-        }
+  const isDisabled = () => {
+    if (state.changeStatus.status === "razduženo" || "otpisano") {
+      setSelectedUserIdDisabled(true);
+      setChangeStatusNumberFieldState("userId", Number());
     }
-
-    private setChangeStatusStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.changeStatus, {
-                [fieldName]: newValue,
-            })))
+    if (state.changeStatus.status === "zaduženo") {
+      setSelectedUserIdDisabled(false);
     }
+  };
 
-    private setChangeStatusNumberFieldState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.changeStatus, {
-                [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
+  useEffect(() => {
+    isDisabled();
+  }, [state.changeStatus.status]);
+
+  const setChangeStatusStringFieldState = (
+    fieldName: string,
+    newValue: string,
+  ) => {
+    setState((prev) => ({
+      ...prev,
+      changeStatus: {
+        ...prev.changeStatus,
+        [fieldName]: newValue,
+      },
+    }));
+  };
+
+  const setChangeStatusNumberFieldState = (
+    fieldName: string,
+    newValue: any,
+  ) => {
+    setState((prev) => ({
+      ...prev,
+      changeStatus: {
+        ...prev.changeStatus,
+        [fieldName]: newValue === "null" ? null : Number(newValue),
+      },
+    }));
+  };
+
+  const setChangeStatusVisibleState = (newState: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      changeStatus: {
+        ...prev.changeStatus,
+        visible: newState,
+      },
+    }));
+  };
+
+  const setUpgradeFeatureStringFieldState = (
+    fieldName: string,
+    newValue: string,
+  ) => {
+    setState((prev) => ({
+      ...prev,
+      upgradeFeatureAdd: {
+        ...prev.upgradeFeatureAdd,
+        [fieldName]: newValue,
+      },
+    }));
+  };
+
+  const setUpgradeModalVisibleState = (newState: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      upgradeFeatureAdd: {
+        ...prev.upgradeFeatureAdd,
+        visible: newState,
+      },
+    }));
+  };
+
+  const setUpgradeFeature = (upgradeFeatureData: upgradeFeaturesType[]) => {
+    setState((prev) => ({
+      ...prev,
+      upgradeFeature: upgradeFeatureData,
+    }));
+  };
+
+  const setErrorMessage = (message: string) => {
+    setState((prev) => ({
+      ...prev,
+      errorMessage: message,
+    }));
+  };
+
+  const navigate = useNavigate();
+  const setLogginState = (isLoggedIn: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      isLoggedIn: isLoggedIn,
+    }));
+    if (isLoggedIn === false) {
+      navigate("/login");
     }
+  };
 
-    private setChangeStatusVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.changeStatus, {
-                visible: newState,
-            })))
-    }
+  const setArticle = (articleData: ArticleType) => {
+    setState((prev) => ({
+      ...prev,
+      article: articleData,
+    }));
+  };
 
-    private setUpgradeFeatureStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.upgradeFeatureAdd, {
-                [fieldName]: newValue,
-            })))
-    }
+  const setUsers = (usersData: UserType[]) => {
+    setState((prev) => ({
+      ...prev,
+      users: usersData,
+    }));
+  };
 
-    private setUpgradeModalVisibleState(newState: boolean) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.upgradeFeatureAdd, {
-                visible: newState,
-            })))
-    }
-
-    private setUpgradeFeature(upgradeFeatureData: upgradeFeaturesType[]) {
-        this.setState(Object.assign(this.state, {
-            upgradeFeature: upgradeFeatureData
-        }))
-    }
-
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            errorMessage: message,
-        }));
-    }
-
-    private setLogginState(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        }));
-    }
-
-    private setArticle(articleData: ArticleType) {
-        this.setState(Object.assign(this.state, {
-            article: articleData
-        }))
-    }
-
-
-    private setUsers(usersData: UserType[]) {
-        this.setState(Object.assign(this.state, {
-            users: usersData
-        }))
-    }
-
-    private toggleExpand = (index: number) => {
-        this.setState((prevState) => {
-          const expandedCards = [...prevState.expandedCards];
-          expandedCards[index] = !expandedCards[index];
-          return { expandedCards };
-        });
-      };
-      
-    componentDidMount() {
-        this.getArticleData()
-        this.getUpgradeFeature()
-    }
-
-    componentDidUpdate(oldProperties: AdminArticleOnUserPageProperties) {
-        /* Upisujemo logiku koja će se izvršavati nakon update (da se ne osvježava stalno stranica) */
-        if (oldProperties.match.params.serial === this.props.match.params.serial) {
-            return;
-        }
-        this.getArticleData();
-    }
-    /* '&filter=userDetails.userId||$eq||' + this.props.match.params.userID + */
-    private getArticleData() {
-        api(`api/article/sb/${this.props.match.params.serial}`, 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'error') {
-                    this.setErrorMessage('Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije')
-                    return;
-                }
-                if (res.status === 'login') {
-                    return this.setLogginState(false);
-                }
-                const data: ArticleType = res.data;
-                this.setErrorMessage('')
-                this.setArticle(data)
-            }
-        )
-
-        api('/api/user/?sort=forname,ASC', 'get', {}, 'administrator')
-            .then((res: ApiResponse) => {
-                if (res.status === 'login') {
-                    return this.setLogginState(false);
-                }
-
-                this.setUsers(res.data)
-            }
-        )
-    }
-
-    private getUpgradeFeature () {
-        api('api/upgradeFeature/?filter=serialNumber||$eq||' + this.props.match.params.serial, 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if (res.status === 'login') {
-                return this.setLogginState(false);
-            }
-            this.setUpgradeFeature(res.data)
-        })
-    }
-
-    private addNewUpgradeFeature () {
-        api('api/upgradeFeature/add/' + this.props.match.params.serial, 'post', {
-            name: this.state.upgradeFeatureAdd.name,
-            value: this.state.upgradeFeatureAdd.value,
-            comment: this.state.upgradeFeatureAdd.comment,
-            articleId: this.state.article.articleId,
-        }, 'administrator')
-        .then((res: ApiResponse) => {
-            if (res.status === 'login') {
-                return this.setLogginState(false);
-            }
-            this.getUpgradeFeature()
-            this.getArticleData()
-
-            this.setState({
-                upgradeFeatureAdd: {
-                    visible: false,
-                    name: '',
-                    value: '',
-                    comment: '',
-                }
-            });
-        })
-    }
-
-    private showAddUpgradeFeatureModal () {
-        this.setUpgradeModalVisibleState(true)
-    }
-
-    private addNewUpgradeFeatureButton () {
-        return (
-        <div><Button variant='success' size='sm' onClick={() => this.showAddUpgradeFeatureModal()}>{LangBa.ARTICLE_ON_USER.BTN_UPGRADE}</Button><Modal size="lg" centered show={this.state.upgradeFeatureAdd.visible} onHide={() => this.setUpgradeModalVisibleState(false)}>
-                <Modal.Header closeButton>
-              {LangBa.ARTICLE_ON_USER.MODAL_HEADER_TEXT}
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Text>
-                            <h6>{LangBa.ARTICLE_ON_USER.MODAL_FORM_DESCRIPTION}
-                            </h6>
-                        </Form.Text>
-                        <Form.Group>
-                            <FloatingLabel label="Naziv" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-name">{LangBa.ARTICLE_ON_USER.TOOLTIP_NAME}</Tooltip>}>
-                                    <Form.Control type='text' id='name' value={this.state.upgradeFeatureAdd.name} required
-                                        onChange={(e) => this.setUpgradeFeatureStringFieldState('name', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                            <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-value">{LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE}</Tooltip>}>
-                                    <Form.Control type='text' id='value' value={this.state.upgradeFeatureAdd.value} required
-                                        onChange={(e) => this.setUpgradeFeatureStringFieldState('value', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                            <FloatingLabel label="Komentar" className="mb-3">
-                                <OverlayTrigger
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={<Tooltip id="tooltip-comment">{LangBa.ARTICLE_ON_USER.TOOLTIP_COMMENT}</Tooltip>}>
-                                    <Form.Control
-                                    defaultValue=""
-                                    type='text' 
-                                    id="comment" 
-                                    as="textarea"
-                                    rows={3}
-                                    placeholder={LangBa.ARTICLE_ON_USER.FORM_COMMENT_PLACEHOLDER}
-                                    style={{ height: '100px' }}
-                                    value={this.state.upgradeFeatureAdd.comment} 
-                                    required
-                                    onChange={(e) => this.setUpgradeFeatureStringFieldState('comment', e.target.value)} />
-                                </OverlayTrigger>
-                            </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                    <Modal.Footer>
-                        <Button variant='success' onClick={() => this.addNewUpgradeFeature()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
-                    </Modal.Footer>
-                </Modal.Body>
-            </Modal></div>
-        )
-    }
-    
-
-    private printOptionalMessage() {
-        if (this.state.message === '') {
-            return;
-        }
-
-        return (
-            <Card.Text>
-                {this.state.message}
-            </Card.Text>
-        );
-    }
-
-    render() {
-        if (this.state.isLoggedIn === false) {
-            return (
-                <Redirect to="/admin/login/" />
+  const getArticleData = useCallback(async () => {
+    try {
+      await api(`api/article/sb/${serial}`, "get", {}, "administrator").then(
+        (res: ApiResponse) => {
+          if (res.status === "error") {
+            setErrorMessage(
+              "Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije",
             );
-        }
-        return (
-            <div>
-                <RoledMainMenu role='administrator' />
-                <Container style={{ marginTop: 15 }}>
-                    <Card className="text-white bg-dark">
-                        <Card.Header >
-                            <Card.Title >
-                                <Container>
-                                <Row>
-                                        <Col lg="12" xs="12" sm="12" md="12" style={{ display: "flex", justifyContent: "start", }}>
-                                            
-                                        <i className={this.state.article.category?.imagePath?.toString()} style={{fontSize: 20, marginRight: 5}}/>
-
-                                            {this.state.article.stock?.name}
-                                            {this.badgeStatus(this.state.article)} 
-                                        </Col>
-                                    </Row>
-                                </Container>
-                            </Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                            <Card.Text>
-                                {this.printOptionalMessage()}
-
-                                {
-                                    this.state.article ?
-                                        (this.renderArticleData(this.state.article)) :
-                                        ''
-                                }
-                                <Alert variant="danger"
-                                    style={{ marginTop: 15 }}
-                                    className={this.state.errorMessage ? '' : 'd-none'}>
-                                        <i className="bi bi-exclamation-circle-fill"></i> {this.state.errorMessage}
-                                </Alert>
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
-                </Container>
-            </div>
-        )
+            return;
+          }
+          if (res.status === "login") {
+            return setLogginState(false);
+          }
+          const data: ArticleType = res.data;
+          setErrorMessage("");
+          setArticle(data);
+        },
+      );
+    } catch (err) {
+      setErrorMessage(
+        "Greška prilikom dohvaćanja podataka za artikle. Greška: " + err,
+      );
     }
+  }, [serial]);
 
-    private badgeStatus(article: ArticleType) {
+  const getUserData = useCallback(async () => {
+    try {
+      await api("/api/user/?sort=forname,ASC", "get", {}, "administrator").then(
+        (res: ApiResponse) => {
+          if (res.status === "login") {
+            return setLogginState(false);
+          }
 
-        let stat:any = article.status;
-        
-        if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
-            return (
-                <Badge pill bg="success" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
-                    {stat}
-                </Badge>)
-        }
-        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
-            return (
-                <Badge pill bg="warning" text="dark" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
-                    {stat}
-                </Badge>)
-        }
-        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
-            return (
-                <Badge pill bg="danger" style={{ marginLeft: 10, alignItems: "center", display: "flex", fontSize: 12 }}>
-                    {stat}
-                </Badge>)
-        }
-
+          setUsers(res.data);
+        },
+      );
+    } catch (err) {
+      setErrorMessage(
+        "Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: " +
+          err,
+      );
     }
+  }, [serial]);
 
-    private changeStatus() {
-        api('api/article/status/' + this.state.article.articleId, 'patch', {
-            userId: this.state.changeStatus.userId,
-            comment: this.state.changeStatus.comment,
-            status: this.state.changeStatus.status,
-            invNumber: this.state.changeStatus.invNumber
-        }, 'administrator')
-            .then((res: ApiResponse) => {
-                /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
-                if (res.status === "login") {
-                    this.setLogginState(false);
-                    return
-                }
-                this.setChangeStatusVisibleState(false)
-                this.getArticleData()
-            })
-    }
-
-    private showChangeStatusModal(article: ArticleType) {
-        const sb: any = article.serialNumber;
-        const inv : any = article.invNumber;
-        /* const sb: any = serijskic.shift(); */
-        this.setChangeStatusVisibleState(true)
-        this.setChangeStatusStringFieldState('serialNumber', sb)
-        if (inv === null) {
-            this.setChangeStatusStringFieldState('invNumber', 'ne ladi1')
-        }
-        this.setChangeStatusStringFieldState('invNumber', inv)
-    }
-
-    private changeStatusButton(article: ArticleType) {
-        let stat = article.status;
-        const artiName = article.stock?.name;
-        const userFullName: any = article.user?.fullname;
-
-        if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
-            return (
-                <Col lg="3" xs="3" sm="3" md="3" style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center"
-                }}>
-                    <Button 
-                        variant='success' 
-                        size='sm' 
-                        onClick={() => this.showChangeStatusModal(this.state.article)}>
-                            {LangBa.ARTICLE_ON_USER.BTN_EDIT}
-                    </Button>
-                    <Modal size="lg" centered show={this.state.changeStatus.visible} onHide={() => this.setChangeStatusVisibleState(false)}>
-                        <Modal.Header closeButton>
-                            {LangBa.ARTICLE_ON_USER.MODAL_HEADER_CHANGE_STATUS}
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Form>
-                            <Form.Text>
-                                <h6>{ModalMessageArticleOnUser(artiName, userFullName)}</h6>
-                            </Form.Text>
-                            <Form.Group className='was-validated'>
-                                <FloatingLabel label="Status" className="mb-3">
-                                    <Form.Select id="status"
-                                        onChange={(e) => this.setChangeStatusStringFieldState('status', e.target.value)} required>
-                                        <option value="">izaberi status</option>
-                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}
-                                        </option>
-                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_DEBT}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS_DEBT}
-                                        </option>
-                                        <option value={LangBa.ARTICLE_ON_USER.STATUS_DESTROY}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS_DESTROY}
-                                        </option>
-                                    </Form.Select>
-                                </FloatingLabel>
-                            </Form.Group>
-                            <Form.Group className='was-validated'>
-                                <Autocomplete
-                                    className='mb-3'
-                                    disablePortal
-                                    id="pick-the-user"
-                                    disabled={this.state.changeStatus.status === 'razduženo' || this.state.changeStatus.status === 'otpisano'}
-                                    onChange={(event, value, reason) => {
-                                        if (reason === 'selectOption' && typeof value === 'string') {
-                                            const selectedUser = this.state.users.find(user => user.fullname === value);
-                                            if (selectedUser) {
-                                                const userId = selectedUser.userId;
-                                                this.setChangeStatusNumberFieldState('userId', userId || null);
-                                            }
-                                        }
-                                    }}
-                                    options={this.state.users.map((option) => option.fullname)}
-                                    renderInput={(params) => <TextField {...params} label="Novo zaduženje na korisnika"/>}
-                                />
-                            </Form.Group>
-                            <Form.Group className="mb-3">             
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.TOOLTIP_VALUE} className="mb-3">
-                                <OverlayTrigger 
-                                placement="top"
-                                delay={{ show: 250, hide: 400 }}
-                                overlay={
-                                <Tooltip id="tooltip-kolicina">{LangBa.ARTICLE_ON_USER.TOOLTIP_DEFAULT_VALUE}</Tooltip>
-                                }>
-                                <Form.Control id='kolicina' type='text' readOnly isValid required placeholder='1 KOM' value='1 KOM' /></OverlayTrigger>  </FloatingLabel>
-                                <Form.Text></Form.Text> 
-                            </Form.Group>
-                            
-                            <Form.Group>
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_SERIALNUMBER} className="mb-3">
-                                    <OverlayTrigger 
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={
-                                    <Tooltip id="tooltip-msg-serialnumber">{LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_SERIALNUMBER}</Tooltip>
-                                    }>
-                                    <Form.Control type='text' id='serialNumber' value={this.state.changeStatus.serialNumber} readOnly isValid required
-                                        onChange={(e) => this.setChangeStatusStringFieldState('serialNumber', e.target.value)} />
-                                    </OverlayTrigger>
-                                </FloatingLabel>
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_INV_NUMBER} className="mb-3">
-                                    <OverlayTrigger 
-                                    placement="top"
-                                    delay={{ show: 250, hide: 400 }}
-                                    overlay={
-                                    <Tooltip id="tooltip-msg-invnumber">{LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}</Tooltip>
-                                    }>
-                                    <Form.Control type='text' id='invNumber' value={this.state.changeStatus.invNumber} isValid required readOnly
-                                        onChange={(e) => this.setChangeStatusStringFieldState('invNumber', e.target.value)} />
-                                    </OverlayTrigger>
-                                </FloatingLabel>
-                            </Form.Group>
-
-                            <Form.Group className='was-validated'>
-                                <FloatingLabel label={LangBa.ARTICLE_ON_USER.FORM_LABEL_COMMENT} className="mb-3">
-                                    <Form.Control
-                                        required
-                                        defaultValue=""
-                                        id="comment"
-                                        as="textarea"
-                                        rows={3}
-                                        placeholder={LangBa.ARTICLE_ON_USER.FORM_COMMENT_PLACEHOLDER}
-                                        style={{ height: '100px' }}
-                                        onChange={(e) => this.setChangeStatusStringFieldState('comment', e.target.value)}
-                                    />
-                                </FloatingLabel>
-                            </Form.Group>
-                            </Form>
-                            <Modal.Footer>
-                                <Button variant='success' onClick={() => this.changeStatus()}>{LangBa.ARTICLE_ON_USER.BTN_SAVE}</Button>
-                            </Modal.Footer>
-                        </Modal.Body>
-                    </Modal>
-                </Col>
-            )
-        }
-    }
-
-    private userDetails(userDet: ArticleType) {
-        let stat = userDet.status
-        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
-            return (<Alert variant='info'> {LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}</Alert>)
-        }
-        if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
-            return (<Alert variant='warning'> {LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}</Alert>)
-        }
-        if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
-            return (
-                <Row>
-                    <Col>
-                        <Card bg="success" text="white" className="mb-2">
-                            <Card.Header>{LangBa.ARTICLE_ON_USER.CARD_HEADER_USER_DETAILS}</Card.Header>
-                            <ListGroup variant="flush" >
-                                <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME + userDet.user?.surname} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME + userDet.user?.forname} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL + userDet.user?.email} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT + userDet.user?.department?.title} </ListGroup.Item>
-                                    <ListGroup.Item>{LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME + userDet.user?.job?.title} </ListGroup.Item>
-                            </ListGroup>
-                        </Card>
-                    </Col>
-                </Row>
-            )
-        }
-    }
-
-private saveFile (docPath: any) {
-        if(!docPath) {
-            return (<div>
-            <Link >
-                <OverlayTrigger 
-                placement="top"
-                delay={{ show: 250, hide: 400 }}
-                overlay={
-                <Tooltip id="tooltip-prenosnica">Prenosnica nije generisana</Tooltip>
-                }><i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "red" }}/></OverlayTrigger>
-                </Link></div> )
-        }
-        if (docPath) {
-            const savedFile = (docPath:any) => {
-                saveAs(
-                    ApiConfig.TEMPLATE_PATH + docPath,
-                    docPath
-                );
-            }
-            return (
-                <Link onClick={() => savedFile(docPath)}>
-                <i className="bi bi-file-earmark-text" style={{ fontSize: 22, color: "#008b02", cursor:"pointer" }} />
-                </Link>
-            )
-    }
-}
-
-
-private doDeleteUpgradeFeature(upgradeFeatureId: number) {
-    api('api/upgradeFeature/delete/' + upgradeFeatureId, 'delete', {}, 'administrator')
-    .then((res: ApiResponse) => {
-        if (res.status === "login") {
-            this.setLogginState(false);
-            return
-        }
-        this.getUpgradeFeature();
-    })
-}
-
-private upgradeFeature() {
-    if (this.state.upgradeFeature.length === 0) {
-        return (
-            <Row>
-                <Col>
-                    <Card bg="dark" text="light" className="mb-3">
-                        <Card.Header style={{backgroundColor:"#00695C", borderBottomLeftRadius:"0.25rem", borderBottomRightRadius:"0.25rem"}}>
-                            <Row style={{display: "flex", alignItems: "center"}} >
-                            <Col>
-                            {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
-                            </Col>
-                            <Col style={{  display: "flex", justifyContent: "flex-end" }}>
-                            {this.addNewUpgradeFeatureButton()}
-                            </Col></Row>
-                            </Card.Header>
-                    </Card>
-                </Col>
-            </Row>
-        )
-    }
-
-    if (this.state.upgradeFeature.length !== 0) {
-        return (
-            <Row>
-                <Col>
-                    <Card bg="dark" text="light" className="mb-3">
-                        <Card.Header style={{backgroundColor:"#00695C"}}>
-                            <Row style={{display: "flex", alignItems: "center"}}>
-                                <Col>
-                                    {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
-                                </Col>
-                            <Col style={{ display: "flex", justifyContent: "flex-end"}}>
-                            {this.addNewUpgradeFeatureButton()}
-                            </Col></Row>
-                            </Card.Header>
-                        <ListGroup variant="flush" >
-                        {this.state.upgradeFeature.map((uf, index) => (
-                                <ListGroup.Item key={index} >
-                                    <Stack direction='horizontal' gap={3}>
-                                    <div className='p-1 '> 
-                                            <OverlayTrigger
-                                                placement="top"
-                                                delay={{ show: 250, hide: 400 }}
-                                                overlay={
-                                            <Tooltip id="tooltip-kolicina">{uf.comment} <b>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE}</b> {Moment(uf.timestamp).format('DD.MM.YYYY - HH:mm')}</Tooltip>
-                                            }>
-                                            <i style={{color:"darkgreen"}} className="bi bi-info-circle-fill"/>
-                                            </OverlayTrigger>
-                                        </div>
-                                        <div className='p'><b>{uf.name}: </b> {uf.value}</div>
-                                        
-                                        <div className='p-2 ms-auto'>
-                                            <Link onClick={e => (this.doDeleteUpgradeFeature(uf.upgradeFeatureId))} style={{cursor:'pointer'}}> <i style={{ color:"darkred"}} className="bi bi-trash3-fill"/></Link>
-                                        </div>                                     
-                                    </Stack>
-                                </ListGroup.Item>
-                            ), this)}
-                        </ListGroup>
-                    </Card>
-                </Col>
-            </Row>
-        )
-    }
-}
-
-    renderArticleData(article: ArticleType) {
-        const { expandedCards } = this.state;
-        return (
-            <Row>
-                <Col xs="12" lg="8">
-                    <Row>
-                        <Col xs="12" lg="4" sm="4" style={{ justifyContent: 'center', alignItems: "center", display: "flex" }}>
-                            <i className={`${article.category?.imagePath}`} style={{ fontSize: 150 }}></i>
-                        </Col>
-                        <Col xs="12" lg="8" sm="8">
-                            <Row>
-                                <Col>
-                                    <Card bg="dark" text="light" className="mb-3">
-                                        <Card.Header style={{backgroundColor:"#263238"}}>
-                                            {LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.CARD_HEADER}
-                                            </Card.Header>
-                                        <ListGroup className={`kartica-wrapper ${expandedCards[0] ? 'kartica-expanded' : ''}`} variant="flush" >
-                                        {this.state.article.stock?.stockFeatures?.map((artFeature, index) => (
-                                            <ListGroup.Item key={index}>
-                                                <b>{artFeature.feature?.name}:</b> {artFeature.value}
-                                            </ListGroup.Item>
-                                        ))}
-                                        <ListGroup.Item>
-                                                <b>Komentar: </b>{this.state.article.comment}
-                                            </ListGroup.Item>
-                                            <ListGroup.Item>
-                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.SERIALNUMBER} </b>{this.state.article.serialNumber}
-                                            </ListGroup.Item> 
-                                            <ListGroup.Item>
-                                                <b>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.INV_NUMBER} </b>{this.state.article.invNumber}
-                                            </ListGroup.Item>
-                                            
-                                            <ListGroup.Item>
-                                            </ListGroup.Item>
-                                        </ListGroup>
-                                        <div className='moreLess'>
-                                            {this.state.article.stock?.stockFeatures ? this.state.article.stock?.stockFeatures.length > 4 && (
-                                                <Link className='linkStyle' onClick={() => this.toggleExpand(0)}>
-                                                    {expandedCards[0] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
-                                              </Link>
-                                            ):""}
-                                        </div>
-                                    </Card>
-                                    
-                                </Col>
-                            </Row>
-                            {this.upgradeFeature()}
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col xs="12" lg="12" sm="12">
-                            <Card bg="dark" text="light" className="mb-3">
-                                <Card.Header style={{backgroundColor:"#263238"}}>{LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}</Card.Header>
-                                <Card.Body className={`kartica-wrapper description ${expandedCards[1] ? 'kartica-expanded' : ''}`}>
-                                    {article.stock?.description}
-                                </Card.Body>
-                                <div className='moreLess'>
-                                    {article.stock?.description ? article.stock?.description.length > 100 && (
-                                        <Link className='linkStyle' onClick={() => this.toggleExpand(1)}>
-                                            {expandedCards[1] ? <KeyboardDoubleArrowUp /> : <KeyboardDoubleArrowDown />}
-                                        </Link>
-                                    ):""}
-                                </div>
-                                
-                            </Card>
-                        </Col>
-                    </Row>
-                    {/* https://www.npmjs.com/package/material-react-table */}
-                    <Row>
-                        <Col>
-                            <Card className="mb-3">
-                                <TableContainer style={{ maxHeight: 300, overflowY: 'auto' }} component={Paper}>
-                                    <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.USER}</TableCell>
-                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.STATUS}</TableCell>
-                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.COMMENT}</TableCell>
-                                                <TableCell>{LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}</TableCell>
-                                                <TableCell>#</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {article.articleTimelines?.map(timeline => (
-                                                <TableRow key="tabela-user" hover>
-                                                    <TableCell><Link href={`#/admin/userProfile/${timeline.userId}`} style={{textDecoration:"none", fontWeight:"bold", color:"#0E5E6F"}}>{timeline.user?.fullname}</Link></TableCell>
-                                                    <TableCell>{timeline.status}</TableCell>
-                                                    <TableCell>{timeline.comment}</TableCell>
-                                                    <TableCell>{Moment(timeline.timestamp).format('DD.MM.YYYY. - HH:mm')}</TableCell>
-                                                    <TableCell>{this.saveFile(timeline.document?.path)}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Card>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col sm="12" xs="12" lg="4" >
-                    {this.userDetails(article)}
-                    <Row>
-                        <Col>
-                            <Card bg="light" text="dark" className=" mb-2">
-                                <Card.Header>
-                                    <Row>
-                                        <Col lg="9" xs="9" sm="9" md="9" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                                        {LangBa.ARTICLE_ON_USER.STATUS.STATUS}
-                                        </Col>
-                                        {this.changeStatusButton(article)}
-                                    </Row>
-                                </Card.Header>
-                                <ListGroup variant="flush">
-                                    <ListGroup.Item key="status">Status: <b>{article.status} </b></ListGroup.Item>
-                                    <ListGroup.Item key="datum-akcije">Datum akcije:  {Moment(article.timestamp).format('DD.MM.YYYY. - HH:mm')} </ListGroup.Item>
-                                </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Card className="text-dark bg-light mb-2" >
-                                <Card.Header>U skladištu</Card.Header>
-                                    <ListGroup variant="flush" >
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT + article.stock?.valueOnContract}</ListGroup.Item>
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE + article.stock?.valueAvailable}</ListGroup.Item>
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}</ListGroup.Item>
-                                        <ListGroup.Item>{LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE + Moment(article.stock?.timestamp).format('DD.MM.YYYY. - HH:mm')}</ListGroup.Item>
-                                    </ListGroup>
-                            </Card>
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
+  const userList = useAsyncList<UserTypeBase>({
+    async load({ signal, filterText }) {
+      try {
+        const res = await api(
+          `/api/user/?sort=forname,ASC`,
+          "get",
+          {},
+          "administrator",
         );
+        if (res.status === "login") {
+          setLogginState(false);
+          return { items: [] };
+        }
+        return { items: res.data };
+      } catch (err) {
+        setErrorMessage(
+          "Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: " +
+            err,
+        );
+        return { items: [] };
+      }
+    },
+  });
+
+  const getUpgradeFeature = useCallback(async () => {
+    try {
+      await api(
+        `api/upgradeFeature/get/${serial}`,
+        "get",
+        {},
+        role as UserRole,
+      ).then((res: ApiResponse) => {
+        if (res.status === "login") {
+          return setLogginState(false);
+        }
+        setUpgradeFeature(res.data);
+      });
+    } catch (err) {
+      setErrorMessage(
+        "Greška prilikom dohvaćanja dodataka (AdminArticleOnUserPage). Greška: " +
+          err,
+      );
     }
-}
+  }, [serial]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await getArticleData();
+        await getUserData();
+        await getUpgradeFeature();
+        setLoading(false);
+      } catch (err) {
+        setLoading(true);
+        setErrorMessage("Error fetching data:" + err);
+      }
+    };
+
+    fetchData();
+  }, [serial, getArticleData, getUserData, getUpgradeFeature]);
+
+  const addNewUpgradeFeature = () => {
+    api(
+      "api/upgradeFeature/add/" + serial,
+      "post",
+      {
+        name: state.upgradeFeatureAdd.name,
+        value: state.upgradeFeatureAdd.value,
+        comment: state.upgradeFeatureAdd.comment,
+        articleId: state.article.articleId,
+      },
+      "administrator",
+    ).then((res: ApiResponse) => {
+      if (res.status === "login") {
+        return setLogginState(false);
+      }
+      getUpgradeFeature();
+
+      setState((prev) => ({
+        ...prev,
+        upgradeFeatureAdd: {
+          visible: false,
+          name: "",
+          value: "",
+          comment: "",
+        },
+      }));
+    });
+  };
+
+  const showAddUpgradeFeatureModal = () => {
+    setUpgradeModalVisibleState(true);
+  };
+
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
+
+  const handleHideModal = () => {
+    setShowModal(false);
+  };
+
+  const openModalWithArticle = () => {
+    handleShowModal();
+  };
+
+  const handleShowViewModal = () => {
+    setShowViewModal(true);
+  };
+
+  const handleHideViewModal = () => {
+    setShowViewModal(false);
+  };
+
+  const openViewModalWithArticle = (ticketId: number) => {
+    setSelectedTicketId(ticketId);
+    handleShowViewModal();
+  };
+
+  const addNewUpgradeFeatureButton = () => {
+    return (
+      <div>
+        <Button
+          className="text-sm"
+          color="success"
+          variant="shadow"
+          size="sm"
+          onClick={() => showAddUpgradeFeatureModal()}
+          startContent={<i className="bi bi-node-plus text-base"></i>}
+        >
+          {LangBa.ARTICLE_ON_USER.BTN_UPGRADE}
+        </Button>
+        <Modal
+          size="lg"
+          backdrop="blur"
+          isOpen={state.upgradeFeatureAdd.visible}
+          onClose={() => setUpgradeModalVisibleState(false)}
+        >
+          <ModalContent>
+            <ModalHeader>
+              {LangBa.ARTICLE_ON_USER.MODAL_HEADER_TEXT}
+            </ModalHeader>
+            <ModalBody>
+              <div className="flex w-full flex-col gap-4">
+                <Input
+                  type="text"
+                  variant="bordered"
+                  label="Naziv"
+                  key={"name"}
+                  labelPlacement="inside"
+                  onChange={(e) =>
+                    setUpgradeFeatureStringFieldState("name", e.target.value)
+                  }
+                  description="Unesite naziv nadogradnje. Npr. SSD, RAM "
+                />
+                <Input
+                  type="text"
+                  variant="bordered"
+                  label="Vrijednost"
+                  key={"value"}
+                  labelPlacement="inside"
+                  onChange={(e) =>
+                    setUpgradeFeatureStringFieldState("value", e.target.value)
+                  }
+                  description="Unesite vrijednost nadogradnje. Npr. 256GB, 8GB "
+                />
+                <Textarea
+                  label="Opis"
+                  placeholder="Upišite razlog nadogradnje"
+                  key={"description"}
+                  variant="bordered"
+                  onChange={(e) =>
+                    setUpgradeFeatureStringFieldState("comment", e.target.value)
+                  }
+                />
+              </div>
+              <ModalFooter>
+                <Button
+                  color="success"
+                  variant="shadow"
+                  onClick={() => addNewUpgradeFeature()}
+                >
+                  {LangBa.ARTICLE_ON_USER.BTN_SAVE}
+                </Button>
+              </ModalFooter>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </div>
+    );
+  };
+
+  const changeStatus = () => {
+    api(
+      "api/article/status/" + state.article.articleId,
+      "patch",
+      {
+        userId: state.changeStatus.userId,
+        comment: state.changeStatus.comment,
+        status: state.changeStatus.status,
+        invNumber: state.changeStatus.invNumber,
+      },
+      "administrator",
+    ).then((res: ApiResponse) => {
+      /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
+      if (res.status === "login") {
+        setLogginState(false);
+        return;
+      }
+      setChangeStatusVisibleState(false);
+      getArticleData();
+
+      setState((prev) => ({
+        ...prev,
+        changeStatus: {
+          userId: Number(),
+          articleId: Number(),
+          comment: "",
+          serialNumber: "",
+          invNumber: "",
+          status: "",
+          visible: false,
+        },
+      }));
+    });
+  };
+
+  function showChangeStatusModal(article: ArticleType) {
+    const sb: any = article.serialNumber;
+    const inv: any = article.invNumber;
+    setChangeStatusVisibleState(true);
+    setChangeStatusStringFieldState("serialNumber", sb);
+    setChangeStatusStringFieldState("invNumber", inv);
+  }
+
+  function changeStatusButton(article: ArticleType) {
+    let stat = article.status;
+    if (stat !== LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
+      return (
+        <div className="xs:w-1/4 flex items-center justify-end sm:w-1/4 md:w-1/4 lg:w-1/4">
+          <Button
+            color="success"
+            size="sm"
+            variant="shadow"
+            startContent={<i className="bi bi-pencil-square"></i>}
+            onClick={() => showChangeStatusModal(state.article)}
+          >
+            {LangBa.ARTICLE_ON_USER.BTN_EDIT}
+          </Button>
+          <Modal
+            size="lg"
+            backdrop="blur"
+            isOpen={state.changeStatus.visible}
+            onClose={() => setChangeStatusVisibleState(false)}
+          >
+            <ModalContent>
+              <ModalHeader>
+                {LangBa.ARTICLE_ON_USER.MODAL_HEADER_CHANGE_STATUS}
+              </ModalHeader>
+              <ModalBody>
+                <div className="flex w-full flex-col gap-4">
+                  <Select
+                    variant="bordered"
+                    label="Status"
+                    placeholder="Odaberite status"
+                    onChange={(e) => {
+                      setChangeStatusStringFieldState("status", e.target.value);
+                      isDisabled();
+                    }}
+                  >
+                    <SelectItem
+                      key={LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}
+                      value={LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}
+                    >
+                      {LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE}
+                    </SelectItem>
+                    <SelectItem
+                      key={LangBa.ARTICLE_ON_USER.STATUS_DEBT}
+                      value={LangBa.ARTICLE_ON_USER.STATUS_DEBT}
+                    >
+                      {LangBa.ARTICLE_ON_USER.STATUS_DEBT}
+                    </SelectItem>
+                    <SelectItem
+                      key={LangBa.ARTICLE_ON_USER.STATUS_DESTROY}
+                      value={LangBa.ARTICLE_ON_USER.STATUS_DESTROY}
+                    >
+                      {LangBa.ARTICLE_ON_USER.STATUS_DESTROY}
+                    </SelectItem>
+                  </Select>
+                  <Autocomplete
+                    label="Odaberi korisnika"
+                    id="pick-the-user"
+                    isDisabled={selectedUserIsDisabled}
+                    onInputChange={onInputChange}
+                    isLoading={userList.isLoading}
+                    isClearable
+                  >
+                    {state.users.map((option) => (
+                      <AutocompleteItem
+                        key={
+                          option.userId !== undefined
+                            ? option.userId
+                            : "defaultKey"
+                        }
+                        value={""}
+                      >
+                        {option.fullname}
+                      </AutocompleteItem>
+                    ))}
+                  </Autocomplete>
+                  <Input
+                    type="text"
+                    variant="bordered"
+                    label="Serijski broj"
+                    key={"serial-number"}
+                    labelPlacement="inside"
+                    isDisabled
+                    value={state.changeStatus.serialNumber}
+                    onChange={(e) =>
+                      setChangeStatusStringFieldState(
+                        "serialNumber",
+                        e.target.value,
+                      )
+                    }
+                    description={
+                      LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_SERIALNUMBER
+                    }
+                  />
+                  <Input
+                    type="text"
+                    variant="bordered"
+                    label="Inventurni broj"
+                    key={"inventurni-broj"}
+                    labelPlacement="inside"
+                    isDisabled
+                    value={state.changeStatus.invNumber}
+                    onChange={(e) =>
+                      setChangeStatusStringFieldState(
+                        "invNumber",
+                        e.target.value,
+                      )
+                    }
+                    description={LangBa.ARTICLE_ON_USER.TOOLTIP_MSG_INV_NUMBER}
+                  />
+                  <Textarea
+                    label="Opis"
+                    placeholder="Upišite razlog zaduženja/razduženja/otpisa"
+                    key={"description"}
+                    variant="bordered"
+                    onChange={(e) =>
+                      setChangeStatusStringFieldState("comment", e.target.value)
+                    }
+                  />
+                </div>
+                <ModalFooter>
+                  <Button
+                    color="success"
+                    variant="shadow"
+                    startContent={<i className="bi bi-save"></i>}
+                    onClick={() => changeStatus()}
+                  >
+                    {LangBa.ARTICLE_ON_USER.BTN_SAVE}
+                  </Button>
+                </ModalFooter>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+        </div>
+      );
+    }
+  }
+
+  const printOptionalMessage = () => {
+    if (state.message === "") {
+      return;
+    }
+
+    return (
+      <Card>
+        <CardBody>{state.message}</CardBody>
+      </Card>
+    );
+  };
+
+  return (
+    <div>
+      <RoledMainMenu />
+      <div className="container mx-auto mt-3 h-max lg:px-4">
+        {loading ? (
+          <div className="flex items-center justify-center">
+            <Spinner
+              label="Učitavanje..."
+              labelColor="warning"
+              color="warning"
+            />
+          </div>
+        ) : (
+          <Card>
+            <CardHeader>
+              <div className="flex w-full items-center justify-between rounded-xl bg-default-100 p-2">
+                <div className="flex items-center">
+                  <div>
+                    <i
+                      className={state.article.category?.imagePath?.toString()}
+                      style={{ fontSize: 20 }}
+                    />
+                  </div>
+                  <div className="pl-2 text-left">
+                    {state.article.stock?.name}
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  {badgeStatus(state.article)}
+                </div>
+              </div>
+            </CardHeader>
+            <CardBody>
+              {printOptionalMessage()}
+
+              {state.article ? renderArticleData(state.article) : ""}
+              <Card
+                style={{ marginTop: 15 }}
+                className={state.errorMessage ? "" : "hidden"}
+              >
+                <CardBody>
+                  <i className="bi bi-exclamation-circle-fill"></i>{" "}
+                  {state.errorMessage}
+                </CardBody>
+              </Card>
+            </CardBody>
+          </Card>
+        )}
+      </div>
+      <NewTicketByArticleModal
+        show={showModal}
+        onHide={handleHideModal}
+        data={state.article}
+      />
+    </div>
+  );
+
+  function badgeStatus(article: ArticleType) {
+    let stat: any = article.status;
+    let color: any;
+    if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
+      color = "success";
+    } else if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
+      color = "warning";
+    } else {
+      color = "danger";
+    }
+
+    return <Chip color={color}>{stat} </Chip>;
+  }
+
+  function userDetails(userDet: ArticleType) {
+    let stat = userDet.status;
+    if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
+      return (
+        <Alert
+          className="mb-3"
+          variant="warning"
+          title="Info!"
+          body={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}
+        />
+      );
+    }
+    if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
+      return (
+        <Alert
+          variant="danger"
+          title="Info!"
+          body={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}
+        />
+      );
+    }
+    if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {
+      return (
+        <Card className="mb-3 text-sm shadow">
+          <CardHeader className="bg-default-100">Detalji korisnika</CardHeader>
+          <CardBody>
+            <Listbox aria-label="Detalji korisnika">
+              <ListboxItem
+                key={"userDet-ime"}
+                textValue="ime"
+                aria-label="Ime korisnika"
+              >
+                {LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME +
+                  userDet.user?.surname}{" "}
+              </ListboxItem>
+              <ListboxItem
+                key={"userDet-prezime"}
+                textValue="prezime"
+                aria-label="Prezime korisnika"
+              >
+                {LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME +
+                  userDet.user?.forname}{" "}
+              </ListboxItem>
+              <ListboxItem
+                key={"userDet-email"}
+                textValue="email"
+                aria-label="Email korisnika"
+              >
+                {LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL +
+                  userDet.user?.email}{" "}
+              </ListboxItem>
+              <ListboxItem
+                key={"userDet-sektor"}
+                textValue="sektor ili odjeljenje"
+                aria-label="Sektor ili odjeljenje korisnika"
+              >
+                {LangBa.ARTICLE_ON_USER.USER_DETAILS.DEPARTMENT +
+                  userDet.user?.department?.title}{" "}
+              </ListboxItem>
+              <ListboxItem
+                key={"userDet-radno-mjesto"}
+                textValue="radno mjesto"
+                aria-label="Radno mjesto korisnika"
+              >
+                {LangBa.ARTICLE_ON_USER.USER_DETAILS.JOBNAME +
+                  userDet.user?.job?.title}{" "}
+              </ListboxItem>
+            </Listbox>
+          </CardBody>
+        </Card>
+      );
+    }
+  }
+
+  function saveFile(docPath: any) {
+    if (!docPath) {
+      return (
+        <div>
+          <Popover placement="right">
+            <PopoverTrigger>
+              <Button size="sm" variant="shadow" color="danger">
+                <i
+                  className="bi bi-file-earmark-text"
+                  style={{ fontSize: 20 }}
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>Prenosnica nije generisana</PopoverContent>
+          </Popover>
+        </div>
+      );
+    }
+    if (docPath) {
+      const savedFile = (docPath: any) => {
+        saveAs(ApiConfig.TEMPLATE_PATH + docPath, docPath);
+      };
+      return (
+        <Button
+          size="sm"
+          variant="shadow"
+          color="success"
+          onClick={() => savedFile(docPath)}
+        >
+          <i className="bi bi-file-earmark-text" style={{ fontSize: 20 }} />
+        </Button>
+      );
+    }
+  }
+
+  function doDeleteUpgradeFeature(upgradeFeatureId: number) {
+    api(
+      "api/upgradeFeature/delete/" + upgradeFeatureId,
+      "delete",
+      {},
+      "administrator",
+    ).then((res: ApiResponse) => {
+      if (res.status === "login") {
+        setLogginState(false);
+        return;
+      }
+      getUpgradeFeature();
+    });
+  }
+
+  function upgradeFeature(this: any) {
+    if (state.upgradeFeature.length === 0) {
+      return (
+        <Card className="mb-3 shadow">
+          <CardHeader
+            className="grid grid-cols-6 gap-4"
+            style={{ backgroundColor: "#00695C", color: "white" }}
+          >
+            <div className="col-span-5 text-sm">
+              {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER}
+            </div>
+            <div className="col-end-7 flex justify-end">
+              {addNewUpgradeFeatureButton()}
+            </div>
+          </CardHeader>
+        </Card>
+      );
+    }
+
+    if (state.upgradeFeature.length !== 0) {
+      return (
+        <Card className="mb-3 shadow">
+          <CardHeader
+            className="grid grid-cols-6 gap-4"
+            style={{ backgroundColor: "#00695C" }}
+          >
+            <div className="col-span-5 text-sm">
+              {LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.CARD_HEADER2}
+            </div>
+            <div className="col-end-7 flex justify-end">
+              {addNewUpgradeFeatureButton()}
+            </div>
+          </CardHeader>
+          <Listbox aria-label="Box nadogradnje">
+            {state.upgradeFeature.map(
+              (uf, index) => (
+                <ListboxItem
+                  key={index}
+                  aria-label={`nadogradnja-${index}`}
+                  textValue={`${index} + nadogradnja`}
+                >
+                  <div className="grid-cols grid gap-2">
+                    <div className="col-span-4 flex flex-nowrap">
+                      <div>
+                        <Popover placement="top" showArrow backdrop="blur">
+                          <PopoverTrigger>
+                            <i
+                              style={{ color: "darkgray" }}
+                              className="bi bi-info-circle-fill"
+                            />
+                          </PopoverTrigger>
+                          <PopoverContent>
+                            {uf.comment}{" "}
+                            <b>{LangBa.ARTICLE_ON_USER.UPGRADE_FEATURE.DATE}</b>{" "}
+                            {Moment(uf.timestamp).format("DD.MM.YYYY - HH:mm")}
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="pl-2">
+                        <b>{uf.name}: </b> {uf.value}
+                      </div>
+                    </div>
+                    <div className="justify-content-end col-end-7 flex">
+                      <Link
+                        onClick={(e) =>
+                          doDeleteUpgradeFeature(uf.upgradeFeatureId)
+                        }
+                      >
+                        {" "}
+                        <i
+                          style={{ color: "red" }}
+                          className="bi bi-trash3-fill"
+                        />
+                      </Link>
+                    </div>
+                  </div>
+                </ListboxItem>
+              ),
+              this,
+            )}
+          </Listbox>
+        </Card>
+      );
+    }
+  }
+
+  function actions(ticketId: number) {
+    return (
+      <div className="relative flex items-center gap-2">
+        <Tooltip content="Pregledaj" showArrow>
+          <span
+            className="cursor-pointer p-1 text-lg text-default-600 active:opacity-50"
+            onClick={() => openViewModalWithArticle(ticketId)}
+          >
+            <i className="bi bi-eye" />
+          </span>
+        </Tooltip>
+      </div>
+    );
+  }
+
+  function renderArticleData(article: ArticleType) {
+    const mappedStockFeatures =
+      state.article.stock?.stockFeatures?.map((stockFeature) => ({
+        featureId: stockFeature.feature?.featureId || null,
+        name: stockFeature.feature?.name || "",
+        value: stockFeature.value || "",
+      })) || [];
+
+    if (state.article.serialNumber) {
+      mappedStockFeatures.push({
+        featureId: null,
+        name: "Serijski broj",
+        value: state.article.serialNumber,
+      });
+    }
+
+    if (state.article.invNumber) {
+      mappedStockFeatures.push({
+        featureId: null,
+        name: "Inventurni broj",
+        value: state.article.invNumber,
+      });
+    }
+
+    return (
+      <div className="lg:flex">
+        <div className="xs:w-full lg:mr-5 lg:w-8/12">
+          <Button
+            size="sm"
+            color="danger"
+            className="absolute"
+            variant="flat"
+            onClick={() => openModalWithArticle()}
+          >
+            {" "}
+            Prijavi problem
+          </Button>
+          <div className="lg:flex">
+            <div className="xs:w-full flex items-center justify-center lg:w-4/12">
+              <i
+                className={`${article.category?.imagePath}`}
+                style={{ fontSize: 150 }}
+              ></i>
+            </div>
+            <div className="xs:w-full lg:w-8/12">
+              <ScrollShadow hideScrollBar className="h-[250px] w-full">
+                <Listbox
+                  items={mappedStockFeatures}
+                  variant="bordered"
+                  aria-label="box-specifikacije"
+                >
+                  {(item) => (
+                    <ListboxItem
+                      key={item.value}
+                      aria-label={`specifikacija-${item.featureId}`}
+                      textValue={`Item-${item.name}`}
+                    >
+                      <span className="text-bold text-small text-default-400">
+                        {item.name}:{" "}
+                      </span>
+                      {item.value}
+                    </ListboxItem>
+                  )}
+                </Listbox>
+              </ScrollShadow>
+              {upgradeFeature()}
+            </div>
+          </div>
+
+          <div className="lg:flex">
+            <div className="lg:w-12/12 sm:w-12/12 w-full">
+              <Card className="mb-3 shadow">
+                <CardHeader className="text-sm">
+                  {LangBa.ARTICLE_ON_USER.ARTICLE_DETAILS.DESCRIPTION}
+                </CardHeader>
+                <CardBody>
+                  <ScrollShadow
+                    size={100}
+                    hideScrollBar
+                    className="max-h-[250px] w-full text-sm"
+                  >
+                    {article.stock?.description}
+                  </ScrollShadow>
+                </CardBody>
+              </Card>
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <Tabs
+              aria-label="Opcije"
+              color="primary"
+              radius="full"
+              selectedKey={selectedTab}
+              onSelectionChange={(key: Key) => setSelectedTab(key as string)}
+              size="sm"
+            >
+              <Tab key="articles" title="Kretanje opreme">
+                <div className="overflow-hidden overflow-x-auto">
+                  <Table
+                    aria-label="tabela-zaduzenja"
+                    removeWrapper
+                    className="rounded-xl p-2 shadow-md"
+                  >
+                    <TableHeader>
+                      <TableColumn
+                        key={"korisnik"}
+                        aria-label="Naziv korisnika"
+                      >
+                        {LangBa.ARTICLE_ON_USER.TABLE.USER}
+                      </TableColumn>
+                      <TableColumn key={"status"} aria-label="status artikla">
+                        {LangBa.ARTICLE_ON_USER.TABLE.STATUS}
+                      </TableColumn>
+                      <TableColumn
+                        key={"komentar"}
+                        aria-label="Komentar akcije"
+                      >
+                        {LangBa.ARTICLE_ON_USER.TABLE.COMMENT}
+                      </TableColumn>
+                      <TableColumn
+                        key={"datum-vrijeme"}
+                        aria-label="Datum i vrijeme akcije"
+                      >
+                        {LangBa.ARTICLE_ON_USER.TABLE.DATE_AND_TIME_ACTION}
+                      </TableColumn>
+                      <TableColumn
+                        className="w-min-[150px]"
+                        key={"dokument"}
+                        aria-label="Prateci dokument"
+                      >
+                        #
+                      </TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                      {article.articleTimelines?.map((timeline, index) => (
+                        <TableRow key={timeline.articleTimelineId}>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`korisnik-${timeline.user?.fullname}-${index}`}
+                            aria-label="naziv-korisnika"
+                          >
+                            <Link
+                              className="text-sm"
+                              isBlock
+                              showAnchorIcon
+                              color="primary"
+                              href={`#/user/profile/${timeline.userId}`}
+                            >
+                              {timeline.user?.fullname}
+                            </Link>
+                          </TableCell>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`status-${timeline.status}-${index}`}
+                            aria-label="Status artikla"
+                          >
+                            {timeline.status}
+                          </TableCell>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`korisnik-${timeline.comment}-${index}`}
+                            aria-label="Komentar"
+                          >
+                            {timeline.comment}
+                          </TableCell>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`datum-vrijeme-${index}`}
+                            aria-label="Vrijeme i datum akcije"
+                          >
+                            {Moment(timeline.timestamp).format(
+                              "DD.MM.YYYY. - HH:mm",
+                            )}
+                          </TableCell>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`dokument-${index}`}
+                            aria-label="DOkument"
+                          >
+                            {saveFile(timeline.document?.path)}
+                          </TableCell>
+                        </TableRow>
+                      )) ?? []}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Tab>
+              <Tab key="tickets" title="Tiketi">
+                <div className="overflow-hidden overflow-x-auto">
+                  <Table
+                    aria-label="tabela-zaduzenja"
+                    removeWrapper
+                    className="rounded-xl p-2 shadow-md"
+                    isCompact
+                    isStriped
+                  >
+                    <TableHeader>
+                      <TableColumn key={"opis"} aria-label="Opis tiketa">
+                        Opis tiketa
+                      </TableColumn>
+                      <TableColumn
+                        key={"datum-vrijeme-prijave"}
+                        aria-label="Datum prijave"
+                      >
+                        Datum prijave
+                      </TableColumn>
+                      <TableColumn key={"status"} aria-label="status tiketa">
+                        Status tiketa
+                      </TableColumn>
+                      <TableColumn key={"action"} aria-label="akcija">
+                        Akcija
+                      </TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                      {article.helpdeskTickets?.map((ticket, index) => (
+                        <TableRow key={ticket.ticketId}>
+                          <TableCell
+                            className="max-w-[400px] overflow-hidden text-ellipsis whitespace-nowrap"
+                            key={`opis-${ticket.description}-${index}`}
+                            aria-label="opis-tiketa"
+                          >
+                            {ticket.description}
+                          </TableCell>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`datum-vrijeme-${index}`}
+                            aria-label="Datum i vrijeme prijave"
+                          >
+                            {Moment(ticket.createdAt).format(
+                              "DD.MM.YYYY. - HH:mm",
+                            )}
+                          </TableCell>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`status-${ticket.status}-${index}`}
+                            aria-label="Status tiketa"
+                          >
+                            {ticket.status === "zatvoren" ? (
+                              <Chip size="sm" variant="flat" color="success">
+                                {ticket.status}
+                              </Chip>
+                            ) : (
+                              <Chip size="sm" variant="flat" color="warning">
+                                {ticket.status}
+                              </Chip>
+                            )}
+                          </TableCell>
+                          <TableCell
+                            className="min-w-fit whitespace-nowrap"
+                            key={`action-${index}`}
+                            aria-label="Akcija"
+                          >
+                            {actions(ticket.ticketId!)}
+                          </TableCell>
+                        </TableRow>
+                      )) ?? []}
+                    </TableBody>
+                  </Table>{" "}
+                </div>
+              </Tab>
+            </Tabs>
+            <ViewSingleTicketModal
+              show={showViewModal}
+              onHide={handleHideViewModal}
+              ticketId={selectedTicketId!}
+              data={state.article.helpdeskTickets!}
+            />
+          </div>
+        </div>
+
+        <div className="w-full sm:w-full lg:w-1/3">
+          {userDetails(article)}
+          <div>
+            <Card className="mb-3 text-sm shadow">
+              <CardHeader className="grid grid-cols-6 gap-4 bg-default-100">
+                <div className="col-span-5">
+                  {LangBa.ARTICLE_ON_USER.STATUS.STATUS}
+                </div>
+                <div className="col-end-7 flex justify-end">
+                  {changeStatusButton(article)}
+                </div>
+              </CardHeader>
+              <CardBody>
+                <Listbox variant="flat" aria-label="box-stanja">
+                  <ListboxItem
+                    key="status"
+                    aria-label="status-stanja"
+                    textValue={`status-${article.status}`}
+                  >
+                    Status: <b>{article.status} </b>
+                  </ListboxItem>
+                  <ListboxItem
+                    key="datum-akcije"
+                    aria-label="akcije-datum"
+                    textValue="Datum i vrijeme akcije"
+                  >
+                    Datum akcije:{" "}
+                    {Moment(article.timestamp).format("DD.MM.YYYY. - HH:mm")}
+                  </ListboxItem>
+                </Listbox>
+              </CardBody>
+            </Card>
+          </div>
+          <Card className="text-sm shadow">
+            <CardHeader className="bg-default-100">U skladištu</CardHeader>
+            <CardBody>
+              <Listbox variant="flat" aria-label="box-skladista">
+                <ListboxItem
+                  key={"stanje-ugovor"}
+                  aria-label="Stanje ugovora"
+                  textValue={`status-${article.stock?.valueOnContract}`}
+                >
+                  {LangBa.ARTICLE_ON_USER.STOCK.VALUE_ON_CONCRACT +
+                    article.stock?.valueOnContract}
+                </ListboxItem>
+                <ListboxItem
+                  key={"stanje-trenutno"}
+                  aria-label="Trenutno stanje"
+                  textValue={`status-${article.stock?.valueAvailable}`}
+                >
+                  {LangBa.ARTICLE_ON_USER.STOCK.AVAILABLE_VALUE +
+                    article.stock?.valueAvailable}
+                </ListboxItem>
+                <ListboxItem
+                  key={"sapBroj"}
+                  aria-label="SAP broj"
+                  textValue={`status-${article.stock?.sapNumber}`}
+                >
+                  {LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}
+                </ListboxItem>
+                <ListboxItem
+                  key={"datum-akcije"}
+                  aria-label="Datum i vrijeme akcije"
+                  textValue={`vrijeme-akcije`}
+                >
+                  {LangBa.ARTICLE_ON_USER.STOCK.IN_STOCK_DATE +
+                    Moment(article.stock?.timestamp).format(
+                      "DD.MM.YYYY. - HH:mm",
+                    )}
+                </ListboxItem>
+              </Listbox>
+            </CardBody>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+};
+
+export default AdminArticleOnUserPage;

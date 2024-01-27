@@ -1,99 +1,164 @@
-import React from "react";
-import { Container, Nav, Navbar } from "react-bootstrap";
-import { HashRouter, Link } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'jquery/dist/jquery.js';
-import 'popper.js/dist/popper.js';
-import 'bootstrap/dist/js/bootstrap.min.js';
-import "bootstrap/js/src/collapse.js";
-import 'bootstrap-icons/font/bootstrap-icons.css';
+// MainMenu.tsx
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Button, Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import React, { useState, useEffect } from 'react';
 import './style.css'
+import UserType from "../../types/UserType";
+import api, { ApiResponse } from "../../API/api";
+/* import { Container, Nav, Navbar } from 'react-bootstrap'; */
 
-export class MainMenuItem {
-    text: string = "";
-    link: string = "#";
-
-    constructor(text: string, link: string) {
-        this.text = text;
-        this.link = link;
-    }
+export interface MainMenuItem {
+  text: string;
+  link: string;
 }
 
-interface MainMenuProperties {
-    items: MainMenuItem[];
-    userId?: number;
-}
-interface MainMenuState {
-    items: MainMenuItem[];
-    userId?: number;
+interface MainMenuProps {
+  items: MainMenuItem[];
+  userId?: number;
+  role?: 'administrator' | 'user';
 }
 
-export class MainMenu extends React.Component<MainMenuProperties> {
-    state: MainMenuState;
-    constructor(props: MainMenuProperties | Readonly<MainMenuProperties>) {
-        super(props)
-        this.state = {
-            items: props.items,
-        }
-    }
-    /* Kada god dođe do poziva setItems  */
-    setItems(items: MainMenuItem[]) {
-        /* i kada god se setuje novi state tj. novi items */
-        /* tog trenutka gdje god se goristi state.items doći do promjene */
-        this.setState({
-            items: items
-        })
-    }
+const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
+  const [menuItems, setMenuItems] = useState<MainMenuItem[]>(items);
+  const [menuUserId, setMenuUserId] = useState<number | undefined>(userId);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [user, setUser] = useState<UserType>({})
 
-    setUserId(userID: number) {
-        this.setState({
-            userId: userID
-        })
+  useEffect(() => {
+    if (items !== undefined) {
+      setMenuItems(items);
     }
+  }, [items]);
 
-    render() {
-        return (
-            <Navbar
-                bg="dark"
-                variant="dark"
-                sticky="top"
-                expand="lg"
-                collapseOnSelect
-            >
-                <Container fluid>
-                    <Navbar.Brand href={this.getNavbarBrandHref()}> <i className="bi bi-shop" /> Inventory Database</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-                    <Navbar.Collapse id="responsive-navbar-nav">
-                        <Nav className='me-auto' >
-                            <HashRouter>
-                                {this.state.items.map(this.makeNavLink)}
-                            </HashRouter>
-                        </Nav>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-        );
+  useEffect(() => {
+    if (userId !== undefined) {
+      setMenuUserId(userId);
     }
-    /* a može i ova varijanta */
-    private makeNavLink(item: MainMenuItem, index: number) {
-        return (
-            <Link
-                key={index}
-                to={item.link}
-                className="nav-link" >
-                    {item.text}
-            </Link>
-        );
-    }
+  }, [userId]);
 
-    getNavbarBrandHref() {
-        if (this.props.userId === undefined) {
-            return "#"; // Vraća # ako je uloga administrator ili userId nije definisan
-        } else {
-            return `#/user/profile/${this.props.userId}`; // Vraća odgovarajući URL za ulogu user i definisan userId
-        }
-    }
-}
+  const getUserData = async () => {
+    try {
+      const res: ApiResponse = await api('api/user/' + menuUserId, 'get', {}, role);
 
-/* Standardna jedna metoda kreiranja komponente */
-/* Importi, export klase s nazivom, proširena sa React.Componentom, obavezni render i kod */
+      const data: UserType = res.data || {}; // Ako nema podataka, postavi prazan objekat
+      setUser(data);
+
+      return data; // Vraćanje podataka o korisniku
+    } catch (error) {
+      console.error('Greška prilikom dohvatanja korisničkih podataka:', error);
+      // Možete dodati dodatnu logiku ili obradu grešaka prema potrebi
+      throw error; // Bacanje greške kako bi je mogle uhvatiti komponente koje koriste ovu funkciju
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await getUserData();
+      } catch (error) {
+        console.error('Greška prilikom dohvaćanja korisničkih podataka kroz useEffect:', error);
+      }
+    };
+    if (menuUserId !== undefined && role !== undefined) {
+      fetchData();
+    }
+  }, [menuUserId, role]);
+
+
+  const makeNavLink = (item: MainMenuItem, index: number) => (
+    <NavbarItem key={index}>
+      <Link key={index} href={item.link} className="text-white">
+        {item.text}
+      </Link>
+    </NavbarItem>
+  );
+
+  const makeNavLinkToogle = (item: MainMenuItem, index: number) => (
+    <NavbarMenuItem key={`${index}`}>
+      <Link key={index} href={item.link} className="text-white">
+        {item.text}
+      </Link>
+    </NavbarMenuItem>
+  );
+
+  const getNavbarBrandHref = () => {
+    if (menuUserId === undefined || role === undefined) {
+      return '#';
+    } else {
+      return role === 'administrator' ? '#' : `#/user/profile/${menuUserId}`;
+    }
+  };
+
+  function combineFirstLetters(surname: string, forname: string) {
+    const inicialLetters = surname.charAt(0).toUpperCase() + forname.charAt(0).toUpperCase()
+    return inicialLetters
+  }
+
+  function gender(gender: string) {
+    let genderString
+    if (gender === 'muško') {
+      return genderString = 'Dobrodošao '
+    } else if (gender === 'žensko') {
+      return genderString = 'Dobrodošla '
+    }
+    return gender === ''
+  }
+
+  return (
+    <>
+      <Navbar
+        classNames={{ wrapper: 'max-w-[100%]' }}
+        className="justify-normal"
+        disableAnimation
+        isBordered
+        isMenuOpen={isMenuOpen}
+        onMenuOpenChange={setIsMenuOpen}
+      >
+        <NavbarContent className="sm:hidden" justify="start">
+          <NavbarMenuToggle aria-label={isMenuOpen ? "Zatvori meni" : "Otvori meni"} />
+        </NavbarContent>
+        <NavbarContent className="sm:hidden pr-3" justify="center">
+          <NavbarBrand className="justify-start">
+            <i className="bi bi-shop mr-2 text-xl" />
+            <Link href={getNavbarBrandHref()} className="text-white"><span className="font-bold text-inherit">Inventory Database</span>   </Link>
+          </NavbarBrand>
+        </NavbarContent>
+
+        <NavbarContent className="hidden sm:flex gap-4" justify="center">
+          <NavbarBrand className="justify-start">
+            <i className="bi bi-shop mr-2 text-xl" />
+            <Link href={getNavbarBrandHref()} className="text-white"><span className="font-bold text-inherit">Inventory Database</span>   </Link>
+          </NavbarBrand>
+          {menuItems.map(makeNavLink)}
+        </NavbarContent>
+        <NavbarContent as="div" justify="end">
+          <span className="text-small lg:inline hidden">{gender(user.gender || '')} {user.surname}</span>
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <Avatar
+                as="button"
+                className="transition-transform"
+                color="primary"
+                name={combineFirstLetters(user.surname || '', user.forname || '')}
+                size="sm"
+                isBordered
+              > </Avatar>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Akcije profila" variant="flat">
+              <DropdownItem key="profile" textValue="Profil" href={`#/user/profile/${userId}`}>
+                <i className="bi bi-person-square" /> Profil
+              </DropdownItem>
+              <DropdownItem key="logout" textValue="Odjavi se" color="danger" href="#/logout">
+                <i className="bi bi-box-arrow-left" /> Odjevi se
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </NavbarContent>
+        <NavbarMenu>
+          {menuItems.map(makeNavLinkToogle)}
+        </NavbarMenu>
+      </Navbar></>
+  );
+};
+
+export default MainMenu;

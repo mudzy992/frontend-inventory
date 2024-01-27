@@ -1,495 +1,555 @@
-import React from 'react';
-import { Container, Card, Row, Col, Form, FloatingLabel, Button,} from 'react-bootstrap';
-import api, { ApiResponse } from '../../../API/api';
-import ArticleType from '../../../types/ArticleType';
-import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
-import CategoryType from '../../../types/CategoryType';
-import ApiArticleDto from '../../../dtos/ApiArticleDto';
-import AdminMenu from '../AdminMenu/AdminMenu';
-import { Redirect } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import api, { ApiResponse } from "../../../API/api";
+import ArticleType from "../../../types/ArticleType";
+import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
+import CategoryType from "../../../types/CategoryType";
+import ApiArticleDto from "../../../dtos/ApiArticleDto";
+import AdminMenu from "../AdminMenu/AdminMenu";
+import { Alert } from "../../custom/Alert";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Checkbox,
+  Input,
+  Select,
+  SelectItem,
+  Spinner,
+  Textarea,
+  Tooltip,
+} from "@nextui-org/react";
 
-interface AddArticlePageState{
-    articles: ArticleType[];
-    categories: CategoryType[];
-    message: string;
-    isLoggedIn: boolean;
-    addArticle: {
-        name: string;
-        categoryId: number;
-        excerpt: string;
-        description: string;
-        concract: string;
-        comment: string;
-        sapNumber: string;
-        valueOnConcract: number;
-        valueAvailable: number;
-        features: {
-            use: number;
-            featureId: number;
-            name: string;
-            value: string;
-        }[]
-    }
+interface AddArticlePageState {
+  articles: ArticleType[];
+  categories: CategoryType[];
+  message: string;
+  isLoggedIn: boolean;
+  addArticle: {
+    name: string;
+    categoryId: number;
+    excerpt: string;
+    description: string;
+    concract: string;
+    comment: string;
+    sapNumber: string;
+    valueOnConcract: number;
+    valueAvailable: number;
+    features: {
+      use: number;
+      featureId: number;
+      name: string;
+      value: string;
+    }[];
+  };
 }
 
 interface FeatureBaseType {
-    featureId: number;
-    name: string;
+  featureId: number;
+  name: string;
 }
 interface CategoryDto {
+  categoryId: number;
+  name: string;
+  imagePath: string;
+  parentCategoryId: number;
+}
+
+const AddArticlePage: React.FC = () => {
+  const [state, setState] = useState<AddArticlePageState>({
+    articles: [],
+    categories: [],
+    message: "",
+    isLoggedIn: true,
+    addArticle: {
+      name: "",
+      categoryId: 0,
+      excerpt: "",
+      description: "",
+      concract: "",
+      comment: "",
+      sapNumber: "",
+      valueOnConcract: 0,
+      valueAvailable: 0,
+      features: [],
+    },
+  });
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    getArticle();
+    getCategories();
+  }, []);
+
+  const setErrorMessage = (message: string) => {
+    setState((prev) => ({ ...prev, message: message }));
+  };
+
+  const setIsLoggedInStatus = (isLoggedIn: boolean) => {
+    setState((prev) => ({ ...prev, isLoggedIn: isLoggedIn }));
+  };
+
+  const setAddArticleStringFieldState = (
+    fieldName: string,
+    newValue: string,
+  ) => {
+    setState((prev) => ({
+      ...prev,
+      addArticle: { ...prev.addArticle, [fieldName]: newValue },
+    }));
+  };
+
+  const setAddArticleNumberFieldState = (fieldName: string, newValue: any) => {
+    setState((prev) => ({
+      ...prev,
+      addArticle: {
+        ...prev.addArticle,
+        [fieldName]: newValue === "null" ? null : Number(newValue),
+      },
+    }));
+  };
+
+  const setAddArticleFeatureUse = (featureId: number, use: boolean) => {
+    const addFeatures: { featureId: number; use: number }[] = [
+      ...state.addArticle.features,
+    ];
+
+    for (const feature of addFeatures) {
+      if (feature.featureId === featureId) {
+        feature.use = use ? 1 : 0;
+        break;
+      }
+    }
+
+    setState((prev) => ({ ...prev, features: addFeatures }));
+  };
+
+  const setAddArticleFeatureValue = (featureId: number, value: string) => {
+    const addFeatures: { featureId: number; value: string }[] = [
+      ...state.addArticle.features,
+    ];
+
+    for (const feature of addFeatures) {
+      if (feature.featureId === featureId) {
+        feature.value = value;
+        break;
+      }
+    }
+
+    setState((prev) => ({ ...prev, features: addFeatures }));
+  };
+
+  const clearFormFields = () => {
+    setState((prevState) => ({
+      ...prevState,
+      addArticle: {
+        name: "",
+        categoryId: 0,
+        excerpt: "",
+        description: "",
+        concract: "",
+        comment: "",
+        sapNumber: "",
+        valueOnConcract: 0,
+        valueAvailable: 0,
+        features: [],
+      },
+    }));
+  };
+
+  /* Kraj SET */
+  /* GET */
+  const getArticle = async () => {
+    try {
+      setLoading(true);
+      await api(
+        "api/article/?join=articleFeatures&join=features&join=category",
+        "get",
+        {},
+        "administrator",
+      ).then((res: ApiResponse) => {
+        if (res.status === "login") {
+          setIsLoggedInStatus(false);
+          return;
+        }
+        if (res.status === "error") {
+          setErrorMessage(
+            "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
+          );
+        }
+        putArticlesInState(res.data);
+        setLoading(false);
+      });
+    } catch (error) {
+      setErrorMessage(
+        "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
+      );
+      setLoading(false);
+    }
+  };
+
+  const putArticlesInState = (data?: ApiArticleDto[]) => {
+    const articles: ArticleType[] | undefined = data?.map((article) => {
+      return {
+        articleId: article.articleId,
+        name: article.name,
+        excerpt: article.excerpt,
+        description: article.description,
+        concract: article.concract,
+        sapNumber: article.sapNumber,
+        articleFeatures: article.articleFeature,
+        features: article.features,
+        category: article.category,
+        categoryId: article.categoryId,
+      };
+    });
+
+    setState(
+      Object.assign(state, {
+        articles: articles,
+      }),
+    );
+  };
+
+  const getFeaturesByCatId = async (
     categoryId: number,
-    name: string,
-    imagePath: string,
-    parentCategoryId: number,
-}
-
-export default class AddArticlePage extends React.Component<{}>{
-    state: AddArticlePageState;
-    constructor(props: Readonly<{}>) {
-        super(props);
-        this.state = {
-            articles: [],
-            categories: [],
-            message: '',
-            isLoggedIn: true,
-            addArticle: {
-                name: '',
-                categoryId: 0,
-                excerpt: '',
-                description: '',
-                concract: '',
-                comment: '',
-                sapNumber: '',
-                valueOnConcract: 0,
-                valueAvailable: 0,
-                features: [],
-            }
+  ): Promise<FeatureBaseType[]> => {
+    return new Promise((resolve) => {
+      api(
+        "api/feature/?filter=categoryId||$eq||" + categoryId + "/",
+        "get",
+        {},
+        "administrator",
+      ).then((res: ApiResponse) => {
+        if (res.status === "login") {
+          setIsLoggedInStatus(false);
+          return;
         }
-    }
-    
-    componentDidMount() {
-        this.getArticle()
-        this.getCategories()
-    }
-    /* SET */
-    private setErrorMessage(message: string) {
-        this.setState(Object.assign(this.state, {
-            message: message,
-        }));
-    }
-
-    private setIsLoggedIn(isLoggedIn: boolean) {
-        this.setState(Object.assign(this.state, {
-            isLoggedIn: isLoggedIn,
-        }));
-    }
-
-    private setAddArticleStringFieldState(fieldName: string, newValue: string) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                [fieldName]: newValue,
-            })))
-    }
-
-    private setAddArticleNumberFieldState(fieldName: string, newValue: any) {
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                [fieldName]: (newValue === 'null') ? null : Number(newValue),
-            })))
-    }
-
-    private setAddArticleFeatureUse(featureId: number, use: boolean) {
-        const addFeatures: { featureId: number; use: number; }[] = [...this.state.addArticle.features];
-
-        for (const feature of addFeatures) {
-            if (feature.featureId === featureId) {
-                feature.use = use ? 1 : 0;
-                break;
-            }
+        if (res.status === "error") {
+          setErrorMessage(
+            "Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije",
+          );
         }
 
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                features: addFeatures,
-            }),
-        ));
-    }
+        const features: FeatureBaseType[] = res.data.map((item: any) => ({
+          featureId: item.featureId,
+          name: item.name,
+        }));
+        resolve(features);
+      });
+    });
+  };
 
-    private clearFormFields() {
-        this.setState({
-            addArticle: {
-                name: '',
-                categoryId: 0,
-                excerpt: '',
-                description: '',
-                concract: '',
-                comment: '',
-                sapNumber: '',
-                valueOnConcract: 0,
-                valueAvailable: 0,
-                features: [],
-            },
-        });
-    }
-    
-
-    private setAddArticleFeatureValue(featureId: number, value: string) {
-        const addFeatures: { featureId: number; value: string; }[] = [...this.state.addArticle.features];
-
-        for (const feature of addFeatures) {
-            if (feature.featureId === featureId) {
-                feature.value = value;
-                break;
-            }
+  const getCategories = async () => {
+    try {
+      await api(
+        "api/category/?filter=parentCategoryId||$notnull",
+        "get",
+        {},
+        "administrator",
+      ).then((res: ApiResponse) => {
+        if (res.status === "login") {
+          setIsLoggedInStatus(false);
+          return;
         }
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                features: addFeatures,
-            }),
-        ));
-    }
-    /* Kraj SET */
-    /* GET */
-    private getArticle() {
-        api('api/article/?join=articleFeatures&join=features&join=category', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedIn(false);
-                return;
-            }
-            if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije')
-            }
-            this.putArticlesInState(res.data)
-        })
-    }
-
-    private putArticlesInState(data?: ApiArticleDto[]) {
-        const articles: ArticleType[] | undefined = data?.map(article => {
-            return {
-                articleId: article.articleId,
-                name: article.name,
-                excerpt: article.excerpt,
-                description: article.description,
-                concract: article.concract,
-                sapNumber: article.sapNumber,
-                articleFeatures: article.articleFeature,
-                features: article.features,
-                category: article.category,
-                categoryId: article.categoryId,
-            };
-        });
-
-        this.setState(Object.assign(this.state, {
-            articles: articles,
-        }));
-    }
-
-    private async getFeaturesByCatId(categoryId: number): Promise<FeatureBaseType[]> {
-        return new Promise(resolve => {
-            api('api/feature/?filter=categoryId||$eq||' + categoryId + '/', 'get', {}, 'administrator')
-            .then((res : ApiResponse) => {
-                if(res.status === 'login') {
-                    this.setIsLoggedIn(false);
-                    return;
-                }
-            if(res.status === 'error') {
-                this.setErrorMessage('Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije')
-            }
-
-            const features: FeatureBaseType[] = res.data.map((item: any) => ({
-                featureId: item.featureId,
-                name: item.name
-            }))
-            resolve(features)
-        })
-    })      
-    }
-
-    private getCategories() {
-        api('api/category/?filter=parentCategoryId||$notnull', 'get', {}, 'administrator')
-        .then((res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedIn(false);
-                return;
-            }
-            if (res.status === "error" ) {
-                return;
-            }
-            this.putCategoriesInState(res.data)
-        })
-    }
-
-    private putCategoriesInState(data?: CategoryDto[]) {
-        const categories: CategoryType[] | undefined = data?.map(category => {
-            return {
-                categoryId: category.categoryId,
-                name: category.name,
-                imagePath: category.imagePath,
-                parentCategoryId: category.parentCategoryId,
-            };
-        });
-
-        this.setState(Object.assign(this.state, {
-            categories: categories,
-        }));
-    }
-
-    private async addArticleCategoryChanged(event: React.ChangeEvent<HTMLSelectElement>) {
-        this.setAddArticleNumberFieldState('categoryId', event.target.value);
-
-        const features = await this.getFeaturesByCatId(this.state.addArticle.categoryId);
-        const stateFeatures = features.map(feature => ({
-            featureId: feature.featureId,
-            name: feature.name,
-            value: '',
-            use: 0,
-        }));
-
-        this.setState(Object.assign(this.state,
-            Object.assign(this.state.addArticle, {
-                features: stateFeatures,
-            }),
-        ));
-    }
-    /* Kraj GET */
-    /* Dodatne funkcije */
-    private printOptionalMessage() {
-        if (this.state.message === '') {
-            return;
+        if (res.status === "error") {
+          return;
         }
+        putCategoriesInState(res.data);
+      });
+    } catch (error) {
+      setErrorMessage(
+        "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
+      );
+    }
+  };
 
-        return (
-            <Card.Text>
-                {this.state.message}
-            </Card.Text>
-        );
+  const putCategoriesInState = (data?: CategoryDto[]) => {
+    const categories: CategoryType[] | undefined = data?.map((category) => {
+      return {
+        categoryId: category.categoryId,
+        name: category.name,
+        imagePath: category.imagePath,
+        parentCategoryId: category.parentCategoryId,
+      };
+    });
+
+    setState(
+      Object.assign(state, {
+        categories: categories,
+      }),
+    );
+  };
+
+  const addArticleCategoryChanged = async (selectedValue: any) => {
+    console.log(selectedValue.target.value);
+    setAddArticleNumberFieldState("categoryId", selectedValue.target.value);
+
+    const features = await getFeaturesByCatId(selectedValue.target.value);
+    const stateFeatures = features.map((feature) => ({
+      featureId: feature.featureId,
+      name: feature.name,
+      value: "",
+      use: 0,
+    }));
+    setState((prev) => ({
+      ...prev,
+      addArticle: { ...prev.addArticle, features: stateFeatures },
+    }));
+  };
+  /* Kraj GET */
+  /* Dodatne funkcije */
+  const printOptionalMessage = () => {
+    if (state.message === "") {
+      return;
     }
 
-    private addArticleFeatureInput(feature: any) {
-        return (
-            <div><Form.Group className="mb-3 was-validated">
-                <Row style={{ alignItems: 'baseline' }}>
-                    <Col xs="4" sm="1" className="text-center">
-                        <input type="checkbox" value="1" checked={feature.use === 1}
-                            onChange={(e) => this.setAddArticleFeatureUse(feature.featureId, e.target.checked)} />
-                    </Col>
+    return <Alert title="info" variant="info" body={state.message} />;
+  };
 
-                    <Col>
-                        <FloatingLabel label={feature.name} className="mb-3">
-                            <Form.Control
-                                id="name"
-                                type="text"
-                                placeholder="Naziv"
-                                value={feature.value}
-                                onChange={(e) => this.setAddArticleFeatureValue(feature.featureId, e.target.value)}
-                                required />
-                        </FloatingLabel>
-                    </Col>
-                </Row>
-            </Form.Group>
+  const addArticleFeatureInput = (feature: any) => {
+    return (
+      <div
+        key={feature.featureId}
+        id="inputi-checkbox"
+        className="flex items-center gap-3"
+      >
+        <Checkbox
+          className="mb-3"
+          isSelected={feature.use === 1}
+          onValueChange={(value) =>
+            setAddArticleFeatureUse(feature.featureId, value)
+          }
+        />
+        <Tooltip
+          showArrow={true}
+          content="U slučaju da se ne označi kvadratić pored, osobina neće biti prikazana"
+        >
+          <Input
+            type="text"
+            variant="bordered"
+            label={feature.name}
+            placeholder={feature.name}
+            value={feature.value}
+            labelPlacement="inside"
+            onChange={(e) =>
+              setAddArticleFeatureValue(feature.featureId, e.target.value)
+            }
+            className="mb-3 flex-grow"
+          />
+        </Tooltip>
+      </div>
+    );
+  };
+
+  const doAddArticle = () => {
+    const requestBody = {
+      name: state.addArticle.name,
+      excerpt: state.addArticle.excerpt,
+      description: state.addArticle.description,
+      contract: state.addArticle.concract,
+      categoryId: state.addArticle.categoryId,
+      sapNumber: state.addArticle.sapNumber,
+      valueOnContract: state.addArticle.valueOnConcract,
+      valueAvailable: state.addArticle.valueAvailable,
+      features: state.addArticle.features
+        .filter((feature) => feature.use === 1)
+        .map((feature) => ({
+          featureId: feature.featureId,
+          value: feature.value,
+        })),
+    };
+
+    api("/api/stock/", "post", requestBody, "administrator").then(
+      async (res: ApiResponse) => {
+        if (res.status === "login") {
+          setIsLoggedInStatus(false);
+          return;
+        }
+        if (res.status === "ok") {
+          clearFormFields();
+        }
+      },
+    );
+  };
+
+  /* Kraj dodatnih funkcija */
+
+  const addForm = () => {
+    return (
+      <div>
+        <Card className="mb-3">
+          <CardHeader>Detalji opreme</CardHeader>
+          <CardBody>
+            <div className="flex flex-col">
+              <div className="mb-3 mr-3 w-full">
+                <Input
+                  id="name"
+                  type="text"
+                  label="Naziv opreme"
+                  labelPlacement="inside"
+                  value={state.addArticle.name}
+                  onChange={(e) =>
+                    setAddArticleStringFieldState("name", e.target.value)
+                  }
+                ></Input>
+              </div>
+
+              <div className="mb-3 mr-3 w-full">
+                <Select
+                  id="categoryId"
+                  label="Kategorija"
+                  placeholder="Odaberite kategoriju"
+                  onChange={(value) => addArticleCategoryChanged(value)}
+                >
+                  {state.categories.map((category, index) => (
+                    <SelectItem
+                      key={category.categoryId || index}
+                      textValue={`${category.categoryId} - ${category.name}`}
+                      value={Number(category.categoryId)}
+                    >
+                      {category.categoryId} - {category.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="mb-3 mr-3 w-full">
+                <Textarea
+                  id="excerpt"
+                  label="Kratki opis"
+                  placeholder="Opišite artikal ukratko"
+                  value={state.addArticle.excerpt}
+                  onChange={(e) =>
+                    setAddArticleStringFieldState("excerpt", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="mb-3 mr-3 w-full">
+                <Textarea
+                  id="description"
+                  label="Detaljan opis"
+                  placeholder="Opišite detaljno artikal"
+                  value={state.addArticle.description}
+                  onChange={(e) =>
+                    setAddArticleStringFieldState("description", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="mb-3 mr-3 w-full">
+                <Input
+                  id="sapNumber"
+                  type="text"
+                  label="SAP broj"
+                  labelPlacement="inside"
+                  value={state.addArticle.sapNumber}
+                  onChange={(e) =>
+                    setAddArticleStringFieldState("sapNumber", e.target.value)
+                  }
+                ></Input>
+              </div>
+
+              <div className="mb-3 mr-3 w-full">
+                <Textarea
+                  id="comment"
+                  label="Komentar"
+                  placeholder="Neobavezno"
+                  value={state.addArticle.comment}
+                  onChange={(e) =>
+                    setAddArticleStringFieldState("comment", e.target.value)
+                  }
+                />
+              </div>
             </div>
+          </CardBody>
+        </Card>
+        <Card className="mb-3">
+          <CardHeader>Osobine skladišta</CardHeader>
+          <CardBody>
+            <div className="flex flex-col">
+              <div className="mb-3 mr-3 w-full">
+                <Input
+                  id="concract"
+                  type="text"
+                  label="Broj ugovora"
+                  labelPlacement="inside"
+                  value={state.addArticle.concract}
+                  onChange={(e) =>
+                    setAddArticleStringFieldState("concract", e.target.value)
+                  }
+                ></Input>
+              </div>
 
-        );
-    }
+              <div className="mb-3 mr-3 w-full">
+                <Input
+                  id="valueOnConcract"
+                  type="number"
+                  label="Stanje po ugovoru"
+                  labelPlacement="inside"
+                  value={state.addArticle.valueOnConcract.toString()}
+                  onChange={(e) =>
+                    setAddArticleNumberFieldState(
+                      "valueOnConcract",
+                      e.target.value,
+                    )
+                  }
+                ></Input>
+              </div>
 
-    private doAddArticle() {
-        const requestBody = {
-            name: this.state.addArticle.name,
-            excerpt: this.state.addArticle.excerpt,
-            description: this.state.addArticle.description,
-            contract: this.state.addArticle.concract, // Ispravite tipfeler (concract -> contract)
-            categoryId: this.state.addArticle.categoryId,
-            sapNumber: this.state.addArticle.sapNumber,
-            valueOnContract: this.state.addArticle.valueOnConcract, // Ispravite tipfeler (valueOnConcract -> valueOnContract)
-            valueAvailable: this.state.addArticle.valueAvailable,
-            features: this.state.addArticle.features
-                .filter(feature => feature.use === 1)
-                .map(feature => ({
-                    featureId: feature.featureId,
-                    value: feature.value,
-                })),
-        };
-    
-        api('/api/stock/', 'post', requestBody, 'administrator').then(async (res: ApiResponse) => {
-            if(res.status === 'login') {
-                this.setIsLoggedIn(false);
-                return;
-            }
-            if (res.status === 'ok') {
-                // Nakon uspešnog dodavanja, pozovite clearFormFields da biste očistili polja
-                this.clearFormFields();
-            }
-            // Dodajte ostatak koda za obradu odgovora ako je potrebno
-        });
-    }
-    
-    /* Kraj dodatnih funkcija */
-    render() {
-        return(
-            <div>
-            <RoledMainMenu role='administrator'/>
-            <Container style={{ marginTop:15}}> 
-            {this.printOptionalMessage()}
-                {
-                    this.state.articles ?
-                        (this.renderArticleData()) :
-                        ''
-                }{}
-            </Container>
+              <div className="mb-3 mr-3 w-full">
+                <Input
+                  id="valueAvailable"
+                  type="number"
+                  label="Dostupno stanje"
+                  labelPlacement="inside"
+                  value={state.addArticle.valueAvailable.toString()}
+                  onChange={(e) =>
+                    setAddArticleNumberFieldState(
+                      "valueAvailable",
+                      e.target.value,
+                    )
+                  }
+                ></Input>
+              </div>
             </div>
-        )
-    }
-
-    private addForm() {
-        return (
-            <div>
-            <Card className="mb-3">
-                <Card.Header>Detalji opreme</Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 was-validated">
-                        <FloatingLabel label="Naziv opreme" className="mb-3">
-                            <Form.Control 
-                            id="name" 
-                            type="text" 
-                            placeholder="Naziv"
-                            value={ this.state.addArticle.name }
-                            onChange={ (e) => this.setAddArticleStringFieldState('name', e.target.value) }
-                            required />
-                        </FloatingLabel>
-
-                        <FloatingLabel label="Kategorija" className="mb-3">
-                            <Form.Select 
-                            id='categoryId'
-                            value={this.state.addArticle.categoryId.toString()}
-                            onChange={(e) => this.addArticleCategoryChanged(e as any)}
-                            required>
-                                <option value=''>izaberi kategoriju</option>
-                                {this.state.categories.map((category, index) => (
-                                    <option key={index} value={category.categoryId?.toString()}>{category.name}</option>
-                                ))} 
-                            </Form.Select>
-                        </FloatingLabel>
-                        <FloatingLabel label="Kratki opis" className="mb-3">
-                            <Form.Control 
-                            id="excerpt" 
-                            as="textarea" 
-                            rows={3} 
-                            style={{ height: '100px' }}
-                            placeholder="Kratki opis"
-                            value={ this.state.addArticle.excerpt }
-                            onChange={ (e) => this.setAddArticleStringFieldState('excerpt', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel label="Detaljan opis" className="mb-3">
-                            <Form.Control 
-                            id="description" 
-                            as="textarea" 
-                            rows={5} 
-                            style={{ height: '100px' }}
-                            placeholder="Detaljan opis"
-                            value={ this.state.addArticle.description }
-                            onChange={ (e) => this.setAddArticleStringFieldState('description', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel label="SAP broj" className="mb-3">
-                            <Form.Control 
-                            id="sapNumber" 
-                            type="text" 
-                            placeholder="SAP Broj"
-                            value={ this.state.addArticle.sapNumber }
-                            onChange={ (e) => this.setAddArticleStringFieldState('sapNumber', e.target.value) }
-                            required />
-                        </FloatingLabel>
-                        <FloatingLabel label="Komentar" className="mb-3">
-                            <Form.Control
-                            id="comment"
-                            as="textarea"
-                            rows={3}
-                            style={{ height: '100px' }}
-                            value={ this.state.addArticle.comment }
-                            onChange={ (e) => this.setAddArticleStringFieldState('comment', e.target.value) }
-                            required
-                            isValid
-                            />
-                        </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-            </Card>
-            <Card className="mb-3">
-                <Card.Header>Osobine skladišta</Card.Header>
-                <Card.Body>
-                    <Form>
-                        <Form.Group className="mb-3 was-validated"> 
-                            <FloatingLabel label="Ugovor" className="mb-3">
-                                    <Form.Control 
-                                    id="concract" 
-                                    type="text" 
-                                    placeholder="Ugovor"
-                                    value={ this.state.addArticle.concract }
-                                    onChange={ (e) => this.setAddArticleStringFieldState('concract', e.target.value) }
-                                    required />
-                                </FloatingLabel>
-                                <FloatingLabel label="Stanje po ugovoru" className="mb-3">
-                                <Form.Control
-                                    id="valueOnConcract"
-                                    type="text"
-                                    placeholder="Stanje po ugovoru"
-                                    onChange={(e) => this.setAddArticleNumberFieldState('valueOnConcract', e.target.value)}
-                                    required />
-                                </FloatingLabel>
-                                <FloatingLabel label="Dostupno stanje" className="mb-3">
-                                <Form.Control
-                                    id="valueAvailable"
-                                    type="text"
-                                    placeholder="Dostupno stanje"
-                                    onChange={(e) => this.setAddArticleNumberFieldState('valueAvailable', e.target.value)}
-                                    required />
-                                </FloatingLabel>
-                        </Form.Group>
-                    </Form>
-                </Card.Body>
-            </Card>
-            <Card className={this.state.addArticle.categoryId ? '' : 'd-none mb-3'}>
-                <Card.Header>Detalji opreme</Card.Header>
-                <Card.Body>
-                    <Form key="forma-dodavanja-dodataka-artikla">
-                        {this.state.addArticle.features.map(this.addArticleFeatureInput, this)}
-                    </Form>
-                </Card.Body>
-                <Card.Footer>
-                    <Row style={{ alignItems: 'end' }}>
-                        <Button onClick={() => this.doAddArticle()} variant="success"><i className="bi bi-plus-circle"/> Dodaj opremu</Button>
-                    </Row>
-                </Card.Footer>
-            </Card>
-
-            
+          </CardBody>
+        </Card>
+        <Card className={state.addArticle.categoryId ? "" : "mb-3 hidden"}>
+          <CardHeader>Detalji opreme</CardHeader>
+          <CardBody>
+            <div className="flex flex-col">
+              {state.addArticle.features.map(addArticleFeatureInput, this)}
             </div>
-        )
-    }
-
-    renderArticleData() {
-        if(this.state.isLoggedIn === false){
-            return(
-                <Redirect to='admin/login' />
-            )
-        }
-        return(
-            <Row>
-            <Col xs ="12" lg="12">
-                <Row>
-                    
-                    <Col style={{marginTop:5}} xs="12" lg="12" sm="12">
-                            {this.addForm()}
-                            <AdminMenu />
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        )
-    }
-}
+          </CardBody>
+          <CardFooter>
+            <div style={{ alignItems: "end" }}>
+              <Button onClick={() => doAddArticle()} color="success">
+                <i className="bi bi-plus-circle" /> Dodaj opremu
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  };
+  return (
+    <div>
+      <RoledMainMenu />
+      <div className="container mx-auto mt-3 h-max lg:px-4">
+        {loading ? (
+          <div className="flex h-screen items-center justify-center">
+            <Spinner color="danger" label="Učitavanje..." labelColor="danger" />
+          </div>
+        ) : (
+          addForm()
+        )}
+        <AdminMenu />
+      </div>
+    </div>
+  );
+};
+export default AddArticlePage;

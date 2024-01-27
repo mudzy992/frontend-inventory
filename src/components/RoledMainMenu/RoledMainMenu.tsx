@@ -1,32 +1,26 @@
+// RoledMainMenu.tsx
 import React from "react";
-import { MainMenu, MainMenuItem } from '../MainMenu/MainMenu'
+import MainMenu from "../MainMenu/MainMenu";
+import { useUserContext } from "../UserContext/UserContext";
 
-interface RoledMainMenuProperties {
-    role: 'administrator' | 'user',
-    userId?: number
-}
+import type { MainMenuItem } from "../MainMenu/MainMenu";
 
-export default class RoledMainMenu extends React.Component<RoledMainMenuProperties> {
-    render() {
-        let items: MainMenuItem[] = [];
+const RoledMainMenu: React.FC = () => {
+  const { userId, role } = useUserContext();
 
-        switch (this.props.role) {
-            case 'administrator': items = this.getAdministratorItems(); break;
-            case 'user': items = this.getUserItems(); break;
-        }
+  const getUserItems = (): MainMenuItem[] => [
+    { text: "Naslovna", link: `#/user/profile/${userId}` },
+  ];
 
-        return <MainMenu items={items} userId={this.props.userId} />
-    }
-    getUserItems(): MainMenuItem[] {
-        const { userId } = this.props;
-        return [
-            new MainMenuItem("Naslovna", `/user/profile/${userId}`),
-            new MainMenuItem("Log out", "/user/logout/"),
-        ];
-    }
-    getAdministratorItems(): MainMenuItem[] {
-        return [
-            new MainMenuItem("Naslovna", "/"),
-        ]
-    }
-}
+  const getAdministratorItems = (): MainMenuItem[] => [
+    { text: "Naslovna", link: "#/" },
+    { text: "Dashboard", link: "#/admin/dashboard" },
+    { text: "Helpdesk", link: "#/admin/helpdesk" },
+  ];
+
+  const items =
+    role === "administrator" ? getAdministratorItems() : getUserItems();
+  return <MainMenu items={items} userId={userId} role={role} />;
+};
+
+export default RoledMainMenu;

@@ -69,7 +69,7 @@ export const Alert: React.FC<AlertProps> = ({
   }
 
   if (closed) {
-    return null; // Ako je Alert zatvoren, ne prikazuj ništa
+    return null;
   }
 
   const combinedClassNames = className ? className : "";

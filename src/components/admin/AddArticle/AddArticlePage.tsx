@@ -20,11 +20,12 @@ import {
   Textarea,
   Tooltip,
 } from "@nextui-org/react";
+import Toast from "../../custom/Toast";
 
 interface AddArticlePageState {
   articles: ArticleType[];
   categories: CategoryType[];
-  message: string;
+  message: { message: string; variant: string };
   isLoggedIn: boolean;
   addArticle: {
     name: string;
@@ -60,7 +61,7 @@ const AddArticlePage: React.FC = () => {
   const [state, setState] = useState<AddArticlePageState>({
     articles: [],
     categories: [],
-    message: "",
+    message: { message: "", variant: "" },
     isLoggedIn: true,
     addArticle: {
       name: "",
@@ -83,8 +84,11 @@ const AddArticlePage: React.FC = () => {
     getCategories();
   }, []);
 
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setIsLoggedInStatus = (isLoggedIn: boolean) => {
@@ -177,6 +181,7 @@ const AddArticlePage: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
+            "danger",
           );
         }
         putArticlesInState(res.data);
@@ -185,6 +190,7 @@ const AddArticlePage: React.FC = () => {
     } catch (error) {
       setErrorMessage(
         "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
+        "danger",
       );
       setLoading(false);
     }
@@ -230,6 +236,7 @@ const AddArticlePage: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije",
+            "danger",
           );
         }
 
@@ -262,6 +269,7 @@ const AddArticlePage: React.FC = () => {
     } catch (error) {
       setErrorMessage(
         "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
+        "danger",
       );
     }
   };
@@ -301,13 +309,6 @@ const AddArticlePage: React.FC = () => {
   };
   /* Kraj GET */
   /* Dodatne funkcije */
-  const printOptionalMessage = () => {
-    if (state.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.message} />;
-  };
 
   const addArticleFeatureInput = (feature: any) => {
     return (
@@ -369,6 +370,7 @@ const AddArticlePage: React.FC = () => {
           return;
         }
         if (res.status === "ok") {
+          setErrorMessage("Uspješno se dodali artikal!", "success");
           clearFormFields();
         }
       },
@@ -547,6 +549,10 @@ const AddArticlePage: React.FC = () => {
         ) : (
           addForm()
         )}
+        <Toast
+          variant={state.message.variant}
+          message={state.message.message}
+        />
         <AdminMenu />
       </div>
     </div>

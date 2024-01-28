@@ -17,11 +17,11 @@ import {
   SelectItem,
 } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
-import { Alert } from "../../custom/Alert";
+import Toast from "../../custom/Toast";
 
 interface AddFeatureState {
   categories: CategoryType[];
-  message: string;
+  message: { message: string; variant: string };
   isLoggedIn: boolean;
   addNewFeature: {
     name: string;
@@ -42,8 +42,8 @@ interface FeatureBaseType {
 
 const AddFeaturePage: React.FC = () => {
   const [state, setState] = useState<AddFeatureState>({
+    message: {message: "", variant:""},
     categories: [],
-    message: "",
     isLoggedIn: true,
     addNewFeature: {
       name: "",
@@ -71,8 +71,11 @@ const AddFeaturePage: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setLogginState = (isLoggedIn: boolean) => {
@@ -142,6 +145,7 @@ const AddFeaturePage: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije",
+            "danger",
           );
         }
         const features: FeatureBaseType[] = res.data.map((item: any) => ({
@@ -156,14 +160,6 @@ const AddFeaturePage: React.FC = () => {
   useEffect(() => {
     getCategories();
   }, []);
-
-  const printOptionalMessage = () => {
-    if (state.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.message} />;
-  };
 
   const addFeatureInput = (feature: any) => {
     return <ListboxItem key={feature.name}>{feature.name}</ListboxItem>;
@@ -186,10 +182,11 @@ const AddFeaturePage: React.FC = () => {
       if (res.status === "error") {
         setErrorMessage(
           "Greška prilikom dodavanja nove osobine. Provjerite da li se osobina već nalazi u listi iznad. Osvježite ili pokušajte ponovo kasnije",
+          "danger",
         );
         return;
       }
-      setErrorMessage("");
+      setErrorMessage("Dodavanje uspješno završeno", "success");
       const categoryId = Number(state.addNewFeature.categoryId);
       const features = await getFeaturesByCatId(categoryId);
       const stateFeatures = features.map((feature) => ({
@@ -260,7 +257,6 @@ const AddFeaturePage: React.FC = () => {
             </div>
           </CardBody>
           <CardFooter>
-            <div>{printOptionalMessage()}</div>
             <div style={{ alignItems: "end" }}>
               <Button
                 onClick={() => doAddFeature()}
@@ -281,6 +277,10 @@ const AddFeaturePage: React.FC = () => {
       <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         {addForm()}
+        <Toast
+          variant={state.message?.variant}
+          message={state.message?.message}
+        />
         <AdminMenu />
       </div>
     </div>

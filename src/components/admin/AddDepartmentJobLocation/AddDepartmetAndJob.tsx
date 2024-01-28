@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import api, { ApiResponse } from "../../../API/api";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import AdminMenu from "../AdminMenu/AdminMenu";
-import { Alert } from "../../custom/Alert";
 import {
   Button,
   Card,
@@ -15,7 +14,7 @@ import {
   Spinner,
   Textarea,
 } from "@nextui-org/react";
-/* import { Redirect } from 'react-router-dom'; */
+import Toast from "../../custom/Toast";
 
 interface DepartmentType {
   departmentId: number;
@@ -39,7 +38,7 @@ interface LocationType {
   parentLocationId: number;
 }
 interface AddDepartmentAndJobState {
-  message?: string;
+  message: { message: string; variant: string };
   departmentBase: DepartmentType[];
   jobBase: JobType[];
   locationBase: LocationType[];
@@ -71,6 +70,7 @@ interface AddDepartmentAndJobState {
 
 const AddDepartmentAndJob: React.FC = () => {
   const [state, setState] = useState<AddDepartmentAndJobState>({
+    message: {message: "", variant: ""},
     departmentBase: [],
     jobBase: [],
     locationBase: [],
@@ -166,8 +166,11 @@ const AddDepartmentAndJob: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setIsLoggedInStatus = (isLoggedIn: boolean) => {
@@ -214,6 +217,7 @@ const AddDepartmentAndJob: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom učitavanja sektora/službei/odjeljenja.",
+            "danger",
           );
           return;
         }
@@ -227,7 +231,10 @@ const AddDepartmentAndJob: React.FC = () => {
             return;
           }
           if (res.status === "error") {
-            setErrorMessage("Greška prilikom učitavanja radnih mjesta.");
+            setErrorMessage(
+              "Greška prilikom učitavanja radnih mjesta.",
+              "danger",
+            );
             return;
           }
           setJobData(res.data);
@@ -241,7 +248,7 @@ const AddDepartmentAndJob: React.FC = () => {
             return;
           }
           if (res.status === "error") {
-            setErrorMessage("Greška prilikom učitavanja lokacija.");
+            setErrorMessage("Greška prilikom učitavanja lokacija.", "danger");
             return;
           }
           setLocationData(res.data);
@@ -251,18 +258,10 @@ const AddDepartmentAndJob: React.FC = () => {
     } catch (err) {
       setErrorMessage(
         "Došlo je do greške prilikom učitavanja kategorija, osvježite stranicu i pokušajte ponovo.",
+        "danger",
       );
       setLoading(false);
     }
-  };
-
-  /* DODATNE FUNCKIJE */
-  const printOptionalMessage = () => {
-    if (state.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.message!} />;
   };
 
   const doAddDepartment = () => {
@@ -275,10 +274,11 @@ const AddDepartmentAndJob: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom dodavanja sektora/službe/odjeljenja.",
+            "danger",
           );
           return;
         }
-        setErrorMessage("Uspješno dodan sektor/služba/odjeljenje");
+        setErrorMessage("Uspješno dodan sektor/služba/odjeljenje", "success");
         getData();
       },
     );
@@ -292,10 +292,10 @@ const AddDepartmentAndJob: React.FC = () => {
           return;
         }
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom dodavanja radnog mjesta.");
+          setErrorMessage("Greška prilikom dodavanja radnog mjesta.", "danger");
           return;
         }
-        setErrorMessage("Uspješno dodano radno mjesto");
+        setErrorMessage("Uspješno dodano radno mjesto", "success");
         getData();
       },
     );
@@ -309,10 +309,10 @@ const AddDepartmentAndJob: React.FC = () => {
           return;
         }
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom dodavanja lokacije.");
+          setErrorMessage("Greška prilikom dodavanja lokacije.", "danger");
           return;
         }
-        setErrorMessage("Uspješno dodana lokacija");
+        setErrorMessage("Uspješno dodana lokacija", "success");
         getData();
       },
     );
@@ -332,11 +332,13 @@ const AddDepartmentAndJob: React.FC = () => {
       if (res.status === "error") {
         setErrorMessage(
           "Greška prilikom dodavanja sektora/službe/odjeljenja, pripadajućeg radnog mjesta te lokacije.",
+          "danger",
         );
         return;
       }
       setErrorMessage(
         "Uspješno dodan sektor/služba/odjeljenje, pripadajuće radno mjesto te lokacija",
+        "success",
       );
       getData();
     });
@@ -655,7 +657,10 @@ const AddDepartmentAndJob: React.FC = () => {
         ) : (
           addForm()
         )}
-
+        <Toast
+          variant={state.message?.variant}
+          message={state.message?.message}
+        />
         <AdminMenu />
       </div>
     </div>

@@ -10,7 +10,7 @@ import {
   SelectItem,
   Spinner,
 } from "@nextui-org/react";
-import { Alert } from "../../custom/Alert";
+import Toast from "../../custom/Toast";
 
 interface DepartmentType {
   departmentId: number;
@@ -34,9 +34,9 @@ interface LocationType {
   parentLocationId: number;
 }
 interface AddDepartmentJobLocationState {
-  error: {
-    message?: string;
-    visible: boolean;
+  message: {
+    message: string;
+    variant: string;
   };
   departmentBase: DepartmentType[];
   jobBase: JobType[];
@@ -53,9 +53,7 @@ interface AddDepartmentJobLocationState {
 
 const AddDepartmentJobLocation: React.FC = () => {
   const [state, setState] = useState<AddDepartmentJobLocationState>({
-    error: {
-      visible: false,
-    },
+    message: {message: "", variant: ""},
     departmentBase: [],
     jobBase: [],
     locationBase: [],
@@ -92,8 +90,11 @@ const AddDepartmentJobLocation: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setIsLoggedInStatus = (isLoggedIn: boolean) => {
@@ -124,21 +125,6 @@ const AddDepartmentJobLocation: React.FC = () => {
     );
   };
 
-  const showErrorMessage = async () => {
-    setErrorMessageVisible(true);
-  };
-
-  const setErrorMessageVisible = (newState: boolean) => {
-    setState(
-      Object.assign(
-        state,
-        Object.assign(state.error, {
-          visible: newState,
-        }),
-      ),
-    );
-  };
-
   /* GET */
 
   const getData = async () => {
@@ -157,6 +143,7 @@ const AddDepartmentJobLocation: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom učitavanja sektora/službei/odjeljenja.",
+            "danger",
           );
           return;
         }
@@ -170,7 +157,10 @@ const AddDepartmentJobLocation: React.FC = () => {
             return;
           }
           if (res.status === "error") {
-            setErrorMessage("Greška prilikom učitavanja radnih mjesta.");
+            setErrorMessage(
+              "Greška prilikom učitavanja radnih mjesta.",
+              "danger",
+            );
             return;
           }
           setJobData(res.data);
@@ -184,7 +174,7 @@ const AddDepartmentJobLocation: React.FC = () => {
             return;
           }
           if (res.status === "error") {
-            setErrorMessage("Greška prilikom učitavanja lokacija.");
+            setErrorMessage("Greška prilikom učitavanja lokacija.", "danger");
             return;
           }
           setLocationData(res.data);
@@ -194,18 +184,10 @@ const AddDepartmentJobLocation: React.FC = () => {
     } catch (err) {
       setErrorMessage(
         "Došlo je do greške prilikom učitavanja kategorija, osvježite stranicu i pokušajte ponovo.",
+        "danger",
       );
       setLoading(false);
     }
-  };
-
-  /* DODATNE FUNCKIJE */
-  const printOptionalMessage = () => {
-    if (state.error.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.error.message!} />;
   };
 
   const doAddDepartmentJobLocation = () => {
@@ -222,13 +204,14 @@ const AddDepartmentJobLocation: React.FC = () => {
       if (res.status === "error") {
         setErrorMessage(
           "Greška prilikom dodavanja sektora/službe/odjeljenja, pripadajućeg radnog mjesta te lokacije.",
+          "danger",
         );
         return;
       }
       setErrorMessage(
         "Uspješno dodan sektor/služba/odjeljenje, pripadajuće radno mjesto te lokacija",
+        "success",
       );
-      showErrorMessage();
       getData();
     });
   };
@@ -345,7 +328,13 @@ const AddDepartmentJobLocation: React.FC = () => {
 
   return (
     <div>
-      <div>{addForm()}</div>
+      <div>
+        {addForm()}
+        <Toast
+          variant={state.message?.variant}
+          message={state.message?.message}
+        />
+      </div>
     </div>
   );
 };

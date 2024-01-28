@@ -21,13 +21,21 @@ import Moment from "moment";
 import ModalDetails from "./ModalDetails";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
 import { useNavigate } from "react-router-dom";
+import Toast from "../../../custom/Toast";
+
+interface MessageType {
+  message: {
+    message: string;
+    variant: string;
+  }
+}
 
 const HelpdeskTicketPage: React.FC = () => {
   const { role, userId } = useUserContext();
   const [helpdeskState, setHelpdeskState] = useState<HelpdeskTicketsType[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<MessageType>({message: {message: "", variant: ""}});
   const [selectedTab, setSelectedTab] = useState<string>("unassigned");
   const [ticketsItemsPerPage] = useState<number>(10);
   const [ticketsTotalPage, setTicketsTotalPage] = useState<number>(0);
@@ -75,6 +83,13 @@ const HelpdeskTicketPage: React.FC = () => {
     ticketsPaginationTableQuery,
   ]);
 
+  const setErrorMessage = (message: string, variant: string) => {
+    setMessage((prev) => ({
+      ...prev,
+      message: { message, variant }
+    }));
+  };
+
   const getHelpdeskTicketsData = (
     currentPage: number,
     assignedTo?: number | null,
@@ -98,19 +113,19 @@ const HelpdeskTicketPage: React.FC = () => {
     api(apiEndpoint, "get", {}, role as UserRole).then((res: ApiResponse) => {
       if (res.status === "login") {
         navigate('/login');
-        setMessage(
-          "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!",
+        setErrorMessage(
+          "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!", "danger",
         );
         return;
       }
       if (res.status === "error") {
-        setMessage(
-          "Greška prilikom učitavanja podataka, molimo pokušate ponovo!",
+        setErrorMessage(
+          "Greška prilikom učitavanja podataka, molimo pokušate ponovo!", "danger",
         );
         return;
       }
       if (res.status === "forbidden") {
-        setMessage("Korisnik nema prava za učitavanja ove vrste podataka!");
+        setErrorMessage("Korisnik nema prava za učitavanja ove vrste podataka!", "danger");
         return;
       }
       setHelpdeskState(res.data.results);
@@ -125,7 +140,6 @@ const HelpdeskTicketPage: React.FC = () => {
   };
 
   const handleHideModal = () => {
-    // TODO: Potrebno osvježiti tabelu tiketa na zatvaranju modala
     setShowModal(false);
   };
 
@@ -201,6 +215,7 @@ const HelpdeskTicketPage: React.FC = () => {
           </Tab>
         </Tabs>
       </div>
+      <Toast variant={message.message.variant} message={message.message.message} />
     </div>
   );
 

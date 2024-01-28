@@ -22,6 +22,7 @@ import { useUserContext } from "../../../UserContext/UserContext";
 import { UserRole } from "../../../../types/UserRoleType";
 import api, { ApiResponse } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
+import Toast from "../../../custom/Toast";
 
 type ModalProps = {
   show: boolean;
@@ -41,6 +42,13 @@ interface AddNewComment {
   };
 }
 
+interface MessageType {
+  message: {
+    message: string;
+    variant: string;
+  };
+}
+
 const ViewSingleTicketModal: React.FC<ModalProps> = ({
   show,
   onHide,
@@ -51,7 +59,9 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
   const [ticketState, setTicketState] = useState<HelpdeskTicketsType>();
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<MessageType>({
+    message: { message: "", variant: "" },
+  });
   const [addNewCommentReplyState, setAddNewCommentReplyState] =
     useState<AddNewComment>({
       text: "",
@@ -86,6 +96,20 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
     });
   };
 
+  const setErrorMessage = (message: string, variant: string) => {
+    setMessage((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
+  };
+
+  const resetMessage = () => {
+    setMessage((prev) => ({
+      ...prev,
+      message: { message: "", variant: "" },
+    }));
+  };
+
   const handleReplyClick = (commentId: any) => {
     if (selectedCommentId === commentId) {
       setSelectedCommentId(null);
@@ -113,165 +137,177 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
           }
 
           if (res.status === "forbidden") {
-            setMessage("Korisnik nema pravo za izmejne!");
+            setErrorMessage("Korisnik nema pravo za izmejne!", "danger");
           }
         })
         .finally(() => {
           setSelectedCommentId(null);
+          setErrorMessage(
+            "Uspješno ste postavili odgovor na informaciju",
+            "success",
+          );
           setAddNewCommentReplyStringFieldState("text", "");
           setIsLoading(false);
         });
     } catch (error) {
-      setMessage(
+      setErrorMessage(
         "Došlo je do greške prilikom izmjene tiketa. Greška: " + error,
+        "danger",
       );
     }
   };
 
   return (
-    <Modal
-      isOpen={show}
-      onOpenChange={onHide}
-      backdrop="blur"
-      size={"5xl"}
-      isDismissable={false}
-      scrollBehavior="inside"
-    >
-      <ModalContent>
-        <ModalHeader className="flex justify-between">
-          <div>
-            Tiket{" "}
-            <span className="text-default-700">#{ticketState?.ticketId}</span>
-          </div>{" "}
-          <div className="mr-3">
-            <Chip color="success">{ticketState?.status}</Chip>
-          </div>
-        </ModalHeader>
-        <ModalBody>
-          <Tabs aria-label="Opcije" color="primary" radius="full">
-            <Tab title="Detalji tiketa" key={"ticket-details"}>
-              <div className="grid-cols grid gap-2 lg:grid-cols-12">
-                <div className="col-span grid grid-flow-row auto-rows-max gap-2 lg:col-span-4">
-                  <Input
-                    label="Grupa"
-                    labelPlacement="inside"
-                    value={ticketState?.group?.groupName}
-                  />
-                  <Input
-                    label="Vrsta zahtjeva"
-                    labelPlacement="inside"
-                    value={ticketState?.groupPartent?.groupName}
-                  />
-                  <Input
-                    label="Datum prijave"
-                    labelPlacement="inside"
-                    value={Moment(ticketState?.createdAt).format(
-                      "DD.MM.YYYY - HH:mm",
-                    )}
-                  />
-                  <Input
-                    label="Željeni datum rješnjenja"
-                    labelPlacement="inside"
-                    value={Moment(ticketState?.clientDuoDate).format(
-                      "DD.MM.YYYY - HH:mm",
-                    )}
-                  />
-                  {ticketState?.status === "zatvoren" ? (
+    <>
+      <Toast
+        variant={message.message.variant}
+        message={message.message.message}
+        onClose={resetMessage}
+      />
+      <Modal
+        isOpen={show}
+        onOpenChange={onHide}
+        backdrop="blur"
+        size={"5xl"}
+        isDismissable={false}
+        scrollBehavior="inside"
+      >
+        <ModalContent>
+          <ModalHeader className="flex justify-between">
+            <div>
+              Tiket{" "}
+              <span className="text-default-700">#{ticketState?.ticketId}</span>
+            </div>{" "}
+            <div className="mr-3">
+              <Chip color="success">{ticketState?.status}</Chip>
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            <Tabs aria-label="Opcije" color="primary" radius="full">
+              <Tab title="Detalji tiketa" key={"ticket-details"}>
+                <div className="grid-cols grid gap-2 lg:grid-cols-12">
+                  <div className="col-span grid grid-flow-row auto-rows-max gap-2 lg:col-span-4">
                     <Input
-                      label="Datum rješenja tiketa"
+                      label="Grupa"
                       labelPlacement="inside"
-                      value={Moment(ticketState?.resolveDate).format(
+                      value={ticketState?.group?.groupName}
+                    />
+                    <Input
+                      label="Vrsta zahtjeva"
+                      labelPlacement="inside"
+                      value={ticketState?.groupPartent?.groupName}
+                    />
+                    <Input
+                      label="Datum prijave"
+                      labelPlacement="inside"
+                      value={Moment(ticketState?.createdAt).format(
                         "DD.MM.YYYY - HH:mm",
                       )}
                     />
-                  ) : (
-                    <div></div>
-                  )}
-                  {ticketState?.status !== "otvoren" ? (
                     <Input
-                      label="Tiket preuzeo"
+                      label="Željeni datum rješnjenja"
                       labelPlacement="inside"
-                      value={ticketState?.assignedTo2?.fullname}
+                      value={Moment(ticketState?.clientDuoDate).format(
+                        "DD.MM.YYYY - HH:mm",
+                      )}
                     />
-                  ) : (
-                    <div></div>
-                  )}
-                </div>
-                <div className="col-span grid w-full auto-rows-max gap-2 lg:col-span-8">
-                  <Textarea
-                    isReadOnly
-                    label="Opis problema"
-                    type="text"
-                    value={ticketState?.description}
-                    className="w-full"
-                  />
-                  {ticketState?.status === "zatvoren" ? (
+                    {ticketState?.status === "zatvoren" ? (
+                      <Input
+                        label="Datum rješenja tiketa"
+                        labelPlacement="inside"
+                        value={Moment(ticketState?.resolveDate).format(
+                          "DD.MM.YYYY - HH:mm",
+                        )}
+                      />
+                    ) : (
+                      <div></div>
+                    )}
+                    {ticketState?.status !== "otvoren" ? (
+                      <Input
+                        label="Tiket preuzeo"
+                        labelPlacement="inside"
+                        value={ticketState?.assignedTo2?.fullname}
+                      />
+                    ) : (
+                      <div></div>
+                    )}
+                  </div>
+                  <div className="col-span grid w-full auto-rows-max gap-2 lg:col-span-8">
                     <Textarea
                       isReadOnly
-                      label="Rješenje problema"
+                      label="Opis problema"
                       type="text"
-                      value={ticketState?.resolveDescription}
+                      value={ticketState?.description}
+                      className="w-full"
                     />
-                  ) : (
-                    <div></div>
-                  )}
+                    {ticketState?.status === "zatvoren" ? (
+                      <Textarea
+                        isReadOnly
+                        label="Rješenje problema"
+                        type="text"
+                        value={ticketState?.resolveDescription}
+                      />
+                    ) : (
+                      <div></div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Tab>
-            <Tab
-              className={
-                ticketState?.article?.articleId === null ? "hidden" : "inline"
-              }
-              title="Detalji opreme"
-              key={"article-details"}
-            >
-              <div className="grid-cols grid gap-2">
-                <Input
-                  label="Naziv"
-                  labelPlacement="inside"
-                  value={ticketState?.article?.stock?.name}
-                />
+              </Tab>
+              <Tab
+                className={
+                  ticketState?.article?.articleId === null ? "hidden" : "inline"
+                }
+                title="Detalji opreme"
+                key={"article-details"}
+              >
+                <div className="grid-cols grid gap-2">
+                  <Input
+                    label="Naziv"
+                    labelPlacement="inside"
+                    value={ticketState?.article?.stock?.name}
+                  />
 
-                <Input
-                  label="Inventurni broj"
-                  labelPlacement="inside"
-                  value={ticketState?.article?.invNumber}
-                />
+                  <Input
+                    label="Inventurni broj"
+                    labelPlacement="inside"
+                    value={ticketState?.article?.invNumber}
+                  />
 
-                <Input
-                  label="Serijski broj"
-                  labelPlacement="inside"
-                  value={ticketState?.article?.serialNumber}
-                />
-              </div>
-            </Tab>
-            <Tab
-              key="conversation"
-              isDisabled={totalComments() === 0}
-              title={
-                <div>
-                  <span>Informacija</span>{" "}
-                  {totalComments() > 0 ? (
-                    <Chip size="sm" color="danger">
-                      {totalComments()}
-                    </Chip>
-                  ) : (
-                    <div></div>
-                  )}
+                  <Input
+                    label="Serijski broj"
+                    labelPlacement="inside"
+                    value={ticketState?.article?.serialNumber}
+                  />
                 </div>
-              }
-            >
-              {conversation()}
-            </Tab>
-          </Tabs>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="danger" onPress={onHide}>
-            Zatvori
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+              </Tab>
+              <Tab
+                key="conversation"
+                isDisabled={totalComments() === 0}
+                title={
+                  <div>
+                    <span>Informacija</span>{" "}
+                    {totalComments() > 0 ? (
+                      <Chip size="sm" color="danger">
+                        {totalComments()}
+                      </Chip>
+                    ) : (
+                      <div></div>
+                    )}
+                  </div>
+                }
+              >
+                {conversation()}
+              </Tab>
+            </Tabs>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onPress={onHide}>
+              Zatvori
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 
   function conversation() {

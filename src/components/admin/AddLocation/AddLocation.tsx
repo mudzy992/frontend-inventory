@@ -11,7 +11,7 @@ import {
   SelectItem,
   Spinner,
 } from "@nextui-org/react";
-import { Alert } from "../../custom/Alert";
+import Toast from "../../custom/Toast";
 
 interface LocationType {
   locationId: number;
@@ -20,9 +20,9 @@ interface LocationType {
   parentLocationId: number;
 }
 interface AddLocationState {
-  error: {
-    message?: string;
-    visible: boolean;
+  message: {
+    message: string;
+    variant: string;
   };
   locationBase: LocationType[];
   isLoggedIn: boolean;
@@ -37,9 +37,7 @@ interface AddLocationState {
 
 const AddLocation: React.FC = () => {
   const [state, setState] = useState<AddLocationState>({
-    error: {
-      visible: false,
-    },
+    message: {message: "", variant: ""},
     isLoggedIn: true,
     locationBase: [],
     add: {
@@ -74,8 +72,11 @@ const AddLocation: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setIsLoggedInStatus = (isLoggedIn: boolean) => {
@@ -87,21 +88,6 @@ const AddLocation: React.FC = () => {
       Object.assign(state, {
         locationBase: locationData,
       }),
-    );
-  };
-
-  const showErrorMessage = async () => {
-    setErrorMessageVisible(true);
-  };
-
-  const setErrorMessageVisible = (newState: boolean) => {
-    setState(
-      Object.assign(
-        state,
-        Object.assign(state.error, {
-          visible: newState,
-        }),
-      ),
     );
   };
 
@@ -117,7 +103,7 @@ const AddLocation: React.FC = () => {
             return;
           }
           if (res.status === "error") {
-            setErrorMessage("Greška prilikom učitavanja lokacija.");
+            setErrorMessage("Greška prilikom učitavanja lokacija.", "danger");
             return;
           }
           setLocationData(res.data);
@@ -125,18 +111,9 @@ const AddLocation: React.FC = () => {
         },
       );
     } catch (error) {
-      setErrorMessage("Greška prilikom učitavanja lokacija.");
+      setErrorMessage("Greška prilikom učitavanja lokacija.", "danger");
       setLoading(false);
     }
-  };
-
-  /* DODATNE FUNCKIJE */
-  const printOptionalMessage = () => {
-    if (state.error.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.error.message!} />;
   };
 
   const doAddLocation = async () => {
@@ -153,16 +130,15 @@ const AddLocation: React.FC = () => {
           return;
         }
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom dodavanja lokacije.");
+          setErrorMessage("Greška prilikom dodavanja lokacije.", "danger");
           return;
         }
-        setErrorMessage("Uspješno dodana lokacija");
-        showErrorMessage();
+        setErrorMessage("Uspješno dodana lokacija", "success");
         getLocations();
         setLoading(false);
       });
     } catch (error) {
-      setErrorMessage("Greška prilikom dodavanja lokacije.");
+      setErrorMessage("Greška prilikom dodavanja lokacije.", "danger");
     }
   };
 
@@ -235,9 +211,6 @@ const AddLocation: React.FC = () => {
           </div>
           <ModalFooter className={state.add.location.name ? "" : "hidden"}>
             <div style={{ alignItems: "end" }}>
-              {/* <div>
-                            {printOptionalMessage()}
-                        </div> */}
               <Button onClick={() => doAddLocation()} color="success">
                 <i className="bi bi-plus-circle" /> Dodaj lokaciju
               </Button>
@@ -249,7 +222,13 @@ const AddLocation: React.FC = () => {
   };
   return (
     <div>
-      <div>{addForm()}</div>
+      <div>
+        {addForm()}
+        <Toast
+          variant={state.message?.variant}
+          message={state.message?.message}
+        />
+      </div>
     </div>
   );
 };

@@ -28,6 +28,14 @@ import {
   TableRow,
 } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
+import Toast from "../../custom/Toast";
+
+interface MessageType {
+  message: {
+    message: string;
+    variant: string;
+  };
+}
 
 // Funkcionalna komponenta AdminDashboardPage
 const AdminDashboardPage: React.FC = () => {
@@ -46,12 +54,21 @@ const AdminDashboardPage: React.FC = () => {
     useState<number>();
   const [unsignedDocumentId, setUnsignedDocumentId] = useState<number>();
   const [open, setOpen] = React.useState(false);
-  const [messageData, setMessage] = useState<string>("");
+  const [messageData, setMessage] = useState<MessageType>({
+    message: { message: "", variant: "" },
+  });
   const [showModal, setShowModal] = useState(false);
   const [selectedArticleTimelineId, setSelectedArticleTimelineId] = useState<
     number | null
   >(null);
   const navigate = useNavigate();
+
+  const setErrorMessage = (message: string, variant: string) => {
+    setMessage((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
+  };
 
   // useEffect hook koji se poziva nakon što se komponenta montira
   useEffect(() => {
@@ -64,21 +81,23 @@ const AdminDashboardPage: React.FC = () => {
           "administrator",
         );
         if (stockResponse.status === "login") {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
         if (stockResponse.status === "error") {
-          setMessage(
+          setErrorMessage(
             "Greška prilikom dohvaćanja posljednjeg artikla na skladištu",
+            "danger",
           );
           return;
         }
         setStock(stockResponse.data);
       } catch (err) {
-        setMessage(
+        setErrorMessage(
           "Greška prilikom dohvaćanja posljednjeg artikla na skladištu. Greška: " +
             err,
+          "danger",
         );
       }
 
@@ -90,19 +109,20 @@ const AdminDashboardPage: React.FC = () => {
           "administrator",
         );
         if (articleResponse.status === "login") {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
         if (articleResponse.status === "error") {
-          setMessage(
+          setErrorMessage(
             "Greška prilikom dohvaćanja posljednjeg artikla na skladištu",
+            "danger",
           );
           return;
         }
         setArticle(articleResponse.data);
       } catch (error) {
-        setMessage("Greška prilikom do" + error);
+        setErrorMessage("Greška prilikom do" + error, "danger");
       }
 
       try {
@@ -113,13 +133,14 @@ const AdminDashboardPage: React.FC = () => {
           "administrator",
         );
         if (unsignedDocumentResponse.status === "login") {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
         if (unsignedDocumentResponse.status === "error") {
-          setMessage(
+          setErrorMessage(
             "Greška prilikom dohvaćanja posljednjeg artikla na skladištu",
+            "danger",
           );
           return;
         }
@@ -127,7 +148,10 @@ const AdminDashboardPage: React.FC = () => {
         setUnsignedDocument(documents);
         setUnsignedDocumentCount(count);
       } catch (error) {
-        setMessage("Greška prilikom dohvaćanja dokumenta. Greška: " + error);
+        setErrorMessage(
+          "Greška prilikom dohvaćanja dokumenta. Greška: " + error,
+          "danger",
+        );
       }
     };
     fatchData();
@@ -145,13 +169,14 @@ const AdminDashboardPage: React.FC = () => {
         );
 
         if (paginatedArticleResponse.status === "login") {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
         if (paginatedArticleResponse.status === "error") {
-          setMessage(
+          setErrorMessage(
             "Greška prilikom dohvaćanja posljednjeg artikla na skladištu",
+            "danger",
           );
           return;
         }
@@ -161,8 +186,9 @@ const AdminDashboardPage: React.FC = () => {
         const totalPages: number = Math.ceil(totalCount / articleItemsPerPage);
         setArticleTotalPage(totalPages);
       } catch (error) {
-        setMessage(
+        setErrorMessage(
           "Greška prilikom dohvaćanja artikala u tabelu. Greška: " + error,
+          "danger",
         );
       }
     };
@@ -185,18 +211,21 @@ const AdminDashboardPage: React.FC = () => {
       const response = await api(apiUrl, "get", {}, "administrator");
 
       if (response.status === "login") {
-        navigate('/login');
+        navigate("/login");
         return [];
       }
 
       if (response.status === "error") {
-        setMessage("Greška prilikom dohvaćanja artikala");
+        setErrorMessage("Greška prilikom dohvaćanja artikala", "danger");
         return [];
       }
 
       return response.data || [];
     } catch (error) {
-      setMessage("Greška prilikom dohvaćanja artikala. Greška: " + error);
+      setErrorMessage(
+        "Greška prilikom dohvaćanja artikala. Greška: " + error,
+        "danger",
+      );
       return [];
     }
   };
@@ -271,10 +300,13 @@ const AdminDashboardPage: React.FC = () => {
 
       setUnsignedDocumentCount((prevCount) => (prevCount ?? 0) - 1);
 
-      setMessage("Dokument uspješno dodan!");
+      setErrorMessage("Dokument uspješno dodan!", "success");
       handleClick();
     } catch (error) {
-      setMessage("Greška prilikom uploada dokumenta. Greška: " + error);
+      setErrorMessage(
+        "Greška prilikom uploada dokumenta. Greška: " + error,
+        "danger",
+      );
     }
   };
 
@@ -592,6 +624,10 @@ const AdminDashboardPage: React.FC = () => {
         show={showModal}
         onHide={handleHideModal}
         articleTimlineId={selectedArticleTimelineId!}
+      />
+      <Toast
+        variant={messageData.message.variant}
+        message={messageData.message.message}
       />
       <AdminMenu />
     </div>

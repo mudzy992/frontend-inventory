@@ -50,6 +50,7 @@ import { useUserContext } from "../../UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
 import NewTicketByArticleModal from "../HelpDesk/new/ByArticle/NewTicketByArticleModal";
 import ViewSingleTicketModal from "../HelpDesk/view/ViewSingleTicket";
+import Toast from "../../custom/Toast";
 
 interface upgradeFeaturesType {
   upgradeFeatureId: number;
@@ -67,11 +68,10 @@ type UserTypeBase = {
 
 interface AdminArticleOnUserPageState {
   userArticle: UserArticleDto[];
-  message: string;
+  message: { message: string; variant: string };
   article: ArticleType;
   users: UserType[];
-  isLoggedIn: boolean;
-  errorMessage: string;
+  errorMessage: { message: string; variant: string };
   expandedCards: boolean[];
   changeStatus: {
     visible: boolean;
@@ -102,11 +102,10 @@ const AdminArticleOnUserPage: React.FC = () => {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [state, setState] = useState<AdminArticleOnUserPageState>({
-    message: "",
+    message: { message: "", variant: "" },
     users: [],
     article: {},
-    isLoggedIn: true,
-    errorMessage: "",
+    errorMessage: { message: "", variant: "" },
     expandedCards: new Array(2).fill(false),
     changeStatus: {
       userId: Number(),
@@ -215,23 +214,14 @@ const AdminArticleOnUserPage: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string) => {
+  const setErrorMessage = (message: string, variant: string) => {
     setState((prev) => ({
       ...prev,
-      errorMessage: message,
+      message: { message, variant },
     }));
   };
 
   const navigate = useNavigate();
-  const setLogginState = (isLoggedIn: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      isLoggedIn: isLoggedIn,
-    }));
-    if (isLoggedIn === false) {
-      navigate("/login");
-    }
-  };
 
   const setArticle = (articleData: ArticleType) => {
     setState((prev) => ({
@@ -254,20 +244,21 @@ const AdminArticleOnUserPage: React.FC = () => {
           if (res.status === "error") {
             setErrorMessage(
               "Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije",
+              "danger",
             );
             return;
           }
           if (res.status === "login") {
-            return setLogginState(false);
+            return navigate("/login");
           }
           const data: ArticleType = res.data;
-          setErrorMessage("");
           setArticle(data);
         },
       );
     } catch (err) {
       setErrorMessage(
         "Greška prilikom dohvaćanja podataka za artikle. Greška: " + err,
+        "danger",
       );
     }
   }, [serial]);
@@ -277,7 +268,7 @@ const AdminArticleOnUserPage: React.FC = () => {
       await api("/api/user/?sort=forname,ASC", "get", {}, "administrator").then(
         (res: ApiResponse) => {
           if (res.status === "login") {
-            return setLogginState(false);
+            return navigate("/login");
           }
 
           setUsers(res.data);
@@ -287,6 +278,7 @@ const AdminArticleOnUserPage: React.FC = () => {
       setErrorMessage(
         "Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: " +
           err,
+        "danger",
       );
     }
   }, [serial]);
@@ -301,7 +293,7 @@ const AdminArticleOnUserPage: React.FC = () => {
           "administrator",
         );
         if (res.status === "login") {
-          setLogginState(false);
+          navigate("/login");
           return { items: [] };
         }
         return { items: res.data };
@@ -309,6 +301,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         setErrorMessage(
           "Greška prilikom dohvaćanja podataka o korisnicima (AdminArticleOnUserPage). Greška: " +
             err,
+          "danger",
         );
         return { items: [] };
       }
@@ -324,7 +317,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         role as UserRole,
       ).then((res: ApiResponse) => {
         if (res.status === "login") {
-          return setLogginState(false);
+          return navigate("/login");
         }
         setUpgradeFeature(res.data);
       });
@@ -332,6 +325,7 @@ const AdminArticleOnUserPage: React.FC = () => {
       setErrorMessage(
         "Greška prilikom dohvaćanja dodataka (AdminArticleOnUserPage). Greška: " +
           err,
+        "danger",
       );
     }
   }, [serial]);
@@ -346,7 +340,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         setLoading(false);
       } catch (err) {
         setLoading(true);
-        setErrorMessage("Error fetching data:" + err);
+        setErrorMessage("Error fetching data:" + err, "danger");
       }
     };
 
@@ -366,7 +360,7 @@ const AdminArticleOnUserPage: React.FC = () => {
       "administrator",
     ).then((res: ApiResponse) => {
       if (res.status === "login") {
-        return setLogginState(false);
+        return navigate("/login");
       }
       getUpgradeFeature();
 
@@ -496,12 +490,12 @@ const AdminArticleOnUserPage: React.FC = () => {
       },
       "administrator",
     ).then((res: ApiResponse) => {
-      /* Uhvatiti grešku gdje korisnik nema prava da mjenja status */
       if (res.status === "login") {
-        setLogginState(false);
+        navigate("/login");
         return;
       }
       setChangeStatusVisibleState(false);
+      setErrorMessage("Prenos opreme uspješno izvršen!", "success");
       getArticleData();
 
       setState((prev) => ({
@@ -664,18 +658,6 @@ const AdminArticleOnUserPage: React.FC = () => {
     }
   }
 
-  const printOptionalMessage = () => {
-    if (state.message === "") {
-      return;
-    }
-
-    return (
-      <Card>
-        <CardBody>{state.message}</CardBody>
-      </Card>
-    );
-  };
-
   return (
     <div>
       <RoledMainMenu />
@@ -709,18 +691,7 @@ const AdminArticleOnUserPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardBody>
-              {printOptionalMessage()}
-
               {state.article ? renderArticleData(state.article) : ""}
-              <Card
-                style={{ marginTop: 15 }}
-                className={state.errorMessage ? "" : "hidden"}
-              >
-                <CardBody>
-                  <i className="bi bi-exclamation-circle-fill"></i>{" "}
-                  {state.errorMessage}
-                </CardBody>
-              </Card>
             </CardBody>
           </Card>
         )}
@@ -729,6 +700,10 @@ const AdminArticleOnUserPage: React.FC = () => {
         show={showModal}
         onHide={handleHideModal}
         data={state.article}
+      />
+      <Toast
+        variant={state.errorMessage.variant}
+        message={state.errorMessage.message}
       />
     </div>
   );
@@ -864,7 +839,7 @@ const AdminArticleOnUserPage: React.FC = () => {
       "administrator",
     ).then((res: ApiResponse) => {
       if (res.status === "login") {
-        setLogginState(false);
+        navigate("/login");
         return;
       }
       getUpgradeFeature();

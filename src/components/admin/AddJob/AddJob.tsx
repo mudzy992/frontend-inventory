@@ -9,9 +9,7 @@ import {
   ModalHeader,
   Textarea,
 } from "@nextui-org/react";
-import { Alert } from "../../custom/Alert";
-/* import { Redirect } from 'react-router-dom'; */
-
+import Toast from "../../custom/Toast";
 interface JobType {
   jobId: number;
   title: string;
@@ -20,9 +18,9 @@ interface JobType {
 }
 
 interface AddJobState {
-  error: {
-    message?: string;
-    visible: boolean;
+  message: {
+    message: string;
+    variant: string;
   };
   jobBase: JobType[];
   isLoggedIn: boolean;
@@ -37,9 +35,7 @@ interface AddJobState {
 
 const AddJob: React.FC = () => {
   const [state, setState] = useState<AddJobState>({
-    error: {
-      visible: false,
-    },
+    message: {message: "", variant: ""},
     isLoggedIn: true,
     jobBase: [],
     add: {
@@ -69,8 +65,11 @@ const AddJob: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setLoggedInStatus = (isLoggedIn: boolean) => {
@@ -85,21 +84,6 @@ const AddJob: React.FC = () => {
     );
   };
 
-  const showErrorMessage = async () => {
-    setErrorMessageVisible(true);
-  };
-
-  const setErrorMessageVisible = (newState: boolean) => {
-    setState(
-      Object.assign(
-        state,
-        Object.assign(state.error, {
-          visible: newState,
-        }),
-      ),
-    );
-  };
-
   /* GET */
 
   const getJobs = () => {
@@ -110,21 +94,15 @@ const AddJob: React.FC = () => {
           return;
         }
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom učitavanja radnih mjesta.");
+          setErrorMessage(
+            "Greška prilikom učitavanja radnih mjesta.",
+            "danger",
+          );
           return;
         }
         setJobData(res.data);
       },
     );
-  };
-
-  /* DODATNE FUNCKIJE */
-  const printOptionalMessage = () => {
-    if (state.error.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.error.message!} />;
   };
 
   const doAddJob = () => {
@@ -135,11 +113,10 @@ const AddJob: React.FC = () => {
           return;
         }
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom dodavanja radnog mjesta.");
+          setErrorMessage("Greška prilikom dodavanja radnog mjesta.", "danger");
           return;
         }
-        setErrorMessage("Uspješno dodano radno mjesto");
-        showErrorMessage();
+        setErrorMessage("Uspješno dodano radno mjesto", "success");
         getJobs();
       },
     );
@@ -201,7 +178,13 @@ const AddJob: React.FC = () => {
   };
   return (
     <div>
-      <div>{addForm()}</div>
+      <div>
+        {addForm()}
+        <Toast
+          variant={state.message?.variant}
+          message={state.message?.message}
+        />
+      </div>
     </div>
   );
 };

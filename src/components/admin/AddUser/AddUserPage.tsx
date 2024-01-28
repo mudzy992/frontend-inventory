@@ -9,7 +9,6 @@ import AddDepartment from "../AddDepartment/AddDepartment";
 import AddJob from "../AddJob/AddJob";
 import AddLocation from "../AddLocation/AddLocation";
 import AddDepartmentJobLocation from "./AddDepartmentJobLocation";
-import { Alert } from "../../custom/Alert";
 import {
   Button,
   Card,
@@ -23,6 +22,7 @@ import {
   SelectItem,
 } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
+import Toast from "../../custom/Toast";
 
 interface LocationDto {
   locationId: number;
@@ -37,7 +37,7 @@ interface JobBaseType {
   jobCode: string;
 }
 interface AddUserPageState {
-  message: string;
+  message: { message: string; variant: string };
   isLoggedIn: boolean;
   addUser: {
     surname: string;
@@ -74,8 +74,8 @@ interface AddUserPageState {
 }
 const AddUserPage: React.FC = () => {
   const [state, setState] = useState<AddUserPageState>({
-    message: "",
     isLoggedIn: true,
+    message: { message: "", variant: "" },
     addUser: {
       surname: "",
       forname: "",
@@ -115,8 +115,11 @@ const AddUserPage: React.FC = () => {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   /* SET */
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setAddUserStringFieldState = (fieldName: string, newValue: string) => {
@@ -222,7 +225,7 @@ const AddUserPage: React.FC = () => {
         },
       },
     }));
-    getJobsByDepartmentId(state.addUser.departmentId); // Ovo ne radi kako je zamišljeno
+    getJobsByDepartmentId(state.addUser.departmentId);
   };
 
   const setLogginState = (isLoggedIn: boolean) => {
@@ -239,7 +242,7 @@ const AddUserPage: React.FC = () => {
     api("api/location?sort=name,ASC", "get", {}, "administrator").then(
       async (res: ApiResponse) => {
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom hvatanja lokacija");
+          setErrorMessage("Greška prilikom hvatanja lokacija", "danger");
         }
         if (res.status === "login") {
           return setLogginState(false);
@@ -251,7 +254,10 @@ const AddUserPage: React.FC = () => {
     api("api/department?sort=title,ASC", "get", {}, "administrator").then(
       async (res: ApiResponse) => {
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom hvatanja sektora i odjeljenja");
+          setErrorMessage(
+            "Greška prilikom hvatanja sektora i odjeljenja",
+            "danger",
+          );
         }
         setDepartment(res.data);
       },
@@ -267,9 +273,7 @@ const AddUserPage: React.FC = () => {
   ): Promise<JobBaseType[]> => {
     return new Promise((resolve) => {
       api(
-        "api/job/?filter=departmentJobs.departmentId||$eq||" +
-          departmentId +
-          "/&sort=title,ASC",
+        `api/job/department/${departmentId}`,
         "get",
         {},
         "administrator",
@@ -278,7 +282,7 @@ const AddUserPage: React.FC = () => {
           return setLogginState(false);
         }
         if (res.status === "error") {
-          setErrorMessage("Greška prilikom hvatanja radnih mjesta");
+          setErrorMessage("Greška prilikom hvatanja radnih mjesta", "danger");
         }
 
         const jobs: JobBaseType[] = res.data.map((item: any) => ({
@@ -292,15 +296,6 @@ const AddUserPage: React.FC = () => {
   };
 
   /* Kraj GET */
-  /* Dodatne funkcije */
-  const printOptionalMessage = () => {
-    if (state.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.message} />;
-  };
-
   const doAddUser = () => {
     api(
       "api/user/add/",
@@ -326,7 +321,7 @@ const AddUserPage: React.FC = () => {
       }
 
       if (res.status === "ok") {
-        setErrorMessage("Korisnik dodan");
+        setErrorMessage("Korisnik uspješno dodan", "success");
         setState((prev) => ({
           ...prev,
           addUser: {
@@ -670,13 +665,6 @@ const AddUserPage: React.FC = () => {
                 Dodaj korisnika
               </Button>
             </div>
-
-            <div
-              style={{ marginTop: 15 }}
-              className={state.errorMessage ? "" : "hidden"}
-            >
-              <Alert title="Info" body={state.errorMessage} variant="success" />
-            </div>
           </CardFooter>
         </Card>
       </div>
@@ -688,8 +676,11 @@ const AddUserPage: React.FC = () => {
       <RoledMainMenu />
 
       <div className="container mx-auto mt-3 h-max lg:px-4">
-        {printOptionalMessage()}
         {addForm()}
+        <Toast
+          variant={state.message?.variant}
+          message={state.message?.message}
+        />
         <AdminMenu />
       </div>
     </div>

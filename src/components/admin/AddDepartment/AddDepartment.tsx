@@ -12,9 +12,7 @@ import {
   Spinner,
   Textarea,
 } from "@nextui-org/react";
-import { Alert } from "../../custom/Alert";
-
-/* import { Redirect } from 'react-router-dom'; */
+import Toast from "../../custom/Toast";
 
 interface DepartmentType {
   departmentId: number;
@@ -25,9 +23,9 @@ interface DepartmentType {
 }
 
 interface AddDepartmentState {
-  error: {
-    message?: string;
-    visible: boolean;
+  message: {
+    message: string;
+    variant: string;
   };
   departmentBase: DepartmentType[];
   isLoggedIn: boolean;
@@ -43,8 +41,9 @@ interface AddDepartmentState {
 
 const AddDepartment: React.FC = () => {
   const [state, setState] = useState<AddDepartmentState>({
-    error: {
-      visible: false,
+    message: {
+      message: "",
+      variant: "",
     },
     departmentBase: [],
     isLoggedIn: true,
@@ -81,8 +80,11 @@ const AddDepartment: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string) => {
-    setState((prev) => ({ ...prev, message: message }));
+  const setErrorMessage = (message: string, variant: string) => {
+    setState((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
   };
 
   const setIsLoggedInStatus = (isLoggedIn: boolean) => {
@@ -94,21 +96,6 @@ const AddDepartment: React.FC = () => {
       Object.assign(state, {
         departmentBase: departmentData,
       }),
-    );
-  };
-
-  const showErrorMessage = async () => {
-    setErrorMessageVisible(true);
-  };
-
-  const setErrorMessageVisible = (newState: boolean) => {
-    setState(
-      Object.assign(
-        state,
-        Object.assign(state.error, {
-          visible: newState,
-        }),
-      ),
     );
   };
 
@@ -130,6 +117,7 @@ const AddDepartment: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom učitavanja sektora/službei/odjeljenja.",
+            "danger",
           );
           return;
         }
@@ -137,18 +125,12 @@ const AddDepartment: React.FC = () => {
         setLoading(false);
       });
     } catch (error) {
-      setErrorMessage("Greška prilikom učitavanja sektora/službei/odjeljenja.");
+      setErrorMessage(
+        "Greška prilikom učitavanja sektora/službei/odjeljenja.",
+        "danger",
+      );
       setLoading(false);
     }
-  };
-
-  /* DODATNE FUNCKIJE */
-  const printOptionalMessage = () => {
-    if (state.error.message === "") {
-      return;
-    }
-
-    return <Alert title="info" variant="info" body={state.error.message!} />;
   };
 
   const doAddDepartment = () => {
@@ -161,11 +143,11 @@ const AddDepartment: React.FC = () => {
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom dodavanja sektora/službe/odjeljenja.",
+            "danger",
           );
           return;
         }
-        setErrorMessage("Uspješno dodan sektor/služba/odjeljenje");
-        showErrorMessage();
+        setErrorMessage("Uspješno dodan sektor/služba/odjeljenje", "success");
         getDepartments();
       },
     );
@@ -271,7 +253,13 @@ const AddDepartment: React.FC = () => {
 
   return (
     <div>
-      <div>{addForm()}</div>
+      <div>
+        {addForm()}
+        <Toast
+          variant={state.message.variant}
+          message={state.message.message}
+        />
+      </div>
     </div>
   );
 };

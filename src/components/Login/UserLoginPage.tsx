@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import api, { ApiResponse, saveRefreshToken, saveToken } from "../../API/api";
 import { useNavigate } from "react-router-dom";
-import { Alert } from "../custom/Alert";
 import { Button, Divider, Input } from "@nextui-org/react";
 import { saveIdentity, useUserContext } from "../UserContext/UserContext";
+import Toast from "../custom/Toast";
 
 interface UserLoginPageState {
   email: string;
   password: string;
   userID: number;
-  errorMessage: string;
+  errorMessage: {message: string, variant: string};
   isLoggedIn: boolean;
   isAlertClosed: boolean;
 }
@@ -19,7 +19,7 @@ const UserLoginPage: React.FC = () => {
     email: "",
     password: "",
     userID: 0,
-    errorMessage: "",
+    errorMessage: {message:"", variant: ""},
     isLoggedIn: false,
     isAlertClosed: false,
   });
@@ -28,7 +28,6 @@ const UserLoginPage: React.FC = () => {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const { setUserId, setRole } = useUserContext();
-  const [userRole, setUserRole] = useState<string>("");
 
   const formInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, [event.target.id]: event.target.value });
@@ -54,37 +53,20 @@ const UserLoginPage: React.FC = () => {
     });
   };
 
-  const closeAlert = () => {
-    setState((prev) => ({ ...prev, isAlertClosed: true }));
-  };
-
-  const openAlert = () => {
-    setState((prev) => ({ ...prev, isAlertClosed: false }));
-  };
-
-  const setErrorMessage = (message: string) => {
+  const setErrorMessage = (message: string, variant: string) => {
     setState((prev) => ({
       ...prev,
-      errorMessage: message,
-      isAlertClosed: false,
+      errorMessage: { message, variant },
     }));
   };
 
-  const printErrorMessage = () => {
-    if (!state.errorMessage || state.isAlertClosed) {
-      return null;
-    }
-    return (
-      <Alert
-        showCloseButton={true}
-        variant="danger"
-        title="Upozorenje!"
-        body={state.errorMessage}
-        isOpen={!state.isAlertClosed}
-        onClose={closeAlert}
-      />
-    );
+  const resetMessage = () => {
+    setState((prev) => ({
+      ...prev,
+      errorMessage: { message: "", variant: "" },
+    }));
   };
+
 
   const doLogin = async () => {
     api("auth/login", "post", {
@@ -92,7 +74,7 @@ const UserLoginPage: React.FC = () => {
       password: state.password,
     }).then(async (res: ApiResponse) => {
       if (res.status === "error") {
-        setErrorMessage("System error... Try again!");
+        setErrorMessage("Sistemska greška.. Pokušajte ponovo!", "danger");
         return;
       }
 
@@ -107,7 +89,7 @@ const UserLoginPage: React.FC = () => {
               break;
           }
 
-          setErrorMessage(message);
+          setErrorMessage(message, "danger");
           return;
         }
         if (res.status === "ok") {
@@ -119,19 +101,15 @@ const UserLoginPage: React.FC = () => {
 
           if (res.data.role === "user") {
             navigate(`/user/profile/${res.data.id}`);
+            await setErrorMessage("Dobrodošli nazad", "success")
           } else if (res.data.role === "administrator" || "moderator") {
             navigate(`/`);
+            await setErrorMessage("Dobrodošli nazad", "success")
           }
         }
       }
     });
   };
-
-  useEffect(() => {
-    if (state.errorMessage && !state.isAlertClosed) {
-      openAlert();
-    }
-  }, [state.errorMessage, state.isAlertClosed]);
 
   return (
     <div className="grid gap-3">
@@ -192,7 +170,7 @@ const UserLoginPage: React.FC = () => {
         <i className="bi bi-box-arrow-in-right text-xl text-default-500" />{" "}
         Prijava
       </Button>
-      <div>{printErrorMessage()}</div>
+      <Toast variant={state.errorMessage.variant} message={state.errorMessage.message} onClose={resetMessage} />
     </div>
   );
 };

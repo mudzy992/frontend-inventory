@@ -7,6 +7,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
+  Progress,
 } from "@nextui-org/react";
 
 interface ArticleTimelineProps {
@@ -94,12 +95,12 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({
     genderPreuzeoColor = "lightpink";
   }
   return (
-    <Modal isOpen={show} onClose={onHide} size="lg" backdrop="blur">
+    <Modal isOpen={show} onClose={onHide} size="2xl" backdrop="blur">
       <ModalContent>
         <ModalHeader>Vremenska linija artikla</ModalHeader>
         <ModalBody>
-          <div className="flex items-center justify-center">
-            <div className="flex flex-col items-center">
+          <div className="flex w-full justify-between">
+            <div className="flex flex-col items-center flex-wrap w-[35%]">
               <div className="mb-2">
                 <Avatar
                   className="avatarmodal"
@@ -112,26 +113,17 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({
                 {articleTimelineData?.subbmited.fullname}
               </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center">
+            <div className="flex items-center justify-center flex-col w-full pl-3 pr-3">
               <div>{articleTimelineData?.article.stock.name}</div>
-              <div className="mt-1">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-arrow-right"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M1 8a.5.5 0 0 1 .5-.5h14.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L15.293 8.5H1.5A.5.5 0 0 1 1 8"
-                  />
-                </svg>
-              </div>
+                <Progress
+                  size="sm"
+                  isIndeterminate
+                  aria-label="Loading..."
+                  className="max-w-md"
+                />
               <div className="mt-1">{articleTimelineData?.invNumber}</div>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center flex-wrap w-[35%]">
               <div className="mb-2">
                 <Avatar
                   className="avatarmodal"

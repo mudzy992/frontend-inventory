@@ -169,7 +169,7 @@ const AddArticlePage: React.FC = () => {
     try {
       setLoading(true);
       await api(
-        "api/article/?join=articleFeatures&join=features&join=category",
+        "api/article/?join=stock&join=stockFeatures&join=features&join=category",
         "get",
         {},
         "administrator",

@@ -292,7 +292,6 @@ const AddArticlePage: React.FC = () => {
   };
 
   const addArticleCategoryChanged = async (selectedValue: any) => {
-    console.log(selectedValue.target.value);
     setAddArticleNumberFieldState("categoryId", selectedValue.target.value);
 
     const features = await getFeaturesByCatId(selectedValue.target.value);

@@ -256,10 +256,10 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
   ) : (
     <div className="container mx-auto">
       <div className="grid-cols grid gap-3 lg:grid-cols-6 lg:p-2">
-        <div className="user-container col-span-2 border-3">
-          <div className="user-container details">
+        <div className="flex flex-col items-center justify-center col-span-2 rounded-lg border-0 bg-gradient-to-r from-cyan-500 to-blue-500">
+          <div className="text-md flex items-center justify-center flex-col w-full p-4">
             <Avatar
-              className="ikonica"
+              className="w-[150px] h-[150px]"
               style={{ border: `10px solid ${genderColor}` }}
             >
               {" "}
@@ -271,7 +271,7 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
             </div>
             <div style={{ fontSize: "14px" }}>{data.email}</div>
             <div style={{ fontSize: "14px" }}>{data.job?.title}</div>
-            <div className="activity-status">
+            <div className="flex justify-start flex-col items-start mt-20 w-full text-tiny ">
               <div>
                 <i className="bi bi-calendar3" /> {lastActivityText}
               </div>
@@ -287,7 +287,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
               value={editUserState.surname}
               type="text"
               label="Ime"
-              variant="bordered"
               onValueChange={(value: string) =>
                 setEditUserStringFieldState("surname", value)
               }
@@ -297,7 +296,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
               value={editUserState.forname}
               type="text"
               label="Prezime"
-              variant="bordered"
               onValueChange={(value: string) =>
                 setEditUserStringFieldState("forname", value)
               }
@@ -307,7 +305,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
               value={editUserState.code.toString()}
               type="number"
               label="Kadrovski broj"
-              variant="bordered"
               onValueChange={(value: string) =>
                 setEditUserStringFieldState("code", value)
               }
@@ -318,7 +315,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
               value={editUserState.email}
               type="email"
               label="Email"
-              variant="bordered"
               onValueChange={(value: string) =>
                 setEditUserStringFieldState("email", value)
               }
@@ -327,7 +323,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
               value={editUserState.telephone}
               type="text"
               label="Telefon"
-              variant="bordered"
               onValueChange={(value: string) =>
                 setEditUserStringFieldState("telephone", value)
               }
@@ -336,7 +331,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
               value={editUserState.localNumber}
               type="number"
               label="Telefon/lokal"
-              variant="bordered"
               onValueChange={(value: string) =>
                 setEditUserStringFieldState("localNumber", value)
               }
@@ -447,7 +441,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
             <div className="grid-cols mb-3 grid gap-2">
               <Input
                 label="Lozinka"
-                variant="bordered"
                 placeholder="Ukucajte lozinku"
                 value={editUserState.passwordHash}
                 onChange={(e) =>

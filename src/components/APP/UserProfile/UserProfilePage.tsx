@@ -12,7 +12,7 @@ import UserTickets from "./components/UserTickets";
 
 const AdminUserProfilePage: React.FC = () => {
   const { userID } = useParams();
-  const { role } = useUserContext();
+  const { role, userId } = useUserContext();
   const [user, setUser] = useState<UserType>({});
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -72,7 +72,7 @@ const AdminUserProfilePage: React.FC = () => {
             <Tab key="zaduzeni-artikli" title="Zaduženi artikli">
               <ResponsibilityArticles data={user} />
             </Tab>
-            <Tab key="tiketi" title="Helpdesk">
+            <Tab className={user.userId !== userId ? "hidden" : "block"} key="tiketi" title="Helpdesk">
               <UserTickets data={user} />
             </Tab>
           </Tabs>

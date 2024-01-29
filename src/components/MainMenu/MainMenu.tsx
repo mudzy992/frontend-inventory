@@ -140,19 +140,25 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
             aria-label={isMenuOpen ? "Zatvori meni" : "Otvori meni"}
           />
         </NavbarContent>
-        <NavbarContent className="pr-3 sm:hidden" justify="center">
+        <NavbarContent className="pr-3 sm:hidden " justify="center">
           <NavbarBrand className="justify-start">
-            <i className="bi bi-shop mr-2 text-xl" />
-            <Link href={getNavbarBrandHref()} className="text-white">
+            <i className="bi bi-incognito incognito-icon mr-2 bg-gradient-to-r from-amber-500 to-pink-500 bg-clip-text text-3xl text-transparent" />
+            <Link
+              href={getNavbarBrandHref()}
+              className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent"
+            >
               <span className="font-bold text-inherit">Inventory Database</span>{" "}
             </Link>
           </NavbarBrand>
         </NavbarContent>
 
-        <NavbarContent className="hidden gap-4 sm:flex" justify="center">
-          <NavbarBrand className="justify-start">
-            <i className="bi bi-shop mr-2 text-xl" />
-            <Link href={getNavbarBrandHref()} className="text-white">
+        <NavbarContent className="hidden gap-4 sm:flex " justify="center">
+          <NavbarBrand className="justify-start ">
+            <i className="bi bi-incognito incognito-icon mr-2 bg-gradient-to-r from-amber-500 to-pink-500 bg-clip-text text-3xl text-transparent" />
+            <Link
+              href={getNavbarBrandHref()}
+              className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent"
+            >
               <span className="font-bold text-inherit">Inventory Database</span>{" "}
             </Link>
           </NavbarBrand>

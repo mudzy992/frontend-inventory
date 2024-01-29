@@ -115,8 +115,8 @@ const HomePage: React.FC<HomePageState> = () => {
         <CardHeader>{category.name}</CardHeader>
         <CardBody>
           <i
-            className={category.imagePath}
-            style={{ fontSize: 50, display: "flex", justifyContent: "center" }}
+            className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
+            style={{ fontSize: 60, display: "flex", justifyContent: "center" }}
           />
         </CardBody>
         <CardFooter className="flex justify-center"></CardFooter>

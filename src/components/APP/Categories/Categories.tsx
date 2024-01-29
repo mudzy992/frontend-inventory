@@ -170,7 +170,7 @@ const CategoryPage: React.FC = () => {
       <CardHeader>{category.name}</CardHeader>
       <CardBody>
         <i
-          className={category.imagePath}
+          className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
           style={{ fontSize: 60, display: "flex", justifyContent: "center" }}
         />
       </CardBody>

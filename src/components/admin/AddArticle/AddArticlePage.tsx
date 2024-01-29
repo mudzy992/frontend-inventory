@@ -169,7 +169,7 @@ const AddArticlePage: React.FC = () => {
     try {
       setLoading(true);
       await api(
-        "api/article/?join=articleFeatures&join=features&join=category",
+        "api/article/?join=stock&join=stockFeatures&join=features&join=category",
         "get",
         {},
         "administrator",
@@ -292,7 +292,6 @@ const AddArticlePage: React.FC = () => {
   };
 
   const addArticleCategoryChanged = async (selectedValue: any) => {
-    console.log(selectedValue.target.value);
     setAddArticleNumberFieldState("categoryId", selectedValue.target.value);
 
     const features = await getFeaturesByCatId(selectedValue.target.value);

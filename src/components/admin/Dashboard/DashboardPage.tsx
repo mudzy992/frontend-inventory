@@ -272,10 +272,10 @@ const AdminDashboardPage: React.FC = () => {
 
   const handleButtonClick = (documentId: any) => {
     const fileInput = document.getElementById("dropzone-file");
-    setUnsignedDocumentId(documentId);
     if (fileInput) {
       fileInput.click();
     }
+    setUnsignedDocumentId(documentId)
   };
 
   const handleFileUpload = async (documentId: number, file: File) => {
@@ -471,7 +471,7 @@ const AdminDashboardPage: React.FC = () => {
                           color="success"
                           variant="shadow"
                           onClick={() =>
-                            handleButtonClick(document?.documentsId)
+                            handleButtonClick(document.documentsId)
                           }
                         >
                           {" "}

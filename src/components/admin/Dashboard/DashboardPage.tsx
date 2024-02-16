@@ -102,25 +102,7 @@ const AdminDashboardPage: React.FC = () => {
       }
 
       try {
-        const articleResponse = await api(
-          "/api/admin/dashboard/article",
-          "get",
-          {},
-          "administrator",
-        );
-        if (articleResponse.status === "login") {
-          navigate("/login");
-          return;
-        }
-
-        if (articleResponse.status === "error") {
-          setErrorMessage(
-            "Greška prilikom dohvaćanja posljednjeg artikla na skladištu",
-            "danger",
-          );
-          return;
-        }
-        setArticle(articleResponse.data);
+        fetchAllArticles()
       } catch (error) {
         setErrorMessage("Greška prilikom do" + error, "danger");
       }
@@ -219,7 +201,7 @@ const AdminDashboardPage: React.FC = () => {
         setErrorMessage("Greška prilikom dohvaćanja artikala", "danger");
         return [];
       }
-
+      setArticle(response.data)
       return response.data || [];
     } catch (error) {
       setErrorMessage(

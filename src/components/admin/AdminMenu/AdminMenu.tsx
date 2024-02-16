@@ -15,6 +15,11 @@ const AdminMenu = () => {
       link: "/admin/article",
     },
     {
+      icon: <i className="bi bi-database-add" style={{ fontSize: "21px" }} />,
+      name: "Artikli",
+      link: "/admin/article/add",
+    },
+    {
       icon: <i className="bi bi-list-stars" style={{ fontSize: "21px" }} />,
       name: "Osobine",
       link: "/admin/feature",

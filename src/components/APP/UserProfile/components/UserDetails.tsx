@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import api, { ApiResponse } from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../UserContext/UserContext";
+import OrganizationType from "../../../../types/OrganizationType";
 
 type UserProps = {
   data: UserType;
@@ -29,6 +30,7 @@ interface EdistUserStateProps {
   departmentId: number;
   jobId: number;
   locationId: number;
+  organizationId: number;
   status: string;
   passwordHash: string;
   code: number;
@@ -42,6 +44,7 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
   const [departmentData, setDepartmentData] = useState<DepartmentType[]>([]);
   const [jobData, setJobData] = useState<JobType[]>([]);
   const [locationData, setLocationData] = useState<LocationType[]>([]);
+  const [organizationData, setOrganizationData] = useState<OrganizationType[]>([]);
   const [selectedLocationId, setSelectedLocationId] = useState("");
   const [dataReady, setDataReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,6 +59,7 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
       departmentId: Number(),
       jobId: Number(),
       locationId: Number(),
+      organizationId: Number(),
       status: "",
       passwordHash: "",
       code: Number(),
@@ -103,6 +107,22 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
       );
       const data = res.data;
       setDepartmentData(data);
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getOrganizationsData = async () => {
+    try {
+      const res: ApiResponse = await api(
+        "api/organization",
+        "get",
+        {},
+        role as UserRole,
+      );
+      const data = res.data;
+      setOrganizationData(data);
       return data;
     } catch (error) {
       throw error;
@@ -158,6 +178,7 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
       departmentId: user.departmentId || 0,
       jobId: user.jobId || 0,
       locationId: user.locationId || 0,
+      organizationId: user.organizationId || 0,
       status: user.status || "",
       code: user.code || 0,
       gender: user.gender || "",
@@ -169,6 +190,7 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
       try {
         setLoading(true);
         await getDepartmentData();
+        await getOrganizationsData();
         const fetchedLocationData = await getLocationData();
         setLocationData(fetchedLocationData);
       } catch (error) {
@@ -403,6 +425,25 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
               ))}
             </Select>
             <Select
+              label="Organizacija"
+              selectedKeys={
+                editUserState.organizationId ? [`${editUserState.organizationId}`] : []
+              }
+              onChange={(e: any) => {
+                setEditUserStringFieldState("organizationId", e.target.value);
+              }}
+            >
+              {organizationData.map((organization, index) => (
+                <SelectItem
+                  key={organization.organizationId || index}
+                  textValue={organization.name}
+                  value={organization.organizationId}
+                >
+                  {organization.name}
+                </SelectItem>
+              ))}
+            </Select>
+            <Select
               label="Spol"
               selectedKeys={
                 editUserState.gender ? [`${editUserState.gender}`] : []
@@ -418,6 +459,8 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
                 žensko
               </SelectItem>
             </Select>
+            </div>
+            <div className="grid-cols lg:grid-cols-2 mb-3 grid gap-2">
             <Select
               label="Status"
               selectedKeys={
@@ -438,7 +481,6 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
                 neaktivan
               </SelectItem>
             </Select>
-            <div className="grid-cols mb-3 grid gap-2">
               <Input
                 label="Lozinka"
                 placeholder="Ukucajte lozinku"
@@ -462,7 +504,7 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
                 type={isVisible ? "text" : "password"}
               />
             </div>
-          </div>
+          
 
           <div className="grid-cols mb-3 grid gap-2 lg:grid-cols-2">
             <Button className="col-end-7" onClick={() => doEditUser()}>
@@ -489,6 +531,7 @@ const UserDetails: React.FC<UserProps> = ({ data }) => {
           jobId: editUserState.jobId,
           departmentId: editUserState.departmentId,
           locationId: editUserState.locationId,
+          organizationId: editUserState.organizationId,
           status: editUserState.status,
           code: editUserState.code,
           gender: editUserState.gender,

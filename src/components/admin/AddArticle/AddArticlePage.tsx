@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import api, { ApiResponse } from "../../../API/api";
-import ArticleType from "../../../types/ArticleType";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import CategoryType from "../../../types/CategoryType";
-import ApiArticleDto from "../../../dtos/ApiArticleDto";
 import AdminMenu from "../AdminMenu/AdminMenu";
-import { Alert } from "../../custom/Alert";
 import {
   Button,
   Card,
@@ -23,7 +20,6 @@ import {
 import Toast from "../../custom/Toast";
 
 interface AddArticlePageState {
-  articles: ArticleType[];
   categories: CategoryType[];
   message: { message: string; variant: string };
   isLoggedIn: boolean;
@@ -59,7 +55,6 @@ interface CategoryDto {
 
 const AddArticlePage: React.FC = () => {
   const [state, setState] = useState<AddArticlePageState>({
-    articles: [],
     categories: [],
     message: { message: "", variant: "" },
     isLoggedIn: true,
@@ -80,7 +75,7 @@ const AddArticlePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    getArticle();
+
     getCategories();
   }, []);
 
@@ -165,66 +160,13 @@ const AddArticlePage: React.FC = () => {
 
   /* Kraj SET */
   /* GET */
-  const getArticle = async () => {
-    try {
-      setLoading(true);
-      await api(
-        "api/article/?join=stock&join=stockFeatures&join=features&join=category",
-        "get",
-        {},
-        "administrator",
-      ).then((res: ApiResponse) => {
-        if (res.status === "login") {
-          setIsLoggedInStatus(false);
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
-            "danger",
-          );
-        }
-        putArticlesInState(res.data);
-        setLoading(false);
-      });
-    } catch (error) {
-      setErrorMessage(
-        "Greška prilikom učitavanja artikala. Osvježite ili pokušajte ponovo kasnije",
-        "danger",
-      );
-      setLoading(false);
-    }
-  };
-
-  const putArticlesInState = (data?: ApiArticleDto[]) => {
-    const articles: ArticleType[] | undefined = data?.map((article) => {
-      return {
-        articleId: article.articleId,
-        name: article.name,
-        excerpt: article.excerpt,
-        description: article.description,
-        concract: article.concract,
-        sapNumber: article.sapNumber,
-        articleFeatures: article.articleFeature,
-        features: article.features,
-        category: article.category,
-        categoryId: article.categoryId,
-      };
-    });
-
-    setState(
-      Object.assign(state, {
-        articles: articles,
-      }),
-    );
-  };
 
   const getFeaturesByCatId = async (
     categoryId: number,
   ): Promise<FeatureBaseType[]> => {
     return new Promise((resolve) => {
       api(
-        "api/feature/?filter=categoryId||$eq||" + categoryId + "/",
+        "api/feature/cat/" + categoryId + "/",
         "get",
         {},
         "administrator",
@@ -250,6 +192,7 @@ const AddArticlePage: React.FC = () => {
   };
 
   const getCategories = async () => {
+    setLoading(true)
     try {
       await api(
         "api/category/?filter=parentCategoryId||$notnull",
@@ -265,6 +208,7 @@ const AddArticlePage: React.FC = () => {
           return;
         }
         putCategoriesInState(res.data);
+        setLoading(false)
       });
     } catch (error) {
       setErrorMessage(

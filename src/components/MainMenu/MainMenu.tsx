@@ -52,7 +52,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
   const getUserData = async () => {
     try {
       const res: ApiResponse = await api(
-        "api/user/" + menuUserId,
+        "api/user/" + menuUserId + "/mainmenu",
         "get",
         {},
         role,

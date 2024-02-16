@@ -5,6 +5,7 @@ import HelpdeskTicketsType from "./HelpdeskTicketsType";
 import JobType from "./JobType";
 import LocationType from "./LocationType";
 import ModeratorGroupMappingType from "./ModeratorGroupMappingType";
+import OrganizationType from "./OrganizationType";
 import RoleType from "./RoleType";
 
 export default class UserType {
@@ -19,6 +20,7 @@ export default class UserType {
   jobId?: number;
   departmentId?: number;
   locationId?: number;
+  organizationId?: number;
   registrationDate?: string;
   lastLoginDate?: string;
   status?: string;
@@ -35,4 +37,5 @@ export default class UserType {
   department?: DepartmentType;
   job?: JobType;
   location?: LocationType;
+  organization?: OrganizationType;
 }

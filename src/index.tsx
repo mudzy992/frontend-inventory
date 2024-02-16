@@ -22,6 +22,7 @@ import LogOutPage from "./components/Logout/LogoutPage";
 import { UserContextProvider } from "./components/UserContext/UserContext";
 import AdminDashboardPage from "./components/admin/Dashboard/DashboardPage";
 import HelpdeskTicketPage from "./components/admin/HelpDesk/main/HelpdeskTicketPage";
+import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
 
 const rootElement = document.getElementById("root");
 
@@ -37,44 +38,21 @@ const App = () => {
                 {/* master login */}
                 <Route path="/login/" element={<LoginPage />} />
                 <Route path="/logout/" element={<LogOutPage />} />
-                <Route
-                  path="/user/article/:serial"
-                  element={<ArticleOnUserPage />}
-                />
-                <Route
-                  path="/admin/article/:serial"
-                  element={<AdminArticleOnUserPage />}
-                />
-                <Route
-                  path="/user/profile/:userID"
-                  element={<AdminUserProfilePage />}
-                />
+                <Route path="/user/article/:serial" element={<ArticleOnUserPage />}/>
+                <Route path="/admin/article/:serial" element={<AdminArticleOnUserPage />}/>
+                <Route path="/user/profile/:userID" element={<AdminUserProfilePage />}/>
                 <Route path="/" element={<HomePage />} />
-                <Route
-                  path="/category/:categoryID"
-                  element={<CategoryPage />}
-                />
-                <Route path="/admin/article/" element={<AddArticlePage />} />
+                <Route path="/category/:categoryID" element={<CategoryPage />} />
+                <Route path="/admin/article/" element={<ArticlePage />} />
+                <Route path="/admin/article/add" element={<AddArticlePage />} />
                 <Route path="/admin/user/" element={<AddUserPage />} />
                 <Route path="/admin/feature/" element={<AddFeaturePage />} />
-                <Route
-                  path="/admin/category/"
-                  element={<AddNewCategoryPage />}
-                />
-                <Route
-                  path="/admin/department/"
-                  element={<AddDepartmentAndJob />}
-                />
+                <Route path="/admin/category/" element={<AddNewCategoryPage />}/>
+                <Route path="/admin/department/" element={<AddDepartmentAndJob />}/>
                 <Route path="/admin/document/" element={<DocumentsPage />} />
                 <Route path="/admin/stock/:stockID" element={<StockPage />} />
-                <Route
-                  path="/admin/dashboard"
-                  element={<AdminDashboardPage />}
-                />
-                <Route
-                  path="/admin/helpdesk"
-                  element={<HelpdeskTicketPage />}
-                />
+                <Route path="/admin/dashboard" element={<AdminDashboardPage />}/>
+                <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
               </Routes>
             </HashRouter>
           </main>

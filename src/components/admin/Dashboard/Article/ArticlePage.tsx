@@ -7,7 +7,7 @@ import api from "../../../../API/api"
 import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
 import moment from "moment";
-import { Button, Card, CardBody, Input, Link, Listbox, ListboxItem, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react"
+import { Button, Card, CardBody, Input, Link, Listbox, ListboxItem, ListboxSection, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react"
 
 interface MessageType {
     message: {
@@ -195,30 +195,29 @@ const ArticlePage: React.FC = () => {
     return (
         <div>
             <><RoledMainMenu />
-            <div className="container mx-auto mt-3 h-max lg:px-4 gap-2">
-            <div>
+            <div className="container mx-auto mt-3 grid h-max lg:px-4 gap-2">
+            <div className="grid grid-cols-4">
                 <Card>
                     <CardBody>
-                    <div>
-                        <h2>Ukupan broj artikala: {totalArticles}</h2>
-                        <h3>Broj artikala po kategorijama:</h3>
-                        <ul>
-                        {Object.keys(categoryCount).map((category) => (
-                            <li key={category}>
-                            {category}: {categoryCount[category]}
-                            </li>
-                        ))}
-                        </ul>
-                        <h3>Broj artikala po organizacijama:</h3>
-                        <ul>
-                        {Object.keys(organizationCount).map((organization) => (
-                            <li key={organization}>
-                            {organization}: {organizationCount[organization]}
-                            </li>
-                        ))}
-                        </ul>
-                    </div>
-
+                        <Listbox>
+                          <ListboxSection title={"Broj artikala po kategorijama"}>
+                           {Object.keys(categoryCount).map((category) => (
+                              <ListboxItem endContent={<span className="text-small font-bold">{categoryCount[category]}</span>}  key={category}>
+                              {category}
+                              </ListboxItem >
+                          ))} 
+                          </ListboxSection>
+                          <ListboxSection showDivider title={"Broj artikala po organizacijama"}>
+                          {Object.keys(organizationCount).map((organization) => (
+                              <ListboxItem endContent={<span className="text-small font-bold">{organizationCount[organization]}</span>} key={organization}>
+                              {organization}
+                              </ListboxItem>
+                          ))}
+                          </ListboxSection>
+                        <ListboxItem endContent={<span className="text-small font-bold">{totalArticles}</span>} key={"total"}>
+                        Ukupan broj artikala
+                        </ListboxItem>
+                        </Listbox>
                     </CardBody>
                 </Card>
             </div>

@@ -7,7 +7,7 @@ import api from "../../../../API/api"
 import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
 import moment from "moment";
-import { Button, Card, CardBody, Input, Link, Listbox, ListboxItem, ListboxSection, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react"
+import { Button, Card, CardBody, Input, Link, Listbox, ListboxItem, ListboxSection, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, button } from "@nextui-org/react"
 
 interface MessageType {
     message: {
@@ -195,8 +195,8 @@ const ArticlePage: React.FC = () => {
     return (
         <div>
             <><RoledMainMenu />
-            <div className="container mx-auto mt-3 grid h-max lg:px-4 gap-2">
-            <div className="grid grid-cols-4">
+            <div className="container mx-auto mt-3 h-max lg:px-4 gap-2">
+            <div className="grid lg:grid-cols-4 mb-2 gap-2">
                 <Card>
                     <CardBody>
                         <Listbox>
@@ -207,18 +207,33 @@ const ArticlePage: React.FC = () => {
                               </ListboxItem >
                           ))} 
                           </ListboxSection>
-                          <ListboxSection showDivider title={"Broj artikala po organizacijama"}>
+                        </Listbox>
+                    </CardBody>
+                </Card>
+                <Card>
+                    <CardBody>
+                        <Listbox>
+                          <ListboxSection title={"Broj artikala po organizacijama"}>
                           {Object.keys(organizationCount).map((organization) => (
                               <ListboxItem endContent={<span className="text-small font-bold">{organizationCount[organization]}</span>} key={organization}>
                               {organization}
                               </ListboxItem>
                           ))}
                           </ListboxSection>
-                        <ListboxItem endContent={<span className="text-small font-bold">{totalArticles}</span>} key={"total"}>
-                        Ukupan broj artikala
-                        </ListboxItem>
                         </Listbox>
                     </CardBody>
+                </Card>
+                <Card>
+                  <CardBody className="flex justify-center items-center">
+                    <span>Ukupan broj opreme</span>
+                    <p className="text-tiny text-default-400">u svim kategorijama</p>
+                    <p className="text-[25px]">{totalArticles}</p>
+                  </CardBody>
+                </Card>
+                <Card>
+                  <CardBody className="flex justify-center items-center">
+                    <Button variant="shadow" color="primary" onClick={() => navigate("add")}>Dodaj novi artikal</Button>
+                  </CardBody>
                 </Card>
             </div>
             <div className="xs:w-full rounded-2xl bg-default-50 p-2 shadow">
@@ -321,7 +336,7 @@ const ArticlePage: React.FC = () => {
               />
             </div>
           </div>
-            </div>
+          </div>
     <AdminMenu />
     </>
     </div>

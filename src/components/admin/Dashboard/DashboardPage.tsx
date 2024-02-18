@@ -310,8 +310,8 @@ const AdminDashboardPage: React.FC = () => {
       <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         <div className="mb-14 flex flex-col">
-          <div className="mb-3 lg:flex lg:flex-row">
-            <div className="mb-3 w-full lg:mr-3 lg:w-1/4">
+          <div className="lg:flex lg:flex-row">
+            <div className="mb-3 w-full lg:mr-3 lg:w-1/2">
               <Card>
                 <CardHeader className="bg-default-100">
                   Posljednje dodani artikal na skladište
@@ -354,7 +354,7 @@ const AdminDashboardPage: React.FC = () => {
                 </CardFooter>
               </Card>
             </div>
-            <div className="mb-3 w-full lg:mr-3 lg:w-1/4">
+{/*             <div className="mb-3 w-full lg:mr-3 lg:w-1/4">
               <Card>
                 <CardHeader className="bg-default-100">
                   Posljednje dodani artikal
@@ -397,9 +397,9 @@ const AdminDashboardPage: React.FC = () => {
                   </Button>
                 </CardFooter>
               </Card>
-            </div>
-            <div className="max-h-[262px] w-full rounded-2xl bg-default-50 p-2 shadow lg:w-1/2">
-              <div className="mb-3 rounded-lg bg-default-100 p-2">
+            </div> */}
+            <div className="max-h-[280px] w-full rounded-2xl bg-default-50 p-2 shadow">
+              <div className="mb-3 rounded-lg bg-default-100 p-2 ">
                 <span>Nepotpisani dokumenti</span>{" "}
                 <Chip color="danger" variant="shadow">
                   {" "}
@@ -412,7 +412,7 @@ const AdminDashboardPage: React.FC = () => {
                 isStriped
                 aria-label="Tabela nepotpisanih dokumenta"
                 classNames={{
-                  base: "max-h-[190px] overflow-y-scroll ",
+                  base: "max-h-[210px] overflow-y-auto",
                   table: "min-h-[190px]",
                 }}
               >

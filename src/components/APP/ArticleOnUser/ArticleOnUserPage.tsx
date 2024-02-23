@@ -208,6 +208,18 @@ export default function ArticleOnUserPage() {
               {userDet.user?.email}
             </ListboxItem>
             <ListboxItem
+              textValue={userDet.user?.organization?.name}
+              key={userDet.user?.organization?.name!}
+              description={
+                <span className="text-tiny text-gray-400">
+                  Naziv organizacije
+                </span>
+              }
+              aria-label={`Organizacija: ${userDet.user?.organization?.name}`}
+            >
+              {userDet.user?.department?.title}
+            </ListboxItem>
+            <ListboxItem
               textValue={userDet.user?.department?.title}
               key={userDet.user?.department?.title!}
               description={

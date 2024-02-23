@@ -88,7 +88,7 @@ export const UserTable: React.FC<{}> = () => {
     { name: "Ime i prezime", uid: "fullname", sortable: true },
     { name: "Sektor/Odjeljenje", uid: "departmentTitle", sortable: true },
     { name: "Lokacija", uid: "locationName", sortable: true },
-    { name: "Email", uid: "email", sortable: false },
+/*     { name: "Email", uid: "email", sortable: false }, */
     { name: "Telefon", uid: "telephone", sortable: false },
     { name: "Spol", uid: "gender", sortable: false },
     { name: "Status", uid: "status", sortable: false },
@@ -197,12 +197,12 @@ export const UserTable: React.FC<{}> = () => {
             {cellValue}
           </Chip>
         );
-      case "email":
+      /* case "email":
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small">{user.email}</p>
           </div>
-        );
+        ); */
       case "locationName":
         return (
           <div className="flex flex-col">

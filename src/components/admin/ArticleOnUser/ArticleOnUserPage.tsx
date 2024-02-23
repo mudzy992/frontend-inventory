@@ -754,16 +754,8 @@ const AdminArticleOnUserPage: React.FC = () => {
                 textValue="ime"
                 aria-label="Ime korisnika"
               >
-                {LangBa.ARTICLE_ON_USER.USER_DETAILS.NAME +
-                  userDet.user?.surname}{" "}
-              </ListboxItem>
-              <ListboxItem
-                key={"userDet-prezime"}
-                textValue="prezime"
-                aria-label="Prezime korisnika"
-              >
-                {LangBa.ARTICLE_ON_USER.USER_DETAILS.LASTNAME +
-                  userDet.user?.forname}{" "}
+                {"Korisnik: " +
+                  userDet.user?.fullname}{" "}
               </ListboxItem>
               <ListboxItem
                 key={"userDet-email"}
@@ -772,6 +764,14 @@ const AdminArticleOnUserPage: React.FC = () => {
               >
                 {LangBa.ARTICLE_ON_USER.USER_DETAILS.EMAIL +
                   userDet.user?.email}{" "}
+              </ListboxItem>
+              <ListboxItem
+                key={"userDet-organization"}
+                textValue="organization"
+                aria-label="Organizacija korisnika"
+              >
+                {"Organizacija: " +
+                  userDet.user?.organization?.name}{" "}
               </ListboxItem>
               <ListboxItem
                 key={"userDet-sektor"}
@@ -1272,11 +1272,11 @@ const AdminArticleOnUserPage: React.FC = () => {
                     article.stock?.valueAvailable}
                 </ListboxItem>
                 <ListboxItem
-                  key={"sapBroj"}
-                  aria-label="SAP broj"
-                  textValue={`status-${article.stock?.sapNumber}`}
+                  key={"concract"}
+                  aria-label="Ugovor:"
+                  textValue={`status-${article.stock?.contract}`}
                 >
-                  {LangBa.ARTICLE_ON_USER.STOCK.SAP + article.stock?.sapNumber}
+                  {"Ugovor: " + article.stock?.contract}
                 </ListboxItem>
                 <ListboxItem
                   key={"datum-akcije"}

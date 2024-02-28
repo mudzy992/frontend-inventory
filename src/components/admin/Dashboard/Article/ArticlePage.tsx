@@ -7,7 +7,7 @@ import api from "../../../../API/api"
 import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
 import moment from "moment";
-import { Button, Card, CardBody, Input, Link, Listbox, ListboxItem, ListboxSection, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, button } from "@nextui-org/react"
+import { Button, Card, CardBody, Chip, Input, Link, Listbox, ListboxItem, ListboxSection, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, button } from "@nextui-org/react"
 
 interface MessageType {
     message: {
@@ -231,7 +231,7 @@ const ArticlePage: React.FC = () => {
                   </CardBody>
                 </Card>
                 <Card>
-                  <CardBody className="flex justify-center items-center">
+                  <CardBody className="flex justify-center items-center p-5">
                     <Button variant="shadow" color="primary" onClick={() => navigate("add")}>Dodaj novi artikal</Button>
                   </CardBody>
                 </Card>
@@ -276,6 +276,7 @@ const ArticlePage: React.FC = () => {
                   <TableColumn>Naziv</TableColumn>
                   <TableColumn>Serijski broj</TableColumn>
                   <TableColumn>Inventurni broj</TableColumn>
+                  <TableColumn>Nadogradnja</TableColumn>
                   <TableColumn>Kategorija</TableColumn>
                   <TableColumn>Korisnik</TableColumn>
                   <TableColumn>Organizacija</TableColumn>
@@ -298,6 +299,11 @@ const ArticlePage: React.FC = () => {
                       </TableCell>
                       <TableCell className="min-w-fit whitespace-nowrap">
                         {artikal?.invNumber}
+                      </TableCell>
+                      <TableCell className="min-w-fit whitespace-nowrap flex space-x-1">
+                        {(artikal?.upgradeFeatures || []).map((upgrade, index) => (
+                          <Tooltip showArrow size="sm" content={upgrade.comment}><Chip size="sm" title={upgrade.name} variant="flat" color="success">{upgrade.name}</Chip></Tooltip>
+                        ))}
                       </TableCell>
                       <TableCell className="min-w-fit whitespace-nowrap">
                         {artikal?.category?.name}

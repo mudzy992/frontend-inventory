@@ -52,6 +52,7 @@ interface AddUserPageState {
     status: string;
     code: number;
     gender: string;
+    organizationId: number;
   };
   modal: {
     department: {
@@ -89,6 +90,7 @@ const AddUserPage: React.FC = () => {
       status: "",
       code: Number(),
       gender: "muško" || "žensko",
+      organizationId: Number(),
     },
     modal: {
       department: {
@@ -313,6 +315,7 @@ const AddUserPage: React.FC = () => {
         status: state.addUser.status,
         code: state.addUser.code,
         gender: state.addUser.gender,
+        organizationId: state.addUser.organizationId,
       },
       "administrator",
     ).then(async (res: ApiResponse) => {
@@ -337,6 +340,7 @@ const AddUserPage: React.FC = () => {
             status: "",
             code: Number(),
             gender: "",
+            organizationId: Number(),
           },
         }));
       }
@@ -480,7 +484,7 @@ const AddUserPage: React.FC = () => {
                     </SelectItem>
                   </Select>
                 </div>
-                <div className="mb-3 w-full">
+                <div className="mb-3 mr-3 w-full">
                   <Select
                     id="status"
                     label="Status"
@@ -495,6 +499,24 @@ const AddUserPage: React.FC = () => {
                     </SelectItem>
                     <SelectItem key={"neaktivan"} value={"neaktivan"}>
                       neaktivan
+                    </SelectItem>
+                  </Select>
+                </div>
+                <div className="mb-3 w-full">
+                  <Select
+                    id="organizacija"
+                    label="Organizacija"
+                    placeholder="Odaberite organizaciju"
+                    value={state.addUser.organizationId}
+                    onChange={(e) =>
+                      setAddUserStringFieldState("organizationId", e.target.value)
+                    }
+                  >
+                    <SelectItem key={"1"} value={"1"}>
+                      Distribucija
+                    </SelectItem>
+                    <SelectItem key={"2"} value={"2"}>
+                      Snabdjevanje
                     </SelectItem>
                   </Select>
                 </div>

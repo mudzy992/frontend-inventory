@@ -36,8 +36,8 @@ const App = () => {
             <HashRouter>
               <Routes>
                 {/* master login */}
-                <Route path="/login/" element={<LoginPage />} />
-                <Route path="/logout/" element={<LogOutPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/logout" element={<LogOutPage />} />
                 <Route path="/user/article/:serial" element={<ArticleOnUserPage />}/>
                 <Route path="/admin/article/:serial" element={<AdminArticleOnUserPage />}/>
                 <Route path="/user/profile/:userID" element={<AdminUserProfilePage />}/>

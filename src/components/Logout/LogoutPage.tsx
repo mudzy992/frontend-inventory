@@ -14,18 +14,12 @@ const LogOutPage: React.FC = () => {
         await removeIdentity();
         setRole(undefined);
         setUserId(undefined);
-        setDone(true);
+        navigate('/')
       }
     };
 
     logout();
   }, [role, setRole, setUserId]);
-
-  useEffect(() => {
-    if (done) {
-      navigate(`/login`);
-    }
-  }, [done, navigate]);
 
   return null;
 };

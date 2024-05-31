@@ -6,7 +6,7 @@ import {
   useEffect,
 } from "react";
 
-type UserRole = "administrator" | "user";
+type UserRole = "administrator" | "moderator" | "user";
 
 interface UserContextType {
   userId: number | undefined;
@@ -104,12 +104,12 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
 };
 
 export function saveIdentity(
-  role: "user" | "administrator",
+  role: "user" | "administrator" | "moderator",
   userId: string,
   setRole: (role: UserRole | undefined) => void,
   setUserId: (id: number | undefined) => void,
 ) {
-  if (role === "administrator" || role === "user") {
+  if (role === "administrator" || role === "moderator" || role === "user") {
     localStorage.setItem(`api_identity_role`, role);
     localStorage.setItem(`api_identity_id`, userId);
 

@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { ApiConfig } from "../config/api.config"
+import { useNavigate } from "react-router-dom";
 
 export default function api(
     path: string,
@@ -110,7 +111,7 @@ export default function api(
         localStorage.removeItem('api_token' );
         localStorage.removeItem('api_refresh_token');
         localStorage.removeItem('api_identity_role')
-        localStorage.removeItem('api_identity_id',);
+        localStorage.removeItem('api_identity_id');
     }
 
     async function refreshToken(): Promise<string | null> {

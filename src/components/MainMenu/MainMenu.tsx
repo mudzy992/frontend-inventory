@@ -28,7 +28,7 @@ export interface MainMenuItem {
 interface MainMenuProps {
   items: MainMenuItem[];
   userId?: number;
-  role?: "administrator" | "user";
+  role?: "administrator" | "moderator" | "user";
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
@@ -105,7 +105,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
     if (menuUserId === undefined || role === undefined) {
       return "#";
     } else {
-      return role === "administrator" ? "#" : `#/user/profile/${menuUserId}`;
+      return role !== "user" ? "#" : `#/user/profile/${menuUserId}`;
     }
   };
 

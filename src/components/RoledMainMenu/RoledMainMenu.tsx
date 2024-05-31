@@ -19,7 +19,7 @@ const RoledMainMenu: React.FC = () => {
   ];
 
   const items =
-    role === "administrator" ? getAdministratorItems() : getUserItems();
+    role !== "user" ? getAdministratorItems() : getUserItems();
   return <MainMenu items={items} userId={userId} role={role} />;
 };
 

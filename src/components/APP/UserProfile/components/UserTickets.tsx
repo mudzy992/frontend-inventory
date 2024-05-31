@@ -125,7 +125,7 @@ const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
           {paginatedTickets.map((ticket) => (
             <TableRow key={ticket.ticketId}>
               <TableCell>{ticket.ticketId}</TableCell>
-              <TableCell className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[978px]">
+              <TableCell className="w-[100%] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                 {ticket.description}
               </TableCell>
               <TableCell className="w-[150px] max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap">

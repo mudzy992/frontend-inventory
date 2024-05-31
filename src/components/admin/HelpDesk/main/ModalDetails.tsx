@@ -162,7 +162,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
       editTicket: {
         duoDate: helpdeskState?.duoDate || null,
         assignedTo: helpdeskState?.assignedTo || null,
-        groupPartentId: helpdeskState?.groupPartentId || null,
+        groupPartentId: helpdeskState?.groupPartent?.groupId || null,
         groupId: helpdeskState?.groupId || null,
         resolveDescription: helpdeskState?.resolveDescription || "",
         status: helpdeskState?.status || "",
@@ -306,11 +306,11 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
     } else {
       setValidationMessageFieldState(
         "resolveDescription",
-        "* Upišite opis rješnja",
+        "* Upišite opis rješenja",
       );
       setValidationMessageFieldState(
         "resolveResolution",
-        "* Odaberite rezoluciju rješnja",
+        "* Odaberite rezoluciju rješenja",
       );
       setValidationMessageFieldState(
         "resolveTimespand",

@@ -133,21 +133,18 @@ const AddFeaturePage: React.FC = () => {
   ): Promise<FeatureBaseType[]> => {
     return new Promise((resolve) => {
       api(
-        "api/feature/?filter=categoryId||$eq||" + categoryId + "/",
+        "api/feature/cat/" + categoryId + "/",
         "get",
         {},
         "administrator",
       ).then((res: ApiResponse) => {
-        if (res.status === "login") {
-          setLogginState(false);
-          return;
-        }
         if (res.status === "error") {
           setErrorMessage(
             "Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije",
             "danger",
           );
         }
+
         const features: FeatureBaseType[] = res.data.map((item: any) => ({
           featureId: item.featureId,
           name: item.name,

@@ -284,7 +284,7 @@ const AdminArticleOnUserPage: React.FC = () => {
   }, [serial]);
 
   const userList = useAsyncList<UserTypeBase>({
-    async load({ signal, filterText }) {
+    async load() {
       try {
         const res = await api(
           `/api/user/?sort=forname,ASC`,
@@ -719,7 +719,7 @@ const AdminArticleOnUserPage: React.FC = () => {
       color = "danger";
     }
 
-    return <Chip color={color}>{stat} </Chip>;
+    return <Chip color={color}>{stat}</Chip>;
   }
 
   function userDetails(userDet: ArticleType) {
@@ -737,6 +737,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
       return (
         <Alert
+          className="mb-3"
           variant="danger"
           title="Info!"
           body={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}

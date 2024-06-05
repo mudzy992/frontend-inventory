@@ -12,15 +12,15 @@ import {
   Select,
   SelectItem,
   Spinner,
+  DatePicker,
 } from "@nextui-org/react";
 import { UserRole } from "../../../../../types/UserRoleType";
 import api, { ApiResponse } from "../../../../../API/api";
 import { useUserContext } from "../../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import TicketGroupType from "../../../../../types/TicketGroupType";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import Toast from "../../../../custom/Toast";
+import {now, getLocalTimeZone, DateValue } from "@internationalized/date";
 
 type ModalProps = {
   show: boolean;
@@ -98,8 +98,11 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({
     }));
   };
 
-  const handleDatePickerChange = (newValue: Date) => {
-    setAddNewTicketFieldState("clientDuoDate", newValue);
+  const handleDatePickerChange = (newValue: DateValue) => {
+    const dateStr = newValue.toString();
+    const cleanDateStr = dateStr.split('[')[0];
+    const date = new Date(cleanDateStr);
+    setAddNewTicketFieldState("clientDuoDate", date);
   };
 
   useEffect(() => {
@@ -270,27 +273,12 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({
                     setAddNewTicketFieldState("description", value)
                   }
                 />
-
-                <div
-                  className={
-                    "grid w-full grid-rows-2 rounded-xl bg-default-100 pb-2 pl-3 pr-3 pt-3"
-                  }
-                  style={{ zIndex: 1000 }}
-                >
-                  <span className="text-xs text-default-600">
-                    Željeni datum rješenja
-                  </span>
-                  <DatePicker
-                    className="w-full bg-default-100 text-sm"
-                    placeholderText="Odaberite datum"
-                    minDate={new Date()}
-                    onChange={handleDatePickerChange}
-                    startDate={addNewTicketState?.clientDuoDate || null}
-                    withPortal
-                    selected={addNewTicketState?.clientDuoDate}
-                    calendarStartDay={1}
-                  />
-                </div>
+              <DatePicker 
+              onChange={handleDatePickerChange}
+              label="Željeni datum rješenja"
+              showMonthAndYearPickers
+              hideTimeZone
+              defaultValue={now(getLocalTimeZone())} />
               </>
             )}
           </ModalBody>

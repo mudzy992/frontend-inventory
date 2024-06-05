@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@nextui-org/date-picker": "^2.1.1",
     "@nextui-org/react": "^2.4.1",
     "@react-stately/data": "^3.11.4",
     "@testing-library/jest-dom": "^6.4.5",
@@ -25,7 +26,6 @@
     "pizzip": "^3.1.7",
     "popper.js": "^1.16.1",
     "react": "^18.3.1",
-    "react-datepicker": "^6.9.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1"

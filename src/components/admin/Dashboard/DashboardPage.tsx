@@ -15,6 +15,10 @@ import {
   CardFooter,
   CardHeader,
   Chip,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Input,
   Link,
   Listbox,
@@ -46,21 +50,14 @@ const AdminDashboardPage: React.FC = () => {
   const [articleCurrentPage, setArticleCurrentPage] = useState<number>(1);
   const [articleItemsPerPage] = useState<number>(10);
   const [articleTotalPage, setArticleTotalPage] = useState<number>(0);
-  const [articlePaginationTableQuery, setArticlePaginationTableQuery] =
-    useState<string>("");
-  const [unsignedDocumentData, setUnsignedDocument] =
-    useState<DocumentsType[]>();
-  const [unsignedDocumentDataCount, setUnsignedDocumentCount] =
-    useState<number>();
+  const [articlePaginationTableQuery, setArticlePaginationTableQuery] = useState<string>("");
+  const [unsignedDocumentData, setUnsignedDocument] = useState<DocumentsType[]>();
+  const [unsignedDocumentDataCount, setUnsignedDocumentCount] = useState<number>();
   const [unsignedDocumentId, setUnsignedDocumentId] = useState<number>();
   const [open, setOpen] = React.useState(false);
-  const [messageData, setMessage] = useState<MessageType>({
-    message: { message: "", variant: "" },
-  });
+  const [messageData, setMessage] = useState<MessageType>({ message: { message: "", variant: "" }});
   const [showModal, setShowModal] = useState(false);
-  const [selectedArticleTimelineId, setSelectedArticleTimelineId] = useState<
-    number | null
-  >(null);
+  const [selectedArticleTimelineId, setSelectedArticleTimelineId] = useState<number | null>(null);
   const navigate = useNavigate();
 
   const setErrorMessage = (message: string, variant: string) => {
@@ -354,50 +351,6 @@ const AdminDashboardPage: React.FC = () => {
                 </CardFooter>
               </Card>
             </div>
-{/*             <div className="mb-3 w-full lg:mr-3 lg:w-1/4">
-              <Card>
-                <CardHeader className="bg-default-100">
-                  Posljednje dodani artikal
-                </CardHeader>
-
-                <Listbox
-                  key={2 - 0}
-                  aria-label="Posljednje dodani artikli"
-                  className="w-[90%]"
-                >
-                  <ListboxItem key={1} textValue={articleData?.stock?.name}>
-                    Naziv: {articleData?.stock?.name}
-                  </ListboxItem>
-                  <ListboxItem key={2} textValue={articleData?.serialNumber}>
-                    Serijski broj: {articleData?.serialNumber}
-                  </ListboxItem>
-                  <ListboxItem key={3} textValue={articleData?.invNumber}>
-                    Inventurni broj: {articleData?.invNumber}
-                  </ListboxItem>
-                  <ListboxItem key={4} textValue={articleData?.user?.fullname}>
-                    Korisnik: {articleData?.user?.fullname}
-                  </ListboxItem>
-                  <ListboxItem key={5} textValue={articleData?.status}>
-                    Status:{" "}
-                    <span className={`status-${articleData?.status}`}>
-                      {articleData?.status}
-                    </span>
-                  </ListboxItem>
-                </Listbox>
-                <CardFooter className="flex justify-end">
-                  <Button
-                    color="warning"
-                    variant="shadow"
-                    onClick={() =>
-                      navigate(`/admin/article/${articleData?.serialNumber}`)
-                    }
-                    size="sm"
-                  >
-                    Zaduži
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div> */}
             <div className="max-h-[280px] w-full rounded-2xl bg-default-50 p-2 shadow">
               <div className="mb-3 rounded-lg bg-default-100 p-2 ">
                 <span>Nepotpisani dokumenti</span>{" "}
@@ -413,7 +366,7 @@ const AdminDashboardPage: React.FC = () => {
                 aria-label="Tabela nepotpisanih dokumenta"
                 classNames={{
                   base: "max-h-[210px] overflow-y-auto",
-                  table: "min-h-[190px]",
+                  /* table: "min-h-[190px]", */
                 }}
               >
                 <TableHeader>
@@ -421,7 +374,6 @@ const AdminDashboardPage: React.FC = () => {
                   <TableColumn>Inv.Broj</TableColumn>
                   <TableColumn>Korisnik</TableColumn>
                   <TableColumn>Dodaj</TableColumn>
-                  <TableColumn>Timeline</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {(unsignedDocumentData || []).map((document, index) => (
@@ -444,40 +396,23 @@ const AdminDashboardPage: React.FC = () => {
                       >
                         {document?.article?.user?.fullname}
                       </TableCell>
-                      <TableCell
-                        className="min-w-fit whitespace-nowrap"
-                        textValue={`Dokument-${index}`}
-                      >
-                        <Button
-                          size="sm"
-                          color="success"
-                          variant="shadow"
-                          onClick={() =>
-                            handleButtonClick(document.documentsId)
-                          }
-                        >
-                          {" "}
-                          Dodaj
-                          <form encType="multipart/form-data">
-                            <input
-                              id="dropzone-file"
-                              type="file"
-                              className="hidden"
-                              onChange={(e) =>
-                                handleFileUpload(
-                                  unsignedDocumentId!,
-                                  e.target.files![0],
-                                )
-                              }
-                            />
-                          </form>
-                        </Button>
-                      </TableCell>
-                      <TableCell
-                        className="min-w-fit whitespace-nowrap"
-                        textValue={`Modal dokument-${index}`}
-                      >
-                        <Button
+                      <TableCell>
+                      <Dropdown>
+                        <DropdownTrigger>
+                          <i style={{fontSize:"20px", cursor:"pointer", color:"darkgray"}} className="bi bi-cloud-arrow-up-fill"></i>
+                        </DropdownTrigger>
+                        <DropdownMenu variant="faded" aria-label="Dropdown menu with icons">
+                          <DropdownItem
+                          key="new"
+                          onClick={()=> handleButtonClick(document.documentsId)}
+                          startContent={<i className="bi bi-filetype-pdf"></i>}
+                          >
+                            {" "}
+                            Dodaj
+                            
+                          </DropdownItem>
+                          <DropdownItem
+                          key="timeline"
                           onClick={(event) => {
                             const firstArticleTimeline =
                               document.articleTimelines?.[0];
@@ -490,11 +425,27 @@ const AdminDashboardPage: React.FC = () => {
                               );
                             }
                           }}
-                          size="sm"
-                          variant="shadow"
-                        >
-                          Timeline
-                        </Button>
+                          startContent={<i className="bi bi-clock-history"></i>}
+                          >
+                            {" "}
+                            Timeline
+                          </DropdownItem>
+
+                        </DropdownMenu>
+                      </Dropdown>
+                      <form encType="multipart/form-data">
+                              <input
+                                id="dropzone-file"
+                                type="file"
+                                className="hidden"
+                                onChange={(e) =>
+                                  handleFileUpload(
+                                    unsignedDocumentId!,
+                                    e.target.files![0],
+                                  )
+                                }
+                              />
+                            </form>
                       </TableCell>
                     </TableRow>
                   ))}

@@ -14,7 +14,6 @@ const RoledMainMenu: React.FC = () => {
 
   const getAdministratorItems = (): MainMenuItem[] => [
     { text: "Naslovna", link: "#/" },
-    { text: "Dashboard", link: "#/admin/dashboard" },
     { text: "Helpdesk", link: "#/admin/helpdesk" },
   ];
 

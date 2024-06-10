@@ -7,8 +7,15 @@ import saveAs from "file-saver";
 import AdminMenu from "../../admin/AdminMenu/AdminMenu";
 import Moment from "moment";
 import {
+  Accordion,
+  AccordionItem,
   Avatar,
   Button,
+  Chip,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Input,
   Link,
   Modal,
@@ -25,61 +32,87 @@ import {
   TableRow,
   useDisclosure,
 } from "@nextui-org/react";
+import { useNavigate } from "react-router-dom";
+import Toast from "../../custom/Toast";
 
 interface ModalData {
   document: DocumentsType | undefined;
 }
 
+interface MessageType {
+  message: {
+    message: string;
+    variant: string;
+  };
+}
+
 const DocumentsPage: React.FC = () => {
-  const [itemsPerPage] = useState<number>(15);
+  const [itemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [documentsData, setDocumentsData] = useState<DocumentsType[]>([]);
-  const [modalData, setModalData] = useState<ModalData>({
-    document: undefined,
-  });
+  const [modalData, setModalData] = useState<ModalData>({document: undefined});
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
-    null,
-  );
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(null);
+  const [unsignedDocumentData, setUnsignedDocument] = useState<DocumentsType[]>();
+  const [unsignedDocumentDataCount, setUnsignedDocumentCount] = useState<number>();
+  const [unsignedDocumentId, setUnsignedDocumentId] = useState<number>();
+  const [open, setOpen] = React.useState(false);
+  const [messageData, setMessage] = useState<MessageType>({ message: { message: "", variant: "" }});
+  const navigate = useNavigate();
 
-  const handleFileUpload = async (
-    event: React.FormEvent<HTMLInputElement>,
-    documentId: number,
-  ): Promise<void> => {
-    const input = event.currentTarget;
-    const files = input.files;
-    if (files && files.length > 0) {
-      const file = files[0];
+  const setErrorMessage = (message: string, variant: string) => {
+    setMessage((prev) => ({
+      ...prev,
+      message: { message, variant },
+    }));
+  };
+
+
+  const handleFileUpload = async (documentId: number, file: File) => {
+    try {
       const formData = new FormData();
       formData.append("file", file);
-      try {
-        await api(
-          `api/document/${documentId}/upload`,
-          "post",
-          formData,
-          "administrator",
-          { useMultipartFormData: true },
+
+      await api(
+        `api/document/${documentId}/upload`,
+        "post",
+        formData,
+        "administrator",
+        { useMultipartFormData: true },
+      );
+
+      setUnsignedDocument((updatedData) => {
+        const updatedList = (updatedData || []).filter(
+          (doc) => doc.documentsId !== documentId,
         );
-        await getDocumentsData();
-        const updatedDocument = getDocumentById(documentsData, documentId);
-        if (updatedDocument) {
-          setModalData({ document: updatedDocument });
-        }
-      } catch (error) {
-        console.error("Greška priliko dodavanja fajla:", error);
-      }
+        return updatedList;
+      });
+
+      setUnsignedDocumentCount((prevCount) => (prevCount ?? 0) - 1);
+
+      setErrorMessage("Dokument uspješno dodan!", "success");
+      handleUploadClick();
+    } catch (error) {
+      setErrorMessage(
+        "Greška prilikom uploada dokumenta. Greška: " + error,
+        "danger",
+      );
     }
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (documentId: any) => {
     const fileInput = document.getElementById("dropzone-file");
     if (fileInput) {
       fileInput.click();
     }
+    setUnsignedDocumentId(documentId)
+  };
+
+  const handleUploadClick = () => {
+    setOpen(true);
   };
 
   const documentsIdWithNullPath = documentsData
@@ -143,7 +176,10 @@ const DocumentsPage: React.FC = () => {
     ).then((res: ApiResponse) => {
       if (res.status === "login") {
         setIsLoggedIn(false);
-        setMessage("Greška prilikom učitavanja dokumenata");
+        setErrorMessage(
+          "Greška prilikom dohvaćanja artikala u tabelu.",
+          "danger",
+        );
         return;
       }
       setDocumentsData(res.data.results);
@@ -152,6 +188,40 @@ const DocumentsPage: React.FC = () => {
   };
 
   const totalPages = Math.ceil(totalResults / itemsPerPage);
+
+  useEffect(() => {
+    const fatchData = async () => {
+      try {
+        const unsignedDocumentResponse = await api(
+          "/api/document/unsigned",
+          "get",
+          {},
+          "administrator",
+        );
+        if (unsignedDocumentResponse.status === "login") {
+          navigate("/login");
+          return;
+        }
+
+        if (unsignedDocumentResponse.status === "error") {
+          setErrorMessage(
+            "Greška prilikom dohvaćanja posljednjeg artikla na skladištu",
+            "danger",
+          );
+          return;
+        }
+        const [documents, count] = unsignedDocumentResponse.data;
+        setUnsignedDocument(documents);
+        setUnsignedDocumentCount(count);
+      } catch (error) {
+        setErrorMessage(
+          "Greška prilikom dohvaćanja dokumenta. Greška: " + error,
+          "danger",
+        );
+      }
+    };
+    fatchData();
+  }, []);
 
   const dokumentAction = (
     signed: string,
@@ -190,18 +260,107 @@ const DocumentsPage: React.FC = () => {
     <>
       <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
-        <div className="mb-3">
-          <Input
-            variant="bordered"
-            type="text"
-            isClearable
-            placeholder="Pronađi artikal..."
-            value={searchQuery}
-            onClear={() => setSearchQuery("")}
-            onValueChange={(value) => setSearchQuery(value || "")}
-            onKeyDown={handleKeyPress}
-          />
-        </div>
+        <Accordion variant="shadow" className="mb-3">
+          <AccordionItem
+
+          key={1} 
+          aria-label="Nepotpisani-dokumenti" 
+          title="Nepotpisani dokumenti" 
+          startContent={<Chip color="danger" size="sm" variant="shadow">
+                      {" "}
+                      {unsignedDocumentDataCount}
+                    </Chip>}
+          >
+          <Table
+            removeWrapper
+            isStriped
+            isHeaderSticky
+            aria-label="Tabela nepotpisanih dokumenta"
+            classNames={{
+              base: "max-h-[250px] overflow-y-auto",
+              /* table: "min-h-[190px]", */
+            }}
+              >
+                <TableHeader>
+                  <TableColumn>#</TableColumn>
+                  <TableColumn>Naziv</TableColumn>
+                  <TableColumn>Inv.Broj</TableColumn>
+                  <TableColumn>Razdužio/la</TableColumn>
+                  <TableColumn>Zadužio/la</TableColumn>
+                  <TableColumn>Akcija</TableColumn>
+                </TableHeader>
+                <TableBody emptyContent={"Sve prenosnice su skenirane do dodane"}>
+                  {(unsignedDocumentData || []).map((document, index) => (
+                    <TableRow key={index}>
+                      <TableCell
+                        className="min-w-fit whitespace-nowrap"
+                        textValue={`broj-${index}`}
+                      >
+                        {document?.documentNumber}
+                      </TableCell>
+                      <TableCell
+                        className="min-w-fit whitespace-nowrap"
+                        textValue={`naziv-${index}`}
+                      >
+                        {document?.article?.stock?.name}
+                      </TableCell>
+                      <TableCell
+                        className="min-w-fit whitespace-nowrap"
+                        textValue={`Inventurni broj-${index}`}
+                      >
+                        {document?.article?.invNumber}
+                      </TableCell>
+                      <TableCell
+                        className="min-w-fit whitespace-nowrap"
+                        textValue={`predao-${index}`}
+                      >
+                        {document.articleTimelines?.[0]?.subbmited?.fullname ?? ''}
+                      </TableCell>
+                      <TableCell
+                        className="min-w-fit whitespace-nowrap"
+                        textValue={`preuzeo-${index}`}
+                      >
+                        {document.articleTimelines?.[0]?.user?.fullname ?? ''}
+                      </TableCell>
+                      <TableCell>
+                      <Dropdown>
+                        <DropdownTrigger>
+                          <i
+                            style={{ fontSize: "20px", cursor: "pointer", color: "darkgray" }}
+                            className="bi bi-cloud-arrow-up-fill"
+                          ></i>
+                        </DropdownTrigger>
+                        <DropdownMenu variant="faded" aria-label="Dropdown menu with icons">
+                          <DropdownItem
+                            key="new"
+                            onClick={() => handleButtonClick(document.documentsId)}
+                            startContent={<i className="bi bi-filetype-pdf"></i>}
+                          >
+                            Dodaj
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </Dropdown>
+                        <form encType="multipart/form-data">
+                          <input
+                            id="dropzone-file"
+                            type="file"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleFileUpload(
+                                unsignedDocumentId!,
+                                e.target.files![0],
+                              )
+                            }
+                          />
+                        </form>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+          </AccordionItem>
+        </Accordion>
+
         <Table
           aria-label="Article modal tabela"
           isHeaderSticky
@@ -209,6 +368,29 @@ const DocumentsPage: React.FC = () => {
           classNames={{
             wrapper: "max-h-screen",
           }}
+          topContent={
+            <Input
+              variant="bordered"
+              type="text"
+              isClearable
+              placeholder="Pronađi artikal..."
+              value={searchQuery}
+              onClear={() => setSearchQuery("")}
+              onValueChange={(value) => setSearchQuery(value || "")}
+              onKeyDown={handleKeyPress}
+            />
+          }
+          bottomContent={
+            <div className="flex w-full justify-center">
+              <Pagination
+                showControls
+                showShadow
+                page={currentPage}
+                total={totalPages}
+                onChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          }
         >
           <TableHeader>
             <TableColumn key="documentNumber">Broj dokumenta</TableColumn>
@@ -364,28 +546,7 @@ const DocumentsPage: React.FC = () => {
                       <div className="mb-3 flex cursor-pointer flex-nowrap items-center">
                         PDF prenosnica:
                         {modalData.document.signed_path === "" ? (
-                          <form encType="multipart/form-data">
-                            <Button
-                              className="ml-2"
-                              color="danger"
-                              variant="faded"
-                              onClick={handleButtonClick}
-                              startContent={
-                                <i className="bi bi-cloud-arrow-up-fill" />
-                              }
-                            >
-                              {" "}
-                              Dodaj dokument
-                              <input
-                                id="dropzone-file"
-                                type="file"
-                                className="hidden"
-                                onChange={(e) =>
-                                  handleFileUpload(e, selectedDocumentId!)
-                                }
-                              />
-                            </Button>
-                          </form>
+                          <div>test</div>
                         ) : (
                           <Button
                             className="ml-2"
@@ -409,16 +570,11 @@ const DocumentsPage: React.FC = () => {
             )}
           </ModalContent>
         </Modal>
-        <div className="flex justify-center">
-          <Pagination
-            showControls
-            showShadow
-            page={currentPage}
-            total={totalPages}
-            onChange={(page) => setCurrentPage(page)}
-          />
-        </div>
       </div>
+      <Toast
+        variant={messageData.message.variant}
+        message={messageData.message.message}
+      />
       <AdminMenu />
     </>
   );

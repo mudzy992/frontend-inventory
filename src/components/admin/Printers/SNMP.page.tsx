@@ -258,7 +258,7 @@ const SNMPPage: React.FC = () => {
                   {(item) => (
                     <TableRow key={item.printerId}>
                       {(columnKey) => (
-                        <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                        <TableCell className="whitespace-nowrap">{getKeyValue(item, columnKey)}</TableCell>
                       )}
                     </TableRow>
                   )}

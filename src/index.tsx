@@ -23,6 +23,7 @@ import { UserContextProvider } from "./components/UserContext/UserContext";
 import AdminDashboardPage from "./components/admin/Dashboard/DashboardPage";
 import HelpdeskTicketPage from "./components/admin/HelpDesk/main/HelpdeskTicketPage";
 import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
+import SNMPPage from "./components/admin/Printers/SNMP.page";
 
 const rootElement = document.getElementById("root");
 
@@ -53,6 +54,7 @@ const App = () => {
                 <Route path="/admin/stock/:stockID" element={<StockPage />} />
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />}/>
                 <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
+                <Route path="/admin/snmp" element={<SNMPPage />} />
               </Routes>
             </HashRouter>
           </main>

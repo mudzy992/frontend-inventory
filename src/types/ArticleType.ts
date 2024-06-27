@@ -5,6 +5,8 @@ import StockType from "./UserArticleType";
 import UserType from "./UserType";
 import HelpdeskTicketsType from "./HelpdeskTicketsType";
 import UpgradeFeaturesType from "./UpgradeFeaturesType";
+import ArticleFeatureType from "./ArticleFeatureType";
+import PrinterOidType from "./PrinterOidType";
 
 export default class ArticleType {
   articleId?: number;
@@ -18,10 +20,12 @@ export default class ArticleType {
   comment?: string;
   categoryId?: number;
   category?: CategoryType;
+  articleFeatures?: ArticleFeatureType[];
   user?: UserType;
   stock?: StockType;
   articleTimelines?: ArticleTimelineType[];
   documents?: DocumentsType[];
   helpdeskTickets?: HelpdeskTicketsType[];
   upgradeFeatures?: UpgradeFeaturesType[];
+  printerOs?:PrinterOidType[];
 }

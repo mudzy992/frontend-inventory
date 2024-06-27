@@ -16,8 +16,10 @@ import {
   Accordion,
   AccordionItem,
   Spinner,
-  Selection
+  Selection,
+  Link
 } from "@nextui-org/react";
+import Moment from "moment";
 
 interface MessageType {
   message: {
@@ -35,23 +37,13 @@ const SNMPPage: React.FC = () => {
   const [printers, setPrinters] = useState<PrinterDTO[]>([]);
   const [invoices, setInvoices] = useState<InvoiceType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<any>(null);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(null));
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api("api/invoice", "get", {}, role);
-        if (response.status === "ok") {
-          setInvoices(response.data as InvoiceType[]);
-        } else {
-          setErrorMessage("Failed to fetch invoices", "error");
-        }
-      } catch (error) {
-        setErrorMessage("Failed to fetch invoices", "error");
-      }
-    };
-    fetchData();
+    fatechInvoices();
   }, [role]);
 
   useEffect(()=> {
@@ -63,7 +55,7 @@ const SNMPPage: React.FC = () => {
         if (response.status === "ok") {
           setPrinters(response.data as PrinterDTO[]);
         } else {
-          setErrorMessage("Failed to fetch printers1", "error");
+          setErrorMessage("Failed to fetch printers", "error");
         }
       } catch (error) {
         setErrorMessage("Failed to fetch printers", "error");
@@ -76,7 +68,60 @@ const SNMPPage: React.FC = () => {
     }
   }, [role, selectedKeys])
 
-  
+  const fatechInvoices = async () => {
+    setLoading(true);
+    try {
+      const response = await api("api/invoice", "get", {}, role);
+      if (response.status === "ok") {
+        setInvoices(response.data as InvoiceType[]);
+      } else {
+        setErrorMessage("Failed to fetch invoices", "error");
+      }
+    } catch (error) {
+      setErrorMessage("Failed to fetch invoices", "error");
+    } finally{
+      setLoading(false);
+    }
+  };
+
+  const syncPrinterData = async (invoiceId:number) => {
+    setLoading(true);
+    setIsDisabled(true)
+    setCurrentInvoiceId(invoiceId);
+    try {
+      const response = await api(`api/snmp/${invoiceId}/update`, "put", {}, role);
+      if (response.status === "ok") {
+        setErrorMessage("Vrijednosti uspješno sinhronizovane", "success");
+      } else {
+        setErrorMessage("Greška prilikom sinhronizacije podataka", "error");
+      }
+    } catch (error) {
+      setErrorMessage("Greška prilikom sinhronizacije podataka", "error");
+    } finally {
+      setLoading(false);
+      setIsDisabled(false)
+      setCurrentInvoiceId(null);
+    }
+  };
+
+  const calculateInvoice = async (invoiceId:number) => {
+    setLoading(true);
+    setIsDisabled(true)
+    setCurrentInvoiceId(invoiceId);
+    try {
+      const response = await api(`api/invoice`, "post", {}, role);
+      if (response.status === "ok") {
+        setErrorMessage("Faktura uspješno obračunata", "success");
+      } else {
+        setErrorMessage("Greška prilikom obračuna fakture", "error");
+      }
+    } catch (error) {
+      setErrorMessage("Greška prilikom obračuna fakture", "error");
+    } finally {
+      fatechInvoices()
+      setCurrentInvoiceId(null);
+    }
+  };
 
   const setErrorMessage = (message: string, variant: string) => {
     setMessage((prev) => ({
@@ -244,8 +289,31 @@ const SNMPPage: React.FC = () => {
       <Accordion variant="splitted" selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}>
         {invoices.map((invoice) => (
           <AccordionItem
+            isDisabled={isDisabled && currentInvoiceId === invoice.invoiceId}
             key={invoice.invoiceId}
-            title={`Invoice Number: ${invoice.invoiceNumber}`}
+            startContent={invoice.status === "plaćeno" ? <i className="bi bi-check2-circle text-success-400" /> : <i className="bi bi-hourglass-split text-warning-400" />}
+            title={<div className="flex justify-between">
+                <span>Faktura: {invoice.customer} - {invoice.invoiceNumber}/{Moment(invoice?.createdAt).format(
+                        "YYYY",
+                      )}</span>
+                <span className="text-medium text-default-400">{Moment(invoice?.createdAt).format(
+                        "DD.MM.YYYY - HH:mm",
+                      )}</span>
+              </div>}
+            subtitle={
+              <div className="flex text-default-500 justify-between">
+                <div className="gap-2 flex">
+                  <span className="flex gap-1"><i className="bi bi-printer text-white" />{invoice.blackAndWhite.toLocaleString()}</span>
+                  <span className="flex gap-1"><i className="bi bi-palette text-danger-500"/>{invoice.color.toLocaleString()}</span>
+                  <span className="flex gap-1"><i className="bi bi-phone-landscape text-secondary-500" />{invoice.scan.toLocaleString()}</span>
+                  <span className="flex gap-1"><i className="bi bi-cash-stack text-primary-500" />{invoice.rentPrice} KM</span>
+                  <span className="flex gap-1"><i className="bi bi-cash-coin text-green-500" />{invoice.totalAmount} KM</span>
+                </div>
+                <div className="gap-2 flex">
+                  {invoice.status !== "plaćeno" ? (loading ? (<Spinner color="success" size="sm"/>):(<Link className="text-sm text-warning-400" onClick={() => syncPrinterData(invoice.invoiceId)}><i className="bi bi-arrow-repeat"> sync</i></Link>)):(<div></div>)}
+                  {invoice.status !== "plaćeno" ? (loading ? (<Spinner color="success" size="sm"/>):(<Link className="text-sm text-green-400" onClick={() => calculateInvoice(invoice.invoiceId)}><i className="bi bi-calculator"> obračunaj</i></Link>)):(<div></div>)}
+                </div>
+              </div>}
           >
 
               <Table isCompact isStriped removeWrapper>

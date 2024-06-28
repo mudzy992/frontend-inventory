@@ -120,13 +120,11 @@ interface AdminArticleOnUserPageState {
 const AdminArticleOnUserPage: React.FC = () => {
   const { serial } = useParams();
   const { role } = useUserContext();
-  const [selectedUserIsDisabled, setSelectedUserIdDisabled] =
-    useState<boolean>(true);
+  const [selectedUserIsDisabled, setSelectedUserIdDisabled] = useState<boolean>(true);
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedTab, setSelectedTab] = useState<string>("articles");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [categoryId, setCategoryId] = useState<number | null>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [state, setState] = useState<AdminArticleOnUserPageState>({
     message: { message: "", variant: "" },
@@ -268,9 +266,23 @@ const AdminArticleOnUserPage: React.FC = () => {
     }));
   };
 
+  const setShowEditArticleFeaturesModal = (newState: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      editArticleFeatures: {
+        ...prev.editArticleFeatures,
+        visible: newState,
+      },
+    }));
+  };
+
+  const showEditArticleFeaturesModal = () => {
+    setShowEditArticleFeaturesModal(true);
+  };
+
   const putArticleDetailsInState = async (article: ArticleType) => {
     try {
-      const features = await getFeaturesByCategoryId(article.categoryId!);
+      const features = await getFeaturesByCategoryId(article.category?.categoryId!);
       const articleFeatures: articleFeatureBaseType[] = (article.articleFeatures ? article.articleFeatures : []).map(feature => ({
         ...feature,
         use: feature.featureValue ? 1 : 0  // Postavite use na 1 ako featureValue postoji, inače 0
@@ -327,7 +339,7 @@ const AdminArticleOnUserPage: React.FC = () => {
     return new Promise(async (resolve, reject) => {
       try {
         const res = await api(
-          `/api/feature/cat/11`,
+          `/api/feature/cat/${categoryId}`,
           "get",
           {},
           "administrator"
@@ -347,7 +359,6 @@ const AdminArticleOnUserPage: React.FC = () => {
     });
   };
   
-
   const setEditArticleFeatureValue = (featureId: number, value: string) => {
     setState((prevState) => ({
       ...prevState,
@@ -361,33 +372,82 @@ const AdminArticleOnUserPage: React.FC = () => {
       },
     }));
   };
-  
 
   const editArticleFeatures = () => {
     return (
       <div>
-    {state.editArticleFeatures.articleFeatures.map((feature, index) => (
-      <div>
-        <Input
-          key={feature.articleFeatureId! + feature.featureId!}
-          type="text"
+        <ScrollShadow hideScrollBar className="h-max-[250px] w-full">
+          <Listbox
           variant="bordered"
-          aria-label={feature.feature?.name}
-          label={feature.feature?.name}
-          placeholder={feature.feature?.name}
-          value={feature.featureValue}
-          labelPlacement="inside"
-          onChange={(e) =>
-            setEditArticleFeatureValue(feature.featureId!, e.target.value)
-          }
-          className="mb-3 flex-grow"
-        />
+          aria-label="box-dodatne-specifikacije"
+          >
+              {state.editArticleFeatures.articleFeatures
+                .filter((feature) => feature.featureValue)
+                .map((feature) => (
+                  <ListboxItem key={feature.featureId!}>
+                    <span className="text-bold text-small text-default-400">
+                    {feature.feature?.name}:{" "}
+                        </span> {feature.featureValue}
+                  </ListboxItem>
+                ))}
+          </Listbox>
+        </ScrollShadow>
+        <div className="flex justify-end mr-3">
+        <Button
+          className="text-sm"
+          color="success"
+          variant="shadow"
+          size="sm"
+          onClick={() => showEditArticleFeaturesModal()}
+          startContent={<i className="bi bi-node-plus text-base"></i>}
+        >
+          Izmjeni
+        </Button>
+        </div>
+        <Modal
+          size="lg"
+          backdrop="blur"
+          scrollBehavior={"inside"}
+          isOpen={state.editArticleFeatures.visible}
+          onClose={() => setShowEditArticleFeaturesModal(false)}
+        >
+          <ModalContent>
+            <ModalHeader>
+              Dodatne specifikacije
+            </ModalHeader>
+            <ModalBody>
+
+              {state.editArticleFeatures.articleFeatures.map((feature, index) => (
+                  <Input
+                    key={feature.articleFeatureId! + feature.featureId!}
+                    type="text"
+                    variant="bordered"
+                    aria-label={feature.feature?.name}
+                    label={feature.feature?.name}
+                    placeholder={feature.feature?.name}
+                    value={feature.featureValue}
+                    labelPlacement="inside"
+                    onChange={(e) =>
+                      setEditArticleFeatureValue(feature.featureId!, e.target.value)
+                    }
+                    className="mb-3 flex-grow"
+                  />
+              ))}
+              </ModalBody>  
+              <ModalFooter>
+                <Button
+                  color="success"
+                  variant="shadow"
+                  onClick={() => handleSaveArticleFeatures()}
+                >
+                  {LangBa.ARTICLE_ON_USER.BTN_SAVE}
+                </Button>
+              </ModalFooter>
+            
+          </ModalContent>
+        </Modal>
       </div>
-    ))}
-    <div>
-      <Button onClick={() => handleSaveArticleFeatures()}>Save</Button>
-    </div>
-      </div>
+      
     );
   };
 
@@ -401,20 +461,48 @@ const AdminArticleOnUserPage: React.FC = () => {
           featureValue: feature.featureValue
         }))
     };
-  
-    console.log(dataToSend);
+
+    const featuresToDelete = state.editArticleFeatures.articleFeatures
+    .filter(feature => feature.use === 0 && feature.articleFeatureId)
+    .map(feature => feature.articleFeatureId);
+
+    const deleteDataToSend = { articleFeatureIds: featuresToDelete };
   
     try {
-      await api('api/article-features', "put", dataToSend, role);
-      // Ovdje možete dodati logiku za uspješno spašavanje, npr. prikazivanje poruke
+      await api('api/article-features', "put", dataToSend, role)
+      .then((res: ApiResponse) => {
+        if (res.status === "ok"){
+          setErrorMessage("Izmjena na dodatnoj specifikaciju uspješno izvršena", "success");
+        }
+        if (res.status === "forbidden"){
+          setErrorMessage("Nemate prava za ovu akciju", "warning");
+        }
+        if (res.status === "error"){
+          setErrorMessage("Greška prilikom izmjene na dodatnoj specifikaciji!", "danger");
+        }
+      })
+      
+      // Obriši features
+      if (featuresToDelete.length > 0) {
+        await api('api/article-features', "delete", deleteDataToSend, role)
+      .then((res: ApiResponse) => {
+        if (res.status === "ok"){
+          setErrorMessage("Dodatna specifikacija ID:" + deleteDataToSend + " uspješno obrisana!", "success");
+        }
+        if (res.status === "forbidden"){
+          setErrorMessage("Nemate prava za ovu akciju", "warning");
+        }
+        if (res.status === "error"){
+          setErrorMessage("Greška prilikom brisanja dodatne specifikacije ID:" + deleteDataToSend, "danger");
+        }
+      })
+        
+      }
     } catch (error) {
-      console.error('Greška prilikom snimanja dodatnih specifikacija:', error);
-      // Ovdje možete dodati logiku za prikazivanje greške korisniku
+      setErrorMessage("Greška prilikom snimanja dodatnih specifikacija:" + error, "danger");
     }
   };
   
-  
-
   const getArticleData = useCallback(async () => {
     try {
       await api(`api/article/sb/${serial}`, "get", {}, "administrator").then(
@@ -695,7 +783,6 @@ const AdminArticleOnUserPage: React.FC = () => {
     });
   };
 
-  
 
   function showChangeStatusModal(article: ArticleType) {
     const sb: any = article.serialNumber;
@@ -1116,8 +1203,6 @@ const AdminArticleOnUserPage: React.FC = () => {
       );
     }
   }
-
-  
 
   function actions(ticketId: number) {
     return (

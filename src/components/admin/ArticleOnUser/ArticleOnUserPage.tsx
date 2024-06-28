@@ -93,7 +93,6 @@ interface AdminArticleOnUserPageState {
   message: { message: string; variant: string };
   article: ArticleType;
   users: UserType[];
-  errorMessage: { message: string; variant: string };
   expandedCards: boolean[];
   changeStatus: {
     visible: boolean;
@@ -130,7 +129,6 @@ const AdminArticleOnUserPage: React.FC = () => {
     message: { message: "", variant: "" },
     users: [],
     article: {},
-    errorMessage: { message: "", variant: "" },
     expandedCards: new Array(2).fill(false),
     changeStatus: {
       userId: Number(),
@@ -973,8 +971,8 @@ const AdminArticleOnUserPage: React.FC = () => {
         data={state.article}
       />
       <Toast
-        variant={state.errorMessage.variant}
-        message={state.errorMessage.message}
+        variant={state.message.variant}
+        message={state.message.message}
       />
     </div>
   );

@@ -43,6 +43,9 @@ import {
   Tab,
   Tooltip,
   Spinner,
+  Accordion,
+  AccordionItem,
+  ListboxSection,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { Alert } from "../../custom/Alert";
@@ -51,6 +54,7 @@ import { UserRole } from "../../../types/UserRoleType";
 import NewTicketByArticleModal from "../HelpDesk/new/ByArticle/NewTicketByArticleModal";
 import ViewSingleTicketModal from "../HelpDesk/view/ViewSingleTicket";
 import Toast from "../../custom/Toast";
+import ArticleFeatureType from "../../../types/ArticleFeatureType";
 
 interface upgradeFeaturesType {
   upgradeFeatureId: number;
@@ -60,6 +64,24 @@ interface upgradeFeaturesType {
   comment: string;
   timestamp: string;
 }
+interface articleFeatureBaseType {
+  articleFeatureId?: number;
+  articleId?: number;
+  featureId?: number;
+  featureValue?: string;
+  feature?: {
+    name?: string;
+    featureId?: number;
+  };
+  use:number;
+}
+
+interface FeatureBaseType {
+  featureId?: number;
+  name: string;
+  articleFeatureId: number;
+  value: string;
+};
 
 type UserTypeBase = {
   userId: string;
@@ -89,6 +111,10 @@ interface AdminArticleOnUserPageState {
     value: string;
     comment: string;
   };
+  editArticleFeatures: {
+    visible: boolean;
+    articleFeatures: articleFeatureBaseType[];
+  };
 }
 
 const AdminArticleOnUserPage: React.FC = () => {
@@ -100,6 +126,7 @@ const AdminArticleOnUserPage: React.FC = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedTab, setSelectedTab] = useState<string>("articles");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [state, setState] = useState<AdminArticleOnUserPageState>({
     message: { message: "", variant: "" },
@@ -124,6 +151,10 @@ const AdminArticleOnUserPage: React.FC = () => {
       comment: "",
     },
     userArticle: [],
+    editArticleFeatures: {
+      visible: false,
+      articleFeatures: [],
+    },
   });
 
   const onInputChange = (value: string) => {
@@ -237,6 +268,153 @@ const AdminArticleOnUserPage: React.FC = () => {
     }));
   };
 
+  const putArticleDetailsInState = async (article: ArticleType) => {
+    try {
+      const features = await getFeaturesByCategoryId(article.categoryId!);
+      const articleFeatures: articleFeatureBaseType[] = (article.articleFeatures ? article.articleFeatures : []).map(feature => ({
+        ...feature,
+        use: feature.featureValue ? 1 : 0  // Postavite use na 1 ako featureValue postoji, inače 0
+      }));
+
+      // First, set existing feature values
+      articleFeatures.forEach((af) => {
+        const feature = features.find(f => f.featureId === af.featureId);
+        if (feature) {
+          af.featureValue = af.featureValue ?? "";
+          af.articleFeatureId = af.articleFeatureId ?? undefined;
+          af.articleId = article.articleId;
+          af.feature = {
+            name: feature.name ?? "",
+            featureId: feature.featureId
+          };
+        }
+      });
+  
+      // Then, add missing features from the category features
+      features.forEach((feature) => {
+        const existingFeature = articleFeatures.find(
+          (f) => f.featureId === feature.featureId,
+        );
+  
+        if (!existingFeature) {
+          articleFeatures.push({
+            featureId: feature.featureId,
+            featureValue: "",
+            use: 0,
+            articleId: article.articleId,
+            feature: {
+              name: feature.name ?? "",
+              featureId: feature.featureId
+            }
+          });
+        }
+      });
+      // Postavite ažurirane osobine u state
+      setState((prev) => ({
+        ...prev,
+        editArticleFeatures: {
+          ...prev.editArticleFeatures,
+          articleFeatures: articleFeatures
+        }
+      }));
+    } catch (error) {
+      // Obrada greške
+      console.error(error);
+    }
+  };
+  
+  const getFeaturesByCategoryId = async (categoryId: number): Promise<FeatureBaseType[]> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const res = await api(
+          `/api/feature/cat/11`,
+          "get",
+          {},
+          "administrator"
+        );
+  
+        const features: FeatureBaseType[] = res.data.map((item: any) => ({
+          featureId: item.featureId,
+          name: item.name,
+          value: item.articleFeatures.length > 0 ? item.articleFeatures[0].featureValue : "",
+          articleFeatureId: item.articleFeatures.length > 0 ? item.articleFeatures[0].articleFeatureId : null,
+        }));
+  
+        resolve(features);
+      } catch (error) {
+        reject(new Error("Greška prilikom dohvatanja osobina po kategoriji. Greška: " + error));
+      }
+    });
+  };
+  
+
+  const setEditArticleFeatureValue = (featureId: number, value: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      editArticleFeatures: {
+        ...prevState.editArticleFeatures,
+        articleFeatures: prevState.editArticleFeatures.articleFeatures.map((feature) =>
+          feature.featureId === featureId
+            ? { ...feature, featureValue: value, use: value ? 1 : 0 }
+            : feature
+        ),
+      },
+    }));
+  };
+  
+
+  const editArticleFeatures = () => {
+    return (
+      <div>
+    {state.editArticleFeatures.articleFeatures.map((feature, index) => (
+      <div>
+        <Input
+          key={feature.articleFeatureId! + feature.featureId!}
+          type="text"
+          variant="bordered"
+          aria-label={feature.feature?.name}
+          label={feature.feature?.name}
+          placeholder={feature.feature?.name}
+          value={feature.featureValue}
+          labelPlacement="inside"
+          onChange={(e) =>
+            setEditArticleFeatureValue(feature.featureId!, e.target.value)
+          }
+          className="mb-3 flex-grow"
+        />
+      </div>
+    ))}
+    <div>
+      <Button onClick={() => handleSaveArticleFeatures()}>Save</Button>
+    </div>
+      </div>
+    );
+  };
+
+  const handleSaveArticleFeatures = async () => {
+    const dataToSend = {
+      features: state.editArticleFeatures.articleFeatures
+        .filter(feature => feature.use === 1)  // Filtriramo samo one koje imaju use: 1
+        .map(feature => ({
+          articleId: feature.articleId,
+          featureId: feature.featureId,
+          featureValue: feature.featureValue
+        }))
+    };
+  
+    console.log(dataToSend);
+  
+    try {
+      await api('api/article-features', "put", dataToSend, role);
+      // Ovdje možete dodati logiku za uspješno spašavanje, npr. prikazivanje poruke
+    } catch (error) {
+      console.error('Greška prilikom snimanja dodatnih specifikacija:', error);
+      // Ovdje možete dodati logiku za prikazivanje greške korisniku
+    }
+  };
+  
+  
+
   const getArticleData = useCallback(async () => {
     try {
       await api(`api/article/sb/${serial}`, "get", {}, "administrator").then(
@@ -253,6 +431,9 @@ const AdminArticleOnUserPage: React.FC = () => {
           }
           const data: ArticleType = res.data;
           setArticle(data);
+          if(data){
+            putArticleDetailsInState(data)
+          }
         },
       );
     } catch (err) {
@@ -337,6 +518,7 @@ const AdminArticleOnUserPage: React.FC = () => {
         await getArticleData();
         await getUserData();
         await getUpgradeFeature();
+        
         setLoading(false);
       } catch (err) {
         setLoading(true);
@@ -512,6 +694,8 @@ const AdminArticleOnUserPage: React.FC = () => {
       }));
     });
   };
+
+  
 
   function showChangeStatusModal(article: ArticleType) {
     const sb: any = article.serialNumber;
@@ -933,6 +1117,8 @@ const AdminArticleOnUserPage: React.FC = () => {
     }
   }
 
+  
+
   function actions(ticketId: number) {
     return (
       <div className="relative flex items-center gap-2">
@@ -993,7 +1179,15 @@ const AdminArticleOnUserPage: React.FC = () => {
               ></i>
             </div>
             <div className="xs:w-full lg:w-8/12">
-              <ScrollShadow hideScrollBar className="h-[250px] w-full">
+            <Accordion
+            showDivider={true}
+            defaultExpandedKeys={["1"]}
+            >
+              <AccordionItem 
+              startContent={<i className="bi bi-cpu text-primary text-xl" />}
+              key="1" 
+              title={"Tehničke specifikacije"}>
+                <ScrollShadow hideScrollBar className="h-[250px] w-full">
                 <Listbox
                   items={mappedStockFeatures}
                   variant="bordered"
@@ -1013,7 +1207,22 @@ const AdminArticleOnUserPage: React.FC = () => {
                   )}
                 </Listbox>
               </ScrollShadow>
-              {upgradeFeature()}
+              </AccordionItem>
+              <AccordionItem 
+              startContent={<i className="bi bi-gear text-warning text-xl" />}
+              key="2" 
+              title={(<div className="flex gap-2"><span>Dodatne specifikacije</span></div>)}>
+                {editArticleFeatures()}
+              </AccordionItem>
+              <AccordionItem 
+              startContent={<i className="bi bi-wrench-adjustable-circle text-success text-xl" />}
+              key="3" 
+              title={(<div className="flex gap-2"><span>Nadogradnja</span> <Chip size="sm" color="success">{state.upgradeFeature.length}</Chip></div>)}>
+                {upgradeFeature()}
+              </AccordionItem>
+            </Accordion>
+              
+              
             </div>
           </div>
 

@@ -46,14 +46,50 @@ const SNMPPage: React.FC = () => {
     fatechInvoices();
   }, [role]);
 
-  useEffect(()=> {
+  useEffect(() => {
     const currentKey = Array.from(selectedKeys)[0];
     const fetchPrinterDataByInvoiceId = async () => {
       setLoading(true);
       try {
         const response = await api(`api/invoice/${currentKey}/printers/`, "get", {}, role);
         if (response.status === "ok") {
-          setPrinters(response.data as PrinterDTO[]);
+          const printerData: any[] = response.data;
+  
+          const mappedPrinters: PrinterDTO[] = printerData.map(printer => {
+            let connection = null;
+            let rentType = null;
+            //let status = null; /* id98 */
+            let ownership = null; /* id99 */
+            let cijenaRente = null; /* id101 */
+  
+            for (let i = 0; i < printer.printerFeatures.length; i++) {
+              const feature = printer.printerFeatures[i];
+              if (feature.featureId === 97) {
+                connection = feature.featureValue;
+              } else if (feature.featureId === 100) {
+                rentType = feature.featureValue;
+              } else if (feature.featureId === 99) {
+                ownership = feature.featureValue;
+              }
+            }
+  
+            return {
+              printerId: printer.printerId,
+              printerType: printer.printerType,
+              serialNumber: printer.serialNumber,
+              ownership: ownership,
+              connection: connection,
+              rentType: rentType,
+              user: printer.user,
+              counters: {
+                oid27: printer.counters.oid27,
+                oid28: printer.counters.oid28,
+                oid29: printer.counters.oid29,
+              }
+            };
+          });
+  
+          setPrinters(mappedPrinters);
         } else {
           setErrorMessage("Failed to fetch printers", "error");
         }
@@ -64,9 +100,10 @@ const SNMPPage: React.FC = () => {
       }
     };
     if(currentKey !== undefined) {
-      fetchPrinterDataByInvoiceId()
+      fetchPrinterDataByInvoiceId();
     }
-  }, [role, selectedKeys])
+  }, [role, selectedKeys]);
+  
 
   const fatechInvoices = async () => {
     setLoading(true);
@@ -184,19 +221,19 @@ const SNMPPage: React.FC = () => {
   };
 
   const columns = [
-    { key: "printerId", label: "Printer ID" },
-    { key: "userCode", label: "User Code" },
-    { key: "connection", label: "Connection" },
-    { key: "printerType", label: "Printer Type" },
-    { key: "serialNumber", label: "Serial Number" },
-    { key: "rentalType", label: "Rental Type" },
-    //{ key: "ownership", label: "Ownership" },
-    { key: "oid28_previous", label: "B/W Previous" },
-    { key: "oid28_current", label: (<div className="flex justify-between"><span>B/W Current</span><span>Total</span></div>) },
-    { key: "oid27_previous", label: "Color Previous" },
-    { key: "oid27_current", label:  (<div className="flex justify-between"><span>Color Current</span><span>Total</span></div>) },
-    { key: "oid29_previous", label: "Scan Previous" },
-    { key: "oid29_current", label:  (<div className="flex justify-between"><span>Scan Current</span><span>Total</span></div>) },
+    { key: "printerId", label: "ID" },
+    { key: "user", label: "Korisnik" },
+    { key: "printerType", label: "Model" },
+    { key: "serialNumber", label: "Serijski broj" },
+    { key: "connection", label: "Veza" },
+    { key: "ownership", label: "Vlasništvo" },
+    { key: "rentType", label: "Rent Tip" },
+    { key: "oid28_previous", label: "B/W Prethodno" },
+    { key: "oid28_current", label: (<div className="flex justify-between"><span>B/W Trenutno</span><span>Ukupno</span></div>) },
+    { key: "oid27_previous", label: "Kolor Prethodno" },
+    { key: "oid27_current", label:  (<div className="flex justify-between"><span>Kolor Trenutno</span><span>Ukupno</span></div>) },
+    { key: "oid29_previous", label: "Sken. Prethodno" },
+    { key: "oid29_current", label:  (<div className="flex justify-between"><span>Sken. Trenutno</span><span>Ukupno</span></div>) },
   ];
 
   function oduzimanje(a: number, b: number) {
@@ -303,11 +340,26 @@ const SNMPPage: React.FC = () => {
             subtitle={
               <div className="flex text-default-500 justify-between">
                 <div className="gap-2 flex">
-                  <span className="flex gap-1"><i className="bi bi-printer text-white" />{invoice.blackAndWhite.toLocaleString()}</span>
-                  <span className="flex gap-1"><i className="bi bi-palette text-danger-500"/>{invoice.color.toLocaleString()}</span>
-                  <span className="flex gap-1"><i className="bi bi-phone-landscape text-secondary-500" />{invoice.scan.toLocaleString()}</span>
-                  <span className="flex gap-1"><i className="bi bi-cash-stack text-primary-500" />{invoice.rentPrice} KM</span>
-                  <span className="flex gap-1"><i className="bi bi-cash-coin text-green-500" />{invoice.totalAmount} KM</span>
+                  <span className="flex gap-1">
+                    <i className="bi bi-printer text-white" />
+                    {invoice.blackAndWhite ? invoice.blackAndWhite.toLocaleString() : "n/a"}
+                  </span>
+                  <span className="flex gap-1">
+                    <i className="bi bi-palette text-danger-500"/>
+                    {invoice.color ? invoice.color.toLocaleString() : "n/a"}
+                  </span>
+                  <span className="flex gap-1">
+                    <i className="bi bi-phone-landscape text-secondary-500" />
+                    {invoice.scan ? invoice.scan.toLocaleString() : "n/a"}
+                    </span>
+                  <span className="flex gap-1">
+                    <i className="bi bi-cash-stack text-primary-500" />
+                    {invoice.rentPrice ? invoice.rentPrice : "n/a"} KM
+                    </span>
+                  <span className="flex gap-1">
+                    <i className="bi bi-cash-coin text-green-500" />
+                    {invoice.totalAmount ? invoice.totalAmount: "n/a"} KM
+                    </span>
                 </div>
                 <div className="gap-2 flex">
                   {invoice.status !== "plaćeno" ? (loading ? (<Spinner color="success" size="sm"/>):(<Link className="text-sm text-warning-400" onClick={() => syncPrinterData(invoice.invoiceId)}><i className="bi bi-arrow-repeat"> sync</i></Link>)):(<div></div>)}

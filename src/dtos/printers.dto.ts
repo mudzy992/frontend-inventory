@@ -5,16 +5,13 @@ interface OidData {
 
 interface PrinterDTO {
   printerId: number;
-  userCode: string | null;
-  connection: string | null;
+  user: string;
   printerType: string | null;
   serialNumber: string | null;
-  activity: string | null;
-  rentalType: number;
   ownership: string | null;
-  status: 'activated' | 'deactivated' | null;
+  connection: string;
+  rentType: string;
   counters: {
-    oid26: OidData;
     oid27: OidData;
     oid28: OidData;
     oid29: OidData;

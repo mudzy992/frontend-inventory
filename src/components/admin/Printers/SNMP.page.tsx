@@ -112,6 +112,7 @@ const SNMPPage: React.FC = () => {
       if (response.status === "ok") {
         setInvoices(response.data as InvoiceType[]);
       } else {
+        navigate('/login')
         setErrorMessage("Failed to fetch invoices", "error");
       }
     } catch (error) {
@@ -329,7 +330,8 @@ const SNMPPage: React.FC = () => {
             isDisabled={isDisabled && currentInvoiceId === invoice.invoiceId}
             key={invoice.invoiceId}
             startContent={invoice.status === "plaćeno" ? <i className="bi bi-check2-circle text-success-400" /> : <i className="bi bi-hourglass-split text-warning-400" />}
-            title={<div className="flex justify-between">
+            title={
+            <div className="flex justify-between max-w-fit">
                 <span>Faktura: {invoice.customer} - {invoice.invoiceNumber}/{Moment(invoice?.createdAt).format(
                         "YYYY",
                       )}</span>
@@ -337,35 +339,62 @@ const SNMPPage: React.FC = () => {
                         "DD.MM.YYYY - HH:mm",
                       )}</span>
               </div>}
-            subtitle={
-              <div className="flex text-default-500 justify-between">
-                <div className="gap-2 flex">
-                  <span className="flex gap-1">
+             subtitle={
+              <div className="flex overflow-x-auto">
+                <div className="grid grid-cols-5 gap-3 text-default-500">
+                  <span className="md:flex items-center gap-1 hidden">
                     <i className="bi bi-printer text-white" />
                     {invoice.blackAndWhite ? invoice.blackAndWhite.toLocaleString() : "n/a"}
                   </span>
-                  <span className="flex gap-1">
-                    <i className="bi bi-palette text-danger-500"/>
+                  <span className="md:flex items-center gap-1 hidden">
+                    <i className="bi bi-palette text-danger-500" />
                     {invoice.color ? invoice.color.toLocaleString() : "n/a"}
                   </span>
-                  <span className="flex gap-1">
+                  <span className="md:flex items-center gap-1 hidden">
                     <i className="bi bi-phone-landscape text-secondary-500" />
                     {invoice.scan ? invoice.scan.toLocaleString() : "n/a"}
-                    </span>
-                  <span className="flex gap-1">
+                  </span>
+                  <span className="md:flex items-center gap-1 hidden">
                     <i className="bi bi-cash-stack text-primary-500" />
                     {invoice.rentPrice ? invoice.rentPrice : "n/a"} KM
-                    </span>
-                  <span className="flex gap-1">
+                  </span>
+                  <span className="md:flex items-center gap-1 hidden">
                     <i className="bi bi-cash-coin text-green-500" />
-                    {invoice.totalAmount ? invoice.totalAmount: "n/a"} KM
-                    </span>
+                    {invoice.totalAmount ? invoice.totalAmount : "n/a"} KM
+                  </span>
                 </div>
-                <div className="gap-2 flex">
-                  {invoice.status !== "plaćeno" ? (loading ? (<Spinner color="success" size="sm"/>):(<Link className="text-sm text-warning-400" onClick={() => syncPrinterData(invoice.invoiceId)}><i className="bi bi-arrow-repeat"> sync</i></Link>)):(<div></div>)}
-                  {invoice.status !== "plaćeno" ? (loading ? (<Spinner color="success" size="sm"/>):(<Link className="text-sm text-green-400" onClick={() => calculateInvoice(invoice.invoiceId)}><i className="bi bi-calculator"> obračunaj</i></Link>)):(<div></div>)}
+                <div className="flex items-end gap-2 ml-4">
+                  {invoice.status !== "plaćeno" ? (
+                    loading ? (
+                      <Spinner color="success" size="sm" />
+                    ) : (
+                      <Link
+                        className="text-sm text-warning-400"
+                        onClick={() => syncPrinterData(invoice.invoiceId)}
+                      >
+                        <i className="bi bi-arrow-repeat mr-1"></i> sync
+                      </Link>
+                    )
+                  ) : (
+                    <div></div>
+                  )}
+                  {invoice.status !== "plaćeno" ? (
+                    loading ? (
+                      <Spinner color="success" size="sm" />
+                    ) : (
+                      <Link
+                        className="text-sm text-green-400"
+                        onClick={() => calculateInvoice(invoice.invoiceId)}
+                      >
+                        <i className="bi bi-calculator mr-1"></i> obračunaj
+                      </Link>
+                    )
+                  ) : (
+                    <div></div>
+                  )}
                 </div>
-              </div>}
+              </div>
+            }
           >
 
               <Table isCompact isStriped removeWrapper>

@@ -329,42 +329,44 @@ const SNMPPage: React.FC = () => {
           <AccordionItem
             isDisabled={isDisabled && currentInvoiceId === invoice.invoiceId}
             key={invoice.invoiceId}
-            startContent={invoice.status === "plaćeno" ? <i className="bi bi-check2-circle text-success-400" /> : <i className="bi bi-hourglass-split text-warning-400" />}
+            startContent={invoice.status === "plaćeno" ? 
+            <i className="bi bi-check2-circle text-success-400 " /> : 
+            <i className="bi bi-hourglass-split text-warning-400" />}
             title={
-            <div className="flex justify-between max-w-fit">
-                <span>Faktura: {invoice.customer} - {invoice.invoiceNumber}/{Moment(invoice?.createdAt).format(
+            <div className="flex justify-between">
+                <span>{invoice.invoiceId} - {invoice.customer} - {invoice.invoiceNumber}/{Moment(invoice?.createdAt).format(
                         "YYYY",
                       )}</span>
-                <span className="text-medium text-default-400">{Moment(invoice?.createdAt).format(
-                        "DD.MM.YYYY - HH:mm",
+                <span className="text-small md:text-medium text-default-400">{Moment(invoice?.createdAt).format(
+                        "DD.MM.YYYY",
                       )}</span>
               </div>}
              subtitle={
-              <div className="flex overflow-x-auto">
-                <div className="grid grid-cols-5 gap-3 text-default-500">
-                  <span className="md:flex items-center gap-1 hidden">
+              <div className="flex overflow-y-auto md:max-w-fit max-w-[250px]">
+                <div className="grid grid-flow-col gap-2 text-default-500 ">
+                  <span className="flex gap-1">
                     <i className="bi bi-printer text-white" />
                     {invoice.blackAndWhite ? invoice.blackAndWhite.toLocaleString() : "n/a"}
                   </span>
-                  <span className="md:flex items-center gap-1 hidden">
+                  <span className="flex gap-1">
                     <i className="bi bi-palette text-danger-500" />
                     {invoice.color ? invoice.color.toLocaleString() : "n/a"}
                   </span>
-                  <span className="md:flex items-center gap-1 hidden">
+                  <span className="flex gap-1">
                     <i className="bi bi-phone-landscape text-secondary-500" />
                     {invoice.scan ? invoice.scan.toLocaleString() : "n/a"}
                   </span>
-                  <span className="md:flex items-center gap-1 hidden">
+                  <span className="flex gap-1 min-w-[100px]">
                     <i className="bi bi-cash-stack text-primary-500" />
                     {invoice.rentPrice ? invoice.rentPrice : "n/a"} KM
                   </span>
-                  <span className="md:flex items-center gap-1 hidden">
+                  <span className="flex gap-1 min-w-[100px]">
                     <i className="bi bi-cash-coin text-green-500" />
                     {invoice.totalAmount ? invoice.totalAmount : "n/a"} KM
                   </span>
                 </div>
                 <div className="flex items-end gap-2 ml-4">
-                  {invoice.status !== "plaćeno" ? (
+                  {/* {invoice.status !== "plaćeno" ? (
                     loading ? (
                       <Spinner color="success" size="sm" />
                     ) : (
@@ -377,7 +379,7 @@ const SNMPPage: React.FC = () => {
                     )
                   ) : (
                     <div></div>
-                  )}
+                  )} */}
                   {invoice.status !== "plaćeno" ? (
                     loading ? (
                       <Spinner color="success" size="sm" />

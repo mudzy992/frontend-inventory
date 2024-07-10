@@ -20,6 +20,7 @@ import {
   Link
 } from "@nextui-org/react";
 import Moment from "moment";
+import Toast from "../../custom/Toast";
 
 interface MessageType {
   message: {
@@ -164,7 +165,14 @@ const SNMPPage: React.FC = () => {
   const setErrorMessage = (message: string, variant: string) => {
     setMessage((prev) => ({
       ...prev,
-      message: { message, variant },
+      errorMessage: { message, variant },
+    }));
+  };
+
+  const resetMessage = () => {
+    setMessage((prev) => ({
+      ...prev,
+      errorMessage: { message: "", variant: "" },
     }));
   };
 
@@ -319,11 +327,6 @@ const SNMPPage: React.FC = () => {
       <RoledMainMenu />
       
       <div className="container mx-auto mt-3 h-max lg:px-4">
-      {message.message.message && (
-        <div className={`message ${message.message.variant}`}>
-          {message.message.message}
-        </div>
-      )}
       <Accordion variant="splitted" selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}>
         {invoices.map((invoice) => (
           <AccordionItem
@@ -418,6 +421,7 @@ const SNMPPage: React.FC = () => {
           </AccordionItem>
         ))}
       </Accordion></div>
+      <Toast variant={message.message.variant} message={message.message.message} onClose={resetMessage} />
     </>
   );
 };

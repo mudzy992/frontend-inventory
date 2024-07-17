@@ -1,5 +1,5 @@
 # Stage 1 - Koristi node:18-alpine kao bazni image za izgradnju
-FROM node:18-alpine as build-stage
+FROM node:18-alpine AS build-stage
 
 # Postavljanje radnog direktorija za aplikaciju unutar image-a
 WORKDIR /usr/src/app
@@ -28,14 +28,11 @@ RUN npm run build --verbose
 # Provera sadržaja build direktorija nakon build-a
 RUN echo "Sadržaj build direktorija nakon build-a:" && ls -la /usr/src/app/build
 
-# Stage 2 - Koristi node:18-alpine kao bazni image za produkciju
-FROM node:18-alpine
+# Pokrećemo npm run build sa više detalja
+RUN npm run build --verbose
 
 # Instalacija serve globalno
 RUN npm install -g serve
-
-# Kopiranje build direktorija iz prvog stadijuma
-COPY --from=build-stage /usr/src/app/build /usr/src/app/build
 
 # Provera sadržaja build direktorija nakon kopiranja
 RUN echo "Sadržaj build direktorija nakon kopiranja:" && ls -la /usr/src/app/build

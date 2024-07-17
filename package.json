@@ -34,7 +34,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "tsc && react-scripts build",
     "build-watch": "react-scripts build --watch",
     "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject"

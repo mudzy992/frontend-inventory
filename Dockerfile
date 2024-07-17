@@ -17,7 +17,7 @@ RUN npm install -g serve --verbose
 COPY . .
 
 # Izgradnja aplikacije sa dodatnim logovanjem
-RUN npm run build --verbose && echo "Build finished successfully"
+RUN yarn run build --verbose
 
 # Otvori port na kojem će aplikacija raditi
 EXPOSE 5000

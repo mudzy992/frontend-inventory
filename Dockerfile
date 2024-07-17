@@ -8,19 +8,16 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Instalacija ovisnosti
-RUN npm install --force
+RUN npm install --force --verbose
 
 # Instalacija serve globalno
-RUN npm install -g serve
-
-# Instalacija react-scripts globalno
-RUN npm install -g react-scripts
+RUN npm install -g serve --verbose
 
 # Kopiranje cijele aplikacije
 COPY . .
 
-# Izgradnja aplikacije
-RUN npm run build
+# Izgradnja aplikacije sa dodatnim logovanjem
+RUN npm run build --verbose && echo "Build finished successfully"
 
 # Otvori port na kojem će aplikacija raditi
 EXPOSE 5000

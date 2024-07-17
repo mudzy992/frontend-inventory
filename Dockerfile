@@ -10,32 +10,14 @@ COPY package*.json ./
 # Instalacija ovisnosti
 RUN npm install --force --verbose
 
-# Provera sadržaja direktorijuma
-RUN echo "Sadržaj direktorijuma nakon instalacije ovisnosti:" && ls -la
-
 # Kopiranje cijele aplikacije
 COPY . .
 
-# Provera sadržaja direktorijuma nakon kopiranja aplikacije
-RUN echo "Sadržaj direktorijuma nakon kopiranja aplikacije:" && ls -la
-
-# Dodavanje vremena čekanja (privremeno)
-RUN sleep 10
-
-# Pokrećemo npm run build sa više detalja
-RUN npm run build --verbose
-
-# Provera sadržaja build direktorija nakon build-a
-RUN echo "Sadržaj build direktorija nakon build-a:" && ls -la /usr/src/app/build
-
-# Pokrećemo npm run build sa više detalja
-RUN npm run build --verbose
-
 # Instalacija serve globalno
-RUN npm install -g serve
+RUN npm install -g serve --verbose
 
-# Provera sadržaja build direktorija nakon kopiranja
-RUN echo "Sadržaj build direktorija nakon kopiranja:" && ls -la /usr/src/app/build
+# Pokrećemo npm run build sa više detalja
+RUN npm run build --verbose
 
 # Otvori port na kojem će aplikacija raditi
 EXPOSE 5000

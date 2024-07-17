@@ -1,5 +1,5 @@
 # Koristimo službeni Node.js image kao bazu
-FROM node:14
+FROM node:14 as build-stage
 
 # Kreiramo direktorij za aplikaciju unutar image-a
 WORKDIR /usr/src/app
@@ -16,14 +16,18 @@ COPY . .
 # Izgradimo aplikaciju
 RUN npm run build
 
-# Instaliramo nginx
-RUN apt-get update && apt-get install -y nginx
+# Stage 2 - koristimo serve za server
 
-# Kopiramo build u nginx-ov root direktorij
-RUN cp -r build/* /var/www/html/
+FROM node:14-alpine
+
+# Instaliramo serve globalno
+RUN npm install -g serve
+
+# Kopiramo build iz prethodnog stage-a u radni direktorij za serve
+COPY --from=build-stage /usr/src/app/build /usr/src/app/build
 
 # Otvaramo port na kojem aplikacija radi
-EXPOSE 4001
+EXPOSE 5000
 
-# Pokrećemo nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Pokrećemo serve da poslužuje aplikaciju
+CMD ["serve", "-s", "build", "-l", "5000"]

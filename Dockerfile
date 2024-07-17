@@ -1,5 +1,5 @@
 # Koristimo službeni Node.js image kao bazu
-FROM node:14 as build-stage
+FROM node:18 as build-stage
 
 # Kreiramo direktorij za aplikaciju unutar image-a
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Instaliramo ovisnosti
-RUN npm install
+RUN npm install --force
 
 # Kopiramo ostatak aplikacije
 COPY . .
@@ -18,7 +18,7 @@ RUN npm run build
 
 # Stage 2 - koristimo serve za server
 
-FROM node:14-alpine
+FROM node:18-alpine
 
 # Instaliramo serve globalno
 RUN npm install -g serve

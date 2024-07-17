@@ -1,6 +1,7 @@
 {
   "name": "inventory-frontend",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@nextui-org/date-picker": "^2.1.1",

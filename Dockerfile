@@ -1,4 +1,4 @@
-# Stage 1 - Koristi node:alpine kao bazni image za izgradnju
+# Stage 1 - Koristi node:18-alpine kao bazni image za izgradnju
 FROM node:18-alpine as build-stage
 
 # Postavljanje radnog direktorija za aplikaciju unutar image-a
@@ -10,16 +10,25 @@ COPY package*.json ./
 # Instalacija ovisnosti
 RUN npm install --force --verbose
 
+# Provera sadržaja direktorijuma
+RUN echo "Sadržaj direktorijuma nakon instalacije ovisnosti:" && ls -la
+
 # Kopiranje cijele aplikacije
 COPY . .
 
+# Provera sadržaja direktorijuma nakon kopiranja aplikacije
+RUN echo "Sadržaj direktorijuma nakon kopiranja aplikacije:" && ls -la
+
+# Dodavanje vremena čekanja (privremeno)
+RUN sleep 10
+
 # Pokrećemo npm run build sa više detalja
-RUN npm run build --verbose || cat /root/.npm/_logs/*-debug-*.log
+RUN npm run build --verbose
 
 # Provera sadržaja build direktorija nakon build-a
-RUN ls -la /usr/src/app/build
+RUN echo "Sadržaj build direktorija nakon build-a:" && ls -la /usr/src/app/build
 
-# Stage 2 - Koristi node:alpine kao bazni image za produkciju
+# Stage 2 - Koristi node:18-alpine kao bazni image za produkciju
 FROM node:18-alpine
 
 # Instalacija serve globalno
@@ -29,7 +38,7 @@ RUN npm install -g serve
 COPY --from=build-stage /usr/src/app/build /usr/src/app/build
 
 # Provera sadržaja build direktorija nakon kopiranja
-RUN ls -la /usr/src/app/build
+RUN echo "Sadržaj build direktorija nakon kopiranja:" && ls -la /usr/src/app/build
 
 # Otvori port na kojem će aplikacija raditi
 EXPOSE 5000

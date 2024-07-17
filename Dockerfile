@@ -13,6 +13,9 @@ RUN npm install --force
 # Instalacija serve globalno
 RUN npm install -g serve
 
+# Instalacija react-scripts globalno
+RUN npm install -g react-scripts
+
 # Kopiranje cijele aplikacije
 COPY . .
 

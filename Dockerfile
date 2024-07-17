@@ -16,11 +16,20 @@ COPY . .
 # Izgradnja aplikacije
 RUN npm run build
 
+# Provera sadržaja build direktorija
+RUN ls -la /usr/src/app/build
+
 # Stage 2 - Koristi node:alpine kao bazni image za produkciju
-FROM node:alpine
+FROM node:18-alpine
 
 # Instalacija serve globalno
 RUN npm install -g serve
+
+# Kopiranje build direktorija iz prvog stadijuma
+COPY --from=build-stage /usr/src/app/build /usr/src/app/build
+
+# Provera sadržaja build direktorija
+RUN ls -la /usr/src/app/build
 
 # Otvori port na kojem će aplikacija raditi
 EXPOSE 5000

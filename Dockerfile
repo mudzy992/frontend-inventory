@@ -1,5 +1,5 @@
-# Stage 1 - Koristi node:latest kao bazni image za izgradnju
-FROM node:latest AS build-stage
+# Stage 1 - Koristi node:alpine kao bazni image za izgradnju
+FROM node:18-alpine as build-stage
 
 # Postavljanje radnog direktorija za aplikaciju unutar image-a
 WORKDIR /usr/src/app
@@ -10,23 +10,17 @@ COPY package*.json ./
 # Instalacija ovisnosti
 RUN npm install --force --verbose
 
-# Prikazivanje trenutnog radnog direktorija i fajlova
-RUN pwd && ls -la
-
 # Kopiranje cijele aplikacije
 COPY . .
 
-# Prikazivanje fajlova nakon kopiranja
-RUN ls -la
-
 # Pokrećemo npm run build sa više detalja
-RUN npm run build --verbose
+RUN npm run build --verbose || cat /root/.npm/_logs/*-debug-*.log
 
 # Provera sadržaja build direktorija nakon build-a
 RUN ls -la /usr/src/app/build
 
 # Stage 2 - Koristi node:alpine kao bazni image za produkciju
-FROM node:alpine
+FROM node:18-alpine
 
 # Instalacija serve globalno
 RUN npm install -g serve

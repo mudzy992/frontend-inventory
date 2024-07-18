@@ -5,10 +5,13 @@ FROM node:20-alpine AS dependencies
 WORKDIR /usr/src/app
 
 # Kopiranje package.json i package-lock.json u radni direktorij
-COPY package*.json ./
+# COPY package*.json ./
+
+# Kopiranje cijele aplikacije
+COPY . .
 
 # Instalacija ovisnosti
-RUN npm install --force --verbose
+RUN npm install --force --silent
 
 # Stage 2: Build
 FROM dependencies AS build
@@ -17,7 +20,7 @@ FROM dependencies AS build
 COPY . .
 
 # Instalacija serve globalno
-RUN npm install -g serve --verbose
+RUN npm install -g serve --silent
 
 # Pokretanje npm run build sa više detalja
 RUN npm run build --verbose

@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies and build the app
-FROM node:18-alpine AS dependencies
+FROM node:20-alpine AS dependencies
 
 # Postavljanje radnog direktorija za aplikaciju unutar image-a
 WORKDIR /usr/src/app
@@ -23,7 +23,7 @@ RUN npm install -g serve --verbose
 RUN npm run build --verbose
 
 # Stage 2: Production image with only necessary files
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Postavljanje radnog direktorija za aplikaciju unutar image-a
 WORKDIR /usr/src/app

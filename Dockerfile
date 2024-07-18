@@ -2,7 +2,7 @@
 FROM node:18-alpine AS build-stage
 
 # Postavljanje radnog direktorija za aplikaciju unutar image-a
-WORKDIR /usr/src/app
+WORKDIR /usr/src/frontend/app
 
 # Kopiranje package.json i package-lock.json u radni direktorij
 COPY package*.json ./
@@ -23,12 +23,12 @@ RUN npm run build --verbose
 FROM node:18-alpine
 
 # Postavljanje radnog direktorija za aplikaciju unutar image-a
-WORKDIR /usr/src/app
+WORKDIR /usr/src/frontend/app
 
 # Kopiranje samo nužnih datoteka iz build-stage
-COPY --from=build-stage /usr/src/backend/app/package*.json ./
-COPY --from=build-stage /usr/src/backend/app/node_modules ./node_modules
-COPY --from=build-stage /usr/src/backend/app/build ./build
+COPY --from=build-stage /usr/src/frontend/app/package*.json ./
+COPY --from=build-stage /usr/src/frontend/app/node_modules ./node_modules
+COPY --from=build-stage /usr/src/frontend/app/build ./build
 
 # Otvori port na kojem će aplikacija raditi
 EXPOSE 5000

@@ -26,9 +26,9 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 # Kopiranje samo nužnih datoteka iz build-stage
-COPY --from=build /usr/src/backend/app/package*.json ./
-COPY --from=build /usr/src/backend/app/node_modules ./node_modules
-COPY --from=build /usr/src/backend/app/build ./build
+COPY --from=build-stage /usr/src/backend/app/package*.json ./
+COPY --from=build-stage /usr/src/backend/app/node_modules ./node_modules
+COPY --from=build-stage /usr/src/backend/app/build ./build
 
 # Otvori port na kojem će aplikacija raditi
 EXPOSE 5000

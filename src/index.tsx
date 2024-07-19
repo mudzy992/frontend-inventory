@@ -36,7 +36,6 @@ const App = () => {
             {/* mehanizam rutiranja */}
             <HashRouter>
               <Routes>
-                {/* master login */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/logout" element={<LogOutPage />} />
                 <Route path="/user/article/:serial" element={<ArticleOnUserPage />}/>

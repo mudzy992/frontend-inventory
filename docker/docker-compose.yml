@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: inventory-frontend-image
+    build:
+      context: /home/administrator/Documents/GitHub/frontend-inventory
+      dockerfile: Dockerfile
+    ports:
+      - "4001:5000"
+    volumes:
+      - /home/administrator/Documents/GitHub/frontend-inventory:/usr/src/app:rw
+    restart: always

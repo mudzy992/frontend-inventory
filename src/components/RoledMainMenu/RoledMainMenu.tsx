@@ -16,6 +16,7 @@ const RoledMainMenu: React.FC = () => {
     { text: "Naslovna", link: "#/" },
     { text: "Helpdesk", link: "#/admin/helpdesk" },
     { text: "SNMP", link: "#/admin/snmp" },
+    { text: "Fakture", link: "#/admin/telecom" },
   ];
 
   const items =

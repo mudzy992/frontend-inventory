@@ -24,6 +24,7 @@ import AdminDashboardPage from "./components/admin/Dashboard/DashboardPage";
 import HelpdeskTicketPage from "./components/admin/HelpDesk/main/HelpdeskTicketPage";
 import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
 import SNMPPage from "./components/admin/Printers/SNMP.page";
+import TelecomInvoice from "./components/APP/TelecomInvoices/TelecomInvoice";
 
 const rootElement = document.getElementById("root");
 
@@ -55,6 +56,7 @@ const App = () => {
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />}/>
                 <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
                 <Route path="/admin/snmp" element={<SNMPPage />} />
+                <Route path="/admin/telecom" element={<TelecomInvoice />} /> 
               </Routes>
             </HashRouter>
           </main>

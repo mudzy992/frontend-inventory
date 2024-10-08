@@ -89,7 +89,7 @@ const AddUserPage: React.FC = () => {
       password: "",
       status: "",
       code: Number(),
-      gender: "muško" || "žensko",
+      gender: '',
       organizationId: Number(),
     },
     modal: {

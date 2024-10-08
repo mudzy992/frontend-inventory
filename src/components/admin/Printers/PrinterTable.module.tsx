@@ -113,7 +113,7 @@ const PrinterTable: React.FC<PrinterTableProps> = ({
       </div>
     ) : (
       ""
-    ) || "",
+    ),
     oid27_previous: printer.counters.oid27.previous?.value || "",
     oid27_current: printer.counters.oid27.previous?.value ? (
       <div className="flex justify-between gap-2 items-center">
@@ -135,7 +135,7 @@ const PrinterTable: React.FC<PrinterTableProps> = ({
       </div>
     ) : (
       ""
-    ) || "",
+    ),
     oid29_previous: printer.counters.oid29.previous?.value || "",
     oid29_current: printer.counters.oid29.previous?.value ? (
       <div className="flex justify-between gap-2 items-center">
@@ -157,7 +157,7 @@ const PrinterTable: React.FC<PrinterTableProps> = ({
       </div>
     ) : (
       ""
-    ) || "",
+    ),
   }));
 
   return (

@@ -400,7 +400,7 @@ export const UserTable: React.FC<{}> = () => {
   }, []);
 
   useEffect(() => {
-    if (usersData) {
+    if (Array.isArray(usersData) && usersData.length > 0) {
       const newUsersList: UserBaseType[] = usersData.map((user, index) => {
         return {
           id: index,
@@ -422,6 +422,7 @@ export const UserTable: React.FC<{}> = () => {
       setUsers(newUsersList);
     }
   }, [usersData]);
+  
 
   return (
     <div>

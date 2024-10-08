@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import UserType from "../../../types/UserType";
-import api, { ApiResponse, removeIdentity } from "../../../API/api";
+import api, { ApiResponse } from "../../../API/api";
 import React from "react";
 import {
   Button,

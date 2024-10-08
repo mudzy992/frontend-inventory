@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import api from "../../../API/api";
 import Moment from "moment";
 import {
@@ -67,17 +67,7 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
   const itemsPerPage = 10;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
-  useEffect(() => {
-    if (show) {
-      stockArticleData();
-    } else {
-      setArticleData([]);
-      setSearchQuery("");
-      setCurrentPage(1);
-    }
-  }, [show, stockId, itemsPerPage, currentPage]);
-
-  const stockArticleData = async () => {
+  const stockArticleData = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await api(
@@ -102,7 +92,19 @@ const ArticleModal: FC<ArticleModalProps> = ({ show, onHide, stockId }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [stockId, itemsPerPage, currentPage, searchQuery]); 
+
+  useEffect(() => {
+    if (show) {
+      stockArticleData(); 
+    } else {
+      setArticleData([]);
+      setSearchQuery("");
+      setCurrentPage(1);
+    }
+  }, [show, stockArticleData]); 
+
+  
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {

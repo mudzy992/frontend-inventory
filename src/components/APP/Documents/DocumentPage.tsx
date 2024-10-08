@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ApiConfig } from "../../../config/api.config";
 import api, { ApiResponse } from "../../../API/api";
 import DocumentsType from "../../../types/DocumentsType";
@@ -159,15 +159,7 @@ const DocumentsPage: React.FC = () => {
     return inicialLetters;
   }
 
-  useEffect(() => {
-    try {
-      getDocumentsData();
-    } catch (error) {
-      console.error("Greška prilikom dohvaćanja podataka:", error);
-    }
-  }, [itemsPerPage, currentPage]);
-
-  const getDocumentsData = () => {
+  const getDocumentsData = useCallback(() => {
     api(
       `api/document/s?perPage=${itemsPerPage}&page=${currentPage}&query=${encodeURIComponent(searchQuery)}`,
       "get",
@@ -176,16 +168,21 @@ const DocumentsPage: React.FC = () => {
     ).then((res: ApiResponse) => {
       if (res.status === "login") {
         setIsLoggedIn(false);
-        setErrorMessage(
-          "Greška prilikom dohvaćanja artikala u tabelu.",
-          "danger",
-        );
+        setErrorMessage("Greška prilikom dohvaćanja artikala.", 'error');
         return;
       }
       setDocumentsData(res.data.results);
       setTotalResults(Math.max(0, res.data.total));
     });
-  };
+  }, [itemsPerPage, currentPage, searchQuery]); 
+
+  useEffect(() => {
+    try {
+      getDocumentsData();
+    } catch (error) {
+      console.error("Greška prilikom dohvaćanja podataka:", error);
+    }
+  }, [getDocumentsData]);
 
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
@@ -221,7 +218,7 @@ const DocumentsPage: React.FC = () => {
       }
     };
     fatchData();
-  }, []);
+  }, [navigate]);
 
   const dokumentAction = (
     signed: string,

@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { ApiConfig } from "../config/api.config"
-import { useNavigate } from "react-router-dom";
 
 export default function api(
     path: string,

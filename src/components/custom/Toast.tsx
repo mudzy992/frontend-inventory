@@ -1,4 +1,3 @@
-import { Button } from '@nextui-org/react';
 import React, { useEffect, useState } from 'react';
 
 interface ToastProps {

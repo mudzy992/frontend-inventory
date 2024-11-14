@@ -509,7 +509,7 @@ const AddUserPage: React.FC = () => {
                     placeholder="Odaberite organizaciju"
                     value={state.addUser.organizationId}
                     onChange={(e) =>
-                      setAddUserStringFieldState("organizationId", e.target.value)
+                      setAddUserNumberFieldState("organizationId", e.target.value)
                     }
                   >
                     <SelectItem key={"1"} value={"1"}>

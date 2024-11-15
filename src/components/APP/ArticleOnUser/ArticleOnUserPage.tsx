@@ -527,9 +527,9 @@ export default function ArticleOnUserPage() {
   }
 
   return (
-    <div>
+    <div >
       <RoledMainMenu />
-      <div className="container mx-auto mt-3 h-max lg:px-4">
+      <div className="container mt-2 lg:mt-4 h-max px-2 lg:px-4">
         <Card>
           <CardHeader>
             <div className="flex w-full items-center justify-between rounded-xl bg-default-100 p-2">

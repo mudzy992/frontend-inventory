@@ -322,7 +322,7 @@ const SNMPPage: React.FC = () => {
   return (
     <div>
       <RoledMainMenu />
-      <div className="container mt-2 lg:mt-4">
+      <div className="container mt-2 lg:mt-4 mx-auto">
         {loading ? (
           <div className="flex items-center justify-center min-h-[70vh]">
             <Spinner

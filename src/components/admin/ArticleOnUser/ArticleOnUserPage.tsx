@@ -930,7 +930,7 @@ const AdminArticleOnUserPage: React.FC = () => {
   return (
     <div>
       <RoledMainMenu />
-      <div className="container mt-2 lg:mt-4 h-max px-2 lg:px-4">
+      <div className="container mx-auto mt-2 lg:mt-4 h-max px-2 lg:px-4">
         {loading ? (
           <div className="flex items-center justify-center min-h-[70vh]">
             <Spinner

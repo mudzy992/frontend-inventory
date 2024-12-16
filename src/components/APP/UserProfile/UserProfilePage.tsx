@@ -70,10 +70,10 @@ const AdminUserProfilePage: React.FC = () => {
               </Card>
             </Tab>
             <Tab key="zaduzeni-artikli" title="Zaduženi artikli">
-              <ResponsibilityArticles data={user} />
+              <ResponsibilityArticles userID={Number(userID)} />
             </Tab>
             <Tab className={user.userId !== userId ? "hidden" : "block"} key="tiketi" title="Helpdesk">
-              <UserTickets data={user} />
+              <UserTickets userID={Number(userID)} />
             </Tab>
           </Tabs>
         </div>

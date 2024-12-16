@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ArticleType from "../../../../types/ArticleType";
 import {
   Accordion,
@@ -17,23 +17,58 @@ import {
 } from "@nextui-org/react";
 import { ApiConfig } from "../../../../config/api.config";
 import saveAs from "file-saver";
-import UserType from "../../../../types/UserType";
+import { useUserContext } from "../../../UserContext/UserContext";
+import api, { ApiResponse } from "../../../../API/api";
+import { useNavigate } from "react-router-dom";
+import DocumentsType from "../../../../types/DocumentsType";
 
-type ArticleProps = {
-  data: UserType;
-};
-const ResponsibilityArticles: React.FC<ArticleProps> = ({ data }) => {
+interface UserProps {
+  userID: number;
+}
+
+const ResponsibilityArticles: React.FC<UserProps> = ({userID}) => {
+  const [data, setArticles] = useState<ArticleType[]>([])
+  const {role} = useUserContext();
+  const [loading, setLoading] = useState<boolean>(false)
+  const navigate = useNavigate();
+  
+  const getArticleData = async () => {
+    try{
+      setLoading(true);
+      const res: ApiResponse = await api(`api/article/user/${userID}`, 'get', undefined, role)
+
+      if (res.status === "error" || res.status === "login") {
+        return navigate("/login");
+      }
+
+      if (res.status === 'ok'){
+        setArticles(res.data)
+      }
+    } catch (error){
+      console.error("Greška prilikom dohvatanja korisničkih podataka:", error);
+      throw error
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if(userID){
+      getArticleData()
+    }
+  }, [userID])
+
   if (!data) {
     return <div>Loading...</div>;
   }
   const uniqueCategories = Array.from(
-    new Set(data.articles?.map((article) => article.category?.name)),
+    new Set(data.map((article) => article.category?.name)),
   );
 
   return (
     <Accordion variant="splitted">
       {uniqueCategories.map((categoryName, index) => {
-        const categoryArticles = data.articles?.filter(
+        const categoryArticles = data.filter(
           (article: any) => article.category?.name === categoryName,
         );
 
@@ -67,7 +102,7 @@ const ResponsibilityArticles: React.FC<ArticleProps> = ({ data }) => {
                     <TableCell>{article.invNumber || "N/A"}</TableCell>
                     <TableCell>
                       {saveFile(
-                        article.documents ? article.documents[0]?.path : "N/A",
+                        article.documents ? article.documents : [],
                       )}
                     </TableCell>
                   </TableRow>
@@ -81,13 +116,18 @@ const ResponsibilityArticles: React.FC<ArticleProps> = ({ data }) => {
   );
 };
 
-function saveFile(docPath: any) {
-  if (!docPath) {
+function saveFile(documents: DocumentsType[]) {
+  let pdfDocument = documents[0].signed_path
+  let docxDocument = documents[0].path
+  const savedFile = (docPath : any) => {
+    saveAs(ApiConfig.TEMPLATE_PATH + docPath, docPath);
+  }
+  if (!documents) {
     return (
       <div>
         <Popover placement="right" showArrow backdrop="blur">
           <PopoverTrigger>
-            <Button size="sm" style={{ backgroundColor: "#9D5353" }}>
+            <Button size="sm" className={'bg-color: red'}>
               <i
                 className="bi bi-file-earmark-text"
                 style={{ fontSize: 20, color: "white" }}
@@ -99,23 +139,35 @@ function saveFile(docPath: any) {
       </div>
     );
   }
-  if (docPath) {
-    const savedFile = (docPath: any) => {
-      saveAs(ApiConfig.TEMPLATE_PATH + docPath, docPath);
-    };
-    return (
+
+  if(pdfDocument){
+    return(
       <Button
         size="sm"
-        style={{ backgroundColor: "#3A6351" }}
-        onClick={() => savedFile(docPath)}
+        style={{ backgroundColor: "#9D5353" }}
+        onClick={() => savedFile(pdfDocument)}
       >
         <i
           className="bi bi-file-earmark-text"
           style={{ fontSize: 20, color: "white" }}
         />
       </Button>
-    );
+      )
+  } else {
+    return(
+      <Button
+          size="sm"
+          style={{ backgroundColor: "#3A6351" }}
+          onClick={() => savedFile(docxDocument)}
+        >
+          <i
+            className="bi bi-file-earmark-text"
+            style={{ fontSize: 20, color: "white" }}
+          />
+        </Button>
+    )
   }
+  
 }
 
 export default ResponsibilityArticles;

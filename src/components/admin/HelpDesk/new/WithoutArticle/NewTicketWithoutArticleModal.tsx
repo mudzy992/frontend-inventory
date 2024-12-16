@@ -18,14 +18,14 @@ import api, { ApiResponse } from "../../../../../API/api";
 import { useUserContext } from "../../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import TicketGroupType from "../../../../../types/TicketGroupType";
-import UserType from "../../../../../types/UserType";
 import Toast from "../../../../custom/Toast";
 import {now, getLocalTimeZone, DateValue } from "@internationalized/date";
+import ArticleType from "../../../../../types/ArticleType";
 
 type ModalProps = {
   show: boolean;
   onHide: () => void;
-  data?: UserType;
+  userID?: number;
 };
 
 interface AddNewTicketState {
@@ -47,11 +47,12 @@ interface MessageType {
 const NewTicketWithoutArticle: React.FC<ModalProps> = ({
   show,
   onHide,
-  data,
+  userID,
 }) => {
   const [addNewTicketState, setAddNewTicketState] =
     useState<AddNewTicketState>();
   const [groupsState, setGroupsState] = useState<TicketGroupType[]>();
+  const [userArticles, setUserArticles] = useState<ArticleType[]>([]);
   const [groupsTypeState, setGroupsTypeState] = useState<TicketGroupType[]>();
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -64,7 +65,7 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
 
   const putArticleDetailsInState = async () => {
     setAddNewTicketState({
-      userId: data?.userId,
+      userId: userID,
       articleId: null,
       groupId: null,
       description: null,
@@ -123,6 +124,7 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
     if (show) {
       putArticleDetailsInState();
       getGroupsData();
+      getUserArticles()
     }
   }, [show]);
 
@@ -210,6 +212,36 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
       .finally(() => setLoading(false));
   };
 
+  const getUserArticles = async () => {
+    setLoading(true);
+    api(`api/article/user/${userID}`, 'get', undefined, role as UserRole)
+      .then((res: ApiResponse) => {
+        if (res.status === "login") {
+          setErrorMessage(
+            "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!",
+            "danger",
+          );
+          return;
+        }
+        if (res.status === "error") {
+          setErrorMessage(
+            "Greška prilikom učitavanja podataka, molimo pokušajte ponovo!",
+            "danger",
+          );
+          return;
+        }
+        if (res.status === "forbidden") {
+          setErrorMessage(
+            "Korisnik nema prava za učitavanje ove vrste podataka!",
+            "danger",
+          );
+          return;
+        }
+        setUserArticles(res.data);
+      })
+      .finally(() => setLoading(false));
+  };
+
   return (
     <>
       <Toast
@@ -238,11 +270,11 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
               </div>
             ) : (
               <>
-                <Input
+{/*                 <Input
                   label="Korisnik"
                   labelPlacement="inside"
                   value={data?.fullname}
-                />
+                /> */}
                 <Select
                   id="groupId"
                   label="Grupa"
@@ -323,8 +355,8 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
                   }
                   onChange={handleArticleChange}
                 >
-                  {data?.articles
-                    ? data?.articles.map((article) => (
+                  {userArticles
+                    ? userArticles.map((article) => (
                         <SelectItem
                           key={Number(article?.articleId)}
                           textValue={article?.stock?.name}

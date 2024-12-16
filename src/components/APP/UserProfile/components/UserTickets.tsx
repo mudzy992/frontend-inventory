@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import UserType from "../../../../types/UserType";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Chip,
@@ -15,18 +14,52 @@ import {
 import Moment from "moment";
 import ViewSingleTicketModal from "../../../admin/HelpDesk/view/ViewSingleTicket";
 import NewTicketWithoutArticle from "../../../admin/HelpDesk/new/WithoutArticle/NewTicketWithoutArticleModal";
+import api, { ApiResponse } from "../../../../API/api";
+import { useNavigate } from "react-router-dom";
+import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
+import { useUserContext } from "../../../UserContext/UserContext";
 
-type UserTicketsProps = {
-  data: UserType;
+type UserProps = {
+  userID: number
 };
 
-const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
+const UserTickets: React.FC<UserProps> = ({ userID }) => {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState<boolean>(false)
   const rowsPerPage = 5;
+  const navigate = useNavigate();
+  const [tickets, setTickets] = useState<HelpdeskTicketsType[]>([])
+  const { userId, role } = useUserContext();
+
+  const getHelpDeskTickets = async () => {
+      try{
+        setLoading(true);
+        const res: ApiResponse = await api(`api/helpdesk/${userID}/user-tickets`, 'get', undefined)
+  
+        if (res.status === "error" || res.status === "login") {
+          return navigate("/login");
+        }
+  
+        if (res.status === 'ok'){
+          setTickets(res.data)
+        }
+      } catch (error){
+        console.error("Greška prilikom dohvatanja korisničkih podataka:", error);
+        throw error
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    useEffect(() => {
+      if(userID){
+        getHelpDeskTickets()
+      }
+    }, [userID])
 
   const handleShowViewModal = () => {
     setShowViewModal(true);
@@ -61,7 +94,7 @@ const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
     return color;
   };
 
-  const ukupno: number = data.helpdeskTickets2?.length || 0;
+  const ukupno: number = tickets.length || 0;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -83,11 +116,11 @@ const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
         </Button>
       </div>
     );
-  }, [searchValue, currentPage, data.helpdeskTickets2]);
+  }, [searchValue, currentPage, tickets]);
 
   const startIdx = (currentPage - 1) * rowsPerPage;
   const endIdx = startIdx + rowsPerPage;
-  const paginatedTickets = data.helpdeskTickets2?.slice(startIdx, endIdx) || [];
+  const paginatedTickets = tickets.slice(startIdx, endIdx) || [];
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -102,7 +135,7 @@ const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
         />
       </div>
     );
-  }, [data.helpdeskTickets2?.length]);
+  }, [tickets.length]);
 
   return (
     <div>
@@ -151,12 +184,12 @@ const UserTickets: React.FC<UserTicketsProps> = ({ data }) => {
         show={showViewModal}
         onHide={handleHideViewModal}
         ticketId={selectedTicketId!}
-        data={data.helpdeskTickets2!}
+        data={tickets}
       />
       <NewTicketWithoutArticle
         show={showAddModal}
         onHide={handleHideAddModal}
-        data={data}
+        userID={userId}
       />
     </div>
   );

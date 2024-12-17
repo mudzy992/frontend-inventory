@@ -5,10 +5,10 @@ import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import UserType from "../../../types/UserType";
 import { useUserContext } from "../../UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
-import UserDetails from "./components/UserDetails";
 import ResponsibilityArticles from "./components/ResponsibilityArticles";
 import { Card, CardBody, Spinner, Tab, Tabs } from "@nextui-org/react";
 import UserTickets from "./components/UserTickets";
+import UserDetails from "./components/UserDetails";
 
 const AdminUserProfilePage: React.FC = () => {
   const { userID } = useParams();

@@ -19,8 +19,9 @@ import { useUserContext } from "../../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import TicketGroupType from "../../../../../types/TicketGroupType";
 import Toast from "../../../../custom/Toast";
-import {now, getLocalTimeZone, DateValue } from "@internationalized/date";
+import {now, getLocalTimeZone, DateValue, parseDate } from "@internationalized/date";
 import ArticleType from "../../../../../types/ArticleType";
+import moment from "moment";
 
 type ModalProps = {
   show: boolean;
@@ -55,6 +56,7 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
   const [userArticles, setUserArticles] = useState<ArticleType[]>([]);
   const [groupsTypeState, setGroupsTypeState] = useState<TicketGroupType[]>();
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+  const [clientDuoDate, setClientDuoDate] = useState(parseDate("2024-04-04"));
   const [loading, setLoading] = useState<boolean>(false);
   const { role } = useUserContext();
   const navigate = useNavigate();
@@ -69,7 +71,7 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
       articleId: null,
       groupId: null,
       description: null,
-      clientDuoDate: null,
+      clientDuoDate: moment(clientDuoDate).format('YYYY-MM-DD'),
       groupPartentId: null,
     });
   };
@@ -389,12 +391,12 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
                     setAddNewTicketFieldState("description", value)
                   }
                 />
-                <DatePicker 
-                onChange={handleDatePickerChange}
+               <DatePicker 
+                onChange={setClientDuoDate}
                 label="Željeni datum rješenja"
                 showMonthAndYearPickers
-                hideTimeZone
-                defaultValue={now(getLocalTimeZone())} />
+                hideTimeZone 
+                value={clientDuoDate} />
               </>
             )}
           </ModalBody>

@@ -23,7 +23,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Kopiramo izgrađene datoteke iz build-stage
-COPY --from=build-stage /app/build /app/build
+COPY --from=build-stage /app/dist /app/dist
 
 # Instalacija serve globalno
 RUN npm install -g serve --silent
@@ -32,4 +32,4 @@ RUN npm install -g serve --silent
 EXPOSE 5000
 
 # Pokretanje serve za posluživanje aplikacije
-CMD ["serve", "-s", "build", "-l", "5000"]
+CMD ["serve", "-s", "dist", "-l", "5000"]

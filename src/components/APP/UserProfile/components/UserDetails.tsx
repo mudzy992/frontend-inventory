@@ -48,8 +48,8 @@ const UserDetails: React.FC<UserProps> = ({ data, onRefresh }) => {
 
   return (
     <div className="container mx-auto">
-      <div className="grid lg:grid-cols-6 grid-cols-1 gap-3 lg:p-2">
-        <div className="flex flex-col items-center justify-center col-span-2 rounded-lg border-0 bg-gradient-to-r from-cyan-500 to-blue-500">
+      <div className="flex flex-col lg:flex-row gap-3 lg:p-2">
+        <div className="lg:w-[35%] flex flex-col items-center justify-center col-span-2 rounded-lg border-0 bg-gradient-to-r from-cyan-500 to-blue-500">
           <div className="text-md flex flex-col items-center w-full p-4">
             <Avatar
               className="w-[150px] h-[150px]"
@@ -66,7 +66,7 @@ const UserDetails: React.FC<UserProps> = ({ data, onRefresh }) => {
               <span><i className="bi bi-award" /> Status: {data.status}</span>
           </div>
         </div>
-        <div className="lg:col-span-4 pl-3">
+        <div className="w-full">
           <div className="grid lg:grid-cols-2 gap-3 lg:text-medium text-small">
             <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Prezime i ime:</strong> {data.fullname}</div>
             <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Kadrovski broj:</strong> {data.code}</div>

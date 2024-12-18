@@ -8,6 +8,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  ModalContent,
 } from "@nextui-org/react";
 import api from "../../../../API/api";
 import DepartmentType from "../../../../types/DepartmentType";
@@ -52,9 +53,18 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
           api("api/location", "get", {}, role as UserRole),
         ]);
 
+        const userData = userRes.data;
+
         setFormData(userRes.data);
         setDepartments(departmentsRes.data);
         setLocations(locationsRes.data);
+        if(userData){
+          console.log(userData)
+        }
+        if (userData.departmentId) {
+          const jobs = await getJobsByDepartmentId(userData.departmentId);
+          setJobs(jobs);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -62,6 +72,29 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
 
     fetchData();
   }, [userId, role]);
+
+  const getJobsByDepartmentId = async (departmentId: number): Promise<JobType[]> => {
+    return new Promise((resolve) => {
+      api(`api/job/department/${departmentId}`, "get", {}, role as UserRole).then((res) => {
+        const jobs: JobType[] = res.data.map((item: any) => ({
+          jobId: item.jobId,
+          title: item.title,
+          jobCode: item.jobCode,
+        }));
+        resolve(jobs);
+      });
+    });
+  };
+  
+  const addJobDepartmentChange = async (selectedValue: any) => {
+    try {
+      setFormData({ ...formData, departmentId: selectedValue, jobId: 0 }); // Resetujemo jobId
+      const jobs = await getJobsByDepartmentId(selectedValue);
+      setJobs(jobs);
+    } catch (error) {
+      console.log("Greška prilikom mapiranja radnik mjesta za sektor: " + error);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -77,10 +110,11 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
   };
 
   return (
-    <Modal isOpen onClose={onClose}>
+    <Modal isOpen onClose={onClose} size="xl">
+      <ModalContent>
       <ModalHeader>Izmijeni korisničke podatke</ModalHeader>
       <ModalBody>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3">
           <Input
             label="Ime"
             value={formData.forname}
@@ -122,48 +156,51 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
             <SelectItem value="žensko" key={"žensko"}>Žensko</SelectItem>
           </Select>
           <Select
-            label="Sektor"
-            value={formData.departmentId.toString()}
-            onChange={(value) => setFormData({ ...formData, departmentId: +value })}
-          >
-            {departments.map((dept) => (
-              <SelectItem key={dept.departmentId!} value={dept.departmentId!.toString()}>
-                {dept.title}
-              </SelectItem>
-            ))}
-          </Select>
-          <Select
-            label="Radno mjesto"
-            value={formData.jobId.toString()}
-            onChange={(value) => setFormData({ ...formData, jobId: +value })}
-          >
-            {jobs.map((job) => (
-              <SelectItem key={job.jobId!} value={job.jobId!.toString()}>
-                {job.title}
-              </SelectItem>
-            ))}
-          </Select>
-          <Select
-            label="Lokacija"
-            value={formData.locationId.toString()}
-            onChange={(value) => setFormData({ ...formData, locationId: +value })}
-          >
-            {locations.map((location) => (
-              <SelectItem key={location.locationId!} value={location.locationId!.toString()}>
-                {location.name}
-              </SelectItem>
-            ))}
-          </Select>
+  label="Sektor"
+  value={formData.departmentId || ""}
+  onChange={(e) => addJobDepartmentChange(Number(e.target.value))}
+>
+  {departments.map((dept) => (
+    <SelectItem key={dept.departmentId} value={dept.departmentId}>
+      {dept.title}
+    </SelectItem>
+  ))}
+</Select>
+<Select
+  label="Radno mjesto"
+  value={formData.jobId || ""}
+  onChange={(e) => setFormData({ ...formData, jobId: Number(e.target.value) })}
+  isDisabled={!formData.departmentId || jobs.length === 0}
+>
+  {jobs.map((job) => (
+    <SelectItem key={job.jobId} value={job.jobId}>
+      {job.title}
+    </SelectItem>
+  ))}
+</Select>
+<Select
+  label="Lokacija"
+  value={formData.locationId || ""}
+  onChange={(e) => setFormData({ ...formData, locationId: Number(e.target.value) })}
+>
+  {locations.map((location) => (
+    <SelectItem key={location.locationId} value={location.locationId}>
+      {location.name}
+    </SelectItem>
+  ))}
+</Select>
+
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button onClick={onClose} color="danger">
+        <Button onPress={onClose} color="danger">
           Otkaži
         </Button>
-        <Button onClick={handleSave} isLoading={loading}>
+        <Button onPress={handleSave} isLoading={loading}>
           Sačuvaj
         </Button>
       </ModalFooter>
+      </ModalContent>
     </Modal>
   );
 };

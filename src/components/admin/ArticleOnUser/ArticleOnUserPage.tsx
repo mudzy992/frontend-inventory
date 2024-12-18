@@ -45,10 +45,9 @@ import {
   Spinner,
   Accordion,
   AccordionItem,
-  ListboxSection,
+  Alert,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
-import { Alert } from "../../custom/Alert";
 import { useUserContext } from "../../UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
 import NewTicketByArticleModal from "../HelpDesk/new/ByArticle/NewTicketByArticleModal";
@@ -995,22 +994,14 @@ const AdminArticleOnUserPage: React.FC = () => {
     let stat = userDet.status;
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
       return (
-        <Alert
-          className="mb-3"
-          variant="warning"
-          title="Info!"
-          body={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}
-        />
+        <div className="mb-3">
+        <Alert  color="warning" title={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}  /></div>
       );
     }
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
       return (
-        <Alert
-          className="mb-3"
-          variant="danger"
-          title="Info!"
-          body={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}
-        />
+        <div className="mb-3">
+        <Alert  color="danger" title={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}/></div>
       );
     }
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {

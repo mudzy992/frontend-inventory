@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   Chip,
+  Alert,
 } from "@nextui-org/react";
 import api, { ApiResponse } from "../../../API/api";
 import Moment from "moment";
@@ -26,7 +27,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { LangBa } from "../../../config/lang.ba";
 import ArticleType from "../../../types/ArticleType";
 import saveAs from "file-saver";
-import { Alert } from "../../custom/Alert";
 import { ApiConfig } from "../../../config/api.config";
 import { useUserContext } from "../../UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
@@ -162,20 +162,14 @@ export default function ArticleOnUserPage() {
     let stat = userDet.status;
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
       return (
-        <Alert
-          variant="info"
-          title="Info!"
-          body={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}
-        />
+        <div className="mb-3">
+        <Alert  color="warning" title={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}  /></div>
       );
     }
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
       return (
-        <Alert
-          variant="danger"
-          title="Info!"
-          body={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}
-        />
+        <div className="mb-3">
+        <Alert  color="danger" title={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}/></div>
       );
     }
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {

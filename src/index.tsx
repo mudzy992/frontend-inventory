@@ -24,6 +24,9 @@ import HelpdeskTicketPage from "./components/admin/HelpDesk/main/HelpdeskTicketP
 import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
 import SNMPPage from "./components/admin/Printers/SNMP.page";
 import TelecomInvoice from "./components/APP/TelecomInvoices/TelecomInvoice";
+import PrinterTable from "./components/admin/Printers/PrinterTable.module";
+import InvoiceList from "./components/admin/Printers/InvoiceList";
+import Printers from "./components/admin/Printers/Printers";
 
 const rootElement = document.getElementById("root");
 
@@ -55,6 +58,8 @@ const App = () => {
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />}/>
                 <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
                 <Route path="/admin/snmp" element={<SNMPPage />} />
+                <Route path="/admin/invoices" element={<InvoiceList />} />
+                <Route path="/admin/invoices/:invoiceId/printers" element={<Printers />} />
                 <Route path="/admin/telecom" element={<TelecomInvoice />} /> 
               </Routes>
             </HashRouter>

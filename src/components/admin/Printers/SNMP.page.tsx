@@ -399,7 +399,7 @@ const SNMPPage: React.FC = () => {
                       orientation="horizontal" 
                       className=" max-h-[70vh]">
 
-                        <Table isCompact isStriped removeWrapper>
+                        {/* <Table isCompact isStriped removeWrapper>
                           <TableHeader columns={columns}>
                             {(column) => (
                               <TableColumn key={column.key}>{column.label}</TableColumn>
@@ -414,7 +414,7 @@ const SNMPPage: React.FC = () => {
                               </TableRow>
                             )}
                           </TableBody>
-                        </Table>
+                        </Table> */}
                         </ScrollShadow>
                   </AccordionItem>
                 ))}

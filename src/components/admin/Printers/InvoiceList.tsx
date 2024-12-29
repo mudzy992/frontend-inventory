@@ -40,7 +40,13 @@ const InvoiceList = () => {
         { key: "status", dataIndex: 'status', title: "Status", render:(text:string) => <Tag color={text === 'plaćeno' ? 'success' : 'warning'}>{text}</Tag>},
         { key: "issueDate", dataIndex: 'issueDate', title: "Datum plaćanja" },
         { key: "totalAmount", dataIndex: 'totalAmount', title: "Vrijednost" },
-        { key: 'invoiceId', dataIndex: 'invoiceId', title: 'Akcije', render: (number: number)=> <Button onClick={() => handleViewDetails(number)}>Vidi</Button>}
+        { 
+            key: 'invoiceId', 
+            dataIndex: 'invoiceId', 
+            title: 'Akcije', 
+            render: (number: number)=> 
+            
+            <Button onClick={() => handleViewDetails(number)}>Pogledaj</Button>}
     ];
 
     return (
@@ -58,7 +64,7 @@ const InvoiceList = () => {
           </div>
         ):(
             <div className="overflow-auto scrollbar-hide bg-white rounded-md">
-                <Table dataSource={invoices} columns={columns}></Table>
+                <Table size='small' dataSource={invoices} columns={columns}></Table>
             </div>
         )}
         </div>

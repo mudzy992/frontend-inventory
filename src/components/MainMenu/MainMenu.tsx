@@ -1,24 +1,13 @@
-// MainMenu.tsx
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Link,
-  NavbarMenuToggle,
-  NavbarMenu,
-  NavbarMenuItem,
-  Avatar,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-} from "@nextui-org/react";
 import React, { useState, useEffect } from "react";
-import "./style.css";
+import { Menu, Dropdown, Avatar, Typography, Drawer } from "antd";
+import { Link } from "react-router-dom";
+import {
+  MenuFoldOutlined,
+  LogoutOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
 import UserType from "../../types/UserType";
 import api, { ApiResponse } from "../../API/api";
-/* import { Container, Nav, Navbar } from 'react-bootstrap'; */
 
 export interface MainMenuItem {
   text: string;
@@ -34,8 +23,9 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
   const [menuItems, setMenuItems] = useState<MainMenuItem[]>(items);
   const [menuUserId, setMenuUserId] = useState<number | undefined>(userId);
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [user, setUser] = useState<UserType>({});
+  const [drawerVisible, setDrawerVisible] = useState(false); // State for Drawer visibility
 
   useEffect(() => {
     if (items !== undefined) {
@@ -52,160 +42,172 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
   const getUserData = async () => {
     try {
       const res: ApiResponse = await api(
-        "api/user/" + menuUserId + "/mainmenu",
+        `api/user/${menuUserId}/mainmenu`,
         "get",
         {},
-        role,
+        role
       );
-
-      const data: UserType = res.data || {}; // Ako nema podataka, postavi prazan objekat
+      const data: UserType = res.data || {};
       setUser(data);
-
-      return data; // Vraćanje podataka o korisniku
     } catch (error) {
-      console.error("Greška prilikom dohvatanja korisničkih podataka:", error);
-      // Možete dodati dodatnu logiku ili obradu grešaka prema potrebi
-      throw error; // Bacanje greške kako bi je mogle uhvatiti komponente koje koriste ovu funkciju
+      console.error("Error fetching user data:", error);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await getUserData();
-      } catch (error) {
-        console.error(
-          "Greška prilikom dohvaćanja korisničkih podataka kroz useEffect:",
-          error,
-        );
-      }
-    };
     if (menuUserId !== undefined && role !== undefined) {
-      fetchData();
+      getUserData();
     }
   }, [menuUserId, role]);
 
-  const makeNavLink = (item: MainMenuItem, index: number) => (
-    <NavbarItem key={index}>
-      <Link key={index} href={item.link} className="text-white">
-        {item.text}
-      </Link>
-    </NavbarItem>
+  const menu = (
+    <Menu>
+      <Menu.Item key="profile" icon={<ProfileOutlined />}>
+        <Link to={`/user/profile/${userId}`}>Profil</Link>
+      </Menu.Item>
+      <Menu.Item key="logout" icon={<LogoutOutlined />} danger>
+        <Link to="/logout">Odjavi se</Link>
+      </Menu.Item>
+    </Menu>
   );
 
-  const makeNavLinkToogle = (item: MainMenuItem, index: number) => (
-    <NavbarMenuItem key={`${index}`}>
-      <Link key={index} href={item.link} className="text-white">
-        {item.text}
-      </Link>
-    </NavbarMenuItem>
-  );
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  };
 
   const getNavbarBrandHref = () => {
     if (menuUserId === undefined || role === undefined) {
-      return "#";
-    } else {
-      return role !== "user" ? "#" : `#/user/profile/${menuUserId}`;
+      return "/";
     }
+    return role !== "user" ? "/" : `/user/profile/${menuUserId}`;
   };
 
-  function combineFirstLetters(surname: string, forname: string) {
-    const inicialLetters =
-      surname.charAt(0).toUpperCase() + forname.charAt(0).toUpperCase();
-    return inicialLetters;
-  }
+  const genderGreeting = (gender: string) => {
+    if (gender === "muško") return "Dobrodošao";
+    if (gender === "žensko") return "Dobrodošla";
+    return "";
+  };
 
-  function gender(gender: string) {
-    let genderString;
-    if (gender === "muško") {
-      return (genderString = "Dobrodošao ");
-    } else if (gender === "žensko") {
-      return (genderString = "Dobrodošla ");
+  // Funkcija koja filtrira menije prema ulozi
+  const getMenuForRole = () => {
+    if (!role) {
+      // Za goste: samo opcija za prijavu
+      return (
+        <Menu.Item key="login">
+          <Link to="/login">Prijava</Link>
+        </Menu.Item>
+      );
     }
-    return genderString;
-  }
+
+    // Za ulogu administratora, moderatore i korisnike
+    let roleSpecificItems: JSX.Element[] = [];
+
+    if (role === "administrator") {
+      // Stavke za administratore
+      roleSpecificItems = [
+       /* <Menu.Item key="admin-dashboard">
+          <Link to="/admin/dashboard">Admin Dashboard</Link>
+        </Menu.Item>,
+         <Menu.Item key="settings">
+          <Link to="/admin/settings">Postavke</Link>
+        </Menu.Item>, */
+      ];
+    } else if (role === "moderator") {
+      // Stavke za moderatore
+      roleSpecificItems = [
+        <Menu.Item key="moderator-dashboard">
+          <Link to="/moderator/dashboard">Moderator Dashboard</Link>
+        </Menu.Item>,
+      ];
+    } else if (role === "user") {
+      // Stavke za obične korisnike
+      roleSpecificItems = [
+        <Menu.Item key="user-dashboard">
+          <Link to="/user/dashboard">Korisnički Dashboard</Link>
+        </Menu.Item>,
+      ];
+    }
+
+    // Dodaj sve ostale stavke iz main menu-a
+    return [
+      ...roleSpecificItems,
+      ...menuItems.map((item, index) => (
+        <Menu.Item key={index}>
+          <Link to={item.link}>{item.text}</Link>
+        </Menu.Item>
+      )),
+    ];
+  };
+
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerVisible(false);
+  };
 
   return (
-    <>
-      <Navbar
-        classNames={{ wrapper: "max-w-[100%]" }}
-        className="justify-normal"
-        disableAnimation
-        isBordered
-        isMenuOpen={isMenuOpen}
-        onMenuOpenChange={setIsMenuOpen}
-      >
-        <NavbarContent className="sm:hidden" justify="start">
-          <NavbarMenuToggle
-            aria-label={isMenuOpen ? "Zatvori meni" : "Otvori meni"}
-          />
-        </NavbarContent>
-        <NavbarContent className="pr-3 sm:hidden " justify="center">
-          <NavbarBrand className="justify-start">
-            <i className="bi bi-incognito incognito-icon mr-2 bg-gradient-to-r from-amber-500 to-pink-500 bg-clip-text text-3xl text-transparent" />
-            <Link
-              href={getNavbarBrandHref()}
-              className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent"
-            >
-              <span className="font-bold text-inherit">Inventory Database</span>{" "}
-            </Link>
-          </NavbarBrand>
-        </NavbarContent>
+    <div className="bg-transparent flex flex-row max-w-screen justify-between">
+      <div className="logo hidden text-white font-bold mx-auto text-[18px]">
+        <Link to={getNavbarBrandHref()} >
+          Inventory Database
+        </Link>
+      </div>
 
-        <NavbarContent className="hidden gap-4 sm:flex " justify="center">
-          <NavbarBrand className="justify-start ">
-            <i className="bi bi-incognito incognito-icon mr-2 bg-gradient-to-r from-amber-500 to-pink-500 bg-clip-text text-3xl text-transparent" />
-            <Link
-              href={getNavbarBrandHref()}
-              className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent"
-            >
-              <span className="font-bold text-inherit">Inventory Database</span>{" "}
-            </Link>
-          </NavbarBrand>
-          {menuItems.map(makeNavLink)}
-        </NavbarContent>
-        <NavbarContent as="div" justify="end">
-          <span className="hidden text-small lg:inline">
-            {gender(user.gender || "")} {user.surname}
-          </span>
-          <Dropdown placement="bottom-end">
-            <DropdownTrigger>
-              <Avatar
-                as="button"
-                className="transition-transform"
-                color="primary"
-                name={combineFirstLetters(
-                  user.surname || "",
-                  user.forname || "",
-                )}
-                size="sm"
-                isBordered
-              >
-                {" "}
-              </Avatar>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Akcije profila" variant="flat">
-              <DropdownItem
-                key="profile"
-                textValue="Profil"
-                href={`#/user/profile/${userId}`}
-              >
-                <i className="bi bi-person-square" /> Profil
-              </DropdownItem>
-              <DropdownItem
-                key="logout"
-                textValue="Odjavi se"
-                color="danger"
-                href="#/logout"
-              >
-                <i className="bi bi-box-arrow-left" /> Odjevi se
-              </DropdownItem>
-            </DropdownMenu>
+      {/* Hamburger Menu Icon */}
+      <div className="block md:hidden text-black" onClick={showDrawer}>
+        <MenuFoldOutlined className="p-2 border-2 border-primary-400 bg-primary-50 hover:bg-primary-400 hover:text-white rounded-md"/>
+      </div>
+
+      {/* Drawer for smaller screens */}
+      <Drawer
+        title="Menu"
+        placement="left"
+        onClose={closeDrawer}
+        visible={drawerVisible}
+        width="250px"
+      >
+        <Menu
+          mode="inline"
+          selectedKeys={[]}
+          style={{ width: "100%" }}
+        >
+          {getMenuForRole()}
+        </Menu>
+      </Drawer>
+
+      <div className="logo md:block flex items-center text-black font-bold text-[18px]">
+        <Link to={getNavbarBrandHref()}>
+          Inventory Database
+        </Link>
+      </div>
+
+      <Menu
+        className="bg-transparent hidden md:block"
+        mode="horizontal"
+        selectedKeys={[]}
+        style={{ flex: 1 }}
+      >
+        {/* Desktop menu items */}
+        {getMenuForRole()}
+      </Menu>
+
+      {/* User Avatar and Dropdown */}
+      {role && (
+        <div className="flex items-center">
+          <Typography.Text className="hidden md:block" style={{ color: "black" }}>
+            {genderGreeting(user.gender || "")} {user.surname}
+          </Typography.Text>
+          <Dropdown overlay={menu} placement="bottomRight">
+            <Avatar className="bg-primary ml-2 border-2 border-primary-300">
+              {user.surname?.charAt(0)}
+              {user.forname?.charAt(0)}
+            </Avatar>
           </Dropdown>
-        </NavbarContent>
-        <NavbarMenu>{menuItems.map(makeNavLinkToogle)}</NavbarMenu>
-      </Navbar>
-    </>
+        </div>
+      )}
+    </div>
   );
 };
 

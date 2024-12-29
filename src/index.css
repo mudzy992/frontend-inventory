@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Sticky header with background blur */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensures the header is above other content */
+    width: 100%;
+    backdrop-filter: blur(5px);  /* Apply blur effect */
+    background: rgba(255, 255, 255, 0.5);  /* Semi-transparent background to make blur effect visible */
+    transition: background 0.3s ease;  /* Smooth transition when header changes */
+  }
+  
+  /* Optional: If you want the background color to be more transparent or change on scroll */
+  .sticky-header.scrolled {
+    background: rgba(0, 0, 0, 0.8); /* Darker background when scrolled */
+  }
+  

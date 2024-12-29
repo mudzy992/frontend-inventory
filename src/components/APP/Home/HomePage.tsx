@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { ApiResponse } from "../../../API/api";
 import CategoryType from "../../../types/CategoryType";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import AdminMenu from "../../admin/AdminMenu/AdminMenu";
-import { UserTable } from "./UserTable";
-import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
+import { Card, Row, Col, Typography } from "antd";
+import AllUsersTable from "../Users/AllUsersTable";
+
+const { Title } = Typography;
 
 interface HomePageState {
   categories?: CategoryType[];
@@ -51,78 +52,74 @@ const HomePage: React.FC<HomePageState> = () => {
       "api/category/?filter=parentCategoryId||$eq||null",
       "get",
       {},
-      "administrator",
+      "administrator"
     )
       .then((res: ApiResponse) => {
         if (res.status === "login") {
           setLogginState(false);
-
           return;
         }
 
         if (res.status === "error") {
           console.error("API error:", res.data);
           setLogginState(false);
-
           return;
         }
 
         const filteredCategories: CategoryDto[] = res.data.filter(
-          (category: any) => category.parentCategoryId === null,
+          (category: any) => category.parentCategoryId === null
         );
 
         putCategoriesInState(filteredCategories);
       })
       .catch((error) => {
         console.error("Error during API call:", error);
-
         setLogginState(false);
       });
   }, []);
 
   return (
-    /* prikaz klijentu */
     <>
-      <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         <div className="">
-          <div className="ml-2 mr-2">{<UserTable />}</div>
+          <div className="ml-2 mr-2">{<AllUsersTable />}</div>
 
-          <h5 className="ml-3 mt-3" style={{ color: "white" }}>
-            {" "}
+          <Title level={5} className="ml-3 mt-3">
             <i className="bi bi-card-list" /> Top level kategorije
-          </h5>
-          <div className="ml-2 mr-2 grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-5">
-            {state.categories && state.categories.map(singleCategory)}
+          </Title>
+
+          <Row gutter={[16, 16]} className="ml-2 mr-2">
+            {state.categories &&
+              state.categories.map((category) => (
+                <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
+                  <Card
+                  className="pt-7"
+                    hoverable
+                    cover={
+                      <i
+                        className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
+                        style={{
+                          fontSize: 60,
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      />
+                    }
+                    onClick={() =>
+                      (window.location.href = `#/category/${category.categoryId}`)
+                    }
+                  >
+                    <Card.Meta title={category.name} />
+                  </Card>
+                </Col>
+              ))}
             <p>{state.message}</p>
-          </div>
+          </Row>
         </div>
       </div>
       <AdminMenu />
     </>
   );
-
-  function singleCategory(category: CategoryType) {
-    return (
-      <Card
-        className="mt-3"
-        key={category.categoryId}
-        isPressable
-        onPress={() =>
-          (window.location.href = `#/category/${category.categoryId}`)
-        }
-      >
-        <CardHeader>{category.name}</CardHeader>
-        <CardBody>
-          <i
-            className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
-            style={{ fontSize: 60, display: "flex", justifyContent: "center" }}
-          />
-        </CardBody>
-        <CardFooter className="flex justify-center"></CardFooter>
-      </Card>
-    );
-  }
 };
 
 export default HomePage;

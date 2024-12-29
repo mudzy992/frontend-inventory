@@ -292,7 +292,8 @@ const Printers = () => {
             {contextHolder}
             <div className="p-3">
                 <div className="overflow-auto scrollbar-hide bg-white rounded-md text-black">
-                    <Table title={tableHeader} 
+                    <Table 
+                    title={tableHeader} 
                     loading={loading} 
                     size='small' 
                     dataSource={filteredData} 

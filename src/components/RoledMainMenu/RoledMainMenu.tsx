@@ -13,11 +13,10 @@ const RoledMainMenu: React.FC = () => {
   ];
 
   const getAdministratorItems = (): MainMenuItem[] => [
-    { text: "Naslovna", link: "#/" },
-    { text: "Helpdesk", link: "#/admin/helpdesk" },
-    { text: "SNMP", link: "#/admin/snmp" },
-    { text: "Fakture", link: "#/admin/invoices" },
-    { text: "Telekom priprema", link: "#/admin/telecom" },
+    { text: "Naslovna", link: "/" },
+    { text: "Helpdesk", link: "/admin/helpdesk" },
+    { text: "Fakture", link: "/admin/invoices" },
+    { text: "Telekom priprema", link: "/admin/telecom" },
   ];
 
   const items =

@@ -3,15 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../API/api";
 import StockType from "../../../types/UserArticleType";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Spinner,
-} from "@nextui-org/react";
+import { Card, Col, Row, Spin, Alert, Typography } from "antd";
 import Tabela from "./TableFunction";
-import { Alert } from "../../custom/Alert";
+import ArticlesListTable from "./ArticleStockListTable";
+
+const { Title } = Typography;
 
 interface CategoryPageState {
   category?: CategoryType;
@@ -74,7 +70,7 @@ const CategoryPage: React.FC = () => {
           `api/category/${categoryID}`,
           "get",
           {},
-          "administrator",
+          "administrator"
         );
         if (response.status === "login") {
           navigate("/login");
@@ -83,7 +79,7 @@ const CategoryPage: React.FC = () => {
 
         if (response.status === "error") {
           return setErrorMessage(
-            "Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije",
+            "Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije"
           );
         }
 
@@ -102,14 +98,14 @@ const CategoryPage: React.FC = () => {
             name: category.name,
             imagePath: category.imagePath,
             stocks: category.stocks,
-          }),
+          })
         );
         setSubcategories(subcategories);
         setLoading(false);
       } catch (error) {
         return setErrorMessage(
           "Greška prilikom učitavanja pod-kategorije. Osvježite ili pokušajte ponovo kasnije. Greška: " +
-            error,
+            error
         );
       }
     };
@@ -133,91 +129,94 @@ const CategoryPage: React.FC = () => {
     if (!state.message) {
       return null;
     }
-    return <Alert variant="warning" title="Upozorenje!" body={state.message} />;
+    return (
+      <Alert
+        message="Upozorenje!"
+        description={state.message}
+        type="warning"
+        showIcon
+      />
+    );
   };
 
   const showSubcategories = () => {
     if (state.subCategory.length === 0) {
       return (
         <div className="mb-4 mt-4">
-          <Alert variant="info" body="Nema podkategorija" />
+          <Alert message="Nema podkategorija" type="info" showIcon />
         </div>
       );
     }
 
     return (
       <div className="ml-2 mr-2">
-        <h5 style={{ color: "white" }}>
+        <Title level={5} >
           <i className="bi bi-list-nested" /> Podkategorije
-        </h5>
+        </Title>
         {printErrorMessage()}
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-3 lg:grid-cols-5 lg:gap-3">
+        <Row gutter={[16, 16]} className="ml-2 mr-2">
           {state.subCategory.map(singleCategory)}
-        </div>
+        </Row>
       </div>
     );
   };
 
   const singleCategory = (category: CategoryType) => (
-    <Card
-      className="mt-3"
-      key={category.categoryId}
-      isPressable
-      onPress={() =>
-        (window.location.href = `#/category/${category.categoryId}`)
-      }
-    >
-      <CardHeader>{category.name}</CardHeader>
-      <CardBody>
-        <i
-          className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
-          style={{ fontSize: 60, display: "flex", justifyContent: "center" }}
-        />
-      </CardBody>
-      <CardFooter className="flex justify-center"></CardFooter>
-    </Card>
+    <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
+      <Card
+      className="pt-6"
+        hoverable
+        cover={
+          <i
+            className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
+            style={{
+              fontSize: 60,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          />
+        }
+        onClick={() =>
+          (window.location.href = `#/category/${category.categoryId}`)
+        }
+      >
+        <Card.Meta title={category.name} />
+      </Card>
+    </Col>
   );
 
   const showArticles = () => {
     if (!state.category || state.category.stocks?.length === 0) {
       return (
-        <Alert
-          variant="info"
-          title="Info!"
-          body="Nema opreme definisane za ovu kategoriju"
-        />
+        <Alert message="Nema opreme definisane za ovu kategoriju" type="info" showIcon />
       );
     }
 
-    return <Tabela categoryId={categoryID} />;
+    return (<ArticlesListTable categoryId={categoryID}/>
+      
+    );
   };
 
   return (
     <div>
-      <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         {loading ? (
           <div className="flex items-center justify-center">
-            <Spinner
-              label="Učitavanje..."
-              labelColor="warning"
-              color="warning"
-            />
+            <Spin tip="Učitavanje..." />
           </div>
         ) : (
           <>
             <div
               className={
-                state.category?.stocks?.length &&
-                state.category.stocks.length > 0
+                state.category?.stocks?.length && state.category.stocks.length > 0
                   ? "mt-3"
                   : "hidden"
               }
             >
-              <h5 style={{ color: "white" }}>
+              <Title level={5}>
                 <i className="bi bi-list" />
                 {state.category?.name}
-              </h5>
+              </Title>
               <div>{showArticles()}</div>
             </div>
             <div>{showSubcategories()}</div>

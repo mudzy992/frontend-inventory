@@ -147,7 +147,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
     <Modal
       open={show}
       onCancel={onHide}
-      width={600}
+      width={800}
       style={{top:20}}
       title={`Tiket #${ticketState?.ticketId}`}
     >
@@ -319,9 +319,6 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
     );
   }
 
-    if (replies.length > 0) {
-      total = main + replies.reduce((acc, curr) => acc + curr);
-    } else {
 
   function combineFirstLetters(surname: string, forname: string) {
     const inicialLetters =

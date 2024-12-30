@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Input,
-  Select,
-  SelectItem,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalContent,
-} from "@nextui-org/react";
+import {  Input, Select, Modal, Form, Checkbox, message } from "antd";
 import api from "../../../../API/api";
 import DepartmentType from "../../../../types/DepartmentType";
 import JobType from "../../../../types/JobType";
@@ -20,11 +10,19 @@ import { useUserContext } from "../../../UserContext/UserContext";
 type EditUserFormProps = {
   userId: number;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 };
 
-const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess }) => {
+const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess = () => {} }) => {
   const { role } = useUserContext();
+  const [departments, setDepartments] = useState<DepartmentType[]>([]);
+  const [jobs, setJobs] = useState<JobType[]>([]);
+  const [locations, setLocations] = useState<LocationType[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [formData, setFormData] = useState({
     forname: "",
     surname: "",
@@ -39,10 +37,6 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
     code: 0,
     gender: "",
   });
-  const [departments, setDepartments] = useState<DepartmentType[]>([]);
-  const [jobs, setJobs] = useState<JobType[]>([]);
-  const [locations, setLocations] = useState<LocationType[]>([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,10 +52,8 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
         setFormData(userRes.data);
         setDepartments(departmentsRes.data);
         setLocations(locationsRes.data);
-        if(userData){
-          console.log(userData)
-        }
-        if (userData.departmentId) {
+
+        if (userData && userData.departmentId) {
           const jobs = await getJobsByDepartmentId(userData.departmentId);
           setJobs(jobs);
         }
@@ -72,6 +64,12 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
 
     fetchData();
   }, [userId, role]);
+
+  useEffect(() => {
+    if (formData) {
+      form.setFieldsValue(formData);
+    }
+  }, [formData, form]);
 
   const getJobsByDepartmentId = async (departmentId: number): Promise<JobType[]> => {
     return new Promise((resolve) => {
@@ -85,123 +83,167 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
       });
     });
   };
-  
+
   const addJobDepartmentChange = async (selectedValue: any) => {
     try {
-      setFormData({ ...formData, departmentId: selectedValue, jobId: 0 }); // Resetujemo jobId
+      setFormData({ ...formData, departmentId: selectedValue, jobId: 0 });
       const jobs = await getJobsByDepartmentId(selectedValue);
       setJobs(jobs);
     } catch (error) {
-      console.log("Greška prilikom mapiranja radnik mjesta za sektor: " + error);
+      messageApi.error('Greška prilikom mapiranja radnih mjesta za sektor: ' + error)
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (values: any) => {
+    const payload = { ...values, code: Number(values.code)};
+    if (!showPasswordFields || !values.password) {
+      delete payload.password;
+      delete payload.confirmPassword;
+    }
+
     try {
       setLoading(true);
-      await api(`api/user/${userId}`, "patch", formData, role as UserRole);
-      onSuccess();
+      await api(`api/user/edit/${userId}`, "patch", payload, role as UserRole);
+      if (onSuccess) onSuccess();
+      messageApi.open({content:"Podaci uspješno izmjenjeni!", type:"success"})
       onClose();
     } catch (error) {
-      console.error("Error saving user data:", error);
+      messageApi.error("Greška prilikom izmjene korisničkih podataka!")
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen onClose={onClose} size="xl">
-      <ModalContent>
-      <ModalHeader>Izmijeni korisničke podatke</ModalHeader>
-      <ModalBody>
-      <div className="grid grid-cols-1 gap-3">
-          <Input
-            label="Ime"
-            value={formData.forname}
-            onChange={(e) => setFormData({ ...formData, forname: e.target.value })}
-          />
-          <Input
-            label="Prezime"
-            value={formData.surname}
-            onChange={(e) => setFormData({ ...formData, surname: e.target.value })}
-          />
-          <Input
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-          <Input
-            label="Telefon"
-            value={formData.telephone}
-            onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
-          />
-          <Input
-            label="Telefon/lokal"
-            value={formData.localNumber}
-            onChange={(e) => setFormData({ ...formData, localNumber: e.target.value })}
-          />
-          <Input
-            label="Kadrovski broj"
-            type="number"
-            value={formData.code.toString()}
-            onChange={(e) => setFormData({ ...formData, code: +e.target.value })}
-          />
-          <Select
-            label="Pol"
-            value={formData.gender}
-            onChange={(value:any) => setFormData({ ...formData, gender: value })}
-          >
-            <SelectItem value="muško" key={"muško"}>Muško</SelectItem>
-            <SelectItem value="žensko" key={"žensko"}>Žensko</SelectItem>
-          </Select>
-          <Select
-  label="Sektor"
-  value={formData.departmentId || ""}
-  onChange={(e) => addJobDepartmentChange(Number(e.target.value))}
->
-  {departments.map((dept) => (
-    <SelectItem key={dept.departmentId} value={dept.departmentId}>
-      {dept.title}
-    </SelectItem>
-  ))}
-</Select>
-<Select
-  label="Radno mjesto"
-  value={formData.jobId || ""}
-  onChange={(e) => setFormData({ ...formData, jobId: Number(e.target.value) })}
-  isDisabled={!formData.departmentId || jobs.length === 0}
->
-  {jobs.map((job) => (
-    <SelectItem key={job.jobId} value={job.jobId}>
-      {job.title}
-    </SelectItem>
-  ))}
-</Select>
-<Select
-  label="Lokacija"
-  value={formData.locationId || ""}
-  onChange={(e) => setFormData({ ...formData, locationId: Number(e.target.value) })}
->
-  {locations.map((location) => (
-    <SelectItem key={location.locationId} value={location.locationId}>
-      {location.name}
-    </SelectItem>
-  ))}
-</Select>
+<div>{contextHolder}
+    <Modal
+      title="Izmijeni korisničke podatke"
+      open={true}
+      onCancel={onClose}
+      onOk={() => form.submit()}
+      confirmLoading={loading}
+      width={600}
+      style={{ top: 20 }}
+    >
+      
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={formData}
+        onFinish={handleSave}
+      >
+        <Form.Item label="Ime" name="forname" rules={[{ required: true, message: "Ime je obavezno" }]}>
+          <Input />
+        </Form.Item>
 
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <Button onPress={onClose} color="danger">
-          Otkaži
-        </Button>
-        <Button onPress={handleSave} isLoading={loading}>
-          Sačuvaj
-        </Button>
-      </ModalFooter>
-      </ModalContent>
+        <Form.Item label="Prezime" name="surname" rules={[{ required: true, message: "Prezime je obavezno" }]}>
+          <Input />
+        </Form.Item>
+
+        <Form.Item label="Email" name="email" rules={[{ type: "email", required: true, message: "Molimo unesite validnu email adresu" }]}>
+          <Input type="email" />
+        </Form.Item>
+
+        <Form.Item label="Telefon" name="telephone">
+          <Input />
+        </Form.Item>
+
+        <Form.Item label="Telefon/lokal" name="localNumber">
+          <Input />
+        </Form.Item>
+
+        <Form.Item label="Kadrovski broj" name="code" rules={[{ required: true, message: 'Kadrovski broj je obavezan' }]}>
+          <Input type="number" />
+        </Form.Item>
+
+        <Form.Item label="Pol" name="gender" rules={[{ required: true, message: 'Molimo odaberite pol' }]}>
+          <Select>
+            <Select.Option value="muško">Muško</Select.Option>
+            <Select.Option value="žensko">Žensko</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Sektor" name="departmentId" rules={[{ required: true, message: 'Sektor je obavezan' }]}>
+          <Select onChange={addJobDepartmentChange}>
+            {departments.map((dept) => (
+              <Select.Option key={dept.departmentId} value={dept.departmentId}>
+                {dept.title}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Radno mjesto" name="jobId" rules={[{ required: true, message: 'Radno mjesto je obavezno' }]}>
+          <Select disabled={!formData.departmentId || jobs.length === 0}>
+            {jobs.map((job) => (
+              <Select.Option key={job.jobId} value={job.jobId}>
+                {job.title}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Lokacija" name="locationId" rules={[{ required: true, message: 'Lokacija je obavezna' }]}>
+          <Select>
+            {locations.map((location) => (
+              <Select.Option key={location.locationId} value={location.locationId}>
+                {location.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Status" name="status" rules={[{ required: true, message: 'Status je obavezan' }]}>
+          <Select>
+            <Select.Option value="aktivan">Aktivan</Select.Option>
+            <Select.Option value="neaktivan">Neaktivan</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Organizacija" name="organizationId">
+          <Input type="number" />
+        </Form.Item>
+
+        <Checkbox
+          checked={showPasswordFields}
+          onChange={(e) => setShowPasswordFields(e.target.checked)}
+        >
+          Želim promijeniti lozinku
+        </Checkbox>
+
+        {showPasswordFields && (
+          <>
+            <Form.Item
+              label="Nova Lozinka"
+              name="password"
+              rules={[{ required: true, message: "Molimo unesite novu lozinku" }]}
+            >
+              <Input.Password />
+            </Form.Item>
+
+            <Form.Item
+              label="Potvrdi Lozinku"
+              name="confirmPassword"
+              dependencies={["password"]}
+              rules={[
+                { required: true, message: "Molimo potvrdite novu lozinku" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Lozinke se ne podudaraju!"));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+          </>
+        )}
+      </Form>
     </Modal>
+    </div>
   );
 };
 

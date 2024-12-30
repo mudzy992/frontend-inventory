@@ -1,173 +1,154 @@
 import React, { useEffect, useState } from "react";
-import ArticleType from "../../../../types/ArticleType";
-import {
-  Accordion,
-  AccordionItem,
-  Button,
-  Link,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-} from "@nextui-org/react";
+import { Table, Button, Popover, Typography, Spin, Descriptions } from "antd";
+import { SaveOutlined, FileTextOutlined } from "@ant-design/icons";
 import { ApiConfig } from "../../../../config/api.config";
 import saveAs from "file-saver";
 import { useUserContext } from "../../../UserContext/UserContext";
 import api, { ApiResponse } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
+import ArticleType from "../../../../types/ArticleType";
 import DocumentsType from "../../../../types/DocumentsType";
+
+const { Text } = Typography;
 
 interface UserProps {
   userID: number;
 }
 
-const ResponsibilityArticles: React.FC<UserProps> = ({userID}) => {
-  const [data, setArticles] = useState<ArticleType[]>([])
-  const {role} = useUserContext();
-  const [loading, setLoading] = useState<boolean>(false)
+const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
+  const [data, setArticles] = useState<ArticleType[]>([]);
+  const { role } = useUserContext();
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-  
+
   const getArticleData = async () => {
-    try{
+    try {
       setLoading(true);
-      const res: ApiResponse = await api(`api/article/user/${userID}`, 'get', undefined, role)
+      const res: ApiResponse = await api(`api/article/user/${userID}`, "get", undefined, role);
 
       if (res.status === "error" || res.status === "login") {
         return navigate("/login");
       }
 
-      if (res.status === 'ok'){
-        setArticles(res.data)
+      if (res.status === "ok") {
+        setArticles(res.data);
       }
-    } catch (error){
+    } catch (error) {
       console.error("Greška prilikom dohvatanja korisničkih podataka:", error);
-      throw error
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    if(userID){
-      getArticleData()
+    if (userID) {
+      getArticleData();
     }
-  }, [userID])
+  }, [userID]);
 
-  if (!data) {
-    return <div>Loading...</div>;
+  const columns = [
+    {
+      title: "Naziv",
+      dataIndex: "stockName",
+      key: "stockName",
+      render: (text: string) => text || "N/A",
+    },
+    {
+      title: "Serijski broj",
+      dataIndex: "serialNumber",
+      key: "serialNumber",
+      render: (serialNumber: string) => (
+        <a href={`#/admin/article/${serialNumber}`}>{serialNumber}</a>
+      ),
+    },
+    {
+      title: "Inventurni broj",
+      dataIndex: "invNumber",
+      key: "invNumber",
+      render: (text: string) => text || "N/A",
+    },
+    {
+      title: "Kategorija",
+      dataIndex: "categoryName",
+      key: "categoryName",
+      render: (text: string) => text || "N/A",
+    },
+    {
+      title: "Dokument",
+      dataIndex: "documents",
+      key: "documents",
+      render: (documents: DocumentsType[]) => saveFile(documents),
+    },
+  ];
+
+  if (loading) {
+    return <Spin tip="Učitavanje..." />;
   }
-  const uniqueCategories = Array.from(
-    new Set(data.map((article) => article.category?.name)),
-  );
 
   return (
-    <Accordion variant="splitted">
-      {uniqueCategories.map((categoryName, index) => {
-        const categoryArticles = data.filter(
-          (article: any) => article.category?.name === categoryName,
-        );
-
-        return (
-          <AccordionItem
-            key={categoryName}
-            aria-label={`Accordion ${index + 1}`}
-            title={categoryName}
-          >
-            <Table
-              aria-label={`Tabela-artikala-${index}`}
-              hideHeader
-              removeWrapper
-              isStriped
-            >
-              <TableHeader>
-                <TableColumn>Naziv</TableColumn>
-                <TableColumn>Serijski broj</TableColumn>
-                <TableColumn>Inventurni broj</TableColumn>
-                <TableColumn>Dokument</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {categoryArticles?.map((article: ArticleType) => (
-                  <TableRow key={article.articleId}>
-                    <TableCell>{article.stock?.name || "N/A"}</TableCell>
-                    <TableCell>
-                      <Link href={`#/admin/article/${article.serialNumber}`}>
-                        {article.serialNumber}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{article.invNumber || "N/A"}</TableCell>
-                    <TableCell>
-                      {saveFile(
-                        article.documents ? article.documents : [],
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )) || []}
-              </TableBody>
-            </Table>
-          </AccordionItem>
-        );
-      })}
-    </Accordion>
+    <Table
+      columns={columns}
+      dataSource={data.map((article) => ({
+        key: article.articleId,
+        stockName: article.stock?.name,
+        serialNumber: article.serialNumber,
+        invNumber: article.invNumber,
+        categoryName: article.category?.name, 
+        documents: article.documents,
+        stock:article.stock,
+      }))}
+      expandedRowRender={(record) => (
+        <div>
+          <Text strong>Detalji za {record.stockName}:</Text>
+          <Descriptions bordered column={1} style={{ marginTop: 16 }}>
+            {record.stock?.stockFeatures?.map((feature) => (
+              <Descriptions.Item label={feature.feature?.name} key={feature.stockFeatureId}>
+                {feature.value}
+              </Descriptions.Item>
+            ))}
+          </Descriptions>
+        </div>
+      )}
+      scroll={{ x: "max-content" }}
+    />
   );
 };
 
 function saveFile(documents: DocumentsType[]) {
-  let pdfDocument = documents[0].signed_path
-  let docxDocument = documents[0].path
-  const savedFile = (docPath : any) => {
-    saveAs(ApiConfig.TEMPLATE_PATH + docPath, docPath);
-  }
-  if (!documents) {
+  if (!documents || documents.length === 0) {
     return (
-      <div>
-        <Popover placement="right" showArrow backdrop="blur">
-          <PopoverTrigger>
-            <Button size="sm" className={'bg-color: red'}>
-              <i
-                className="bi bi-file-earmark-text"
-                style={{ fontSize: 20, color: "white" }}
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>Prenosnica nije generisana</PopoverContent>
-        </Popover>
-      </div>
+      <Popover content={<Text>Prenosnica nije generisana</Text>} trigger="hover">
+        <Button size="small" danger icon={<FileTextOutlined />} />
+      </Popover>
     );
   }
 
-  if(pdfDocument){
-    return(
+  const pdfDocument = documents[0]?.signed_path;
+  const docxDocument = documents[0]?.path;
+  const handleSave = (docPath: string) => {
+    saveAs(ApiConfig.TEMPLATE_PATH + docPath, docPath);
+  };
+
+  if (pdfDocument) {
+    return (
       <Button
-        size="sm"
-        style={{ backgroundColor: "#9D5353" }}
-        onClick={() => savedFile(pdfDocument)}
-      >
-        <i
-          className="bi bi-file-earmark-text"
-          style={{ fontSize: 20, color: "white" }}
-        />
-      </Button>
-      )
+        variant="dashed"
+        color="danger"
+        icon={<SaveOutlined />}
+        onClick={() => handleSave(pdfDocument)}
+      />
+    );
   } else {
-    return(
+    return (
       <Button
-          size="sm"
-          style={{ backgroundColor: "#3A6351" }}
-          onClick={() => savedFile(docxDocument)}
-        >
-          <i
-            className="bi bi-file-earmark-text"
-            style={{ fontSize: 20, color: "white" }}
-          />
-        </Button>
-    )
+        variant="dashed"
+        color="primary"
+        icon={<SaveOutlined />}
+        onClick={() => handleSave(docxDocument!)}
+      />
+    );
   }
-  
 }
 
 export default ResponsibilityArticles;

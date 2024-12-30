@@ -3,26 +3,22 @@ import {
   Button,
   Input,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Textarea,
-  Chip,
   Tabs,
-  Tab,
   Avatar,
   Divider,
-  Link,
-  Spinner,
-} from "@nextui-org/react";
+  Spin,
+  message,
+  Tooltip,
+  Descriptions,
+} from "antd";
+import { UserOutlined, ClockCircleOutlined, CalendarOutlined } from "@ant-design/icons";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
 import Moment from "moment";
 import { useUserContext } from "../../../UserContext/UserContext";
 import { UserRole } from "../../../../types/UserRoleType";
 import api, { ApiResponse } from "../../../../API/api";
-import { useNavigate } from "react-router-dom";
-import Toast from "../../../custom/Toast";
+import { Link, useNavigate } from "react-router-dom";
+import TabPane from "antd/es/tabs/TabPane";
 
 type ModalProps = {
   show: boolean;
@@ -59,7 +55,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
   const [ticketState, setTicketState] = useState<HelpdeskTicketsType>();
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<MessageType>({
+  const [messageState, setMessageState] = useState<MessageType>({
     message: { message: "", variant: "" },
   });
   const [addNewCommentReplyState, setAddNewCommentReplyState] =
@@ -73,49 +69,13 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     if (show && data) {
-      const selectedTicket = data.find(
-        (ticket) => ticket.ticketId === ticketId,
-      );
+      const selectedTicket = data.find((ticket) => ticket.ticketId === ticketId);
       setTicketState(selectedTicket);
     }
   }, [show, data, ticketId]);
 
-  const setAddNewCommentReplyStringFieldState = (
-    fieldName: string,
-    newValue: any,
-  ) => {
-    setAddNewCommentReplyState((prev) => {
-      const newReply = {
-        ...prev.reply,
-        [fieldName]: newValue,
-      };
-      return {
-        ...prev,
-        reply: newReply,
-      };
-    });
-  };
-
-  const setErrorMessage = (message: string, variant: string) => {
-    setMessage((prev) => ({
-      ...prev,
-      message: { message, variant },
-    }));
-  };
-
-  const resetMessage = () => {
-    setMessage((prev) => ({
-      ...prev,
-      message: { message: "", variant: "" },
-    }));
-  };
-
   const handleReplyClick = (commentId: any) => {
-    if (selectedCommentId === commentId) {
-      setSelectedCommentId(null);
-    } else {
-      setSelectedCommentId(commentId);
-    }
+    setSelectedCommentId((prev) => (prev === commentId ? null : commentId));
   };
 
   const doAddNewReply = async (commentId: number) => {
@@ -129,7 +89,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
           ticketId: ticketId,
           userId: userId,
         },
-        role as UserRole,
+        role as UserRole
       )
         .then((res: ApiResponse) => {
           if (res.status === "login") {
@@ -137,183 +97,108 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
           }
 
           if (res.status === "forbidden") {
-            setErrorMessage("Korisnik nema pravo za izmejne!", "danger");
+            setMessageState({
+              message: { message: "Korisnik nema pravo za izmene!", variant: "danger" },
+            });
           }
         })
         .finally(() => {
           setSelectedCommentId(null);
-          setErrorMessage(
-            "Uspješno ste postavili odgovor na informaciju",
-            "success",
-          );
-          setAddNewCommentReplyStringFieldState("text", "");
+          setMessageState({
+            message: { message: "Uspješno ste postavili odgovor na informaciju", variant: "success" },
+          });
+          setAddNewCommentReplyState((prev) => ({ ...prev, reply: { text: "" } }));
           setIsLoading(false);
         });
     } catch (error) {
-      setErrorMessage(
-        "Došlo je do greške prilikom izmjene tiketa. Greška: " + error,
-        "danger",
-      );
+      setMessageState({
+        message: { message: "Došlo je do greške prilikom izmjene tiketa. Greška: " + error, variant: "danger" },
+      });
     }
   };
 
+  const totalComments = () => {
+    let total = ticketState?.comments?.length || 0;
+    const replies = (ticketState?.comments || []).map((comment) => comment?.comments?.length || 0);
+    if (replies.length > 0) {
+      total += replies.reduce((acc, curr) => acc + curr, 0);
+    }
+    return total;
+  };
+
+  const formatDateTime = (dateTimeString: Date) => {
+    const now = new Date();
+    const pastDate = new Date(dateTimeString);
+    const timeDifference = now.getTime() - pastDate.getTime();
+
+    const seconds = Math.floor(timeDifference / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) return <span>prije nekoliko trenutaka</span>;
+    else if (minutes < 60) return <span>prije {minutes} minuta</span>;
+    else if (hours < 24) return <span>prije {hours} sati</span>;
+    else if (days < 7) return <span>prije {days} dana</span>;
+    else return <span>{pastDate.toLocaleDateString()}</span>;
+  };
+
   return (
-    <>
-      <Toast
-        variant={message.message.variant}
-        message={message.message.message}
-        onClose={resetMessage}
-      />
-      <Modal
-        isOpen={show}
-        onOpenChange={onHide}
-        backdrop="blur"
-        size={"5xl"}
-        isDismissable={false}
-        scrollBehavior="inside"
-      >
-        <ModalContent>
-          <ModalHeader className="flex justify-between">
-            <div>
-              Tiket{" "}
-              <span className="text-default-700">#{ticketState?.ticketId}</span>
-            </div>{" "}
-            <div className="mr-3">
-              <Chip color="success">{ticketState?.status}</Chip>
+    <Modal
+      open={show}
+      onCancel={onHide}
+      width={600}
+      style={{top:20}}
+      title={`Tiket #${ticketState?.ticketId}`}
+    >
+      <Tabs defaultActiveKey="1">
+      <TabPane tab="Detalji tiketa" key="1">
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="Grupa">{ticketState?.group?.groupName}</Descriptions.Item>
+          <Descriptions.Item label="Vrsta zahtjeva">{ticketState?.groupPartent?.groupName}</Descriptions.Item>
+          <Descriptions.Item label="Datum prijave">{Moment(ticketState?.createdAt).format("DD.MM.YYYY - HH:mm")}</Descriptions.Item>
+          <Descriptions.Item label="Željeni datum rješenja">{Moment(ticketState?.clientDuoDate).format("DD.MM.YYYY - HH:mm")}</Descriptions.Item>
+          {ticketState?.status === "zatvoren" && (
+            <Descriptions.Item label="Datum rješenja tiketa">{Moment(ticketState?.resolveDate).format("DD.MM.YYYY - HH:mm")}</Descriptions.Item>
+          )}
+          {ticketState?.status !== "otvoren" && (
+            <Descriptions.Item label="Tiket preuzeo">{ticketState?.assignedTo2?.fullname}</Descriptions.Item>
+          )}
+          <Descriptions.Item label="Opis problema">{ticketState?.description}</Descriptions.Item>
+          {ticketState?.status === "zatvoren" && (
+            <Descriptions.Item label="Rješenje problema">{ticketState?.resolveDescription}</Descriptions.Item>
+          )}
+        </Descriptions>
+      </TabPane>
+
+      <TabPane tab="Detalji opreme" key="2" disabled={ticketState?.article?.articleId === null}>
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="Naziv">{ticketState?.article?.stock?.name}</Descriptions.Item>
+          <Descriptions.Item label="Inventurni broj">{ticketState?.article?.invNumber}</Descriptions.Item>
+          <Descriptions.Item label="Serijski broj">{ticketState?.article?.serialNumber}</Descriptions.Item>
+        </Descriptions>
+      </TabPane>
+
+        <TabPane tab={`Informacija (${totalComments()})`} key="3" disabled={totalComments() === 0}>
+          {isLoading ? (
+            <Spin size="large" />
+          ) : (
+            <div className="space-y-4">
+              {conversation()}
             </div>
-          </ModalHeader>
-          <ModalBody>
-            <Tabs aria-label="Opcije" color="primary" radius="full">
-              <Tab title="Detalji tiketa" key={"ticket-details"}>
-                <div className="grid-cols grid gap-2 lg:grid-cols-12">
-                  <div className="col-span grid grid-flow-row auto-rows-max gap-2 lg:col-span-4">
-                    <Input
-                      label="Grupa"
-                      labelPlacement="inside"
-                      value={ticketState?.group?.groupName}
-                    />
-                    <Input
-                      label="Vrsta zahtjeva"
-                      labelPlacement="inside"
-                      value={ticketState?.groupPartent?.groupName}
-                    />
-                    <Input
-                      label="Datum prijave"
-                      labelPlacement="inside"
-                      value={Moment(ticketState?.createdAt).format(
-                        "DD.MM.YYYY - HH:mm",
-                      )}
-                    />
-                    <Input
-                      label="Željeni datum rješnjenja"
-                      labelPlacement="inside"
-                      value={Moment(ticketState?.clientDuoDate).format(
-                        "DD.MM.YYYY - HH:mm",
-                      )}
-                    />
-                    {ticketState?.status === "zatvoren" ? (
-                      <Input
-                        label="Datum rješenja tiketa"
-                        labelPlacement="inside"
-                        value={Moment(ticketState?.resolveDate).format(
-                          "DD.MM.YYYY - HH:mm",
-                        )}
-                      />
-                    ) : (
-                      <div></div>
-                    )}
-                    {ticketState?.status !== "otvoren" ? (
-                      <Input
-                        label="Tiket preuzeo"
-                        labelPlacement="inside"
-                        value={ticketState?.assignedTo2?.fullname}
-                      />
-                    ) : (
-                      <div></div>
-                    )}
-                  </div>
-                  <div className="col-span grid w-full auto-rows-max gap-2 lg:col-span-8">
-                    <Textarea
-                      isReadOnly
-                      label="Opis problema"
-                      type="text"
-                      value={ticketState?.description}
-                      className="w-full"
-                    />
-                    {ticketState?.status === "zatvoren" ? (
-                      <Textarea
-                        isReadOnly
-                        label="Rješenje problema"
-                        type="text"
-                        value={ticketState?.resolveDescription}
-                      />
-                    ) : (
-                      <div></div>
-                    )}
-                  </div>
-                </div>
-              </Tab>
-              <Tab
-                className={
-                  ticketState?.article?.articleId === null ? "hidden" : "inline"
-                }
-                title="Detalji opreme"
-                key={"article-details"}
-              >
-                <div className="grid-cols grid gap-2">
-                  <Input
-                    label="Naziv"
-                    labelPlacement="inside"
-                    value={ticketState?.article?.stock?.name}
-                  />
 
-                  <Input
-                    label="Inventurni broj"
-                    labelPlacement="inside"
-                    value={ticketState?.article?.invNumber}
-                  />
-
-                  <Input
-                    label="Serijski broj"
-                    labelPlacement="inside"
-                    value={ticketState?.article?.serialNumber}
-                  />
-                </div>
-              </Tab>
-              <Tab
-                key="conversation"
-                isDisabled={totalComments() === 0}
-                title={
-                  <div>
-                    <span>Informacija</span>{" "}
-                    {totalComments() > 0 ? (
-                      <Chip size="sm" color="danger">
-                        {totalComments()}
-                      </Chip>
-                    ) : (
-                      <div></div>
-                    )}
-                  </div>
-                }
-              >
-                {conversation()}
-              </Tab>
-            </Tabs>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="danger" onPress={onHide}>
-              Zatvori
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+          )}
+        </TabPane>
+      </Tabs>
+      <Button type="default" onClick={onHide} style={{ marginTop: 16 }}>
+        Zatvori
+      </Button>
+    </Modal>
   );
-
   function conversation() {
     return isLoading ? (
       <div className="flex items-center justify-center">
-        <Spinner label="Učitavanje..." labelColor="warning" color="warning" />
+        <Spin  />
       </div>
     ) : (
       <div className="w-full">
@@ -334,21 +219,17 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                             className="mr-3 flex items-center"
                           >
                             <Avatar
-                              name={combineFirstLetters(
-                                comment.user?.surname || "",
-                                comment.user?.forname || "",
-                              )}
-                              color="warning"
-                              isBordered
-                              size="md"
-                            />
+                            >{combineFirstLetters(
+                              comment.user?.surname || "",
+                              comment.user?.forname || "",
+                            )}</Avatar>
                           </div>
                           <div className="grid w-full grid-flow-row rounded-xl bg-default-100 p-3 text-sm shadow">
                             <div className="flex h-full justify-between">
                               <span className="text-sm font-bold text-default-700">
                                 {comment?.user?.fullname}
                               </span>
-                              <Link
+                              <a
                                 onClick={() =>
                                   handleReplyClick(comment?.commentId!)
                                 }
@@ -356,7 +237,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                                 <span className="ml-2 cursor-pointer text-sm">
                                   Odgovori
                                 </span>
-                              </Link>
+                              </a>
                             </div>
                             <Divider className="my-1" />
                             <div className="w-full">{comment?.text}</div>
@@ -375,11 +256,10 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                     className={`col-span-12 ${selectedCommentId === comment?.commentId ? "inline" : "hidden"}`}
                     id="reply"
                   >
-                    <Textarea
-                      type="text"
+                    <Input.TextArea
                       value={addNewCommentReplyState.reply?.text}
-                      onValueChange={(value: string) =>
-                        setAddNewCommentReplyStringFieldState("text", value)
+                      onChange={(e) =>
+                        setAddNewCommentReplyState({ ...addNewCommentReplyState, reply: { text: e.target.value } })
                       }
                       placeholder="Upišite odgovor"
                     />
@@ -387,10 +267,8 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                     <div className="mb-2 flex justify-end">
                       <Button
                         color="primary"
-                        size="sm"
-                        variant="flat"
                         className="mt-2"
-                        onPress={() => doAddNewReply(comment?.commentId!)}
+                        onClick={() => doAddNewReply(comment?.commentId!)}
                       >
                         Odgovori
                       </Button>
@@ -420,14 +298,10 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                                 className="ml-3 flex items-center"
                               >
                                 <Avatar
-                                  name={combineFirstLetters(
-                                    replies.user?.surname || "",
-                                    replies.user?.forname || "",
-                                  )}
-                                  color="default"
-                                  isBordered
-                                  size="md"
-                                />
+                                >{combineFirstLetters(
+                                  replies.user?.surname || "",
+                                  replies.user?.forname || "",
+                                )}</Avatar>
                               </div>
                             </div>
                             <div>{formatDateTime(replies.createdAt!)}</div>
@@ -445,82 +319,14 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
     );
   }
 
-  function totalComments() {
-    let total: number = 0;
-    const main = ticketState?.comments?.length || 0;
-    const replies = (ticketState?.comments || []).map(
-      (replies) => replies?.comments?.length || 0,
-    );
     if (replies.length > 0) {
       total = main + replies.reduce((acc, curr) => acc + curr);
     } else {
-      total = main;
-    }
-    return total;
-  }
 
   function combineFirstLetters(surname: string, forname: string) {
     const inicialLetters =
       surname.charAt(0).toUpperCase() + forname.charAt(0).toUpperCase();
     return inicialLetters;
-  }
-
-  function formatDateTime(dateTimeString: Date): any {
-    const now: Date = new Date();
-    const pastDate: Date = new Date(dateTimeString);
-    const timeDifference: number = now.getTime() - pastDate.getTime();
-
-    const seconds: number = Math.floor(timeDifference / 1000);
-    const minutes: number = Math.floor(seconds / 60);
-    const hours: number = Math.floor(minutes / 60);
-    const days: number = Math.floor(hours / 24);
-
-    if (seconds < 60) {
-      <span className="ml-2 text-tiny text-default-400">
-        <i className="bi bi-clock-history"></i> prije nekoliko trenutaka
-      </span>;
-    } else if (minutes < 60) {
-      return (
-        <span className="ml-2 text-tiny text-default-400">
-          <i className="bi bi-clock-history"></i> prije {minutes}{" "}
-          {minutes === 1 ? "minutu" : "minuta"}
-        </span>
-      );
-    } else if (hours < 24) {
-      return (
-        <span className="ml-2 text-tiny text-default-400">
-          <i className="bi bi-clock-history"></i> prije {hours}
-          {hours === 1
-            ? " sat"
-            : hours === 21
-              ? " sat"
-              : [2, 3, 4, 22, 23, 24].includes(seconds)
-                ? " sata"
-                : " sati"}
-        </span>
-      );
-    } else if (days < 7) {
-      return (
-        <span className="ml-2 text-tiny text-default-400">
-          <i className="bi bi-calendar4-week"></i> prije {days}{" "}
-          {days === 1 ? "dan" : "dana"}
-        </span>
-      );
-    } else {
-      const options: Intl.DateTimeFormatOptions = {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-      };
-      return (
-        <span className="ml-2 text-tiny text-default-400">
-          <i className="bi bi-calendar4-week"></i>{" "}
-          {pastDate.toLocaleDateString(undefined, options)}
-        </span>
-      );
-    }
   }
 };
 

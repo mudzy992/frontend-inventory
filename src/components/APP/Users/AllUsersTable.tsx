@@ -33,10 +33,13 @@ const AllUsersTable = () => {
             );
     }}, [searchText, users]);
 
+    const handleOpenUserProfile = (userId:number) => {
+        navigate(`/user/profile/${userId}`)
+    }
+
     const columns = [
         {key: 'fullname', dataIndex: '', title: 'Ime i prezime', render: (record: UserType) => {
             const inicials = `${record.forname![0].toUpperCase() || ""}${record.surname![0].toUpperCase() || ""}`;
-            const linkUser = `#/user/profile/${record.userId}`;
             return (
                 <div className="flex flex-row items-center gap-2">
                 <Avatar
@@ -45,7 +48,7 @@ const AllUsersTable = () => {
                 style={{borderRadius:"15px", fontSize:"12px", color:"black"}}
                 shape="square"
                 > {inicials} </Avatar>
-                <Button onClick={() => linkUser} icon={<LinkOutlined />} className="rounded-xl" color="primary" variant="text">{record.fullname}</Button>
+                <Button onClick={()=>handleOpenUserProfile(record.userId!)} icon={<LinkOutlined />} className="rounded-xl" color="primary" variant="text">{record.fullname}</Button>
                 </div>
             )
         }},

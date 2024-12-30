@@ -21,7 +21,9 @@ const RoledMainMenu: React.FC = () => {
 
   const items =
     role !== "user" ? getAdministratorItems() : getUserItems();
-  return <MainMenu items={items} userId={userId} role={role} />;
+  return (
+    <MainMenu items={items} userId={userId} role={role} />
+);
 };
 
 export default RoledMainMenu;

@@ -3,7 +3,6 @@ import { Input, message, Table, Tag } from 'antd';
 import api from '../../../API/api';
 import { useParams } from 'react-router-dom';
 import { useUserContext } from '../../UserContext/UserContext';
-import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import Link from 'antd/es/typography/Link';
 
 type PrinterDTO = {
@@ -288,9 +287,8 @@ const Printers = () => {
 
     return (
         <div>
-            <RoledMainMenu />
             {contextHolder}
-            <div className="p-3">
+            <div>
                 <div className="overflow-auto scrollbar-hide bg-white rounded-md text-black">
                     <Table 
                     title={tableHeader} 

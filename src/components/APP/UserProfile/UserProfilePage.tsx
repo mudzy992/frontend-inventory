@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import api, { ApiResponse } from "../../../API/api";
 import { useNavigate, useParams } from "react-router-dom";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import UserType from "../../../types/UserType";
 import { useUserContext } from "../../UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
 import ResponsibilityArticles from "./components/ResponsibilityArticles";
-import { Card, CardBody, Spinner, Tab, Tabs } from "@nextui-org/react";
 import UserTickets from "./components/UserTickets";
 import UserDetails from "./components/UserDetails";
+import { Tabs, Spin, Card } from "antd";
+
+const { TabPane } = Tabs;
 
 const AdminUserProfilePage: React.FC = () => {
   const { userID } = useParams();
@@ -17,15 +18,16 @@ const AdminUserProfilePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
   const getUserData = async () => {
     try {
       setLoading(true);
 
       const res: ApiResponse = await api(
-        "api/user/" + userID,
+        `api/user/${userID}`,
         "get",
         {},
-        role as UserRole,
+        role as UserRole
       );
 
       if (res.status === "error" || res.status === "login") {
@@ -50,35 +52,29 @@ const AdminUserProfilePage: React.FC = () => {
 
   return (
     <>
-      <RoledMainMenu />
       {loading ? (
-        <div className="container mx-auto flex items-center justify-center">
-          <Spinner label="Učitavanje..." labelColor="warning" color="warning" />
+        <div className="flex items-center justify-center min-h-screen">
+          <Spin size="large" tip="Učitavanje..." />
         </div>
       ) : (
-        <div className="container mx-auto mt-3 h-max">
-          <Tabs
-            id="left-tabs-example"
-            aria-label="Options"
-            className="ml-1 mr-1"
-          >
-            <Tab key="profile" title="Profil">
-              <Card>
-                <CardBody>
-                  <UserDetails data={user} />
-                </CardBody>
-              </Card>
-            </Tab>
-            <Tab key="zaduzeni-artikli" title="Zaduženi artikli">
+        <div className="container mx-auto bg-white border-1 rounded-lg px-2">
+          <Tabs defaultActiveKey="profile">
+            <TabPane tab="Profil" key="profile">
+                <UserDetails data={user} />
+            </TabPane>
+            <TabPane tab="Zaduženi artikli" key="zaduzeni-artikli">
               <ResponsibilityArticles userID={Number(userID)} />
-            </Tab>
-            <Tab className={user.userId !== userId ? "hidden" : "block"} key="tiketi" title="Helpdesk">
-              <UserTickets userID={Number(userID)} />
-            </Tab>
+            </TabPane>
+            {user.userId === userId && (
+              <TabPane tab="Helpdesk" key="tiketi">
+                <UserTickets userID={Number(userID)} />
+              </TabPane>
+            )}
           </Tabs>
         </div>
       )}
     </>
   );
 };
+
 export default AdminUserProfilePage;

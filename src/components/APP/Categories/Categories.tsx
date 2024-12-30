@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../API/api";
 import StockType from "../../../types/UserArticleType";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import { Card, Col, Row, Spin, Alert, Typography } from "antd";
-import Tabela from "./TableFunction";
 import ArticlesListTable from "./ArticleStockListTable";
 
 const { Title } = Typography;
@@ -149,12 +147,12 @@ const CategoryPage: React.FC = () => {
     }
 
     return (
-      <div className="ml-2 mr-2">
+      <div className="">
         <Title level={5} >
           <i className="bi bi-list-nested" /> Podkategorije
         </Title>
         {printErrorMessage()}
-        <Row gutter={[16, 16]} className="ml-2 mr-2">
+        <Row gutter={[16, 16]} className="">
           {state.subCategory.map(singleCategory)}
         </Row>
       </div>
@@ -164,8 +162,9 @@ const CategoryPage: React.FC = () => {
   const singleCategory = (category: CategoryType) => (
     <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
       <Card
-      className="pt-6"
+        className="pt-6"
         hoverable
+        style={{borderRadius:"14px"}}
         cover={
           <i
             className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}

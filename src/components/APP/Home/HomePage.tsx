@@ -80,11 +80,11 @@ const HomePage: React.FC<HomePageState> = () => {
 
   return (
     <>
-      <div className="container mx-auto mt-3 h-max lg:px-4">
+      <div className="container mx-auto h-max lg:px-4">
         <div className="">
           <div className="ml-2 mr-2">{<AllUsersTable />}</div>
 
-          <Title level={5} className="ml-3 mt-3">
+          <Title level={5} className="ml-2 mt-3">
             <i className="bi bi-card-list" /> Top level kategorije
           </Title>
 
@@ -93,7 +93,8 @@ const HomePage: React.FC<HomePageState> = () => {
               state.categories.map((category) => (
                 <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
                   <Card
-                  className="pt-7"
+                    className="pt-7 ml-2"
+                    style={{borderRadius:"14px"}}
                     hoverable
                     cover={
                       <i

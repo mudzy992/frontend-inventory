@@ -1,32 +1,47 @@
 import React from "react";
-import { Avatar, Button } from "@nextui-org/react";
+import { Avatar, Button, Descriptions, message } from "antd";
 import EditUserForm from "./EditUserForm";
 import UserType from "../../../../types/UserType";
+import api from "../../../../API/api";
+import { UserRole } from "../../../../types/UserRoleType";
+import { useUserContext } from "../../../UserContext/UserContext";
 
-type UserProps = {
-  data: UserType;
-  onRefresh?: () => void;
-};
-
-const UserDetails: React.FC<UserProps> = ({ data, onRefresh }) => {
+const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ data, onRefresh }) => {
+  const { role } = useUserContext();
+  const [userData, setUserData] = React.useState(data);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setUserData(data); 
+  }, [data]);
+
+  const refreshData = async () => {
+    try {
+      const response = await api(`api/user/${data.userId}`, "get", {}, role as UserRole);
+      setUserData(response.data);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Greška pri osvježavanju podataka korisnika:", error);
+    }
+  };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const genderColor = data.gender === "muško" ? "lightblue" : "lightpink";
+  const genderColor = userData.gender === "muško" ? "lightblue" : "lightpink";
+  
+  const initials = userData.forname && userData.surname
+  ? `${userData.forname[0].toUpperCase()}${userData.surname[0].toUpperCase()}`
+  : "";
+
 
   let lastActivityText;
 
-  if (data.lastLoginDate) {
+  if (userData.lastLoginDate) {
     const currentDateTime = new Date();
-    const lastLoginDateTime = new Date(data.lastLoginDate);
-    if (
-      !isNaN(currentDateTime.getTime()) &&
-      !isNaN(lastLoginDateTime.getTime())
-    ) {
-      const timeDifference =
-        currentDateTime.getTime() - lastLoginDateTime.getTime();
+    const lastLoginDateTime = new Date(userData.lastLoginDate);
+    if (!isNaN(currentDateTime.getTime()) && !isNaN(lastLoginDateTime.getTime())) {
+      const timeDifference = currentDateTime.getTime() - lastLoginDateTime.getTime();
       const minutesDifference = Math.floor(timeDifference / (1000 * 60));
       const hoursDifference = Math.floor(timeDifference / (1000 * 60 * 60));
       const dayDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -35,7 +50,7 @@ const UserDetails: React.FC<UserProps> = ({ data, onRefresh }) => {
       } else if (minutesDifference < 60) {
         lastActivityText = `Posljednja aktivnost: prije ${minutesDifference} minuta`;
       } else if (hoursDifference < 60) {
-        lastActivityText = `Posljednja aktivnot: prije ${hoursDifference} sati i ${minutesDifference % 60} minuta`;
+        lastActivityText = `Posljednja aktivnost: prije ${hoursDifference} sati i ${minutesDifference % 60} minuta`;
       } else {
         lastActivityText = `Posljednja aktivnost: prije ${dayDifference} dana i ${hoursDifference % 24} sati`;
       }
@@ -52,42 +67,53 @@ const UserDetails: React.FC<UserProps> = ({ data, onRefresh }) => {
         <div className="lg:w-[35%] flex flex-col items-center justify-center col-span-2 rounded-lg border-0 bg-gradient-to-r from-cyan-500 to-blue-500">
           <div className="text-md flex flex-col items-center w-full p-4">
             <Avatar
-              className="w-[150px] h-[150px]"
+              className="w-[150px] h-[150px] text-5xl"
               style={{ border: `10px solid ${genderColor}` }}
-            />
+            >{initials}</Avatar>
             <div style={{ fontSize: "25px", fontWeight: "bold", marginTop: "5px" }}>
-              {data.fullname}
+              {userData.fullname}
             </div>
-            <div style={{ fontSize: "14px" }}>{data.email}</div>
-            <div style={{ fontSize: "14px" }}>{data.job?.title}</div>
+            <div style={{ fontSize: "14px" }}>{userData.email}</div>
+            <div style={{ fontSize: "14px" }}>{userData.job?.title}</div>
           </div>
           <div className="w-full p-2 grid grid-rows-2 text-xs">
-              <span><i className="bi bi-calendar3" /> {lastActivityText}</span>
-              <span><i className="bi bi-award" /> Status: {data.status}</span>
+            <span>
+              <i className="bi bi-calendar3" /> {lastActivityText}
+            </span>
+            <span>
+              <i className="bi bi-award" /> Status: {userData.status}
+            </span>
           </div>
         </div>
         <div className="w-full">
-          <div className="grid lg:grid-cols-2 gap-3 lg:text-medium text-small">
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Prezime i ime:</strong> {data.fullname}</div>
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Kadrovski broj:</strong> {data.code}</div>
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Email:</strong> {data.email}</div>
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Telefon:</strong> {data.telephone}</div>
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Telefon/lokal:</strong> {data.localNumber}</div>
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Sektor:</strong> {data.department?.title}</div>
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Radno mjesto:</strong> {data.job?.title}</div>
-            <div className="grid grid-rows-2 bg-[#3f3f46] p-3 rounded-2xl"><strong>Lokacija:</strong> {data.location?.name}</div>
-          </div>
-          <div className="mt-4">
-            <Button onPress={openModal}>Izmijeni podatke</Button>
+        <Descriptions
+            bordered
+            column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
+            className="gap-3 lg:text-medium text-small"
+          >
+            <Descriptions.Item label="Prezime i ime">{userData.fullname}</Descriptions.Item>
+            <Descriptions.Item label="Kadrovski broj">{userData.code}</Descriptions.Item>
+            <Descriptions.Item label="Email">{userData.email}</Descriptions.Item>
+            <Descriptions.Item label="Telefon">{userData.telephone}</Descriptions.Item>
+            <Descriptions.Item label="Telefon/lokal">{userData.localNumber}</Descriptions.Item>
+            <Descriptions.Item label="Sektor">{userData.department?.title}</Descriptions.Item>
+            <Descriptions.Item label="Radno mjesto">{userData.job?.title}</Descriptions.Item>
+            <Descriptions.Item label="Lokacija">{userData.location?.name}</Descriptions.Item>
+          </Descriptions>
+
+          <div className="py-3">
+            <Button type="primary" onClick={openModal}>
+              Izmijeni podatke
+            </Button>
           </div>
         </div>
       </div>
 
       {isModalOpen && (
         <EditUserForm
-          userId={Number(data.userId)}
+          userId={Number(userData.userId)}
           onClose={closeModal}
-          onSuccess={onRefresh!}
+          onSuccess={refreshData}
         />
       )}
     </div>

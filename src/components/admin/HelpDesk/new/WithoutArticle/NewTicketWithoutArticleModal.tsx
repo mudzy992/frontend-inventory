@@ -1,27 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Textarea,
-  Select,
-  SelectItem,
-  Spinner, 
-  DatePicker,
-} from "@nextui-org/react";
+import { Button, Input, Modal, Select, Form, Spin, DatePicker, message } from "antd";
 import { UserRole } from "../../../../../types/UserRoleType";
-import api, { ApiResponse } from "../../../../../API/api";
+import api from "../../../../../API/api";
 import { useUserContext } from "../../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import TicketGroupType from "../../../../../types/TicketGroupType";
-import Toast from "../../../../custom/Toast";
-import {now, getLocalTimeZone, DateValue, parseDate } from "@internationalized/date";
 import ArticleType from "../../../../../types/ArticleType";
-import moment from "moment";
+import dayjs from "dayjs";
 
 type ModalProps = {
   show: boolean;
@@ -34,35 +19,20 @@ interface AddNewTicketState {
   articleId?: number | null;
   groupId?: number | null;
   description?: string | null;
-  clientDuoDate?: Date | null;
+  clientDuoDate?: dayjs.Dayjs | null;
   groupPartentId?: number | null;
 }
 
-interface MessageType {
-  message: {
-    message: string;
-    variant: string;
-  };
-}
-
-const NewTicketWithoutArticle: React.FC<ModalProps> = ({
-  show,
-  onHide,
-  userID,
-}) => {
-  const [addNewTicketState, setAddNewTicketState] =
-    useState<AddNewTicketState>();
+const NewTicketWithoutArticle: React.FC<ModalProps> = ({ show, onHide, userID }) => {
+  const [addNewTicketState, setAddNewTicketState] = useState<AddNewTicketState>();
   const [groupsState, setGroupsState] = useState<TicketGroupType[]>();
   const [userArticles, setUserArticles] = useState<ArticleType[]>([]);
   const [groupsTypeState, setGroupsTypeState] = useState<TicketGroupType[]>();
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
-  const [clientDuoDate, setClientDuoDate] = useState(parseDate("2024-04-04"));
+  const [clientDuoDate, setClientDuoDate] = useState<dayjs.Dayjs | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { role } = useUserContext();
   const navigate = useNavigate();
-  const [message, setMessage] = useState<MessageType>({
-    message: { message: "", variant: "" },
-  });
   const [isVisible, setIsVisible] = useState<boolean>(true);
 
   const putArticleDetailsInState = async () => {
@@ -71,69 +41,57 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
       articleId: null,
       groupId: null,
       description: null,
-      clientDuoDate: moment(clientDuoDate).format('YYYY-MM-DD'),
+      clientDuoDate: null,
       groupPartentId: null,
     });
+    setClientDuoDate(null); // Resetuj datum
   };
 
-  const setAddNewTicketFieldState = (
-    fieldName: keyof AddNewTicketState,
-    newValue: any,
-  ) => {
+  const handleDatePickerChange = (date: dayjs.Dayjs | null) => {
+    if (date && date.isValid()) {
+      setAddNewTicketState((prev) => ({
+        ...prev,
+        clientDuoDate: date, // Čuvaj kao dayjs
+      }));
+    } else {
+      message.error("Neispravan datum");
+    }
+  };
+
+  const handleArticleChange = (value: number) => {
     setAddNewTicketState((prev) => ({
       ...prev,
-      [fieldName]: newValue,
+      articleId: value,
     }));
   };
 
-  const setErrorMessage = (message: string, variant: string) => {
-    setMessage((prev) => ({
+  const handleGroupChange = (value: number) => {
+    setSelectedGroup(value);
+    setAddNewTicketState((prev) => ({
       ...prev,
-      message: { message, variant },
+      groupId: value,
     }));
   };
 
-  const resetMessage = () => {
-    setMessage((prev) => ({
+  const handleGroupTypeChange = (value: number) => {
+    setAddNewTicketState((prev) => ({
       ...prev,
-      message: { message: "", variant: "" },
+      groupPartentId: value,
     }));
-  };
-
-  const handleDatePickerChange = (newValue: DateValue) => {
-    const dateStr = newValue.toString();
-    const cleanDateStr = dateStr.split('[')[0];
-    const date = new Date(cleanDateStr);
-    setAddNewTicketFieldState("clientDuoDate", date);
-  };
-
-  const handleArticleChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
-    setAddNewTicketFieldState("articleId", Number(value.target.value));
-  };
-
-  const handleGroupChange = (value: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedGroup(Number(value.target.value));
-    setAddNewTicketFieldState("groupId", value.target.value);
-  };
-
-  const handleGroupTypeChange = (
-    value: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setAddNewTicketFieldState("groupPartentId", value.target.value);
   };
 
   useEffect(() => {
     if (show) {
       putArticleDetailsInState();
       getGroupsData();
-      getUserArticles()
+      getUserArticles();
     }
   }, [show]);
 
   useEffect(() => {
     if (selectedGroup) {
       const filteredGroups = groupsState?.filter(
-        (group) => group.parentGroupId === selectedGroup,
+        (group) => group.parentGroupId === selectedGroup
       );
       setGroupsTypeState(filteredGroups);
     } else {
@@ -147,9 +105,9 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
       addNewTicketState?.description &&
       addNewTicketState?.clientDuoDate
     ) {
-      return setIsVisible(false);
+      setIsVisible(false);
     } else {
-      return setIsVisible(true);
+      setIsVisible(true);
     }
   }, [
     addNewTicketState?.clientDuoDate,
@@ -160,261 +118,163 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({
   const doAddTicket = async () => {
     try {
       setLoading(true);
-      await api(`api/helpdesk/`, "post", addNewTicketState, role as UserRole)
-        .then((res: ApiResponse) => {
-          if (res.status === "login") {
-            return navigate("/login");
-          }
+      const response = await api(`api/helpdesk/`, "post", addNewTicketState, role as UserRole);
+      if (response.status === "login") {
+        navigate("/login");
+        return;
+      }
 
-          if (res.status === "forbidden") {
-            setErrorMessage("Korisnik nema pravo za izmejne!", "danger");
-          }
-          setErrorMessage(
-            `Uspješno ste prijavili tiket #${res.data.ticketId}`,
-            "success",
-          );
-          putArticleDetailsInState();
-        })
-        .finally(() => setLoading(false));
+      if (response.status === "forbidden") {
+        message.error("Korisnik nema pravo za izmene!");
+        return;
+      }
+
+      message.success(`Uspješno ste prijavili tiket #${response.data.ticketId}`);
+      putArticleDetailsInState();
     } catch (error) {
-      setErrorMessage(
-        "Došlo je do greške prilikom izmjene tiketa. Greška: " + error,
-        "danger",
-      );
+      message.error(`Došlo je do greške prilikom izmjene tiketa. Greška: ${error}`);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getGroupsData = () => {
+  const getGroupsData = async () => {
     setLoading(true);
-    api(`api/ticket/group/`, "get", {}, role as UserRole)
-      .then((res: ApiResponse) => {
-        if (res.status === "login") {
-          setErrorMessage(
-            "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!",
-            "danger",
-          );
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom učitavanja podataka, molimo pokušajte ponovo!",
-            "danger",
-          );
-          return;
-        }
-        if (res.status === "forbidden") {
-          setErrorMessage(
-            "Korisnik nema prava za učitavanje ove vrste podataka!",
-            "danger",
-          );
-          return;
-        }
-        setGroupsState(res.data);
-      })
-      .finally(() => setLoading(false));
+    const response = await api(`api/ticket/group/`, "get", {}, role as UserRole);
+    if (response.status === "login") {
+      message.error("Greška prilikom učitavanja podataka. Korisnik nije prijavljen!");
+      return;
+    }
+
+    if (response.status === "forbidden") {
+      message.error("Korisnik nema prava za učitavanje ove vrste podataka!");
+      return;
+    }
+
+    setGroupsState(response.data);
+    setLoading(false);
   };
 
   const getUserArticles = async () => {
     setLoading(true);
-    api(`api/article/user/${userID}`, 'get', undefined, role as UserRole)
-      .then((res: ApiResponse) => {
-        if (res.status === "login") {
-          setErrorMessage(
-            "Greška prilikom učitavanja podataka. Korisnik nije prijavljen!",
-            "danger",
-          );
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom učitavanja podataka, molimo pokušajte ponovo!",
-            "danger",
-          );
-          return;
-        }
-        if (res.status === "forbidden") {
-          setErrorMessage(
-            "Korisnik nema prava za učitavanje ove vrste podataka!",
-            "danger",
-          );
-          return;
-        }
-        setUserArticles(res.data);
-      })
-      .finally(() => setLoading(false));
+    const response = await api(`api/article/user/${userID}`, "get", undefined, role as UserRole);
+    if (response.status === "login") {
+      message.error("Greška prilikom učitavanja podataka. Korisnik nije prijavljen!");
+      return;
+    }
+
+    if (response.status === "forbidden") {
+      message.error("Korisnik nema prava za učitavanje ove vrste podataka!");
+      return;
+    }
+
+    setUserArticles(response.data);
+    setLoading(false);
   };
 
   return (
-    <>
-      <Toast
-        variant={message.message.variant}
-        message={message.message.message}
-        onClose={resetMessage}
-      />
-      <Modal
-        isOpen={show}
-        onOpenChange={onHide}
-        backdrop="blur"
-        size={"xl"}
-        isDismissable={false}
-        scrollBehavior="inside"
-      >
-        <ModalContent>
-          <ModalHeader>Novi tiket</ModalHeader>
-          <ModalBody>
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <Spinner
-                  label="Učitavanje..."
-                  labelColor="warning"
-                  color="warning"
-                />
-              </div>
-            ) : (
-              <>
-{/*                 <Input
-                  label="Korisnik"
-                  labelPlacement="inside"
-                  value={data?.fullname}
-                /> */}
-                <Select
-                  id="groupId"
-                  label="Grupa"
-                  placeholder="Odaberite grupu"
-                  value={
-                    addNewTicketState?.groupId === null
-                      ? ""
-                      : addNewTicketState?.groupId
-                  }
-                  onChange={handleGroupChange}
-                >
-                  {groupsState
-                    ? groupsState
-                        .filter((group) => group.parentGroupId === null)
-                        .map((group, index) => (
-                          <SelectItem
-                            key={group.groupId || index}
-                            textValue={`${group.groupId} - ${group.groupName}`}
-                            value={Number(group.groupId)}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="flex flex-col">
-                                <span className="text-small">
-                                  {group.groupName}
-                                </span>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))
-                    : []}
-                </Select>
+    <Modal
+      open={show}
+      onCancel={onHide}
+      title="Novi tiket"
+      footer={null}
+      width={600}
+      destroyOnClose
+      style={{top:20}}
+    >
+      {loading ? (
+        <div className="flex justify-center">
+          <Spin tip="Učitavanje..." />
+        </div>
+      ) : (
+        <Form
+          initialValues={{
+            ...addNewTicketState,
+            clientDuoDate: addNewTicketState?.clientDuoDate ? dayjs(addNewTicketState.clientDuoDate) : null,
+          }}
+          onFinish={doAddTicket}
+          layout="vertical"
+        >
+          <Form.Item label="Grupa" name="groupId">
+            <Select
+              placeholder="Odaberite grupu"
+              onChange={handleGroupChange}
+              value={addNewTicketState?.groupId}
+            >
+              {groupsState?.map((group) => (
+                <Select.Option key={group.groupId} value={group.groupId}>
+                  {group.groupName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
 
-                {selectedGroup ? (
-                  <Select
-                    id="parentGroupId"
-                    label="Vrsta zahtjeva"
-                    placeholder="Odaberite vrstu zahtjeva"
-                    onChange={handleGroupTypeChange}
-                    selectedKeys={
-                      addNewTicketState?.groupPartentId
-                        ? [`${addNewTicketState.groupPartentId}`]
-                        : []
-                    }
-                  >
-                    {groupsTypeState
-                      ? groupsTypeState.map((group) => (
-                          <SelectItem
-                            key={Number(group.groupId)}
-                            textValue={`${group.groupId} - ${group.groupName}`}
-                            value={Number(group.groupId)}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="flex flex-col">
-                                <span className="text-small">
-                                  {group.groupName}
-                                </span>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))
-                      : []}
-                  </Select>
-                ) : (
-                  <div></div>
-                )}
-                <Select
-                  label="Oprema"
-                  labelPlacement="inside"
-                  value={
-                    addNewTicketState?.articleId === null
-                      ? ""
-                      : addNewTicketState?.articleId
-                  }
-                  selectedKeys={
-                    addNewTicketState?.articleId
-                      ? [`${addNewTicketState?.articleId}`]
-                      : []
-                  }
-                  onChange={handleArticleChange}
-                >
-                  {userArticles
-                    ? userArticles.map((article) => (
-                        <SelectItem
-                          key={Number(article?.articleId)}
-                          textValue={article?.stock?.name}
-                          value={Number(article?.articleId)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="flex flex-col">
-                              <span className="text-small">
-                                {article?.stock?.name}
-                              </span>
-                              <span className="text-tiny text-default-400">
-                                {article.category?.name}
-                              </span>
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))
-                    : []}
-                </Select>
+          {selectedGroup && (
+            <Form.Item label="Vrsta zahtjeva" name="groupPartentId">
+              <Select
+                placeholder="Odaberite vrstu zahtjeva"
+                onChange={handleGroupTypeChange}
+                value={addNewTicketState?.groupPartentId}
+              >
+                {groupsTypeState?.map((group) => (
+                  <Select.Option key={group.groupId} value={group.groupId}>
+                    {group.groupName}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
 
-                <Textarea
-                  label="Opis zahtjeva"
-                  placeholder="Opišite vaš problem"
-                  value={
-                    addNewTicketState?.description === null
-                      ? ""
-                      : addNewTicketState?.description
-                  }
-                  onValueChange={(value: string) =>
-                    setAddNewTicketFieldState("description", value)
-                  }
-                />
-               <DatePicker 
-                onChange={setClientDuoDate}
-                label="Željeni datum rješenja"
-                showMonthAndYearPickers
-                hideTimeZone 
-                value={clientDuoDate} />
-              </>
-            )}
-          </ModalBody>
-          <ModalFooter>
+          <Form.Item label="Oprema" name="articleId">
+            <Select
+              placeholder="Odaberite opremu"
+              onChange={handleArticleChange}
+              value={addNewTicketState?.articleId}
+            >
+              {userArticles?.map((article) => (
+                <Select.Option key={article.articleId} value={article.articleId}>
+                  {article.stock?.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Opis zahtjeva" name="description">
+            <Input.TextArea
+              placeholder="Opišite vaš problem"
+              value={addNewTicketState?.description!}
+              onChange={(e) =>
+                setAddNewTicketState((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+            />
+          </Form.Item>
+
+          <Form.Item label="Željeni datum rješenja" name="clientDuoDate">
+            <DatePicker
+              value={clientDuoDate ? dayjs(clientDuoDate) : null} 
+              onChange={handleDatePickerChange}
+            />
+          </Form.Item>
+
+          <Form.Item>
             <Button
-              isDisabled={isVisible}
-              color="success"
-              onClick={() => doAddTicket()}
+              type="primary"
+              htmlType="submit"
+              disabled={isVisible}
+              loading={loading}
             >
               Prijavi
             </Button>
-            <Button color="danger" onPress={onHide}>
+            <Button onClick={onHide} style={{ marginLeft: "8px" }}>
               Zatvori
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+          </Form.Item>
+        </Form>
+      )}
+    </Modal>
   );
 };
 

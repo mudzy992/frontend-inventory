@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Dropdown, MenuProps, message, Modal, Table, Tag } from 'antd';
 import api from '../../../API/api';
-import RoledMainMenu from '../../RoledMainMenu/RoledMainMenu';
 import { useNavigate } from 'react-router-dom';
 import InvoiceForm from './Invoice.form';
 
@@ -94,10 +93,9 @@ const InvoiceList = () => {
     return (
         <div>
             {contextHolder}
-            <RoledMainMenu />
-        <div className='p-3'>
+        <div>
             <div className="overflow-auto scrollbar-hide bg-white rounded-md">
-                <Table loading={loading} size='small' dataSource={invoices} columns={columns}></Table>
+                <Table loading={loading} size='small' dataSource={invoices} columns={columns} scroll={{ x: "max-content" }} />
             </div>
             {isInvoiceEditModalVisible && (
                 <Modal

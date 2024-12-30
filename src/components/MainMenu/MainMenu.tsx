@@ -90,15 +90,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
 
   // Funkcija koja filtrira menije prema ulozi
   const getMenuForRole = () => {
-    if (!role) {
-      // Za goste: samo opcija za prijavu
-      return (
-        <Menu.Item key="login">
-          <Link to="/login">Prijava</Link>
-        </Menu.Item>
-      );
-    }
-
     // Za ulogu administratora, moderatore i korisnike
     let roleSpecificItems: JSX.Element[] = [];
 
@@ -132,7 +123,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
     return [
       ...roleSpecificItems,
       ...menuItems.map((item, index) => (
-        <Menu.Item key={index}>
+        <Menu.Item key={index} className="h-14">
           <Link to={item.link}>{item.text}</Link>
         </Menu.Item>
       )),
@@ -148,64 +139,56 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
   };
 
   return (
-    <div className="bg-transparent flex flex-row max-w-screen justify-between">
-      <div className="logo hidden text-white font-bold mx-auto text-[18px]">
-        <Link to={getNavbarBrandHref()} >
-          Inventory Database
-        </Link>
-      </div>
-
-      {/* Hamburger Menu Icon */}
-      <div className="block md:hidden text-black" onClick={showDrawer}>
-        <MenuFoldOutlined className="p-2 border-2 border-primary-400 bg-primary-50 hover:bg-primary-400 hover:text-white rounded-md"/>
-      </div>
-
-      {/* Drawer for smaller screens */}
-      <Drawer
-        title="Menu"
-        placement="left"
-        onClose={closeDrawer}
-        visible={drawerVisible}
-        width="250px"
-      >
-        <Menu
-          mode="inline"
-          selectedKeys={[]}
-          style={{ width: "100%" }}
+    <div className="bg-transparent flex flex-row justify-between h-14 px-4">
+      {role ? (
+        <><div className="flex md:hidden text-black items-center" onClick={showDrawer}>
+          <MenuFoldOutlined className="p-2 hover:bg-gray-200 hover:text-black rounded-md" />
+        </div><Drawer
+          title="Meni"
+          placement="left"
+          onClose={closeDrawer}
+          open={drawerVisible}
+          width="250px"
         >
-          {getMenuForRole()}
-        </Menu>
-      </Drawer>
-
-      <div className="logo md:block flex items-center text-black font-bold text-[18px]">
-        <Link to={getNavbarBrandHref()}>
-          Inventory Database
-        </Link>
-      </div>
-
-      <Menu
-        className="bg-transparent hidden md:block"
-        mode="horizontal"
-        selectedKeys={[]}
-        style={{ flex: 1 }}
-      >
-        {/* Desktop menu items */}
-        {getMenuForRole()}
-      </Menu>
+            <Menu
+              mode="inline"
+              selectedKeys={[]}
+              style={{ width: "100%" }}
+            >
+              {getMenuForRole()}
+            </Menu>
+          </Drawer>
+          <div className="logo md:flex flex items-center text-black font-bold text-[18px]">
+            <Link to={getNavbarBrandHref()}>
+              Inventory Database
+            </Link>
+          </div>
+          </>) : (<div></div>)
+      }
 
       {/* User Avatar and Dropdown */}
       {role && (
-        <div className="flex items-center">
-          <Typography.Text className="hidden md:block" style={{ color: "black" }}>
-            {genderGreeting(user.gender || "")} {user.surname}
-          </Typography.Text>
-          <Dropdown overlay={menu} placement="bottomRight">
-            <Avatar className="bg-primary ml-2 border-2 border-primary-300">
-              {user.surname?.charAt(0)}
-              {user.forname?.charAt(0)}
-            </Avatar>
-          </Dropdown>
-        </div>
+        <><Menu
+          className="bg-transparent hidden md:block h-14"
+          mode="horizontal"
+          selectedKeys={[]}
+          style={{ flex: 1 }}
+        >
+          {getMenuForRole()}
+        </Menu><div className="flex items-center">
+            <Typography.Text className="hidden md:block" style={{ color: "black" }}>
+              {genderGreeting(user.gender || "")} {user.surname}
+            </Typography.Text>
+            <Dropdown overlay={menu} placement="bottomRight">
+              <Avatar
+                shape="square"
+                style={{ borderRadius: "12px" }}
+                className="bg-primary ml-2 border-2 border-primary-300 p-4 cursor-pointer">
+                {user.surname?.charAt(0)}
+                {user.forname?.charAt(0)}
+              </Avatar>
+            </Dropdown>
+          </div></>
       )}
     </div>
   );

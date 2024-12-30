@@ -6,7 +6,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import { Layout, ConfigProvider } from "antd";
 import hrHR from "antd/lib/locale/hr_HR";
 import { NextUIProvider } from "@nextui-org/react";
-import { UserContextProvider } from "./components/UserContext/UserContext";
+import { UserContextProvider, useUserContext } from "./components/UserContext/UserContext";
 import CategoryPage from "./components/APP/Categories/Categories";
 import HomePage from "./components/APP/Home/HomePage";
 import ArticleOnUserPage from "./components/APP/ArticleOnUser/ArticleOnUserPage";
@@ -30,23 +30,30 @@ import Printers from "./components/admin/Invoices/Printers";
 import RoledMainMenu from "./components/RoledMainMenu/RoledMainMenu";
 import { themeToken } from "./config/theme.token.config";
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => (
-  <Layout className="min-h-screen min-w-screen">
-    <Header className="bg-[#001529] text-white sticky-header min-w-screen">
-      <RoledMainMenu />
-    </Header>
-    <Content style={{ padding: "16px", background: "#f0f2f5" }}>
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+  const curentYear = new Date().getFullYear();
+  const {role} = useUserContext()
+
+  return (
+  <Layout className="min-h-screen ">
+    {role && (
+      <div className="sticky-header">
+        <RoledMainMenu />
+    </div>
+    )}
+    
+    <Content className="bg-gradient-to-r from-blue-50 to-white" style={{ padding: "16px",/*  background: "#f0f2f5" */ }}>
       {children}
     </Content>
-    <Footer style={{ textAlign: "center" }}>My App ©2024 Created by Me</Footer>
+    <Footer className="text-center bg-gradient-to-r from-blue-50 to-white text-gray-400">Inventory Database v1.9.9 ©{curentYear} Created by Mudžahid Cerić</Footer>
   </Layout>
-);
+)};
 
 const App = () => {
   return (

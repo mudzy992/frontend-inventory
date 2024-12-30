@@ -15,7 +15,7 @@ import {
   DatePicker,
 } from "@nextui-org/react";
 import { UserRole } from "../../../../../types/UserRoleType";
-import api, { ApiResponse } from "../../../../../API/api";
+import { ApiResponse, useApi } from "../../../../../API/api";
 import { useUserContext } from "../../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import TicketGroupType from "../../../../../types/TicketGroupType";
@@ -54,7 +54,7 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({
   const [parentGroupState, setParentGroupState] = useState<TicketGroupType[]>(
     [],
   );
-
+  const { api } = useApi();
   const { role } = useUserContext();
   const navigate = useNavigate();
   const [message, setMessage] = useState<MessageType>({

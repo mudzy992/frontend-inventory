@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from "react";
-import api from "../../../API/api";
 import "./styleArticleTimeline.css";
 import {
   Avatar,
@@ -9,6 +8,7 @@ import {
   ModalHeader,
   Progress,
 } from "@nextui-org/react";
+import { useApi } from "../../../API/api";
 
 interface ArticleTimelineProps {
   show: boolean;
@@ -46,6 +46,7 @@ const ArticleTimlineModal: FC<ArticleTimelineProps> = ({
 }) => {
   const [articleTimelineData, setArticleTimelineData] =
     useState<ArticleTimlineType | null>(null);
+  const { api } = useApi();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [message, setMessage] = useState<string>();

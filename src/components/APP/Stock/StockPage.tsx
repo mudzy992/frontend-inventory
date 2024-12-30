@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import FeaturesType from "../../../types/FeaturesType";
 import Moment from "moment";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
@@ -86,6 +86,7 @@ interface StockPageState {
 }
 
 const StockPage: React.FC = () => {
+  const { api } = useApi();
   const { stockID } = useParams<{ stockID: string }>();
   const [categoryID, setCategoryId] = useState<number | undefined>(0);
   const [loading, setLoading] = useState<boolean>(false);

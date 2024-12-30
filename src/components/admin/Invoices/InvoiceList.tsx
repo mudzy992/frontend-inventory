@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Button, Dropdown, MenuProps, message, Modal, Table, Tag } from 'antd';
-import api from '../../../API/api';
 import { useNavigate } from 'react-router-dom';
 import InvoiceForm from './Invoice.form';
+import { useApi } from '../../../API/api';
 
 const InvoiceList = () => {
+    const { api } = useApi();
     const [invoices, setInvoices] = useState<InvoiceType[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<number | null>(null);

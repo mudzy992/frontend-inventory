@@ -1,178 +1,105 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { ApiConfig } from "../config/api.config"
+import axios, { AxiosRequestConfig } from "axios";
+import { ApiConfig } from "../config/api.config";
+import { useUserContext } from "../components/UserContext/UserContext";
 
-export default function api(
-    path: string,
-    method: 'get' | 'post' | 'patch' | 'delete' | 'put',
-    body: any | undefined,
-    role: 'user' | 'administrator' | 'moderator' = 'user',
-    options: { useMultipartFormData?: boolean } = {},
-) {
-    return new Promise<ApiResponse>((resolve) => {
-        const requestData = {
-            method: method,
-            url: path,
-            baseURL: ApiConfig.API_URL,
-            data: options.useMultipartFormData ? body : JSON.stringify(body),
-            role: role,
-            headers: {
-                'Content-Type': options.useMultipartFormData ? 'multipart/form-data' : 'application/json',
-                'Authorization': getToken(),
-            },
-        };
-        // console.log('API Call:', path, method, body);
-        axios(requestData)
-        .then(res => responseHandler(res, resolve))
-        .catch(async err => {
-            if (err.response.status === 401) {
+export function useApi() {
+    const { checkAuthentication } = useUserContext();
+
+    async function api(
+        path: string,
+        method: 'get' | 'post' | 'patch' | 'delete' | 'put',
+        body: any | undefined,
+        role: 'user' | 'administrator' | 'moderator' = 'user',
+        options: { useMultipartFormData?: boolean } = {},
+    ): Promise<ApiResponse> {
+        const requestData = createRequestConfig(path, method, body, options);
+
+        try {
+            const res = await axios(requestData);
+            return { status: 'ok', data: res.data };
+        } catch (err: any) {
+            if (err.response?.status === 401) {
                 const newToken = await refreshToken();
-    
+
                 if (!newToken) {
-                    const response: ApiResponse = {
-                        status: 'login',
-                        data: null,
-                    };
-            
-                    return resolve(response);
+                    checkAuthentication();
+                    return { status: 'login', data: null };
                 }
-    
+
                 saveToken(newToken);
-    
+                requestData.headers = requestData.headers || {};
                 requestData.headers['Authorization'] = getToken();
-    
-                return await repeatRequest(requestData, resolve);
+
+                return await api(path, method, body, role, options);
             }
 
-            if (err.response.status === 403) {
-                // Dodajte novi status "forbidden"
-                const response: ApiResponse = {
-                  status: 'forbidden',
-                  data: err.response.data,
-                };
-                return resolve(response);
-              }
+            return handleErrorResponse(err);
+        }
+    }
 
-            const response: ApiResponse = {
-                status: 'error',
-                data: err
-            };
-
-            resolve(response);
-        });
-    });
+    return { api };
 }
 
-    export interface ApiResponse {
-        status: 'ok' | 'error' | 'login' | 'forbidden';
-        data: any;
+export interface ApiResponse {
+    status: 'ok' | 'error' | 'login' | 'forbidden';
+    data: any;
+}
+
+function createRequestConfig(
+    path: string,
+    method: 'get' | 'post' | 'patch' | 'delete' | 'put',
+    body: any,
+    options: { useMultipartFormData?: boolean },
+): AxiosRequestConfig {
+    return {
+        method,
+        url: path,
+        baseURL: ApiConfig.API_URL,
+        data: options.useMultipartFormData ? body : JSON.stringify(body),
+        headers: {
+            'Content-Type': options.useMultipartFormData ? 'multipart/form-data' : 'application/json',
+            'Authorization': getToken(),
+        },
+    };
+}
+
+function handleErrorResponse(err: any): ApiResponse {
+    if (err.response?.status === 403) {
+        return { status: 'forbidden', data: err.response.data };
     }
 
-    async function responseHandler(
-        res: AxiosResponse<any>,
-        resolve: (value: ApiResponse) => void,
-    ) {
-        if (res.status < 200 || res.status >= 300) {
-            const response: ApiResponse = {
-                status: 'error',
-                data: res.data,
-            };
-    
-            return resolve(response);
-        }
-    
-        const response: ApiResponse = {
-            status: 'ok',
-            data: res.data,
-        };
-    
-        return resolve(response);
-    }
+    return { status: 'error', data: err };
+}
 
-    function getToken(): string {
-        const token = localStorage.getItem('api_token');
-        return 'Bearer ' + token;
-    }
-    
-    export function saveToken(token: string) {
-        localStorage.setItem('api_token', token);
-    }
-    
-    function getRefreshToken(): string {
-        const token = localStorage.getItem('api_refresh_token');
-        return token + '';
-    }
-    
-    export function saveRefreshToken(token: string) {
-        localStorage.setItem('api_refresh_token', token);
-    }
+function getToken(): string {
+    const token = localStorage.getItem('api_token');
+    return `Bearer ${token}`;
+}
 
-    export function removeIdentity(){
-        localStorage.removeItem('api_token' );
-        localStorage.removeItem('api_refresh_token');
-        localStorage.removeItem('api_identity_role')
-        localStorage.removeItem('api_identity_id');
-    }
+export function saveToken(token: string) {
+    localStorage.setItem('api_token', token);
+}
 
-    async function refreshToken(): Promise<string | null> {
-        const path = '/auth/refresh';
-        const data = {
-            token: getRefreshToken(),
-        };
-    
-        const refreshTokenRequestData: AxiosRequestConfig = {
-            method: 'post',
-            url: path,
-            baseURL: ApiConfig.API_URL,
-            data: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
-    
-        try {
-            const rtr: { data: { token: string | undefined } } = await axios(refreshTokenRequestData);
-    
-            if (!rtr.data.token) {
-                return null;
-            }
-    
-            return rtr.data.token;
-        } catch (error) {
-            console.error('Error refreshing token:', error);
-            return null;
-        }
-    }
-    
-    
-    async function repeatRequest(
-        requestData: AxiosRequestConfig,
-        resolve: (value: ApiResponse) => void
-    ) {
-        axios(requestData)
-        .then(res => {
-            let response: ApiResponse;
-    
-            if (res.status === 401) {
-                response = {
-                    status: 'login',
-                    data: null,
-                };
-            } else {
-                response = {
-                    status: 'ok',
-                    data: res.data,
-                };
-            }
-    
-            return resolve(response);
-        })
-        .catch(err => {
-            const response: ApiResponse = {
-                status: 'error',
-                data: err,
-            };
-    
-            return resolve(response);
+function getRefreshToken(): string {
+    return localStorage.getItem('api_refresh_token') || '';
+}
+
+export function saveRefreshToken(token: string) {
+    localStorage.setItem('api_refresh_token', token);
+}
+
+async function refreshToken(): Promise<string | null> {
+    const path = '/auth/refresh';
+    const data = { token: getRefreshToken() };
+
+    try {
+        const res = await axios.post(`${ApiConfig.API_URL}${path}`, data, {
+            headers: { 'Content-Type': 'application/json' },
         });
+
+        return res.data.token || null;
+    } catch (err) {
+        console.error('Error refreshing token:', err);
+        return null;
     }
-    
+}

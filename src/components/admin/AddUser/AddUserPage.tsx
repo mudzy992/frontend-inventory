@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import AdminMenu from "../AdminMenu/AdminMenu";
 import LocationType from "../../../types/LocationType";
@@ -74,6 +74,7 @@ interface AddUserPageState {
   errorMessage: string;
 }
 const AddUserPage: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<AddUserPageState>({
     isLoggedIn: true,
     message: { message: "", variant: "" },

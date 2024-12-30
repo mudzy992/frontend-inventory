@@ -1,7 +1,7 @@
-import {  Button, Input, message, Modal, Table, Tag } from "antd";
+import {  Button, Card, Input, message, Modal, Table, Tag } from "antd";
 import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import { UserRole } from "../../../types/UserRoleType";
 import { useUserContext } from "../../UserContext/UserContext";
 import {  SearchOutlined } from '@ant-design/icons';
@@ -20,6 +20,7 @@ interface StockType {
 }
 
 const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
+    const { api } = useApi();
     const { role } = useUserContext();
     const [articles, setArticles] = useState<StockType[]>([]);
     const [filteredData, setFilteredData] = useState<StockType[]>([]);
@@ -121,22 +122,21 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
 
     const tableHeader = () => {
         return (
-            <div className="flex flex-col gap-3">
+            <div >
                 <Input
                 onChange={(e) => setSearchText(e.target.value)}
                 prefix={<SearchOutlined />}
                 placeholder="Pretraga po nazivu"
-                className="h-11 rounded-xl bg-gray-100 hover:bg-gray-200 border-none lg:w-[50%]"
+                className="h-11 rounded-xl  lg:w-1/2"
                 />
             </div>
         )
     }
 
     return (
-        <div className="bg-white rounded-xl mb-3">
+        <Card className="mb-3">
             {contextHolder}
             <Table
-    
             loading={loading}
             pagination={{style:{marginRight:'12px'}}}
             dataSource={filteredData} 
@@ -155,7 +155,7 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
                 <ArticleListTable stockId={selectedStockId!} />
             </Modal>
         )}
-        </div>
+        </Card>
     );
 };
 

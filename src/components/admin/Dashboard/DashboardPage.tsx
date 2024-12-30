@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import api from "../../../API/api";
 import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
 import StockType from "../../../types/UserArticleType";
@@ -33,6 +32,7 @@ import {
 } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import Toast from "../../custom/Toast";
+import { useApi } from "../../../API/api";
 
 interface MessageType {
   message: {
@@ -43,7 +43,7 @@ interface MessageType {
 
 // Funkcionalna komponenta AdminDashboardPage
 const AdminDashboardPage: React.FC = () => {
-  // State hook za stanje komponente
+  const { api } = useApi();
   const [stockData, setStock] = useState<StockType>();
   const [articleData, setArticle] = useState<ArticleType>();
   const [paginedArticleData, setPaginedArticle] = useState<ArticleType[]>();

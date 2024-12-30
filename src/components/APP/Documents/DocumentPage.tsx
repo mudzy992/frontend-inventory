@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ApiConfig } from "../../../config/api.config";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import DocumentsType from "../../../types/DocumentsType";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import saveAs from "file-saver";
@@ -47,6 +47,7 @@ interface MessageType {
 }
 
 const DocumentsPage: React.FC = () => {
+  const { api } = useApi();
   const [itemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);

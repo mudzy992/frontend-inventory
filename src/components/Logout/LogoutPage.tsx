@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { useUserContext } from "../UserContext/UserContext";
-import { removeIdentity } from "../../API/api";
+import { removeIdentity, useUserContext } from "../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 
 const LogOutPage: React.FC = () => {
-  const [done, setDone] = useState<boolean>(false);
-  const { role, setRole, setUserId } = useUserContext();
+  const { role, setRole, setUserId, setIsAuthenticated } = useUserContext();
   const navigate = useNavigate();
 
   useEffect(() => {
     const logout = async () => {
       if (role) {
         await removeIdentity();
+        setIsAuthenticated(false)
         setRole(undefined);
         setUserId(undefined);
-        navigate('/')
+
+        navigate('/login')
       }
     };
 
     logout();
-  }, [role, setRole, setUserId]);
+  }, [role, setRole, setUserId, setIsAuthenticated]);
 
   return null;
 };

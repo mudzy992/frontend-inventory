@@ -1,13 +1,14 @@
-import { Avatar, Button, Input, message, Table, Tag } from "antd";
+import { Avatar, Button, Card, Input, message, Table, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserType from "../../../types/UserType";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import { UserRole } from "../../../types/UserRoleType";
 import { useUserContext } from "../../UserContext/UserContext";
 import { LinkOutlined, SearchOutlined } from '@ant-design/icons';
 
 const AllUsersTable = () => {
+    const { api } = useApi();
     const { role } = useUserContext();
     const [users, setUsers] = useState<UserType[]>([]);
     const [filteredData, setFilteredData] = useState<UserType[]>([]);
@@ -112,7 +113,7 @@ const AllUsersTable = () => {
                 onChange={(e) => setSearchText(e.target.value)}
                 prefix={<SearchOutlined />}
                 placeholder="Pretraga po imenu i prezimenu"
-                className="h-11 rounded-xl bg-gray-100 hover:bg-gray-200 border-none lg:w-[50%]"
+                className="h-11 rounded-xl lg:w-[50%]"
                 />
                 <span className="text-sm text-gray-400">Ukupno {users.length} korisnika.</span>
             </div>
@@ -120,7 +121,7 @@ const AllUsersTable = () => {
     }
 
     return (
-        <div className="bg-white rounded-xl">
+        <Card>
             {contextHolder}
             <Table
             loading={loading}
@@ -130,7 +131,7 @@ const AllUsersTable = () => {
             title={tableHeader}
             scroll={{ x: "max-content" }}
             />
-        </div>
+        </Card>
     );
 };
 

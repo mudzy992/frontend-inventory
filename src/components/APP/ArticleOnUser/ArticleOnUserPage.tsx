@@ -20,7 +20,7 @@ import {
   Chip,
   Alert,
 } from "@nextui-org/react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import Moment from "moment";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import { useParams, useNavigate } from "react-router-dom";
@@ -49,6 +49,7 @@ interface ArticleOnUserPageState {
 }
 
 export default function ArticleOnUserPage() {
+  const { api } = useApi();
   const { role } = useUserContext();
   const { serial } = useParams();
   const navigate = useNavigate();

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {  Input, Select, Modal, Form, Checkbox, message } from "antd";
-import api from "../../../../API/api";
 import DepartmentType from "../../../../types/DepartmentType";
 import JobType from "../../../../types/JobType";
 import LocationType from "../../../../types/LocationType";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../UserContext/UserContext";
+import { useApi } from "../../../../API/api";
 
 type EditUserFormProps = {
   userId: number;
@@ -14,6 +14,7 @@ type EditUserFormProps = {
 };
 
 const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess = () => {} }) => {
+  const { api } = useApi();
   const { role } = useUserContext();
   const [departments, setDepartments] = useState<DepartmentType[]>([]);
   const [jobs, setJobs] = useState<JobType[]>([]);
@@ -133,11 +134,11 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
         onFinish={handleSave}
       >
         <Form.Item label="Ime" name="forname" rules={[{ required: true, message: "Ime je obavezno" }]}>
-          <Input />
+          <Input className="h-11 rounded-xl" />
         </Form.Item>
 
         <Form.Item label="Prezime" name="surname" rules={[{ required: true, message: "Prezime je obavezno" }]}>
-          <Input />
+          <Input className="h-11 rounded-xl"/>
         </Form.Item>
 
         <Form.Item label="Email" name="email" rules={[{ type: "email", required: true, message: "Molimo unesite validnu email adresu" }]}>
@@ -145,19 +146,19 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
         </Form.Item>
 
         <Form.Item label="Telefon" name="telephone">
-          <Input />
+          <Input className="h-11 rounded-xl"/>
         </Form.Item>
 
         <Form.Item label="Telefon/lokal" name="localNumber">
-          <Input />
+          <Input className="h-11 rounded-xl"/>
         </Form.Item>
 
         <Form.Item label="Kadrovski broj" name="code" rules={[{ required: true, message: 'Kadrovski broj je obavezan' }]}>
-          <Input type="number" />
+          <Input type="number" className="h-11 rounded-xl"/>
         </Form.Item>
 
         <Form.Item label="Pol" name="gender" rules={[{ required: true, message: 'Molimo odaberite pol' }]}>
-          <Select>
+          <Select className="h-11">
             <Select.Option value="muško">Muško</Select.Option>
             <Select.Option value="žensko">Žensko</Select.Option>
           </Select>
@@ -201,7 +202,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
         </Form.Item>
 
         <Form.Item label="Organizacija" name="organizationId">
-          <Input type="number" />
+          <Input type="number" className="h-11 rounded-xl"/>
         </Form.Item>
 
         <Checkbox
@@ -218,7 +219,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
               name="password"
               rules={[{ required: true, message: "Molimo unesite novu lozinku" }]}
             >
-              <Input.Password />
+              <Input.Password className="h-11 rounded-xl"/>
             </Form.Item>
 
             <Form.Item
@@ -237,7 +238,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
                 }),
               ]}
             >
-              <Input.Password />
+              <Input.Password className="h-11 rounded-xl"/>
             </Form.Item>
           </>
         )}

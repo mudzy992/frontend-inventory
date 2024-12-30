@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import CategoryType from "../../../types/CategoryType";
 import AdminMenu from "../AdminMenu/AdminMenu";
@@ -54,6 +54,7 @@ interface CategoryDto {
 }
 
 const AddArticlePage: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<AddArticlePageState>({
     categories: [],
     message: { message: "", variant: "" },

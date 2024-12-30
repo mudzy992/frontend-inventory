@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import CategoryType from "../../../types/CategoryType";
 import AdminMenu from "../../admin/AdminMenu/AdminMenu";
 import { Card, Row, Col, Typography } from "antd";
@@ -21,6 +21,7 @@ interface CategoryDto {
 }
 
 const HomePage: React.FC<HomePageState> = () => {
+  const { api } = useApi();
   const [state, setState] = useState<HomePageState>({
     categories: [],
     isLoggedIn: true,

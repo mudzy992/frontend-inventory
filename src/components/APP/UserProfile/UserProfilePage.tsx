@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import { useNavigate, useParams } from "react-router-dom";
 import UserType from "../../../types/UserType";
 import { useUserContext } from "../../UserContext/UserContext";
@@ -12,6 +12,7 @@ import { Tabs, Spin, Card } from "antd";
 const { TabPane } = Tabs;
 
 const AdminUserProfilePage: React.FC = () => {
+  const { api } = useApi();
   const { userID } = useParams();
   const { role, userId } = useUserContext();
   const [user, setUser] = useState<UserType>({});
@@ -57,20 +58,22 @@ const AdminUserProfilePage: React.FC = () => {
           <Spin size="large" tip="Učitavanje..." />
         </div>
       ) : (
-        <div className="container mx-auto bg-white border-1 rounded-lg px-2">
-          <Tabs defaultActiveKey="profile">
-            <TabPane tab="Profil" key="profile">
-                <UserDetails data={user} />
-            </TabPane>
-            <TabPane tab="Zaduženi artikli" key="zaduzeni-artikli">
-              <ResponsibilityArticles userID={Number(userID)} />
-            </TabPane>
-            {user.userId === userId && (
-              <TabPane tab="Helpdesk" key="tiketi">
-                <UserTickets userID={Number(userID)} />
+        <div className="container mx-auto border-1 rounded-lg px-2">
+        
+            <Tabs defaultActiveKey="profile" >
+              <TabPane tab="Profil" key="profile">
+                  <UserDetails data={user} />
               </TabPane>
-            )}
-          </Tabs>
+              <TabPane tab="Zaduženi artikli" key="zaduzeni-artikli">
+                <ResponsibilityArticles userID={Number(userID)} />
+              </TabPane>
+              {user.userId === userId && (
+                <TabPane tab="Helpdesk" key="tiketi">
+                  <UserTickets userID={Number(userID)} />
+                </TabPane>
+              )}
+            </Tabs>
+        
         </div>
       )}
     </>

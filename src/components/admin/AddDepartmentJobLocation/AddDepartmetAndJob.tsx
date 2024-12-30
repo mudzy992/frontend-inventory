@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import AdminMenu from "../AdminMenu/AdminMenu";
 import {
@@ -69,6 +69,7 @@ interface AddDepartmentAndJobState {
 }
 
 const AddDepartmentAndJob: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<AddDepartmentAndJobState>({
     message: {message: "", variant: ""},
     departmentBase: [],

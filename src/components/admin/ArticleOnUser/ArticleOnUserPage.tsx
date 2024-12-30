@@ -1,5 +1,5 @@
 import React, { Key, useCallback, useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import { useNavigate, useParams } from "react-router-dom";
 import Moment from "moment";
 import UserArticleDto from "../../../dtos/UserArticleDto";
@@ -116,6 +116,7 @@ interface AdminArticleOnUserPageState {
 }
 
 const AdminArticleOnUserPage: React.FC = () => {
+  const { api } = useApi();
   const { serial } = useParams();
   const { role } = useUserContext();
   const [selectedUserIsDisabled, setSelectedUserIdDisabled] = useState<boolean>(true);
@@ -995,13 +996,13 @@ const AdminArticleOnUserPage: React.FC = () => {
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DEBT) {
       return (
         <div className="mb-3">
-        <Alert  color="warning" title={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}  /></div>
+        <Alert  color="warning" title={LangBa.ARTICLE_ON_USER.OBLIGATE_ALERT_INFO}  description/></div>
       );
     }
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_DESTROY) {
       return (
         <div className="mb-3">
-        <Alert  color="danger" title={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING}/></div>
+        <Alert  color="danger" title={LangBa.ARTICLE_ON_USER.DESTROY_ALERT_WARNING} description/></div>
       );
     }
     if (stat === LangBa.ARTICLE_ON_USER.STATUS_OBLIGATE) {

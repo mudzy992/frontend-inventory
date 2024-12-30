@@ -21,7 +21,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
-import api, { ApiResponse } from "../../../../API/api";
+import { ApiResponse, useApi } from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -85,6 +85,7 @@ const ModalDetails: React.FC<ModalDetailsProps> = ({
   onHide,
   ticketId,
 }) => {
+  const { api } = useApi();
   const { role, userId } = useUserContext();
   const [helpdeskState, setHelpdeskState] = useState<HelpdeskTicketsType>();
   const [editHelpdeskState, setEdithelpDeskState] =

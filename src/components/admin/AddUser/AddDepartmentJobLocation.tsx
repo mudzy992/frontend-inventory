@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import {
   Button,
   ModalBody,
@@ -52,6 +52,7 @@ interface AddDepartmentJobLocationState {
 }
 
 const AddDepartmentJobLocation: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<AddDepartmentJobLocationState>({
     message: {message: "", variant: ""},
     departmentBase: [],

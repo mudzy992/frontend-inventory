@@ -1,15 +1,16 @@
 import { useState, useEffect, FC } from 'react';
 import { Table, Input, Pagination, Tag } from 'antd';
-import api from '../../../API/api';
 import ArticleType from '../../../types/ArticleType';
 import dayjs from 'dayjs';
 import {  SearchOutlined } from '@ant-design/icons';
+import { useApi } from '../../../API/api';
 
 interface StockProps {
     stockId: number;
 }
 
 const ArticleListTable: FC<StockProps> = ({ stockId }) => {
+  const { api } = useApi();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -42,15 +43,15 @@ const ArticleListTable: FC<StockProps> = ({ stockId }) => {
   const responsibilityStatus = (status:string) => {
     if(status === 'zaduženo') {
         return(
-            <Tag className='rounded-xl' color='#87d068'>{status}</Tag>
+            <Tag className='rounded-xl' color='green'>{status}</Tag>
         )
     } else if(status === 'razduženo'){
         return(
-            <Tag className='rounded-xl' color='#2db7f5'>razduženo</Tag>
+            <Tag className='rounded-xl' color='cyan'>razduženo</Tag>
         )
     } else if(status === 'otpisano'){
         return(
-            <Tag className='rounded-xl' color='#f50'>otpisano</Tag>
+            <Tag className='rounded-xl' color='red'>otpisano</Tag>
         )
     }
   }
@@ -112,11 +113,11 @@ const ArticleListTable: FC<StockProps> = ({ stockId }) => {
           placeholder="Traži artikal..."
           value={searchQuery}
           onChange={handleSearch}
-          className="lg:w-1/3"
+          className="lg:w-1/3 h-11 rounded-xl"
         />
       </div>
         <Table
-        size='middle'
+            size='middle'
             loading={loading}
             columns={columns}
             dataSource={data}

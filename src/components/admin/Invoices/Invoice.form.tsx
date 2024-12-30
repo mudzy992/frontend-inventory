@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Input, Button, Select, Form, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../UserContext/UserContext";
-import api from "../../../API/api";
+import { useApi } from "../../../API/api";
 
 interface InvoiceFormProps {
   invoiceId: number;
@@ -17,6 +17,7 @@ interface FormData {
 }
 
 const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
+  const { api } = useApi();
   const { role } = useUserContext();
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();

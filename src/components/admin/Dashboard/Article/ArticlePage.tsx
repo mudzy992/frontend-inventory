@@ -3,11 +3,11 @@ import RoledMainMenu from "../../../RoledMainMenu/RoledMainMenu"
 import AdminMenu from "../../AdminMenu/AdminMenu"
 import ArticleType from "../../../../types/ArticleType"
 import { useNavigate } from "react-router-dom"
-import api from "../../../../API/api"
 import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
 import moment from "moment";
 import { Button, Card, CardBody, Chip, Input, Link, Listbox, ListboxItem, ListboxSection, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, button } from "@nextui-org/react"
+import { useApi } from "../../../../API/api"
 
 interface MessageType {
     message: {
@@ -25,6 +25,7 @@ interface MessageType {
   }
 
 const ArticlePage: React.FC = () => {
+    const { api } = useApi();
     const [articleDate, setArticleData] = useState<ArticleType>()
     const [totalArticles, setTotalArticles] = useState(0);
     const [categoryCount, setCategoryCount] = useState<{[key: string]: number}>({});

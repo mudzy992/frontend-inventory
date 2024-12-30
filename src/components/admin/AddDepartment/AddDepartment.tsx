@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import {
   Button,
   Input,
@@ -40,6 +40,7 @@ interface AddDepartmentState {
 }
 
 const AddDepartment: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<AddDepartmentState>({
     message: {
       message: "",

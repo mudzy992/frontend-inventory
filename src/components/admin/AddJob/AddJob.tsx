@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import {
   Button,
   Input,
@@ -34,6 +34,7 @@ interface AddJobState {
 }
 
 const AddJob: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<AddJobState>({
     message: {message: "", variant: ""},
     isLoggedIn: true,

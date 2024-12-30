@@ -1,5 +1,5 @@
 import React, { Key, useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../../API/api";
+import { ApiResponse, useApi } from "../../../../API/api";
 import { useUserContext } from "../../../UserContext/UserContext";
 import { UserRole } from "../../../../types/UserRoleType";
 import RoledMainMenu from "../../../RoledMainMenu/RoledMainMenu";
@@ -31,6 +31,7 @@ interface MessageType {
 }
 
 const HelpdeskTicketPage: React.FC = () => {
+  const { api } = useApi();
   const { role, userId } = useUserContext();
   const [helpdeskState, setHelpdeskState] = useState<HelpdeskTicketsType[]>([]);
   const [showModal, setShowModal] = useState(false);

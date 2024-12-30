@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Input, message, Table, Tag } from 'antd';
-import api from '../../../API/api';
 import { useParams } from 'react-router-dom';
 import { useUserContext } from '../../UserContext/UserContext';
 import Link from 'antd/es/typography/Link';
+import { useApi } from '../../../API/api';
 
 type PrinterDTO = {
     printerId: string;
@@ -22,6 +22,7 @@ type PrinterDTO = {
 }
 
 const Printers = () => {
+    const { api } = useApi();
     const { invoiceId } = useParams();
     const { role } = useUserContext();
     const [loading, setLoading] = useState(false);

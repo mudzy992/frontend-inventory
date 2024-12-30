@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from "react";
-import api from "../../../API/api";
 import Moment from "moment";
 import { ApiConfig } from "../../../config/api.config";
 import saveAs from "file-saver";
@@ -17,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { useApi } from "../../../API/api";
 
 interface StockTableProps {
   stockId: number;
@@ -53,6 +53,7 @@ const statusColorMap: Record<
 };
 
 const ArticleInStockTable: FC<StockTableProps> = ({ stockId }) => {
+  const { api } = useApi();
   const [userArticleData, setUserArticleData] = useState<
     ResponsibilityArticleBaseType[]
   >([]);

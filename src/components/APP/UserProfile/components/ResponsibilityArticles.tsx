@@ -4,7 +4,7 @@ import { SaveOutlined, FileTextOutlined } from "@ant-design/icons";
 import { ApiConfig } from "../../../../config/api.config";
 import saveAs from "file-saver";
 import { useUserContext } from "../../../UserContext/UserContext";
-import api, { ApiResponse } from "../../../../API/api";
+import { ApiResponse, useApi } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
 import ArticleType from "../../../../types/ArticleType";
 import DocumentsType from "../../../../types/DocumentsType";
@@ -16,6 +16,7 @@ interface UserProps {
 }
 
 const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
+  const { api } = useApi();
   const [data, setArticles] = useState<ArticleType[]>([]);
   const { role } = useUserContext();
   const [loading, setLoading] = useState<boolean>(false);

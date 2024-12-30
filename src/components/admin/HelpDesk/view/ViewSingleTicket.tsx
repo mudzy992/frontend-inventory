@@ -7,17 +7,14 @@ import {
   Avatar,
   Divider,
   Spin,
-  message,
-  Tooltip,
   Descriptions,
 } from "antd";
-import { UserOutlined, ClockCircleOutlined, CalendarOutlined } from "@ant-design/icons";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
 import Moment from "moment";
 import { useUserContext } from "../../../UserContext/UserContext";
 import { UserRole } from "../../../../types/UserRoleType";
-import api, { ApiResponse } from "../../../../API/api";
-import { Link, useNavigate } from "react-router-dom";
+import { ApiResponse, useApi } from "../../../../API/api";
+import { useNavigate } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
 
 type ModalProps = {
@@ -55,6 +52,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
   const [ticketState, setTicketState] = useState<HelpdeskTicketsType>();
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { api } = useApi();
   const [messageState, setMessageState] = useState<MessageType>({
     message: { message: "", variant: "" },
   });

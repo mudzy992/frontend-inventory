@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../../../API/api";
 import StockType from "../../../types/UserArticleType";
 import { Card, Col, Row, Spin, Alert, Typography } from "antd";
 import ArticlesListTable from "./ArticleStockListTable";
+import { useApi } from "../../../API/api";
 
 const { Title } = Typography;
 
@@ -51,6 +51,7 @@ interface CategoryType {
 }
 
 const CategoryPage: React.FC = () => {
+  const { api } = useApi();
   const { categoryID } = useParams<{ categoryID: string }>();
   const [loading, setLoading] = useState(false);
   const [state, setState] = useState<CategoryPageState>({

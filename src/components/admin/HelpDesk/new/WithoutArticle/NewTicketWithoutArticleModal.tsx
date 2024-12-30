@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Button, Input, Modal, Select, Form, Spin, DatePicker, message } from "antd";
 import { UserRole } from "../../../../../types/UserRoleType";
-import api from "../../../../../API/api";
 import { useUserContext } from "../../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import TicketGroupType from "../../../../../types/TicketGroupType";
 import ArticleType from "../../../../../types/ArticleType";
 import dayjs from "dayjs";
+import { useApi } from "../../../../../API/api";
 
 type ModalProps = {
   show: boolean;
@@ -24,6 +24,7 @@ interface AddNewTicketState {
 }
 
 const NewTicketWithoutArticle: React.FC<ModalProps> = ({ show, onHide, userID }) => {
+  const { api } = useApi();
   const [addNewTicketState, setAddNewTicketState] = useState<AddNewTicketState>();
   const [groupsState, setGroupsState] = useState<TicketGroupType[]>();
   const [userArticles, setUserArticles] = useState<ArticleType[]>([]);

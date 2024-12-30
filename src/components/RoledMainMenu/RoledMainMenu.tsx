@@ -1,12 +1,12 @@
 // RoledMainMenu.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MainMenu from "../MainMenu/MainMenu";
 import { useUserContext } from "../UserContext/UserContext";
 
 import type { MainMenuItem } from "../MainMenu/MainMenu";
 
 const RoledMainMenu: React.FC = () => {
-  const { userId, role } = useUserContext();
+  const { userId, role, isAuthenticated } = useUserContext();
 
   const getUserItems = (): MainMenuItem[] => [
     { text: "Naslovna", link: `#/user/profile/${userId}` },
@@ -22,7 +22,7 @@ const RoledMainMenu: React.FC = () => {
   const items =
     role !== "user" ? getAdministratorItems() : getUserItems();
   return (
-    <MainMenu items={items} userId={userId} role={role} />
+    <MainMenu items={items} userId={userId} role={role} isAuthenticated={isAuthenticated} />
 );
 };
 

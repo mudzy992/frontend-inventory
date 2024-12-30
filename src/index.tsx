@@ -2,8 +2,8 @@ import React, { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import reportWebVitals from "./reportWebVitals";
-import { HashRouter, Routes, Route } from "react-router-dom";
-import { Layout, ConfigProvider } from "antd";
+import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { Layout, ConfigProvider, theme } from "antd";
 import hrHR from "antd/lib/locale/hr_HR";
 import { NextUIProvider } from "@nextui-org/react";
 import { UserContextProvider, useUserContext } from "./components/UserContext/UserContext";
@@ -48,10 +48,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     </div>
     )}
     
-    <Content className="bg-gradient-to-r from-blue-50 to-white" style={{ padding: "16px",/*  background: "#f0f2f5" */ }}>
+    <Content style={{ padding: "16px" }}>
       {children}
     </Content>
-    <Footer className="text-center bg-gradient-to-r from-blue-50 to-white text-gray-400">Inventory Database v1.9.9 ©{curentYear} Created by Mudžahid Cerić</Footer>
+    <Footer className="text-center text-gray-400">Inventory Database v1.9.9 ©{curentYear} Created by Mudžahid Cerić</Footer>
   </Layout>
 )};
 
@@ -59,10 +59,23 @@ const App = () => {
   return (
     <React.StrictMode>
       <NextUIProvider>
-        <UserContextProvider>
-        <ConfigProvider locale={hrHR} /* theme={{ token: { ...themeToken } }} */>
+        
+      <ConfigProvider
+          locale={hrHR} // Dodaj lokalizaciju
+          theme={{
+            "token": {
+              "colorPrimary": "#13c2c2",
+              "colorInfo": "#13c2c2",
+              "colorSuccess": "#a0d911",
+              "colorLink": "#1677ff",
+              "wireframe": true
+            },
+            "algorithm": theme.darkAlgorithm
+          }}
+        >
 
             <HashRouter>
+            <UserContextProvider>
               <AppLayout>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
@@ -87,9 +100,10 @@ const App = () => {
                   <Route path="/admin/telecom" element={<TelecomInvoice />} />
                 </Routes>
               </AppLayout>
+              </UserContextProvider>
             </HashRouter>
           </ConfigProvider>
-        </UserContextProvider>
+       
       </NextUIProvider>
     </React.StrictMode>
   );

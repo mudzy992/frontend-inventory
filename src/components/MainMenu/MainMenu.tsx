@@ -7,7 +7,7 @@ import {
   ProfileOutlined,
 } from "@ant-design/icons";
 import UserType from "../../types/UserType";
-import api, { ApiResponse } from "../../API/api";
+import { ApiResponse, useApi } from "../../API/api";
 
 export interface MainMenuItem {
   text: string;
@@ -18,14 +18,16 @@ interface MainMenuProps {
   items: MainMenuItem[];
   userId?: number;
   role?: "administrator" | "moderator" | "user";
+  isAuthenticated?: boolean;
 }
 
-const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
+const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticated }) => {
   const [menuItems, setMenuItems] = useState<MainMenuItem[]>(items);
   const [menuUserId, setMenuUserId] = useState<number | undefined>(userId);
   const [collapsed, setCollapsed] = useState(false);
   const [user, setUser] = useState<UserType>({});
-  const [drawerVisible, setDrawerVisible] = useState(false); // State for Drawer visibility
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const { api } = useApi();
 
   useEffect(() => {
     if (items !== undefined) {
@@ -140,8 +142,8 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
 
   return (
     <div className="bg-transparent flex flex-row justify-between h-14 px-4">
-      {role ? (
-        <><div className="flex md:hidden text-black items-center" onClick={showDrawer}>
+      {isAuthenticated ? (
+        <><div className="flex md:hidden  items-center" onClick={showDrawer}>
           <MenuFoldOutlined className="p-2 hover:bg-gray-200 hover:text-black rounded-md" />
         </div><Drawer
           title="Meni"
@@ -158,7 +160,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role }) => {
               {getMenuForRole()}
             </Menu>
           </Drawer>
-          <div className="logo md:flex flex items-center text-black font-bold text-[18px]">
+          <div className="logo md:flex flex items-center text-white font-bold text-[18px]">
             <Link to={getNavbarBrandHref()}>
               Inventory Database
             </Link>

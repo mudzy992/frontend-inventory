@@ -2,11 +2,12 @@ import React from "react";
 import { Avatar, Button, Descriptions, message } from "antd";
 import EditUserForm from "./EditUserForm";
 import UserType from "../../../../types/UserType";
-import api from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../UserContext/UserContext";
+import { useApi } from "../../../../API/api";
 
 const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ data, onRefresh }) => {
+  const { api } = useApi();
   const { role } = useUserContext();
   const [userData, setUserData] = React.useState(data);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -62,7 +63,7 @@ const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ dat
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="">
       <div className="flex flex-col lg:flex-row gap-3 lg:p-2">
         <div className="lg:w-[35%] flex flex-col items-center justify-center col-span-2 rounded-lg border-0 bg-gradient-to-r from-cyan-500 to-blue-500">
           <div className="text-md flex flex-col items-center w-full p-4">

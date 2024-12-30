@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Table, Tag, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import Moment from "moment";
-import api, { ApiResponse } from "../../../../API/api";
+import { ApiResponse, useApi } from "../../../../API/api";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
 import { useUserContext } from "../../../UserContext/UserContext";
 import ViewSingleTicketModal from "../../../admin/HelpDesk/view/ViewSingleTicket";
@@ -13,6 +13,7 @@ type UserProps = {
 };
 
 const UserTickets: React.FC<UserProps> = ({ userID }) => {
+  const { api } = useApi();
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);

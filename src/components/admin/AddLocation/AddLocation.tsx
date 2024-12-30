@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api, { ApiResponse } from "../../../API/api";
+import { ApiResponse, useApi } from "../../../API/api";
 import {
   Button,
   Input,
@@ -36,6 +36,7 @@ interface AddLocationState {
 }
 
 const AddLocation: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<AddLocationState>({
     message: {message: "", variant: ""},
     isLoggedIn: true,

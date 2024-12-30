@@ -1,25 +1,25 @@
 import React, { useState } from "react";
-import api, { ApiResponse, saveRefreshToken, saveToken } from "../../API/api";
+import { ApiResponse, saveRefreshToken, saveToken, useApi } from "../../API/api";
 import { useNavigate } from "react-router-dom";
-import { Button, Divider, Input } from "@nextui-org/react";
+import { Button, Divider, Input, notification } from "antd";
 import { saveIdentity, useUserContext } from "../UserContext/UserContext";
-import Toast from "../custom/Toast";
 
 interface UserLoginPageState {
   email: string;
   password: string;
   userID: number;
-  errorMessage: {message: string, variant: string};
+  errorMessage: { message: string; variant: string };
   isLoggedIn: boolean;
   isAlertClosed: boolean;
 }
 
 const UserLoginPage: React.FC = () => {
+  const { api } = useApi();
   const [state, setState] = useState<UserLoginPageState>({
     email: "",
     password: "",
     userID: 0,
-    errorMessage: {message:"", variant: ""},
+    errorMessage: { message: "", variant: "" },
     isLoggedIn: false,
     isAlertClosed: false,
   });
@@ -27,7 +27,7 @@ const UserLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const { setUserId, setRole } = useUserContext();
+  const { setUserId, setRole, setIsAuthenticated } = useUserContext();
 
   const formInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, [event.target.id]: event.target.value });
@@ -67,7 +67,6 @@ const UserLoginPage: React.FC = () => {
     }));
   };
 
-
   const doLogin = async () => {
     api("auth/login", "post", {
       email: state.email,
@@ -94,83 +93,86 @@ const UserLoginPage: React.FC = () => {
         }
         if (res.status === "ok") {
           await setLogginState(true);
-          await saveIdentity(res.data.role, res.data.id, setRole, setUserId);
+          await saveIdentity(res.data.role, res.data.id, setRole, setUserId, setIsAuthenticated);
           await setUserID(res.data.id);
           await saveToken(res.data.token);
           await saveRefreshToken(res.data.refreshToken);
 
           if (res.data.role === "user") {
             navigate(`/user/profile/${res.data.id}`);
-            await setErrorMessage("Dobrodošli nazad", "success")
+            await setErrorMessage("Dobrodošli nazad", "success");
           } else if (res.data.role === "administrator" || "moderator") {
             navigate(`/`);
-            await setErrorMessage("Dobrodošli nazad", "success")
+            await setErrorMessage("Dobrodošli nazad", "success");
           }
         }
       }
     });
   };
 
+  // Display notification on error or success
+  const showNotification = (message: string, description: string, type: "success" | "error") => {
+    notification[type]({
+      message,
+      description,
+    });
+  };
+
+  if (state.errorMessage.message) {
+    showNotification(state.errorMessage.variant, state.errorMessage.message, state.errorMessage.variant === "success" ? "success" : "error");
+    resetMessage();
+  }
+
   return (
     <div className="grid gap-3">
-      <div className="mb-2 rounded-xl bg-default-100 p-2 text-left text-lg">
-        <p className="">
-          <i className="bi bi-person-fill text-xl text-default-500" />{" "}
-          Korisnička prijava
-        </p>
+      <div className="mb-2 rounded-xl bg-content1 p-2 text-left text-lg h-12 text-black">
+        <p>
+          <i className="bi bi-person-fill text-xl text-black" /> Korisnička prijava
+        </p> 
       </div>
       <Input
+        className="rounded-xl h-12"
         type="text"
         id="email"
-        label="Email"
         placeholder="Unesite email"
-        variant="flat"
-        labelPlacement="outside"
         value={state.email}
         onChange={(event) => formInputChanged(event as any)}
         onKeyDown={(event) => handleKeyPress(event as any)}
-        startContent={
-          <i className="bi bi-envelope-at-fill pointer-events-none text-2xl text-default-400"></i>
-        }
+        prefix={<i className="bi bi-envelope-at-fill text-2xl text-default-400" />}
       />
       <Input
+        className="rounded-xl h-12"
         id="password"
-        label="Lozinka"
-        variant="flat"
-        labelPlacement="outside"
         placeholder="Unesite lozinku"
-        endContent={
-          <button
-            className="focus:outline-none"
-            type="button"
-            onClick={toggleVisibility}
-          >
-            {isVisible ? (
-              <i className="bi bi-eye-fill pointer-events-none text-2xl text-default-400" />
-            ) : (
-              <i className="bi bi-eye-slash-fill pointer-events-none text-2xl text-default-400" />
-            )}
-          </button>
-        }
         type={isVisible ? "text" : "password"}
         value={state.password}
         onChange={(event) => formInputChanged(event as any)}
         onKeyDown={(event) => handleKeyPress(event as any)}
-        startContent={
-          <i className="bi bi-key-fill pointer-events-none text-2xl text-default-400"></i>
+        prefix={<i className="bi bi-key-fill text-2xl text-default-400" />}
+        suffix={
+          <button
+            type="button"
+            onClick={toggleVisibility}
+            style={{ background: "none", border: "none" }}
+          >
+            {isVisible ? (
+              <i className="bi bi-eye-fill text-2xl text-default-400" />
+            ) : (
+              <i className="bi bi-eye-slash-fill text-2xl text-default-400" />
+            )}
+          </button>
         }
       />
       <Divider className="my-2" />
       <Button
-        size="lg"
-        variant="solid"
-        color="default"
+        className="rounded-xl h-12"
+        size="large"
+        type="primary"
         onClick={() => doLogin()}
+        icon={<i className="bi bi-box-arrow-in-right text-xl " />}
       >
-        <i className="bi bi-box-arrow-in-right text-xl text-default-500" />{" "}
         Prijava
       </Button>
-      <Toast variant={state.errorMessage.variant} message={state.errorMessage.message} onClose={resetMessage} />
     </div>
   );
 };

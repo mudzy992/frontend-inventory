@@ -58,7 +58,7 @@ const AdminUserProfilePage: React.FC = () => {
           <Spin size="large" tip="Učitavanje..." />
         </div>
       ) : (
-        <div className="container mx-auto border-1 rounded-lg px-2">
+        <Card>
         
             <Tabs defaultActiveKey="profile" >
               <TabPane tab="Profil" key="profile">
@@ -74,7 +74,7 @@ const AdminUserProfilePage: React.FC = () => {
               )}
             </Tabs>
         
-        </div>
+        </Card>
       )}
     </>
   );

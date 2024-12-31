@@ -63,9 +63,9 @@ const UserTickets: React.FC<UserProps> = ({ userID }) => {
   const handleHideAddModal = () => setShowAddModal(false);
 
   const statusColor = (status: string) => {
-    if (status === "otvoren") return "#f50";
-    if (status === "zatvoren") return "#87d068";
-    if (status === "izvršenje") return "#108ee9";
+    if (status === "otvoren") return "volcano";
+    if (status === "zatvoren") return "green";
+    if (status === "izvršenje") return "cyan";
     return "default";
   };
 
@@ -127,7 +127,8 @@ const UserTickets: React.FC<UserProps> = ({ userID }) => {
         <span>Ukupno: {ukupno}</span>
         <Button
           onClick={handleShowAddModal}
-          type="primary"
+          color="primary"
+          variant="outlined"
           icon={<i className="bi bi-plus-circle" />}
         >
           Prijavi novi tiket

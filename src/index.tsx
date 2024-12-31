@@ -47,7 +47,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <RoledMainMenu />
     </div>
     )}
-    
     <Content style={{ padding: "16px" }}>
       {children}
     </Content>
@@ -64,11 +63,17 @@ const App = () => {
           locale={hrHR} // Dodaj lokalizaciju
           theme={{
             "token": {
-              "colorPrimary": "#13c2c2",
-              "colorInfo": "#13c2c2",
-              "colorSuccess": "#a0d911",
-              "colorLink": "#1677ff",
+              "colorPrimary": "#33bcb7",
+              "colorInfo": "#1668dc",
+              "colorSuccess": "#3c8618",
+              "colorLink": "#b2f1e8",
               "wireframe": true
+            },
+            "components": {
+              "Button": {
+                "borderRadius": 15,
+                "controlHeight": 40
+              }
             },
             "algorithm": theme.darkAlgorithm
           }}

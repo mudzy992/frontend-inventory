@@ -150,7 +150,7 @@ const Printers = () => {
                         onBlur={(e) => handleInputBlur(e, record.printerId, oidKey)}
                     />
                     {previous !== 0 && (
-                        <Tag color={difference !== null && difference >= 0 ? "green" : "red"}>
+                        <Tag className='p-1 rounded-lg' color={difference !== null && difference >= 0 ? "lime" : "red"}>
                             {difference !== null ? `${difference}` : "N/A"}
                         </Tag>
                     )}
@@ -266,9 +266,9 @@ const Printers = () => {
                 </span>
                 
             </div>
-            <div className="border-1 p-2 rounded-xl">
+            <div className="border-1 border-green-500 p-2 rounded-xl">
                     <Link
-                        className="text-sm text-green-400 flex flex-row min-w-20"
+                        className="text-sm text-green-500 flex flex-row min-w-20"
                         onClick={() => calculateInvoice()}
                     >
                         <i className="bi bi-calculator mr-1"></i>obračunaj 
@@ -290,14 +290,16 @@ const Printers = () => {
         <div>
             {contextHolder}
             <div>
-                <div className="overflow-auto scrollbar-hide bg-white rounded-md text-black">
+                <div className="overflow-auto bg-[#141414] scrollbar-hide rounded-md text-black">
                     <Table 
-                    title={tableHeader} 
-                    loading={loading} 
-                    size='small' 
-                    dataSource={filteredData} 
-                    columns={columns} 
-                    scroll={{ x: "max-content" }}/>
+                        title={tableHeader} 
+                        loading={loading} 
+                        size='small' 
+                        dataSource={filteredData} 
+                        columns={columns} 
+                        scroll={{ x: "max-content" }}
+                        pagination={{style:{paddingRight:"20px"}}}
+                        />
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, Button, Descriptions, message } from "antd";
 import EditUserForm from "./EditUserForm";
 import UserType from "../../../../types/UserType";
@@ -11,10 +11,22 @@ const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ dat
   const { role } = useUserContext();
   const [userData, setUserData] = React.useState(data);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [size, setSize] = useState<'default' | 'small'>('default')
 
-  React.useEffect(() => {
+  useEffect(() => {
     setUserData(data); 
   }, [data]);
+
+  useEffect(() => {
+    const updateSize = () => {
+      setSize(window.innerWidth <= 768 ? 'small' : 'default');
+    };
+
+    window.addEventListener('resize', updateSize);
+    updateSize();
+
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
 
   const refreshData = async () => {
     try {
@@ -88,6 +100,7 @@ const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ dat
         </div>
         <div className="w-full">
         <Descriptions
+            size={size}
             bordered
             column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
             className="gap-3 lg:text-medium text-small"
@@ -102,8 +115,8 @@ const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ dat
             <Descriptions.Item label="Lokacija">{userData.location?.name}</Descriptions.Item>
           </Descriptions>
 
-          <div className="py-3">
-            <Button type="primary" onClick={openModal}>
+          <div className="py-3 flex w-full justify-end">
+            <Button color="primary" variant="outlined" onClick={openModal}>
               Izmijeni podatke
             </Button>
           </div>

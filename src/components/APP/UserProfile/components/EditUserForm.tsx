@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {  Input, Select, Modal, Form, Checkbox, message } from "antd";
+import {  Input, Select, Modal, Form, Checkbox, message, Spin, Flex, notification } from "antd";
 import DepartmentType from "../../../../types/DepartmentType";
 import JobType from "../../../../types/JobType";
 import LocationType from "../../../../types/LocationType";
@@ -22,7 +22,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [showPasswordFields, setShowPasswordFields] = useState(false);
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi, contextHolder] = notification.useNotification();
 
   const [formData, setFormData] = useState({
     forname: "",
@@ -42,6 +42,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const [userRes, departmentsRes, locationsRes] = await Promise.all([
           api(`api/user/${userId}`, "get", {}, role as UserRole),
           api("api/department", "get", {}, role as UserRole),
@@ -59,7 +60,9 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
           setJobs(jobs);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        messageApi.error({message:"Greška", description:'Greška prilikom dohvaćanja podataka: ' + error})
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -91,7 +94,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
       const jobs = await getJobsByDepartmentId(selectedValue);
       setJobs(jobs);
     } catch (error) {
-      messageApi.error('Greška prilikom mapiranja radnih mjesta za sektor: ' + error)
+      messageApi.error({message:"Greška", description:'Greška prilikom mapiranja radnih mjesta za sektor: ' + error})
     }
   };
 
@@ -104,19 +107,29 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
 
     try {
       setLoading(true);
-      await api(`api/user/edit/${userId}`, "patch", payload, role as UserRole);
+      
+      const res = await api(`api/user/edit/${userId}`, "patch", payload, role as UserRole);
+      const status = res.status === 'ok' ? 'success' : 'error'
+      console.log(status)
       if (onSuccess) onSuccess();
-      messageApi.open({content:"Podaci uspješno izmjenjeni!", type:"success"})
-      onClose();
-    } catch (error) {
-      messageApi.error("Greška prilikom izmjene korisničkih podataka!")
+
+      if(status === 'success'){
+        messageApi.success({message:"Podaci uspješno izmjenjeni!"})
+      }
+
+      if(status === 'error'){
+        messageApi.error({message:"Greška", description:(res.data.response.data.message)})
+      }
+    } catch (error:any) {
+        messageApi.error({message:"Greška", description:(error.message)})
     } finally {
       setLoading(false);
     }
   };
 
   return (
-<div>{contextHolder}
+<div>
+{contextHolder}
     <Modal
       title="Izmijeni korisničke podatke"
       open={true}
@@ -126,7 +139,12 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
       width={600}
       style={{ top: 20 }}
     >
-      
+      {loading ? (
+        <div className="flex justify-center" >
+          <Spin />
+        </div>
+        
+      ) :(
       <Form
         form={form}
         layout="vertical"
@@ -243,6 +261,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
           </>
         )}
       </Form>
+    )}
     </Modal>
     </div>
   );

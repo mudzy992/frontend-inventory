@@ -49,7 +49,15 @@ const AllUsersTable = () => {
                 style={{borderRadius:"15px", fontSize:"12px", color:"black"}}
                 shape="square"
                 > {inicials} </Avatar>
-                <Button onClick={()=>handleOpenUserProfile(record.userId!)} icon={<LinkOutlined />} className="rounded-xl" color="primary" variant="text">{record.fullname}</Button>
+                <Button 
+                    onClick={()=>handleOpenUserProfile(record.userId!)} 
+                    icon={<LinkOutlined />} 
+                    className="rounded-xl" 
+                    color="primary" 
+                    variant="link"
+                >
+                    {record.fullname}
+                </Button>
                 </div>
             )
         }},

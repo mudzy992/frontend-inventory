@@ -141,11 +141,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
   };
 
   return (
-    <div className="bg-transparent flex flex-row justify-between h-14 px-4">
+    <div className="bg-transparent flex flex-row justify-between h-14 px-4 border-b-1 border-default-800 lg:border-b-0">
       {isAuthenticated ? (
         <><div className="flex md:hidden  items-center" onClick={showDrawer}>
-          <MenuFoldOutlined className="p-2 hover:bg-gray-200 hover:text-black rounded-md" />
-        </div><Drawer
+          <MenuFoldOutlined className="p-2 hover:bg-gray-200 hover:text-black text-white border-1 rounded-md" />
+        </div>
+        <Drawer
           title="Meni"
           placement="left"
           onClose={closeDrawer}
@@ -160,15 +161,13 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
               {getMenuForRole()}
             </Menu>
           </Drawer>
-          <div className="logo md:flex flex items-center text-white font-bold text-[18px]">
+          <div className="logo md:flex flex items-center text-white font-bold text-[18px] lg:border-b-1 lg:border-default-800">
             <Link to={getNavbarBrandHref()}>
               Inventory Database
             </Link>
           </div>
           </>) : (<div></div>)
       }
-
-      {/* User Avatar and Dropdown */}
       {role && (
         <><Menu
           className="bg-transparent hidden md:block h-14"
@@ -177,8 +176,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
           style={{ flex: 1 }}
         >
           {getMenuForRole()}
-        </Menu><div className="flex items-center">
-            <Typography.Text className="hidden md:block" style={{ color: "black" }}>
+        </Menu>
+        <div className="flex items-center lg:border-b-1 lg:border-default-800">
+            <Typography.Text className="hidden md:block">
               {genderGreeting(user.gender || "")} {user.surname}
             </Typography.Text>
             <Dropdown overlay={menu} placement="bottomRight">

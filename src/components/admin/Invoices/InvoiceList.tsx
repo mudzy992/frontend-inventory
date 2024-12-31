@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Dropdown, MenuProps, message, Modal, Table, Tag } from 'antd';
+import { Button, Card, Dropdown, MenuProps, message, Modal, Table, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import InvoiceForm from './Invoice.form';
 import { useApi } from '../../../API/api';
@@ -52,7 +52,7 @@ const InvoiceList = () => {
             dataIndex: 'status',
             title: "Status",
             render: (text: string) => (
-                <Tag color={text === 'plaćeno' ? 'success' : 'warning'}>{text}</Tag>
+                <Tag className='rounded-xl px-2 py-1' color={text === 'plaćeno' ? 'green' : 'warning'}>{text}</Tag>
             ),
         },
         { key: "issueDate", dataIndex: 'issueDate', title: "Datum plaćanja" },
@@ -95,9 +95,9 @@ const InvoiceList = () => {
         <div>
             {contextHolder}
         <div>
-            <div className="overflow-auto scrollbar-hide bg-white rounded-md">
+            <Card className="overflow-auto scrollbar-hide ">
                 <Table loading={loading} size='small' dataSource={invoices} columns={columns} scroll={{ x: "max-content" }} />
-            </div>
+            </Card>
             {isInvoiceEditModalVisible && (
                 <Modal
                     open={isInvoiceEditModalVisible}

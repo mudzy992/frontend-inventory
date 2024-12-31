@@ -83,10 +83,10 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
         )},
         {key:"sapNumber", dataIndex:"sapNumber", title:"SAP Broj"},
         {key:"responsibility", dataIndex:"", title:"Zaduženje", render: (record: StockType) => (
-            <Button variant="solid" color="primary" onClick={() => hanleOpenArticleTableModal(record.stockId)}> Zaduženja</Button>
+            <Button variant="outlined" color="primary" onClick={() => hanleOpenArticleTableModal(record.stockId)}> Zaduženja</Button>
         )},
         {key:"stock", dataIndex:"", title:"Skladište", render: (record: StockType) => (
-            <Button variant="solid" color="primary" onClick={() => handleOpenStockPage(record.stockId)}> Skladište</Button>
+            <Button variant="outlined" color="primary" onClick={() => handleOpenStockPage(record.stockId)}> Skladište</Button>
         )},
     ]
 
@@ -122,7 +122,7 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
 
     const tableHeader = () => {
         return (
-            <div >
+            <div className="py-4">
                 <Input
                 onChange={(e) => setSearchText(e.target.value)}
                 prefix={<SearchOutlined />}
@@ -134,21 +134,22 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
     }
 
     return (
-        <Card className="mb-3">
+        <Card className="mb-3" title={tableHeader()}>
             {contextHolder}
+            
             <Table
             loading={loading}
             pagination={{style:{marginRight:'12px'}}}
             dataSource={filteredData} 
             columns={columns}
-            title={tableHeader}
             scroll={{ x: "max-content" }}
+            size="small"
             />
         {articleTableModalVisible && (
             <Modal
-            closable={false}
+                closable={false}
                 style={{ top: 20 }}
-                width={'auto'}
+                width={900}
                 open={articleTableModalVisible} 
                 onCancel={() => setArticleTableModalVisible(false)}
             >

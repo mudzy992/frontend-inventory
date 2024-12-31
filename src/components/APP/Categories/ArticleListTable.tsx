@@ -131,7 +131,7 @@ const ArticleListTable: FC<StockProps> = ({ stockId }) => {
           pageSize={itemsPerPage}
           showSizeChanger
           onChange={handlePageChange}
-          pageSizeOptions={['10', '20', '50', '100']}
+          size='small'
         />
       </div>
     </div>

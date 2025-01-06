@@ -34,7 +34,7 @@ const AdminMenu = () => {
     {
       icon: <i className="bi bi-journal-text" style={{ fontSize: "21px" }} />,
       name: "Dokumenti",
-      link: "/admin/document/",
+      link: "/admin/documents/",
     },
     {
       icon: <i className="bi bi-building-add" style={{ fontSize: "21px" }} />,

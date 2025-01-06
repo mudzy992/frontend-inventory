@@ -39,7 +39,6 @@ const Printers = () => {
     }, [invoiceId]);
 
     useEffect(() => {
-        // Filter printers based on search text
         if (searchText === '') {
             setFilteredData(printers);
         } else {

@@ -18,7 +18,7 @@ import AddFeaturePage from "./components/admin/AddFeature/AddFeaturePage";
 import AddNewCategoryPage from "./components/admin/AddCategory/AddCategoryPage";
 import AddDepartmentAndJob from "./components/admin/AddDepartmentJobLocation/AddDepartmetAndJob";
 import StockPage from "./components/APP/Stock/StockPage";
-import DocumentsPage from "./components/APP/Documents/DocumentPage";
+import AdminDocumentsPage from "./components/admin/Documents/AdminDocumentsPage";
 import LoginPage from "./components/Login/LoginPage";
 import LogOutPage from "./components/Logout/LogoutPage";
 import AdminDashboardPage from "./components/admin/Dashboard/DashboardPage";
@@ -96,7 +96,7 @@ const App = () => {
                   <Route path="/admin/feature/" element={<AddFeaturePage />} />
                   <Route path="/admin/category/" element={<AddNewCategoryPage />} />
                   <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
-                  <Route path="/admin/document/" element={<DocumentsPage />} />
+                  <Route path="/admin/documents/" element={<AdminDocumentsPage />} />
                   <Route path="/admin/stock/:stockID" element={<StockPage />} />
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />

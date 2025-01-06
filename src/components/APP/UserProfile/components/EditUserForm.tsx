@@ -109,15 +109,12 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
       setLoading(true);
       
       const res = await api(`api/user/edit/${userId}`, "patch", payload, role as UserRole);
-      const status = res.status === 'ok' ? 'success' : 'error'
-      console.log(status)
       if (onSuccess) onSuccess();
-
-      if(status === 'success'){
+      if(res.status === 'ok'){
         messageApi.success({message:"Podaci uspješno izmjenjeni!"})
       }
 
-      if(status === 'error'){
+      if(res.status === 'error'){
         messageApi.error({message:"Greška", description:(res.data.response.data.message)})
       }
     } catch (error:any) {

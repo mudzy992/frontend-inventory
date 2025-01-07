@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, Input, message, Table, Tag } from "antd";
+import { Avatar, Button, Card, Input, Table, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserType from "../../../types/UserType";
@@ -6,14 +6,15 @@ import { ApiResponse, useApi } from "../../../API/api";
 import { UserRole } from "../../../types/UserRoleType";
 import { useUserContext } from "../../UserContext/UserContext";
 import { LinkOutlined, SearchOutlined } from '@ant-design/icons';
+import { useNotificationContext } from "../../../Notification/NotificationContext";
 
 const AllUsersTable = () => {
     const { api } = useApi();
     const { role } = useUserContext();
+    const {error, warning } = useNotificationContext();
     const [users, setUsers] = useState<UserType[]>([]);
     const [filteredData, setFilteredData] = useState<UserType[]>([]);
     const [loading, setLoading] = useState(false);
-    const [messageApi, contextHolder] = message.useMessage();
     const [searchText, setSearchText] = useState<string>('');
     const navigate = useNavigate()
 
@@ -90,24 +91,24 @@ const AllUsersTable = () => {
             api('/api/user', 'get', undefined, role as UserRole). then(
                 async(res: ApiResponse) => {
                     if(res.status === 'forbidden'){
-                        message.error('Korisnik nema dovoljno prava za učitavanje podataka')
+                        error.message('Korisnik nema dovoljno prava za učitavanje podataka')
                         return;
                     }
                     if (res.status === 'error'){
-                        message.error('Greška prilikom učitavanja podataka');
+                        error.message('Greška prilikom učitavanja podataka');
                         navigate('/login')
                         return;
                     }
                     if(res.status === 'login'){
-                        message.warning('Vaša prijava je istekla, molimo prijavite se ponovo!')
+                        error.message('Vaša prijava je istekla, molimo prijavite se ponovo!')
                         navigate('/login')
                         return;
                     }
                     setUsers(res.data)
                 },
             );
-        } catch (error){
-            message.error('Sistemska greška, molim kontaktirajte administratora:' + error)
+        } catch (err:any){
+            error.notification(err.data.message)
             navigate('/login')
         } finally {
             setLoading(false);
@@ -129,8 +130,7 @@ const AllUsersTable = () => {
     }
 
     return (
-        <Card>
-            {contextHolder}
+        <Card loading={loading} bodyStyle={{padding:0}}>
             <Table
             loading={loading}
             pagination={{style:{marginRight:'12px'}}}

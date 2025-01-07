@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { ApiResponse, saveRefreshToken, saveToken, useApi } from "../../API/api";
 import { useNavigate } from "react-router-dom";
-import { Button, Divider, Input, notification } from "antd";
+import { Button, Divider, Input } from "antd";
 import { saveIdentity, useUserContext } from "../UserContext/UserContext";
+import { useNotificationContext } from "../../Notification/NotificationContext";
 
 interface UserLoginPageState {
   email: string;
@@ -15,6 +16,7 @@ interface UserLoginPageState {
 
 const UserLoginPage: React.FC = () => {
   const { api } = useApi();
+  const { success, error, warning } = useNotificationContext();
   const [state, setState] = useState<UserLoginPageState>({
     email: "",
     password: "",
@@ -25,7 +27,7 @@ const UserLoginPage: React.FC = () => {
   });
 
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const { setUserId, setRole, setIsAuthenticated } = useUserContext();
 
@@ -53,27 +55,14 @@ const UserLoginPage: React.FC = () => {
     });
   };
 
-  const setErrorMessage = (message: string, variant: string) => {
-    setState((prev) => ({
-      ...prev,
-      errorMessage: { message, variant },
-    }));
-  };
-
-  const resetMessage = () => {
-    setState((prev) => ({
-      ...prev,
-      errorMessage: { message: "", variant: "" },
-    }));
-  };
-
   const doLogin = async () => {
     api("auth/login", "post", {
       email: state.email,
       password: state.password,
     }).then(async (res: ApiResponse) => {
+      console.log(res)
       if (res.status === "error") {
-        setErrorMessage("Sistemska greška.. Pokušajte ponovo!", "danger");
+        error.notification(res.data.message);
         return;
       }
 
@@ -88,7 +77,7 @@ const UserLoginPage: React.FC = () => {
               break;
           }
 
-          setErrorMessage(message, "danger");
+          warning.notification(message);
           return;
         }
         if (res.status === "ok") {
@@ -100,28 +89,15 @@ const UserLoginPage: React.FC = () => {
 
           if (res.data.role === "user") {
             navigate(`/user/profile/${res.data.id}`);
-            await setErrorMessage("Dobrodošli nazad", "success");
+            success.message('Dobrodošli nazad!')
           } else if (res.data.role === "administrator" || "moderator") {
             navigate(`/`);
-            await setErrorMessage("Dobrodošli nazad", "success");
+            success.message('Dobrodošli nazad!');
           }
         }
       }
     });
   };
-
-  // Display notification on error or success
-  const showNotification = (message: string, description: string, type: "success" | "error") => {
-    notification[type]({
-      message,
-      description,
-    });
-  };
-
-  if (state.errorMessage.message) {
-    showNotification(state.errorMessage.variant, state.errorMessage.message, state.errorMessage.variant === "success" ? "success" : "error");
-    resetMessage();
-  }
 
   return (
     <div className="grid gap-3">

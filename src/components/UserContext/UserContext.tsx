@@ -15,7 +15,6 @@ interface UserContextType {
   setUserId: (id: number | undefined) => void;
   setRole: (role: UserRole | undefined) => void;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
-/*   checkAuthentication: () => void; */
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -50,8 +49,6 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
 
       const storedUserRole = localStorage.getItem(`api_identity_role`);
       const storedUserID = localStorage.getItem(`api_identity_id`);
-      const storedToken = localStorage.getItem("api_token");
-      
 
       if (storedUserRole && storedUserID) {
         setRole(storedUserRole as UserRole);
@@ -82,18 +79,6 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
 
     fetchUserFromLocalStorage();
   }, [initialRole]);
-
-/*   const checkAuthentication = async () => {
-    const token = localStorage.getItem('api_token');
-    const refreshToken = localStorage.getItem('api_refresh_token');
-    if (!token || !refreshToken) {
-      console.log("nema tokena")
-      await removeIdentity();
-      setIsAuthenticated(false);
-    } else {
-      setIsAuthenticated(true);
-    }
-  }; */
 
   const setupContextOnRefresh = () => {
     // Implementirajte logiku kako želite postaviti kontekst prilikom osvježavanja
@@ -127,7 +112,6 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
     setUserId,
     setRole,
     setIsAuthenticated,
-    /* checkAuthentication, */
   };
 
   return (

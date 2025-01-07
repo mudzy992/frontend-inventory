@@ -1,10 +1,7 @@
-import { FC, useEffect, useState } from "react";
-import Moment from "moment";
-import { ApiConfig } from "../../../config/api.config";
-import saveAs from "file-saver";
+import { useEffect, useState } from "react";
 import { useApi } from "../../../API/api";
 import DocumentsType from "../../../types/DocumentsType";
-import { Button, Card, Dropdown, Input, MenuProps, Modal, Pagination, Table } from "antd";
+import { Button, Card, Input, MenuProps, Modal, Pagination, Table } from "antd";
 import DocumentsDetails from "./moduls/DocumentDetails";
 import UnsignedDocumnts from "./moduls/UnsignedDocuments";
 
@@ -19,6 +16,7 @@ const AdminDocumentsPage = () => {
   const [searchText, setSearchText] = useState<string>('');
   const [selectedDocument, setSelectedDocument ] = useState<number>()
   const [documentDetailsModalVisible, setDocumentDetailsModalVisible] = useState<boolean>(false)
+  const [size, setSize] = useState<{padding:number}>({"padding":24})
 
   useEffect(() => {
     fatchDocumentsData();
@@ -42,6 +40,16 @@ const AdminDocumentsPage = () => {
             })
         );
 }}, [searchText, documentsData]);
+useEffect(() => {
+    const updateSize = () => {
+      setSize(window.innerWidth <= 768 ? {"padding":0} : {"padding":24});
+    };
+
+    window.addEventListener('resize', updateSize);
+    updateSize();
+
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
 
   const fatchDocumentsData = async () => {
     setIsLoading(true);
@@ -144,6 +152,8 @@ const tableFooter = () => {
           total={total}
           pageSize={itemsPerPage}
           onChange={handlePageChange}
+          size="small"
+          hideOnSinglePage
         />
     )
 }
@@ -151,7 +161,7 @@ const tableFooter = () => {
   return (
     <div className="flex flex-col gap-3">
     <UnsignedDocumnts />
-    <Card className="rounded-xl">
+    <Card className="rounded-xl" bodyStyle={size}>
         <Table
             size="small"
             loading={isLoading}
@@ -169,6 +179,7 @@ const tableFooter = () => {
         title="Detalji dokumenta"
         open={documentDetailsModalVisible}
         onCancel={() => setDocumentDetailsModalVisible(false)}
+        bodyStyle={{padding:10}}
     >
         <DocumentsDetails documentId={selectedDocument!} documents={documentsData!} />
     </Modal>)

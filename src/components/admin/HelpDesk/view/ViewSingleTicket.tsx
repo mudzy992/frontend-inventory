@@ -16,6 +16,7 @@ import { UserRole } from "../../../../types/UserRoleType";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
+import { useNotificationContext } from "../../../../Notification/NotificationContext";
 
 type ModalProps = {
   show: boolean;
@@ -35,13 +36,6 @@ interface AddNewComment {
   };
 }
 
-interface MessageType {
-  message: {
-    message: string;
-    variant: string;
-  };
-}
-
 const ViewSingleTicketModal: React.FC<ModalProps> = ({
   show,
   onHide,
@@ -49,13 +43,11 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
   ticketId,
 }) => {
   const { role, userId } = useUserContext();
+  const {error, success, warning} = useNotificationContext();
   const [ticketState, setTicketState] = useState<HelpdeskTicketsType>();
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { api } = useApi();
-  const [messageState, setMessageState] = useState<MessageType>({
-    message: { message: "", variant: "" },
-  });
   const [addNewCommentReplyState, setAddNewCommentReplyState] =
     useState<AddNewComment>({
       text: "",
@@ -95,23 +87,18 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
           }
 
           if (res.status === "forbidden") {
-            setMessageState({
-              message: { message: "Korisnik nema pravo za izmene!", variant: "danger" },
-            });
+            warning.notification("Korisnik nema dovoljno prava")
+            return;
           }
         })
         .finally(() => {
           setSelectedCommentId(null);
-          setMessageState({
-            message: { message: "Uspješno ste postavili odgovor na informaciju", variant: "success" },
-          });
+          success.notification('Uspješno ste odgovorili na traženu informaciju')
           setAddNewCommentReplyState((prev) => ({ ...prev, reply: { text: "" } }));
           setIsLoading(false);
         });
-    } catch (error) {
-      setMessageState({
-        message: { message: "Došlo je do greške prilikom izmjene tiketa. Greška: " + error, variant: "danger" },
-      });
+    } catch (err:any) {
+      error.notification(err.data.message)
     }
   };
 

@@ -2,8 +2,9 @@ import React, { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import reportWebVitals from "./reportWebVitals";
-import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { Layout, ConfigProvider, theme } from "antd";
+import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
 import { NextUIProvider } from "@nextui-org/react";
 import { UserContextProvider, useUserContext } from "./components/UserContext/UserContext";
@@ -29,6 +30,7 @@ import InvoiceList from "./components/admin/Invoices/InvoiceList";
 import Printers from "./components/admin/Invoices/Printers";
 import RoledMainMenu from "./components/RoledMainMenu/RoledMainMenu";
 import { themeToken } from "./config/theme.token.config";
+import { NotificationProvider } from "./Notification/NotificationContext";
 
 const { Content, Footer } = Layout;
 
@@ -60,7 +62,7 @@ const App = () => {
       <NextUIProvider>
         
       <ConfigProvider
-          locale={hrHR} // Dodaj lokalizaciju
+          locale={hrHR}
           theme={{
             "token": {
               "colorPrimary": "#33bcb7",
@@ -81,6 +83,7 @@ const App = () => {
 
             <HashRouter>
             <UserContextProvider>
+              <NotificationProvider>
               <AppLayout>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
@@ -105,6 +108,7 @@ const App = () => {
                   <Route path="/admin/telecom" element={<TelecomInvoice />} />
                 </Routes>
               </AppLayout>
+              </NotificationProvider>
               </UserContextProvider>
             </HashRouter>
           </ConfigProvider>

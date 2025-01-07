@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ApiResponse, useApi } from "../../../API/api";
 import CategoryType from "../../../types/CategoryType";
 import AdminMenu from "../../admin/AdminMenu/AdminMenu";
 import { Card, Row, Col, Typography } from "antd";
 import AllUsersTable from "../Users/AllUsersTable";
+import { UserRole } from "../../../types/UserRoleType";
+import { useUserContext } from "../../UserContext/UserContext";
+import { useNotificationContext } from "../../../Notification/NotificationContext";
 
 const { Title } = Typography;
 
 interface HomePageState {
   categories?: CategoryType[];
-  isLoggedIn?: boolean;
-  message?: string;
 }
 
 interface CategoryDto {
@@ -22,20 +22,9 @@ interface CategoryDto {
 
 const HomePage: React.FC<HomePageState> = () => {
   const { api } = useApi();
-  const [state, setState] = useState<HomePageState>({
-    categories: [],
-    isLoggedIn: true,
-    message: "",
-  });
-
-  const navigate = useNavigate();
-
-  const setLogginState = (isLoggedIn: boolean) => {
-    setState({ ...state, isLoggedIn: isLoggedIn });
-    if (isLoggedIn === false) {
-      navigate("/login");
-    }
-  };
+  const {warning} = useNotificationContext();
+  const { role, isAuthenticated } = useUserContext();
+  const [categories, setCategories] = useState<CategoryType[]>([]);
 
   const putCategoriesInState = (data: CategoryDto[]) => {
     const categories: CategoryType[] = data.map((category) => {
@@ -45,7 +34,7 @@ const HomePage: React.FC<HomePageState> = () => {
         imagePath: category.imagePath,
       };
     });
-    setState({ ...state, categories: categories });
+    setCategories(categories)
   };
 
   useEffect(() => {
@@ -53,73 +42,70 @@ const HomePage: React.FC<HomePageState> = () => {
       "api/category/?filter=parentCategoryId||$eq||null",
       "get",
       {},
-      "administrator"
+      role as UserRole
     )
       .then((res: ApiResponse) => {
-        if (res.status === "login") {
-          setLogginState(false);
+        if(res.status === 'ok'){
+          const filteredCategories: CategoryDto[] = res.data.filter(
+            (category: any) => category.parentCategoryId === null
+          );
+          putCategoriesInState(filteredCategories);
           return;
         }
-
-        if (res.status === "error") {
-          setLogginState(false);
-          return;
-        }
-
-        const filteredCategories: CategoryDto[] = res.data.filter(
-          (category: any) => category.parentCategoryId === null
-        );
-
-        putCategoriesInState(filteredCategories);
+        warning.notification('Greška prilikom dohvaćanja podataka1');
       })
-      .catch((error) => {
-        setLogginState(false);
+      .catch((err) => {
+        warning.notification('Greška prilikom dohvaćanja podataka2');
       });
   }, []);
 
   return (
     <>
-      <div className="container mx-auto h-max lg:px-4">
-        <div className="">
-          <div className="ml-2 mr-2">{<AllUsersTable />}</div>
-
-          <Title level={5} className="ml-2 mt-3">
-            <i className="bi bi-card-list" /> Top level kategorije
-          </Title>
-
-          <Row gutter={[16, 16]} className="ml-2 mr-2">
-            {state.categories &&
-              state.categories.map((category) => (
-                <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
-                  <Card
-                    className="pt-7 ml-2"
-                    style={{borderRadius:"14px"}}
-                    hoverable
-                    cover={
-                      <i
-                        className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
-                        style={{
-                          fontSize: 60,
-                          display: "flex",
-                          justifyContent: "center",
-                        }}
-                      />
-                    }
-                    onClick={() =>
-                      (window.location.href = `#/category/${category.categoryId}`)
-                    }
-                  >
-                    <Card.Meta title={category.name} />
-                  </Card>
-                </Col>
-              ))}
-            <p>{state.message}</p>
-          </Row>
-        </div>
-      </div>
-      <AdminMenu />
+      {isAuthenticated && (
+        <>
+            <div className="">
+              <div>
+                {<AllUsersTable />}
+              </div>
+  
+              <Title level={5} className="ml-2 mt-3">
+                <i className="bi bi-card-list" /> Kategorije artikala
+              </Title>
+  
+              <Row gutter={[16, 16]} className="ml-2 mr-2">
+                {categories &&
+                  categories.map((category) => (
+                    <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
+                      <Card
+                        className="pt-7 ml-2"
+                        style={{ borderRadius: "14px" }}
+                        hoverable
+                        cover={
+                          <i
+                            className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}
+                            style={{
+                              fontSize: 60,
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
+                          />
+                        }
+                        onClick={() =>
+                          (window.location.href = `#/category/${category.categoryId}`)
+                        }
+                      >
+                        <Card.Meta title={category.name} />
+                      </Card>
+                    </Col>
+                  ))}
+              </Row>
+            </div>
+          <AdminMenu />
+        </>
+      )}
     </>
   );
+  
 };
 
 export default HomePage;

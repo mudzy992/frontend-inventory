@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Input, Modal, Select, Form, Spin, DatePicker, message } from "antd";
+import { Button, Input, Modal, Select, Form, Spin, DatePicker } from "antd";
 import { UserRole } from "../../../../../types/UserRoleType";
 import { useUserContext } from "../../../../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import TicketGroupType from "../../../../../types/TicketGroupType";
 import ArticleType from "../../../../../types/ArticleType";
 import dayjs from "dayjs";
 import { useApi } from "../../../../../API/api";
+import { useNotificationContext } from "../../../../../Notification/NotificationContext";
 
 type ModalProps = {
   show: boolean;
@@ -25,6 +26,7 @@ interface AddNewTicketState {
 
 const NewTicketWithoutArticle: React.FC<ModalProps> = ({ show, onHide, userID }) => {
   const { api } = useApi();
+  const { error, success, warning } = useNotificationContext();
   const [addNewTicketState, setAddNewTicketState] = useState<AddNewTicketState>();
   const [groupsState, setGroupsState] = useState<TicketGroupType[]>();
   const [userArticles, setUserArticles] = useState<ArticleType[]>([]);
@@ -45,17 +47,17 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({ show, onHide, userID })
       clientDuoDate: null,
       groupPartentId: null,
     });
-    setClientDuoDate(null); // Resetuj datum
+    setClientDuoDate(null);
   };
 
   const handleDatePickerChange = (date: dayjs.Dayjs | null) => {
     if (date && date.isValid()) {
       setAddNewTicketState((prev) => ({
         ...prev,
-        clientDuoDate: date, // Čuvaj kao dayjs
+        clientDuoDate: date,
       }));
     } else {
-      message.error("Neispravan datum");
+      error.message("Neispravan datum");
     }
   };
 
@@ -126,14 +128,14 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({ show, onHide, userID })
       }
 
       if (response.status === "forbidden") {
-        message.error("Korisnik nema pravo za izmene!");
+        warning.notification("Korisnik nema pravo za izmene!");
         return;
       }
 
-      message.success(`Uspješno ste prijavili tiket #${response.data.ticketId}`);
+      success.notification(`Uspješno ste prijavili tiket #${response.data.ticketId}`);
       putArticleDetailsInState();
-    } catch (error) {
-      message.error(`Došlo je do greške prilikom izmjene tiketa. Greška: ${error}`);
+    } catch (err:any) {
+      error.notification(err.data.message);
     } finally {
       setLoading(false);
     }
@@ -143,12 +145,12 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({ show, onHide, userID })
     setLoading(true);
     const response = await api(`api/ticket/group/`, "get", {}, role as UserRole);
     if (response.status === "login") {
-      message.error("Greška prilikom učitavanja podataka. Korisnik nije prijavljen!");
+      warning.notification("Greška prilikom učitavanja podataka. Korisnik nije prijavljen!");
       return;
     }
 
     if (response.status === "forbidden") {
-      message.error("Korisnik nema prava za učitavanje ove vrste podataka!");
+      warning.notification("Korisnik nema prava za učitavanje ove vrste podataka!");
       return;
     }
 
@@ -160,12 +162,12 @@ const NewTicketWithoutArticle: React.FC<ModalProps> = ({ show, onHide, userID })
     setLoading(true);
     const response = await api(`api/article/user/${userID}`, "get", undefined, role as UserRole);
     if (response.status === "login") {
-      message.error("Greška prilikom učitavanja podataka. Korisnik nije prijavljen!");
+      warning.notification("Greška prilikom učitavanja podataka. Korisnik nije prijavljen!");
       return;
     }
 
     if (response.status === "forbidden") {
-      message.error("Korisnik nema prava za učitavanje ove vrste podataka!");
+      warning.notification("Korisnik nema prava za učitavanje ove vrste podataka!");
       return;
     }
 

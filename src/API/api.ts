@@ -1,9 +1,11 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { ApiConfig } from "../config/api.config";
 import { removeIdentity, useUserContext } from "../components/UserContext/UserContext";
+import { useNavigate } from "react-router-dom";
 
 export function useApi() {
     const { setIsAuthenticated, setUserId, setRole } = useUserContext();
+    const navigate = useNavigate()
     async function api(
         path: string,
         method: 'get' | 'post' | 'patch' | 'delete' | 'put',
@@ -15,13 +17,19 @@ export function useApi() {
 
         try {
             const res = await axios(requestData);
+            if (res.status < 200 || res.status >= 300) {
+                return {
+                    status: 'error',
+                    data: { message: 'Sistemska greška.. Pokušajte ponovo!'},
+                };
+            }
             return { status: 'ok', data: res.data };
         } catch (err: any) {
             if (err.response?.status === 401) {
                 const newToken = await refreshToken();
-
                 if (!newToken) {
                     await removeIdentity(setIsAuthenticated, setUserId, setRole);
+                    navigate('/login')
                     return { status: 'login', data: null };
                 }
 
@@ -63,6 +71,14 @@ function createRequestConfig(
 }
 
 function handleErrorResponse(err: any): ApiResponse {
+    if (!err.response) {
+        // Mrežna greška (server nije odgovorio)
+        if (err.code === 'ERR_NETWORK') {
+            return { status: 'error', data: { message: 'Greška u mreži. Provjerite vašu internet konekciju.' } };
+        }
+        return { status: 'error', data: { message: 'Nepoznata mrežna greška.' } };
+    }
+    
     if (err.response?.status === 403) {
         return { status: 'forbidden', data: err.response.data };
     }

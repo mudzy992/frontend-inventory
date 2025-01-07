@@ -1,4 +1,4 @@
-import { Button, Card, Collapse, CollapseProps, message, Modal, Table, Tag, Upload } from "antd";
+import { Button, Card, Collapse,  Modal, Table, Tag, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,18 +6,21 @@ import DocumentsType from "../../../../types/DocumentsType";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../UserContext/UserContext";
+import { useNotificationContext } from "../../../../Notification/NotificationContext";
 
 const UnsignedDocuments = () => {
     const { api } = useApi();
     const { role } = useUserContext();
+    const {error, warning, success} = useNotificationContext();
     const [unsignedDocuments, setUnsignedDocuments] = useState<DocumentsType[]>([]);
     const [unsignedDocumentDataCount, setUnsignedDocumentCount] = useState<number>();
     const [loading, setLoading] = useState(false);
-    const [messageApi, contextHolder] = message.useMessage();
     const [selectedUnsignedDocumentId, setSelectedUnsignedDocumentId] = useState<number | null>(null);
     const [uploadModalVisible, setUploadModalVisible] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const navigate = useNavigate();
+    const [size, setSize] = useState<{padding:number}>({"padding":24})
+
 
     useEffect(() => {
         fetchUnsignedDocuments();
@@ -28,16 +31,16 @@ const UnsignedDocuments = () => {
         try {
             api(`api/document/unsigned`, "get", undefined, role as UserRole).then(async (res: ApiResponse) => {
                 if (res.status === "forbidden") {
-                    message.error("Korisnik nema dovoljno prava za učitavanje podataka");
+                    warning.notification("Korisnik nema dovoljno prava za učitavanje podataka");
                     return;
                 }
                 if (res.status === "error") {
-                    message.error("Greška prilikom učitavanja podataka");
+                    error.notification("Greška prilikom učitavanja podataka");
                     navigate("/login");
                     return;
                 }
                 if (res.status === "login") {
-                    message.warning("Vaša prijava je istekla, molimo prijavite se ponovo!");
+                    warning.notification("Vaša prijava je istekla, molimo prijavite se ponovo!");
                     navigate("/login");
                     return;
                 }
@@ -45,17 +48,28 @@ const UnsignedDocuments = () => {
                 setUnsignedDocuments(documents);
                 setUnsignedDocumentCount(count);
             });
-        } catch (error) {
-            message.error("Sistemska greška, molim kontaktirajte administratora: " + error);
+        } catch (err:any) {
+            error.notification(err.data.message);
             navigate("/login");
         } finally {
             setLoading(false);
         }
     };
 
+    useEffect(() => {
+        const updateSize = () => {
+            setSize(window.innerWidth <= 768 ? {"padding":0} : {"padding":24});
+        };
+
+        window.addEventListener('resize', updateSize);
+        updateSize();
+
+        return () => window.removeEventListener('resize', updateSize);
+    }, []);
+
     const handleUpload = async () => {
         if (!file || !selectedUnsignedDocumentId) {
-            message.error("Molimo odaberite fajl za upload.");
+            warning.notification("Molimo odaberite fajl za upload.");
             return;
         }
 
@@ -73,14 +87,14 @@ const UnsignedDocuments = () => {
             );
 
             if (response.status === "ok") {
-                message.success("Fajl uspješno učitan!");
+                success.notification("Fajl uspješno učitan!");
                 setUploadModalVisible(false);
                 fetchUnsignedDocuments();
             } else {
-                message.error("Greška prilikom učitavanja fajla.");
+                error.notification("Greška prilikom učitavanja fajla.");
             }
-        } catch (error) {
-            message.error("Sistemska greška: " + error);
+        } catch (err:any) {
+            error.notification(err.data.message);
         } finally {
             setLoading(false);
         }
@@ -134,7 +148,6 @@ const UnsignedDocuments = () => {
         return (
             <Table
                 loading={loading}
-                pagination={{ style: { marginRight: "12px" } }}
                 dataSource={unsignedDocuments}
                 columns={columns}
                 scroll={{ x: "max-content" }}
@@ -144,12 +157,9 @@ const UnsignedDocuments = () => {
     };
 
     return (
-        <Card 
-        className="rounded-xl">
-            {contextHolder}
-            <Collapse 
-                    className="rounded-xl">
-                <Collapse.Panel
+        <Card className="rounded-xl" bodyStyle={size}>
+            <Collapse className="rounded-xl"  >
+                <Collapse.Panel 
                     key="1" 
                     header={
                         <>

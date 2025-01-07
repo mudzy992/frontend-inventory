@@ -56,28 +56,25 @@ const DocumentsDetails: FC<TabelaProps> = ({documentId, documents}) => {
                 </Descriptions>
             </div>
             <div>
-            <Descriptions column={1} size="middle" bordered title="Linkovi">
-                <Descriptions.Item label="RAW lokacija">
+            <Descriptions column={1} size="middle" bordered title="Linkovi" >
+                <Descriptions.Item label={<FileWordOutlined  className="text-primary text-2xl flex justify-center"/>}>
                     {documentData?.path ? (
                     <Button
                         variant="link"
                         color="default"
                         onClick={() => saveFile(documentData?.path!)}
-                        icon={ <FileWordOutlined  className="text-primary"/>}
                     >
-                       
                         {documentData?.path}
                     </Button>
                     ) : (
                     <span className="text-red-500">RAW dokument nije dostupan</span>
                     )}
                 </Descriptions.Item>
-                <Descriptions.Item label="PDF lokacija">
+                <Descriptions.Item label={<FilePdfOutlined  className="text-danger text-2xl flex justify-center"/>}>
                     {documentData?.signed_path ? (
                     <Button
                         variant="link"
                         color="default"
-                        icon={ <FilePdfOutlined  className="text-danger"/>}
                         onClick={() => saveFile(documentData?.signed_path!)}
                     >
                         {documentData?.signed_path}

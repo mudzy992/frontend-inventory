@@ -15,7 +15,7 @@ interface UserContextType {
   setUserId: (id: number | undefined) => void;
   setRole: (role: UserRole | undefined) => void;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
-  checkAuthentication: () => void;
+/*   checkAuthentication: () => void; */
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -83,17 +83,17 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
     fetchUserFromLocalStorage();
   }, [initialRole]);
 
-  const checkAuthentication = () => {
+/*   const checkAuthentication = async () => {
     const token = localStorage.getItem('api_token');
     const refreshToken = localStorage.getItem('api_refresh_token');
-
     if (!token || !refreshToken) {
+      console.log("nema tokena")
+      await removeIdentity();
       setIsAuthenticated(false);
-      removeIdentity();
     } else {
       setIsAuthenticated(true);
     }
-  };
+  }; */
 
   const setupContextOnRefresh = () => {
     // Implementirajte logiku kako želite postaviti kontekst prilikom osvježavanja
@@ -127,7 +127,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
     setUserId,
     setRole,
     setIsAuthenticated,
-    checkAuthentication,
+    /* checkAuthentication, */
   };
 
   return (
@@ -146,7 +146,6 @@ export function saveIdentity(
     localStorage.setItem(`api_identity_role`, role);
     localStorage.setItem(`api_identity_id`, userId);
 
-    // Odmah nakon postavljanja u localStorage, ažuriraj kontekst
     setRole(role);
     setUserId(parseInt(userId, 10));
     setIsAuthenticated(true);
@@ -155,12 +154,23 @@ export function saveIdentity(
   }
 }
 
-export function removeIdentity() {
-  ['api_token', 'api_refresh_token', 'api_identity_role', 'api_identity_id'].forEach((key) => {
-      if (localStorage.getItem(key)) {
-          localStorage.removeItem(key);
-      }
-  });
+export async function removeIdentity(
+  setIsAuthenticated: (isAuthenticated: boolean) => void,
+  setUserId: (id: number | undefined) => void,
+  setRole: (role: UserRole | undefined) => void
+) {
+  await Promise.all(
+      ['api_token', 'api_refresh_token', 'api_identity_role', 'api_identity_id'].map((key) => {
+          if (localStorage.getItem(key)) {
+              localStorage.removeItem(key);
+          }
+      })
+  );
+
+  // Postavi vrednosti u kontekstu
+  setIsAuthenticated(false);
+  setUserId(undefined);
+  setRole(undefined);
 }
 
 

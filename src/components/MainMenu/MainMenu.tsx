@@ -24,7 +24,6 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticated }) => {
   const [menuItems, setMenuItems] = useState<MainMenuItem[]>(items);
   const [menuUserId, setMenuUserId] = useState<number | undefined>(userId);
-  const [collapsed, setCollapsed] = useState(false);
   const [user, setUser] = useState<UserType>({});
   const [drawerVisible, setDrawerVisible] = useState(false);
   const { api } = useApi();
@@ -39,7 +38,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
     if (userId !== undefined) {
       setMenuUserId(userId);
     }
-  }, [userId]);
+  }, [userId, isAuthenticated]);
 
   const getUserData = async () => {
     try {
@@ -72,10 +71,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
       </Menu.Item>
     </Menu>
   );
-
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-  };
 
   const getNavbarBrandHref = () => {
     if (menuUserId === undefined || role === undefined) {

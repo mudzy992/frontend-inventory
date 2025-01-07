@@ -21,6 +21,9 @@ const InvoiceList = () => {
         setLoading(true);
         try {
             const response = await api('/api/invoice', 'get', undefined);
+            if(response.status === 'login'){
+                navigate('/login')
+            }
             setInvoices(response.data);
         } catch (error) {
             messageApi.open({content:'Greška prilikom dohvaćanja podatak', type:'error'});

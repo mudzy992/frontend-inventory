@@ -62,7 +62,6 @@ const HomePage: React.FC<HomePageState> = () => {
         }
 
         if (res.status === "error") {
-          console.error("API error:", res.data);
           setLogginState(false);
           return;
         }
@@ -74,7 +73,6 @@ const HomePage: React.FC<HomePageState> = () => {
         putCategoriesInState(filteredCategories);
       })
       .catch((error) => {
-        console.error("Error during API call:", error);
         setLogginState(false);
       });
   }, []);

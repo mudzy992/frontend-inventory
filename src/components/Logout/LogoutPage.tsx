@@ -9,17 +9,13 @@ const LogOutPage: React.FC = () => {
   useEffect(() => {
     const logout = async () => {
       if (role) {
-        await removeIdentity();
-        setIsAuthenticated(false)
-        setRole(undefined);
-        setUserId(undefined);
-
+        await removeIdentity(setIsAuthenticated, setUserId, setRole);
         navigate('/login')
       }
     };
 
     logout();
-  }, [role, setRole, setUserId, setIsAuthenticated]);
+  }, [role, setRole, setUserId]);
 
   return null;
 };

@@ -1,10 +1,9 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { ApiConfig } from "../config/api.config";
-import { useUserContext } from "../components/UserContext/UserContext";
+import { removeIdentity, useUserContext } from "../components/UserContext/UserContext";
 
 export function useApi() {
-    const { checkAuthentication } = useUserContext();
-
+    const { setIsAuthenticated, setUserId, setRole } = useUserContext();
     async function api(
         path: string,
         method: 'get' | 'post' | 'patch' | 'delete' | 'put',
@@ -22,7 +21,7 @@ export function useApi() {
                 const newToken = await refreshToken();
 
                 if (!newToken) {
-                    checkAuthentication();
+                    await removeIdentity(setIsAuthenticated, setUserId, setRole);
                     return { status: 'login', data: null };
                 }
 
@@ -99,7 +98,6 @@ async function refreshToken(): Promise<string | null> {
 
         return res.data.token || null;
     } catch (err) {
-        console.error('Error refreshing token:', err);
         return null;
     }
 }

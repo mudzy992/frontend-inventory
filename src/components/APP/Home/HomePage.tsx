@@ -52,10 +52,9 @@ const HomePage: React.FC<HomePageState> = () => {
           putCategoriesInState(filteredCategories);
           return;
         }
-        warning.notification('Greška prilikom dohvaćanja podataka1');
       })
       .catch((err) => {
-        warning.notification('Greška prilikom dohvaćanja podataka2');
+        warning.notification('Greška prilikom dohvaćanja podataka');
       });
   }, []);
 

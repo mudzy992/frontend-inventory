@@ -127,7 +127,7 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
                 onChange={(e) => setSearchText(e.target.value)}
                 prefix={<SearchOutlined />}
                 placeholder="Pretraga po nazivu"
-                className="h-11 rounded-xl  lg:w-1/2"
+                className="lg:w-1/2"
                 />
             </div>
         )

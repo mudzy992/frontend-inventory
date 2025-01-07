@@ -122,7 +122,7 @@ const AllUsersTable = () => {
                 onChange={(e) => setSearchText(e.target.value)}
                 prefix={<SearchOutlined />}
                 placeholder="Pretraga po imenu i prezimenu"
-                className="h-11 rounded-xl lg:w-[50%]"
+                className="lg:w-[50%]"
                 />
                 <span className="text-sm text-gray-400">Ukupno {users.length} korisnika.</span>
             </div>

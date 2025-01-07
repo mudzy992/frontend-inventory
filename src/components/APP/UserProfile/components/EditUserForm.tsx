@@ -134,6 +134,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
       onOk={() => form.submit()}
       confirmLoading={loading}
       width={600}
+      okText={"Snimi"}
       style={{ top: 20 }}
     >
       {loading ? (
@@ -149,11 +150,11 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
         onFinish={handleSave}
       >
         <Form.Item label="Ime" name="forname" rules={[{ required: true, message: "Ime je obavezno" }]}>
-          <Input className="h-11 rounded-xl" />
+          <Input />
         </Form.Item>
 
         <Form.Item label="Prezime" name="surname" rules={[{ required: true, message: "Prezime je obavezno" }]}>
-          <Input className="h-11 rounded-xl"/>
+          <Input />
         </Form.Item>
 
         <Form.Item label="Email" name="email" rules={[{ type: "email", required: true, message: "Molimo unesite validnu email adresu" }]}>
@@ -161,19 +162,19 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
         </Form.Item>
 
         <Form.Item label="Telefon" name="telephone">
-          <Input className="h-11 rounded-xl"/>
+          <Input />
         </Form.Item>
 
         <Form.Item label="Telefon/lokal" name="localNumber">
-          <Input className="h-11 rounded-xl"/>
+          <Input />
         </Form.Item>
 
         <Form.Item label="Kadrovski broj" name="code" rules={[{ required: true, message: 'Kadrovski broj je obavezan' }]}>
-          <Input type="number" className="h-11 rounded-xl"/>
+          <Input type="number"/>
         </Form.Item>
 
         <Form.Item label="Pol" name="gender" rules={[{ required: true, message: 'Molimo odaberite pol' }]}>
-          <Select className="h-11">
+          <Select>
             <Select.Option value="muško">Muško</Select.Option>
             <Select.Option value="žensko">Žensko</Select.Option>
           </Select>
@@ -216,8 +217,11 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
           </Select>
         </Form.Item>
 
-        <Form.Item label="Organizacija" name="organizationId">
-          <Input type="number" className="h-11 rounded-xl"/>
+        <Form.Item label="Organizacija" name="organizationId" rules={[{ required: true, message: 'Status je obavezan' }]}>
+          <Select>
+            <Select.Option value={1}>Distribucija</Select.Option>
+            <Select.Option value={2}>Snabdjevanje</Select.Option>
+          </Select>
         </Form.Item>
 
         <Checkbox
@@ -234,7 +238,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
               name="password"
               rules={[{ required: true, message: "Molimo unesite novu lozinku" }]}
             >
-              <Input.Password className="h-11 rounded-xl"/>
+              <Input.Password/>
             </Form.Item>
 
             <Form.Item
@@ -253,7 +257,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userId, onClose, onSuccess 
                 }),
               ]}
             >
-              <Input.Password className="h-11 rounded-xl"/>
+              <Input.Password/>
             </Form.Item>
           </>
         )}

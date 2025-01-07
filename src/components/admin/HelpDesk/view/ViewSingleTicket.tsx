@@ -131,10 +131,15 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
   return (
     <Modal
       open={show}
-      onCancel={onHide}
       width={800}
       style={{top:20}}
       title={`Tiket #${ticketState?.ticketId}`}
+      loading={isLoading}
+      footer={[
+        <Button key="cancel" onClick={onHide}>
+          Cancel
+        </Button>,
+      ]}
     >
       <Tabs defaultActiveKey="1">
       <TabPane tab="Detalji tiketa" key="1">
@@ -175,9 +180,6 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
           )}
         </TabPane>
       </Tabs>
-      <Button type="default" onClick={onHide} style={{ marginTop: 16 }}>
-        Zatvori
-      </Button>
     </Modal>
   );
   function conversation() {
@@ -209,9 +211,9 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                               comment.user?.forname || "",
                             )}</Avatar>
                           </div>
-                          <div className="grid w-full grid-flow-row rounded-xl bg-default-100 p-3 text-sm shadow">
+                          <div className="grid w-full grid-flow-row rounded-xl bg-default-900 p-3 text-sm shadow">
                             <div className="flex h-full justify-between">
-                              <span className="text-sm font-bold text-default-700">
+                              <span className="text-sm font-bold">
                                 {comment?.user?.fullname}
                               </span>
                               <a
@@ -229,7 +231,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                           </div>
                         </div>
                         <div className="flex justify-end">
-                          <span className="mr-2 text-tiny text-default-400">
+                          <span className="mr-2 text-tiny">
                             {formatDateTime(comment.createdAt!)}
                           </span>
                         </div>
@@ -271,11 +273,11 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                         >
                           <div className="lg:w-full">
                             <div className="flex flex-row">
-                              <div className="grid w-full grid-flow-row rounded-xl bg-default-100 p-3 text-sm shadow">
+                              <div className="grid w-full grid-flow-row rounded-xl bg-default text-black p-3 text-sm shadow">
                                 <span className="text-sm font-bold text-default-700">
                                   {replies.user?.fullname}
                                 </span>
-                                <Divider className="my-1" />
+                                <Divider className="my-1 border-black" />
                                 <div className="w-full">{replies.text}</div>
                               </div>
                               <div
@@ -289,7 +291,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                                 )}</Avatar>
                               </div>
                             </div>
-                            <div>{formatDateTime(replies.createdAt!)}</div>
+                            <div className="text-tiny">{formatDateTime(replies.createdAt!)}</div>
                           </div>
                         </div>
                       </div>

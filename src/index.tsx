@@ -21,7 +21,6 @@ import AddDepartmentAndJob from "./components/admin/AddDepartmentJobLocation/Add
 import StockPage from "./components/APP/Stock/StockPage";
 import AdminDocumentsPage from "./components/admin/Documents/AdminDocumentsPage";
 import LoginPage from "./components/Login/LoginPage";
-import LogOutPage from "./components/Logout/LogoutPage";
 import AdminDashboardPage from "./components/admin/Dashboard/DashboardPage";
 import HelpdeskTicketPage from "./components/admin/HelpDesk/main/HelpdeskTicketPage";
 import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
@@ -52,7 +51,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     <Content style={{ padding: "16px" }}>
       {children}
     </Content>
-    <Footer className="text-center text-gray-400">Inventory Database v1.9.9 ©{curentYear} Created by Mudžahid Cerić</Footer>
+    <Footer className="text-center text-gray-400">Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić</Footer>
   </Layout>
 )};
 
@@ -75,7 +74,15 @@ const App = () => {
               "Button": {
                 "borderRadius": 15,
                 "controlHeight": 40
-              }
+              },
+              "Input": {
+                "borderRadius": 12,
+                "controlHeight": 44,
+              },
+              "Select": {
+                "borderRadius": 12,
+                "controlHeight": 44,
+              },
             },
             "algorithm": theme.darkAlgorithm
           }}
@@ -87,7 +94,6 @@ const App = () => {
               <AppLayout>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/logout" element={<LogOutPage />} />
                   <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
                   <Route path="/admin/article/:serial" element={<AdminArticleOnUserPage />} />
                   <Route path="/user/profile/:userID" element={<AdminUserProfilePage />} />

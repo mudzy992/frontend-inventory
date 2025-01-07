@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Input, message, Table, Tag } from 'antd';
+import { Input, Table, Tag } from 'antd';
 import { useParams } from 'react-router-dom';
 import { useUserContext } from '../../UserContext/UserContext';
 import Link from 'antd/es/typography/Link';
 import { useApi } from '../../../API/api';
+import { useNotificationContext } from '../../../Notification/NotificationContext';
 
 type PrinterDTO = {
     printerId: string;
@@ -26,12 +27,12 @@ const Printers = () => {
     const { invoiceId } = useParams();
     const { role } = useUserContext();
     const [loading, setLoading] = useState(false);
-    const [messageApi, contextHolder] = message.useMessage();
     const [printers, setPrinters] = useState<PrinterDTO[]>([]);
     const [ invoice, setInvoice ] = useState<InvoiceType>()
     const [isPaid, setIsPaid] = useState<boolean>(true)
     const [searchText, setSearchText] = useState<string>('');
     const [filteredData, setFilteredData] = useState<PrinterDTO[]>([]);
+    const {error, success, warning} = useNotificationContext();
 
     useEffect(() => {
         fetchPrinterDataByInvoiceId();
@@ -59,8 +60,8 @@ const Printers = () => {
             const status = response.data.status === 'plaćeno' ? true : false
             setInvoice(response.data)
             setIsPaid(status)
-        } catch(error) {
-            messageApi.open({ content: 'Greška prilikom dohvaćanja podataka', type: 'error' });
+        } catch(err:any) {
+            error.notification(err.data.message)
         }
     }
 
@@ -69,12 +70,12 @@ const Printers = () => {
         try {
           const response = await api(`api/invoice`, "post", {}, role);
           if (response.status === "ok") {
-            messageApi.open({ content: "Faktura uspješno obračunata", type: "success" })
+            success.notification('Faktura uspješno obračunata')
           } else {
-            messageApi.open({ content: "Greška prilikom obračuna fakture", type: "error" })
+            warning.notification('Desila se greška prilikom obračuna fakture, pokušajte ponovo!')
           }
-        } catch (error) {
-            messageApi.open({ content: "Greška prilikom obračuna fakture", type: "error" })
+        } catch (err:any) {
+            error.notification(err.data.message)
         } finally {
           fatchInvoice()
           fetchPrinterDataByInvoiceId()
@@ -115,13 +116,13 @@ const Printers = () => {
                         counters: printer.counters,
                     };
                 });
-
                 setPrinters(mappedPrinters);
+                success.message('Podaci o printerima i brojačima uspješno učitani!')
             } else {
-                messageApi.open({ content: 'Greška prilikom dohvaćanja podataka', type: 'error' });
+                warning.notification('Desila se greška prilikom povlačenja podataka.')
             }
-        } catch (error) {
-            messageApi.open({ content: 'Greška prilikom dohvaćanja podataka', type: 'error' });
+        } catch (err:any) {
+            error.notification(err.data.message)
         } finally {
             setLoading(false);
         }
@@ -140,7 +141,7 @@ const Printers = () => {
                 </div>
                 <div className='flex flex-row flex-nowrap items-center gap-2'>
                     <Input
-                        className='w-20 text-center h-10 rounded-xl'
+                        className='w-20 text-center'
                         value={current}
                         hidden={previous === 0}
                         disabled={isPaid || previous === 0}
@@ -199,13 +200,13 @@ const Printers = () => {
             api(`api/printer-oid/${printerOidId}`, "put", { value: numericValue })
                 .then((response) => {
                     if (response.status !== "ok") {
-                        messageApi.open({ content: "Greška prilikom ažuriranja vrijednosti", type: "error" });
+                        warning.message('Desila se greška prilikom ažuriranja vrijednosti!')
                     } else {
-                        messageApi.open({ content: `Nova vrijednost za printer ID: ${printerId} izmjenjana uspješno`, type: "success" });
+                        success.message(`Nova vrijednost za printer ID: ${printerId} izmjenjana uspješno`)
                     }
                 })
                 .catch(() => {
-                    messageApi.open({ content: "Greška prilikom ažuriranja vrijednosti", type: "error" });
+                    error.notification('Desila se greška prilikom ažuriranja vrijednosti!')
                 });
         }
     };
@@ -243,39 +244,40 @@ const Printers = () => {
             <div>
             <div className='flex flex-row justify-between flex-nowrap overflow-auto mb-2'>
                 <div className="flex flex-row gap-2 h-10 items-center">
-                <span className="flex gap-1">
-                    <i className="bi bi-printer text-black" />
-                    {invoice?.blackAndWhite ? invoice.blackAndWhite.toLocaleString() : "n/a"}
-                </span>
-                <span className="flex gap-1">
-                    <i className="bi bi-palette text-danger-500" />
-                    {invoice?.color ? invoice.color.toLocaleString() : "n/a"}
-                </span>
-                <span className="flex gap-1">
-                    <i className="bi bi-phone-landscape text-secondary-500" />
-                    {invoice?.scan ? invoice.scan.toLocaleString() : "n/a"}
-                </span>
-                <span className="flex gap-1 min-w-[100px]">
-                    <i className="bi bi-cash-stack text-primary-500" />
-                    {invoice?.rentPrice ? invoice.rentPrice : "n/a"} KM
-                </span>
-                <span className="flex gap-1 min-w-[100px]">
-                    <i className="bi bi-cash-coin text-green-500" />
-                    {invoice?.totalAmount ? invoice.totalAmount : "n/a"} KM
-                </span>
+                    <span className="flex gap-1">
+                        <i className="bi bi-printer text-white" />
+                        {invoice?.blackAndWhite ? invoice.blackAndWhite.toLocaleString() : "n/a"}
+                    </span>
+                    <span className="flex gap-1">
+                        <i className="bi bi-palette text-danger-500" />
+                        {invoice?.color ? invoice.color.toLocaleString() : "n/a"}
+                    </span>
+                    <span className="flex gap-1">
+                        <i className="bi bi-phone-landscape text-secondary-500" />
+                        {invoice?.scan ? invoice.scan.toLocaleString() : "n/a"}
+                    </span>
+                    <span className="flex gap-1 min-w-fit">
+                        <i className="bi bi-cash-stack text-primary-500" />
+                        {invoice?.rentPrice ? invoice.rentPrice : "n/a"} KM
+                    </span>
+                    <span className="flex gap-1 min-w-fit">
+                        <i className="bi bi-cash-coin text-green-500" />
+                        {invoice?.totalAmount ? invoice.totalAmount : "n/a"} KM
+                    </span>
                 
-            </div>
-            <div className="border-1 border-green-500 p-2 rounded-xl">
-                    <Link
-                        className="text-sm text-green-500 flex flex-row min-w-20"
-                        onClick={() => calculateInvoice()}
-                    >
-                        <i className="bi bi-calculator mr-1"></i>obračunaj 
-                    </Link>
                 </div>
+                {!isPaid && (
+                    <div className="border-1 border-green-500 p-2 rounded-xl">
+                        <Link
+                            className="text-sm text-green-500 flex flex-row min-w-20"
+                            onClick={() => calculateInvoice()}
+                        >
+                            <i className="bi bi-calculator mr-1"></i>obračunaj 
+                        </Link>
+                    </div>
+                )}
             </div>
                 <Input
-                    className=' h-10 rounded-xl'
                     placeholder="Pretraga po korisniku, serijskom broju, vezi..."
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
@@ -287,7 +289,6 @@ const Printers = () => {
 
     return (
         <div>
-            {contextHolder}
             <div>
                 <div className="overflow-auto bg-[#141414] scrollbar-hide rounded-md text-black">
                     <Table 

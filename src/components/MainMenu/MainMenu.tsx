@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Menu, Dropdown, Avatar, Typography, Drawer } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   MenuFoldOutlined,
   LogoutOutlined,
@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import UserType from "../../types/UserType";
 import { ApiResponse, useApi } from "../../API/api";
+import { removeIdentity, useUserContext } from "../UserContext/UserContext";
 
 export interface MainMenuItem {
   text: string;
@@ -27,6 +28,8 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
   const [user, setUser] = useState<UserType>({});
   const [drawerVisible, setDrawerVisible] = useState(false);
   const { api } = useApi();
+  const { setRole, setUserId, setIsAuthenticated } = useUserContext();
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (items !== undefined) {
@@ -61,13 +64,20 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
     }
   }, [menuUserId, role]);
 
+  const logOut = async () => {
+    if(isAuthenticated){
+      await removeIdentity(setIsAuthenticated, setUserId, setRole);
+      navigate('/login')
+    }
+  }
+
   const menu = (
     <Menu>
       <Menu.Item key="profile" icon={<ProfileOutlined />}>
         <Link to={`/user/profile/${userId}`}>Profil</Link>
       </Menu.Item>
       <Menu.Item key="logout" icon={<LogoutOutlined />} danger>
-        <Link to="/logout">Odjavi se</Link>
+        <a onClick={logOut}>Odjavi se</a>
       </Menu.Item>
     </Menu>
   );
@@ -136,10 +146,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
   };
 
   return (
-    <div className="bg-transparent flex flex-row justify-between h-14 px-4 border-b-1 border-default-800 lg:border-b-0">
+    <div className="bg-transparent flex flex-row justify-between h-14 px-4 border-b-1 border-default-400 lg:border-b-0">
       {isAuthenticated ? (
         <><div className="flex md:hidden  items-center" onClick={showDrawer}>
-          <MenuFoldOutlined className="p-2 hover:bg-gray-200 hover:text-black text-white border-1 rounded-md" />
+          <MenuFoldOutlined className="p-3 hover:bg-gray-200 hover:text-black text-white border-1 rounded-xl cursor-pointer" />
         </div>
         <Drawer
           title="Meni"
@@ -147,11 +157,13 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
           onClose={closeDrawer}
           open={drawerVisible}
           width="250px"
+          bodyStyle={{padding:0}}
         >
             <Menu
               mode="inline"
               selectedKeys={[]}
-              style={{ width: "100%" }}
+              className="w-full bg-transparent"
+              style={{borderInlineEnd:0}}
             >
               {getMenuForRole()}
             </Menu>
@@ -180,7 +192,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
               <Avatar
                 shape="square"
                 style={{ borderRadius: "12px" }}
-                className="bg-primary ml-2 border-2 border-primary-300 p-4 cursor-pointer">
+                className="md:ml-2 border-2 p-[18px] cursor-pointer hover:border-primary-200">
                 {user.surname?.charAt(0)}
                 {user.forname?.charAt(0)}
               </Avatar>

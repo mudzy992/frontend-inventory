@@ -68,7 +68,7 @@ const AdminUserProfilePage: React.FC = () => {
                 <ResponsibilityArticles userID={Number(userID)} />
               </TabPane>
               {user.userId === userId && (
-                <TabPane tab="Helpdesk" key="tiketi">
+                <TabPane tab="Helpdesk" key="tiketi" >
                   <UserTickets userID={Number(userID)} />
                 </TabPane>
               )}

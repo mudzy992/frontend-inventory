@@ -113,7 +113,7 @@ const ArticleListTable: FC<StockProps> = ({ stockId }) => {
           placeholder="Traži artikal..."
           value={searchQuery}
           onChange={handleSearch}
-          className="lg:w-1/3 h-11 rounded-xl"
+          className="lg:w-1/3"
         />
       </div>
         <Table

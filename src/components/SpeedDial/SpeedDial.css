@@ -1,0 +1,12 @@
+.speed-dial {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .rotate-icon {
+    transform: rotate(45deg);
+  }
+  .ant-popover {
+    position: fixed !important;
+    transform: none !important;
+  }
+    

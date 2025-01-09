@@ -8,6 +8,7 @@ import { ApiResponse, useApi } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
 import ArticleType from "../../../../types/ArticleType";
 import DocumentsType from "../../../../types/DocumentsType";
+import { useNotificationContext } from "../../../Notification/NotificationContext";
 
 const { Text } = Typography;
 
@@ -21,6 +22,7 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
   const { role } = useUserContext();
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const {warning} = useNotificationContext();
 
   const getArticleData = async () => {
     try {
@@ -34,9 +36,9 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
       if (res.status === "ok") {
         setArticles(res.data);
       }
-    } catch (error) {
-      console.error("Greška prilikom dohvatanja korisničkih podataka:", error);
-      throw error;
+    } catch (err) {
+      warning.notification(err.data.message);
+      throw err;
     } finally {
       setLoading(false);
     }

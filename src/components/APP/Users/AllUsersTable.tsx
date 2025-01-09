@@ -6,7 +6,7 @@ import { ApiResponse, useApi } from "../../../API/api";
 import { UserRole } from "../../../types/UserRoleType";
 import { useUserContext } from "../../UserContext/UserContext";
 import { LinkOutlined, SearchOutlined } from '@ant-design/icons';
-import { useNotificationContext } from "../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../Notification/NotificationContext";
 
 const AllUsersTable = () => {
     const { api } = useApi();
@@ -132,7 +132,7 @@ const AllUsersTable = () => {
     return (
         <Card loading={loading} bodyStyle={{padding:0}}>
             <Table
-            loading={loading}
+            size="middle"
             pagination={{style:{marginRight:'12px'}}}
             dataSource={filteredData} 
             columns={columns}

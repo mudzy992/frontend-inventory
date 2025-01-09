@@ -1,267 +1,114 @@
 import React, { useEffect, useState } from "react";
-import { ApiResponse, useApi } from "../../../API/api";
-import {
-  Button,
-  Input,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-  Spinner,
-  Textarea,
-} from "@nextui-org/react";
-import Toast from "../../custom/Toast";
+import { useApi } from "../../../API/api";
+import { Button, Form, Input, Modal, Select, Spin, notification } from "antd";
+import { useNotificationContext } from "../../Notification/NotificationContext";
+const { TextArea } = Input;
+const { Option } = Select;
 
 interface DepartmentType {
   departmentId: number;
   title: string;
   description: string;
   departmentCode: string;
-  parentDepartmentId: number;
-}
-
-interface AddDepartmentState {
-  message: {
-    message: string;
-    variant: string;
-  };
-  departmentBase: DepartmentType[];
-  isLoggedIn: boolean;
-  add: {
-    department: {
-      title: string;
-      description: string;
-      departmentCode: string;
-      parentDepartmentId?: number;
-    };
-  };
+  parentDepartmentId?: number;
 }
 
 const AddDepartment: React.FC = () => {
   const { api } = useApi();
-  const [state, setState] = useState<AddDepartmentState>({
-    message: {
-      message: "",
-      variant: "",
-    },
-    departmentBase: [],
-    isLoggedIn: true,
-    add: {
-      department: {
-        title: "",
-        description: "",
-        departmentCode: "",
-      },
-    },
-  });
-
+  const {warning, error, success} = useNotificationContext();
+  const [departmentBase, setDepartmentBase] = useState<DepartmentType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(true);
 
   useEffect(() => {
     getDepartments();
   }, []);
 
-  /* SET */
-
-  const setAddNewDepartmentStringState = (
-    fieldName: string,
-    newValue: string,
-  ) => {
-    setState((prevState) => ({
-      ...prevState,
-      add: {
-        ...prevState.add,
-        department: {
-          ...prevState.add.department,
-          [fieldName]: newValue,
-        },
-      },
-    }));
-  };
-
-  const setErrorMessage = (message: string, variant: string) => {
-    setState((prev) => ({
-      ...prev,
-      message: { message, variant },
-    }));
-  };
-
-  const setIsLoggedInStatus = (isLoggedIn: boolean) => {
-    setState((prev) => ({ ...prev, isLoggedIn: isLoggedIn }));
-  };
-
-  const setDepartmentData = (departmentData: DepartmentType[]) => {
-    setState(
-      Object.assign(state, {
-        departmentBase: departmentData,
-      }),
-    );
-  };
-
-  /* GET */
-
   const getDepartments = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      await api(
-        "api/department?sort=title,ASC",
-        "get",
-        {},
-        "administrator",
-      ).then((res: ApiResponse) => {
-        if (res.status === "login") {
-          setIsLoggedInStatus(false);
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom učitavanja sektora/službei/odjeljenja.",
-            "danger",
-          );
-          return;
-        }
-        setDepartmentData(res.data);
-        setLoading(false);
-      });
-    } catch (error) {
-      setErrorMessage(
-        "Greška prilikom učitavanja sektora/službei/odjeljenja.",
-        "danger",
-      );
+      const res = await api("api/department?sort=title,ASC", "get", {}, "administrator");
+      if (res.status === "error") {
+        warning.notification('Greška prilikom učitavanja sektora/službi/odjeljenja');
+        return;
+      }
+      setDepartmentBase(res.data);
+    } catch (err:any) {
+      error.notification(err.data.message)
+    } finally {
       setLoading(false);
     }
   };
 
-  const doAddDepartment = () => {
-    api("api/department/", "post", state.add.department, "administrator").then(
-      (res: ApiResponse) => {
-        if (res.status === "login") {
-          setIsLoggedInStatus(false);
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom dodavanja sektora/službe/odjeljenja.",
-            "danger",
-          );
-          return;
-        }
-        setErrorMessage("Uspješno dodan sektor/služba/odjeljenje", "success");
-        getDepartments();
-      },
-    );
-  };
-
-  const addForm = () => {
-    return (
-      <ModalContent>
-        <ModalHeader>Detalji sektora/službe/odjeljenja</ModalHeader>
-        <ModalBody>
-          <div className="flex flex-col">
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <Spinner
-                  color="success"
-                  label="Učitavanje..."
-                  labelColor="success"
-                />
-              </div>
-            ) : (
-              <div>
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="departmentTitle"
-                    type="text"
-                    label="Naziv sektora/službe/odjeljenja"
-                    labelPlacement="inside"
-                    value={state.add.department.title}
-                    onChange={(e) =>
-                      setAddNewDepartmentStringState("title", e.target.value)
-                    }
-                  ></Input>
-                </div>
-                <div className="mb-3 mr-3 w-full">
-                  <Textarea
-                    id="departmentDescription"
-                    label="Opis"
-                    placeholder="Opišite radno mjesto"
-                    value={state.add.department.description}
-                    onChange={(e) =>
-                      setAddNewDepartmentStringState(
-                        "description",
-                        e.target.value,
-                      )
-                    }
-                  />
-                </div>
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="departmentCode"
-                    type="number"
-                    label="Šifra organizacione jedinice"
-                    labelPlacement="inside"
-                    value={state.add.department.departmentCode}
-                    onChange={(e) =>
-                      setAddNewDepartmentStringState(
-                        "departmentCode",
-                        e.target.value,
-                      )
-                    }
-                  ></Input>
-                </div>
-                <div className="w-full lg:flex">
-                  <Select
-                    description="U slučaju da se kreira sektor nije potrebno popuniti polje ispod. Polje se popunjava
-                                    isključivo ako se dodaje služba/odjeljenje koje pripada nekom sektoru/službi."
-                    id="parentDepartmentId"
-                    label="Pripada sektoru/službi"
-                    placeholder="Odaberite glavna službu/odjeljenje"
-                    onChange={(e) =>
-                      setAddNewDepartmentStringState(
-                        "parentDepartmentId",
-                        e.target.value,
-                      )
-                    }
-                  >
-                    {state.departmentBase.map((departmentData, index) => (
-                      <SelectItem
-                        key={departmentData.departmentId || index}
-                        textValue={`${departmentData.departmentId} - ${departmentData.title}`}
-                        value={Number(departmentData.departmentId)}
-                      >
-                        {departmentData.departmentId} - {departmentData.title}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-            )}
-          </div>
-          <ModalFooter className={state.add.department.title ? "" : "hidden"}>
-            <div style={{ alignItems: "end" }}>
-              <Button onClick={() => doAddDepartment()} color="success">
-                <i className="bi bi-plus-circle" /> Dodaj
-                sektor/službu/odjeljenje
-              </Button>
-            </div>
-          </ModalFooter>
-        </ModalBody>
-      </ModalContent>
-    );
+  const handleSubmit = async (values: any) => {
+    try {
+      const res = await api("api/department/", "post", values, "administrator");
+      if (res.status === "error") {
+        error.notification('Greška prilikom dodavanja sektora, službe ili odjeljenja.');
+        return;
+      }
+      success.notification('Sektor, služba ili odjeljeno uspješno kreirano.');
+      getDepartments();
+      setModalVisible(false);
+    } catch (err:any) {
+      error.notification(err.data.message);
+    }
   };
 
   return (
-    <div>
-      <div>
-        {addForm()}
-        <Toast
-          variant={state.message.variant}
-          message={state.message.message}
-        />
-      </div>
-    </div>
+    <Modal
+      title="Dodavanje sektora/službe/odjeljenja"
+      open={modalVisible}
+      onCancel={() => setModalVisible(false)}
+      footer={null}
+      loading={loading}
+    >
+        <Form layout="vertical" onFinish={handleSubmit}>
+          <Form.Item
+            label="Naziv sektora/službe/odjeljenja"
+            name="title"
+            rules={[{ required: true, message: "Molimo unesite naziv." }]}
+          >
+            <Input placeholder="Naziv sektora/službe/odjeljenja" />
+          </Form.Item>
+
+          <Form.Item
+            label="Opis"
+            name="description"
+            rules={[{ required: true, message: "Molimo unesite opis." }]}
+          >
+            <TextArea placeholder="Opis" />
+          </Form.Item>
+
+          <Form.Item
+            label="Šifra organizacione jedinice"
+            name="departmentCode"
+            rules={[{ required: true, message: "Molimo unesite šifru." }]}
+          >
+            <Input type="number" placeholder="Šifra organizacione jedinice" />
+          </Form.Item>
+
+          <Form.Item label="Pripada sektoru/službi" name="parentDepartmentId">
+            <Select
+              placeholder="Odaberite glavnu službu/odjeljenje"
+              allowClear
+            >
+              {departmentBase.map((department) => (
+                <Option key={department.departmentId} value={department.departmentId}>
+                  {`${department.departmentId} - ${department.title}`}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Dodaj
+            </Button>
+          </Form.Item>
+        </Form>
+    </Modal>
   );
 };
+
 export default AddDepartment;

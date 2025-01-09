@@ -6,7 +6,7 @@ import DocumentsType from "../../../../types/DocumentsType";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../UserContext/UserContext";
-import { useNotificationContext } from "../../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../../Notification/NotificationContext";
 
 const UnsignedDocuments = () => {
     const { api } = useApi();

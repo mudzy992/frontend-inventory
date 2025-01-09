@@ -6,7 +6,7 @@ import ArticleType from "../../../types/ArticleType";
 import DocumentsType from "../../../types/DocumentsType";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import ArticleTimlineModal from "../../APP/ArticleTimeline/ArticleTimelinePageModal";
-import AdminMenu from "../AdminMenu/AdminMenu";
+import AdminMenu from "../../SpeedDial/SpeedDial";
 import moment from "moment";
 import {
   Button,

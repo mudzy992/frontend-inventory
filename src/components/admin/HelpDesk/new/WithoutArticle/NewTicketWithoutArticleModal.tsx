@@ -7,7 +7,7 @@ import TicketGroupType from "../../../../../types/TicketGroupType";
 import ArticleType from "../../../../../types/ArticleType";
 import dayjs from "dayjs";
 import { useApi } from "../../../../../API/api";
-import { useNotificationContext } from "../../../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../../../Notification/NotificationContext";
 
 type ModalProps = {
   show: boolean;

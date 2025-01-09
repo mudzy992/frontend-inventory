@@ -3,7 +3,7 @@ import { ApiResponse, saveRefreshToken, saveToken, useApi } from "../../API/api"
 import { useNavigate } from "react-router-dom";
 import { Button, Divider, Input } from "antd";
 import { saveIdentity, useUserContext } from "../UserContext/UserContext";
-import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useNotificationContext } from "../Notification/NotificationContext";
 
 interface UserLoginPageState {
   email: string;

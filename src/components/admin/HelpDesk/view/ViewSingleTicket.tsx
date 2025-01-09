@@ -16,7 +16,7 @@ import { UserRole } from "../../../../types/UserRoleType";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
-import { useNotificationContext } from "../../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../../Notification/NotificationContext";
 
 type ModalProps = {
   show: boolean;

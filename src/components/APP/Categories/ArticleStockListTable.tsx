@@ -25,7 +25,6 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
     const [articles, setArticles] = useState<StockType[]>([]);
     const [filteredData, setFilteredData] = useState<StockType[]>([]);
     const [loading, setLoading] = useState(false);
-    const [messageApi, contextHolder] = message.useMessage();
     const [searchText, setSearchText] = useState<string>('');
     const [selectedStockId, setSelectedStockId ] = useState<number>()
     const [articleTableModalVisible, setArticleTableModalVisible ] = useState<boolean>(false)
@@ -134,16 +133,13 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
     }
 
     return (
-        <Card className="mb-3" title={tableHeader()}>
-            {contextHolder}
-            
+        <Card bodyStyle={{padding:0}} loading={loading} className="mb-3" title={tableHeader()}>
             <Table
-            loading={loading}
-            pagination={{style:{marginRight:'12px'}}}
-            dataSource={filteredData} 
-            columns={columns}
-            scroll={{ x: "max-content" }}
-            size="small"
+                pagination={{style:{marginRight:'12px'}}}
+                dataSource={filteredData} 
+                columns={columns}
+                scroll={{ x: "max-content" }}
+                size="small"
             />
         {articleTableModalVisible && (
             <Modal

@@ -146,10 +146,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
   };
 
   return (
-    <div className="bg-transparent flex flex-row justify-between h-14 px-4 border-b-1 border-default-400 lg:border-b-0">
-      {isAuthenticated ? (
-        <><div className="flex md:hidden  items-center" onClick={showDrawer}>
-          <MenuFoldOutlined className="p-3 hover:bg-gray-200 hover:text-black text-white border-1 rounded-xl cursor-pointer" />
+    <div className="flex flex-row justify-between h-14 px-4">
+        <div className="flex md:hidden  items-center" onClick={showDrawer}>
+          <MenuFoldOutlined className="p-3 hover:bg-gray-200 hover:text-black text-white rounded-xl border-[#424242] border-1 cursor-pointer" />
         </div>
         <Drawer
           title="Meni"
@@ -168,15 +167,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
               {getMenuForRole()}
             </Menu>
           </Drawer>
-          <div className="logo md:flex flex items-center text-white font-bold text-[18px] lg:border-b-1 lg:border-default-800">
+          <div className="logo md:flex flex items-center text-white font-bold text-[18px]">
             <Link to={getNavbarBrandHref()}>
               Inventory Database
             </Link>
           </div>
-          </>) : (<div></div>)
-      }
-      {role && (
-        <><Menu
+        <Menu
           className="bg-transparent hidden md:block h-14"
           mode="horizontal"
           selectedKeys={[]}
@@ -184,7 +180,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
         >
           {getMenuForRole()}
         </Menu>
-        <div className="flex items-center lg:border-b-1 lg:border-default-800">
+        <div className="flex items-center">
             <Typography.Text className="hidden md:block">
               {genderGreeting(user.gender || "")} {user.surname}
             </Typography.Text>
@@ -197,8 +193,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ items, userId, role, isAuthenticate
                 {user.forname?.charAt(0)}
               </Avatar>
             </Dropdown>
-          </div></>
-      )}
+          </div>
     </div>
   );
 };

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../API/api";
 import CategoryType from "../../../types/CategoryType";
-import AdminMenu from "../../admin/AdminMenu/AdminMenu";
+import AdminMenu from "../../SpeedDial/SpeedDial";
 import { Card, Row, Col, Typography } from "antd";
 import AllUsersTable from "../Users/AllUsersTable";
 import { UserRole } from "../../../types/UserRoleType";
 import { useUserContext } from "../../UserContext/UserContext";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../Notification/NotificationContext";
 
 const { Title } = Typography;
 
@@ -99,7 +99,7 @@ const HomePage: React.FC<HomePageState> = () => {
                   ))}
               </Row>
             </div>
-          <AdminMenu />
+     {/*      <AdminMenu /> */}
         </>
       )}
     </>

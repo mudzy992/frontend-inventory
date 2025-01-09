@@ -148,12 +148,12 @@ const CategoryPage: React.FC = () => {
     }
 
     return (
-      <div className="">
+      <div >
         <Title level={5} >
           <i className="bi bi-list-nested" /> Podkategorije
         </Title>
         {printErrorMessage()}
-        <Row gutter={[16, 16]} className="">
+        <Row gutter={[16, 16]}>
           {state.subCategory.map(singleCategory)}
         </Row>
       </div>
@@ -163,6 +163,7 @@ const CategoryPage: React.FC = () => {
   const singleCategory = (category: CategoryType) => (
     <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
       <Card
+        loading={loading}
         className="pt-6"
         hoverable
         style={{borderRadius:"14px"}}
@@ -198,31 +199,21 @@ const CategoryPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <div className="container mx-auto mt-3 h-max lg:px-4">
-        {loading ? (
-          <div className="flex items-center justify-center">
-            <Spin tip="Učitavanje..." />
-          </div>
-        ) : (
-          <>
-            <div
-              className={
-                state.category?.stocks?.length && state.category.stocks.length > 0
-                  ? "mt-3"
-                  : "hidden"
-              }
-            >
-              <Title level={5}>
-                <i className="bi bi-list" />
-                {state.category?.name}
-              </Title>
-              <div>{showArticles()}</div>
-            </div>
-            <div>{showSubcategories()}</div>
-          </>
-        )}
-      </div>
+      <div>
+        <div
+            className={
+              state.category?.stocks?.length && state.category.stocks.length > 0
+                ? "mt-3"
+                : "hidden"
+            }
+          >
+          <Title level={5}>
+            <i className="bi bi-list" />
+            {state.category?.name}
+          </Title>
+          <div>{showArticles()}</div>
+        </div>
+        <div>{showSubcategories()}</div>
     </div>
   );
 };

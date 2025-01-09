@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../API/api";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
-import AdminMenu from "../AdminMenu/AdminMenu";
+import AdminMenu from "../../SpeedDial/SpeedDial";
 import LocationType from "../../../types/LocationType";
 import DepartmentType from "../../../types/DepartmentType";
 import JobType from "../../../types/JobType";

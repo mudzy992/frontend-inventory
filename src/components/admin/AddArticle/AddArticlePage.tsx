@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../API/api";
 import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import CategoryType from "../../../types/CategoryType";
-import AdminMenu from "../AdminMenu/AdminMenu";
+import AdminMenu from "../../SpeedDial/SpeedDial";
 import {
   Button,
   Card,

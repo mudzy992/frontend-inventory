@@ -29,7 +29,8 @@ import InvoiceList from "./components/admin/Invoices/InvoiceList";
 import Printers from "./components/admin/Invoices/Printers";
 import RoledMainMenu from "./components/RoledMainMenu/RoledMainMenu";
 import { themeToken } from "./config/theme.token.config";
-import { NotificationProvider } from "./Notification/NotificationContext";
+import { NotificationProvider } from "./components/Notification/NotificationContext";
+import SpeedDial from "./components/SpeedDial/SpeedDial";
 
 const { Content, Footer } = Layout;
 
@@ -39,19 +40,20 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const curentYear = new Date().getFullYear();
-  const {role} = useUserContext()
+  const {isAuthenticated, role} = useUserContext()
 
   return (
   <Layout className="min-h-screen ">
-    {role && (
+    {isAuthenticated && (
       <div className="sticky-header">
         <RoledMainMenu />
     </div>
     )}
-    <Content style={{ padding: "16px" }}>
+    <Content className="container mx-auto p-4">
       {children}
     </Content>
-    <Footer className="text-center text-gray-400">Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić</Footer>
+    
+    <Footer className="text-center text-gray-400">Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić {(isAuthenticated && role !== 'user') && <SpeedDial />} </Footer>
   </Layout>
 )};
 
@@ -118,7 +120,6 @@ const App = () => {
               </UserContextProvider>
             </HashRouter>
           </ConfigProvider>
-       
       </NextUIProvider>
     </React.StrictMode>
   );

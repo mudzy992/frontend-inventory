@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { ApiResponse, useApi } from "../../../API/api";
-import {
-  Button,
-  Input,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-  Spinner,
-} from "@nextui-org/react";
-import Toast from "../../custom/Toast";
+import { useApi } from "../../../API/api";
+import { Button, Input, Form, Select, Spin } from "antd";
+import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useUserContext } from "../../UserContext/UserContext";
 
 interface LocationType {
   locationId: number;
@@ -19,13 +10,8 @@ interface LocationType {
   code: string;
   parentLocationId: number;
 }
+
 interface AddLocationState {
-  message: {
-    message: string;
-    variant: string;
-  };
-  locationBase: LocationType[];
-  isLoggedIn: boolean;
   add: {
     location: {
       name: string;
@@ -37,10 +23,12 @@ interface AddLocationState {
 
 const AddLocation: React.FC = () => {
   const { api } = useApi();
+  const { role } = useUserContext()
+  const { warning, success, error } = useNotificationContext();
+  const [ locationBase, setLocationBase ] = useState<LocationType[]>([])
+  const [ loading, setLoading ] = useState<boolean>(false);
+
   const [state, setState] = useState<AddLocationState>({
-    message: {message: "", variant: ""},
-    isLoggedIn: true,
-    locationBase: [],
     add: {
       location: {
         name: "",
@@ -49,18 +37,13 @@ const AddLocation: React.FC = () => {
     },
   });
 
-  const [loading, setLoading] = useState<boolean>(false);
-
   useEffect(() => {
     getLocations();
   }, []);
 
   /* SET */
 
-  const setAddNewLocationStringState = (
-    fieldName: string,
-    newValue: string,
-  ) => {
+  const setAddNewLocationStringState = (fieldName: string, newValue: string) => {
     setState((prevState) => ({
       ...prevState,
       add: {
@@ -73,46 +56,20 @@ const AddLocation: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string, variant: string) => {
-    setState((prev) => ({
-      ...prev,
-      message: { message, variant },
-    }));
-  };
-
-  const setIsLoggedInStatus = (isLoggedIn: boolean) => {
-    setState((prev) => ({ ...prev, isLoggedIn: isLoggedIn }));
-  };
-
-  const setLocationData = (locationData: LocationType[]) => {
-    setState(
-      Object.assign(state, {
-        locationBase: locationData,
-      }),
-    );
-  };
-
   /* GET */
 
   const getLocations = async () => {
     try {
       setLoading(true);
-      await api("api/location?sort=name,ASC", "get", {}, "administrator").then(
-        (res: ApiResponse) => {
-          if (res.status === "login") {
-            setIsLoggedInStatus(false);
-            return;
-          }
-          if (res.status === "error") {
-            setErrorMessage("Greška prilikom učitavanja lokacija.", "danger");
-            return;
-          }
-          setLocationData(res.data);
-          setLoading(false);
-        },
-      );
-    } catch (error) {
-      setErrorMessage("Greška prilikom učitavanja lokacija.", "danger");
+      const res = await api("api/location?sort=name,ASC", "get", {}, role);
+      if (res.status === "error") {
+        warning.notification("Greška prilikom učitavanja lokacija.");
+        return;
+      }
+      setLocationBase(res.data);
+      setLoading(false);
+    } catch (err: any) {
+      error.notification(err.data.message);
       setLoading(false);
     }
   };
@@ -120,117 +77,71 @@ const AddLocation: React.FC = () => {
   const doAddLocation = async () => {
     try {
       setLoading(true);
-      await api(
-        "api/location/",
-        "post",
-        state.add.location,
-        "administrator",
-      ).then((res: ApiResponse) => {
-        if (res.status === "login") {
-          setIsLoggedInStatus(false);
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage("Greška prilikom dodavanja lokacije.", "danger");
-          return;
-        }
-        setErrorMessage("Uspješno dodana lokacija", "success");
-        getLocations();
-        setLoading(false);
-      });
-    } catch (error) {
-      setErrorMessage("Greška prilikom dodavanja lokacije.", "danger");
+      const res = await api("api/location/", "post", state.add.location, role);
+      if (res.status === "error") {
+        warning.notification("Greška prilikom dodavanja lokacije.");
+        return;
+      }
+      success.notification("Uspješno dodana lokacija");
+      getLocations();
+      setLoading(false);
+    } catch (err:any) {
+      error.notification(err.data.message);
+      setLoading(false);
     }
   };
 
-  const addForm = () => {
-    return (
-      <ModalContent>
-        <ModalHeader>Detalji lokacije</ModalHeader>
-        <ModalBody>
-          <div className="flex flex-col">
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <Spinner
-                  label="Učitavanje..."
-                  labelColor="success"
-                  color="success"
-                />
-              </div>
-            ) : (
-              <div>
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="name"
-                    type="text"
-                    label="Naziv lokacije"
-                    labelPlacement="inside"
-                    value={state.add.location.name}
-                    onChange={(e) =>
-                      setAddNewLocationStringState("name", e.target.value)
-                    }
-                  ></Input>
-                </div>
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="code"
-                    type="text"
-                    label="Šifra lokacije"
-                    labelPlacement="inside"
-                    value={state.add.location.code}
-                    onChange={(e) =>
-                      setAddNewLocationStringState("code", e.target.value)
-                    }
-                  ></Input>
-                </div>
-                <div className="w-full lg:flex">
-                  <Select
-                    description="Opciju koristiti u slučaju da lokacija ne postoji, pa se dodaje pod-lokacija"
-                    id="parentLocationId"
-                    label="Glavna lokacija"
-                    placeholder="Odaberite glavna lokacija"
-                    onChange={(e) =>
-                      setAddNewLocationStringState(
-                        "parentLocationId",
-                        e.target.value,
-                      )
-                    }
-                  >
-                    {state.locationBase.map((locData, index) => (
-                      <SelectItem
-                        key={locData.locationId || index}
-                        textValue={`${locData.locationId} - ${locData.name}`}
-                        value={Number(locData.locationId)}
-                      >
-                        {locData.locationId} - {locData.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-            )}
-          </div>
-          <ModalFooter className={state.add.location.name ? "" : "hidden"}>
-            <div style={{ alignItems: "end" }}>
-              <Button onClick={() => doAddLocation()} color="success">
-                <i className="bi bi-plus-circle" /> Dodaj lokaciju
-              </Button>
-            </div>
-          </ModalFooter>
-        </ModalBody>
-      </ModalContent>
-    );
+  const onFinish = () => {
+    doAddLocation();
   };
+
   return (
-    <div>
-      <div>
-        {addForm()}
-        <Toast
-          variant={state.message?.variant}
-          message={state.message?.message}
-        />
-      </div>
-    </div>
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{ name: state.add.location.name, code: state.add.location.code }}
+        >
+              <Form.Item
+                label="Naziv lokacije"
+                name="name"
+                rules={[{ required: true, message: "Molimo unesite naziv lokacije!" }]}
+              >
+                <Input
+                  value={state.add.location.name}
+                  onChange={(e) => setAddNewLocationStringState("name", e.target.value)}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Šifra lokacije"
+                name="code"
+                rules={[{ required: true, message: "Molimo unesite šifru lokacije!" }]}
+              >
+                <Input
+                  value={state.add.location.code}
+                  onChange={(e) => setAddNewLocationStringState("code", e.target.value)}
+                />
+              </Form.Item>
+
+              <Form.Item label="Glavna lokacija" name="parentLocationId">
+                <Select
+                  placeholder="Odaberite glavnu lokaciju"
+                  onChange={(value) => setAddNewLocationStringState("parentLocationId", value.toString())}
+                >
+                  {locationBase.map((locData) => (
+                    <Select.Option key={locData.locationId} value={locData.locationId}>
+                      {`${locData.locationId} - ${locData.name}`}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <p className="text-xs mt-2 pl-4">Opciju koristiti u slučaju da lokacija ne postoji, pa se dodaje pod-lokacija</p>
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Dodaj
+                </Button>
+              </Form.Item>
+        </Form>
   );
 };
 

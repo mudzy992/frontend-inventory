@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../API/api";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
-import AdminMenu from "../../SpeedDial/SpeedDial";
 import LocationType from "../../../types/LocationType";
 import DepartmentType from "../../../types/DepartmentType";
 import JobType from "../../../types/JobType";
@@ -17,12 +15,12 @@ import {
   CardHeader,
   Input,
   Link,
-  Modal,
   Select,
   SelectItem,
 } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import Toast from "../../custom/Toast";
+import { Modal } from "antd";
 
 interface LocationDto {
   locationId: number;
@@ -115,6 +113,9 @@ const AddUserPage: React.FC = () => {
 
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = React.useState(false);
+  const [isDepartmentModalVisible, setIsDepartmentModalVisible ] = useState<boolean>(false)
+  const [isLocationModalVisible, setIsLocationModalVisible ] = useState<boolean>(false)
+  const [isJobModalVisible, setIsJobModalVisible ] = useState<boolean>(false)
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   /* SET */
@@ -172,46 +173,18 @@ const AddUserPage: React.FC = () => {
   };
 
   const showDepartmentModal = async () => {
-    setDepartmentModalVisibleState(true);
-  };
-
-  const setDepartmentModalVisibleState = (newState: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      modal: {
-        ...prev.modal,
-        department: { ...prev.modal.department, visible: newState },
-      },
-    }));
-    getData();
-  };
-
-  const showJobModal = async () => {
-    setJobModalVisibleState(true);
-  };
-
-  const setJobModalVisibleState = (newState: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      modal: { ...prev.modal, job: { ...prev.modal.job, visible: newState } },
-    }));
-    getData();
+    setIsDepartmentModalVisible(true);
+    getData()
   };
 
   const showLocationModal = async () => {
-    setLocationModalVisibleState(true);
+    setIsLocationModalVisible(true);
   };
 
-  const setLocationModalVisibleState = (newState: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      modal: {
-        ...prev.modal,
-        location: { ...prev.modal.location, visible: newState },
-      },
-    }));
-    getData();
+  const showJobModal = async () => {
+    setIsJobModalVisible(true);
   };
+
 
   const showDepartmentJobLocationModal = async () => {
     setDepartmentJobLocationModalVisibleState(true);
@@ -560,14 +533,6 @@ const AddUserPage: React.FC = () => {
                   >
                     <i className="bi bi-plus-circle-fill" />
                   </Button>
-                  <Modal
-                    backdrop="blur"
-                    size="lg"
-                    isOpen={state.modal.department.visible}
-                    onClose={() => setDepartmentModalVisibleState(false)}
-                  >
-                    <AddDepartment />
-                  </Modal>
                 </div>
               </div>
             </div>
@@ -603,14 +568,6 @@ const AddUserPage: React.FC = () => {
                   >
                     <i className="bi bi-plus-circle-fill" />
                   </Button>
-                  <Modal
-                    backdrop="blur"
-                    size="lg"
-                    isOpen={state.modal.job.visible}
-                    onClose={() => setJobModalVisibleState(false)}
-                  >
-                    <AddJob />
-                  </Modal>
                 </div>
               </div>
             </div>
@@ -628,9 +585,7 @@ const AddUserPage: React.FC = () => {
                 ovdje
               </Link>
               <Modal
-                backdrop="blur"
-                size="lg"
-                isOpen={state.modal.departmentJobLocation.visible}
+                open={state.modal.departmentJobLocation.visible}
                 onClose={() => setDepartmentJobLocationModalVisibleState(false)}
               >
                 <AddDepartmentJobLocation />
@@ -668,14 +623,6 @@ const AddUserPage: React.FC = () => {
                   >
                     <i className="bi bi-plus-circle-fill" />
                   </Button>
-                  <Modal
-                    backdrop="blur"
-                    size="lg"
-                    isOpen={state.modal.location.visible}
-                    onClose={() => setLocationModalVisibleState(false)}
-                  >
-                    <AddLocation />
-                  </Modal>
                 </div>
               </div>
             </div>
@@ -696,16 +643,45 @@ const AddUserPage: React.FC = () => {
   /* Kraj dodatnih funkcija */
   return (
     <div>
-      <RoledMainMenu />
-
       <div className="container mx-auto mt-3 h-max lg:px-4">
         {addForm()}
         <Toast
           variant={state.message?.variant}
           message={state.message?.message}
         />
-        <AdminMenu />
       </div>
+      {isDepartmentModalVisible && 
+        (<Modal
+        title="Dodavanje sektora/službe/odjeljenja"
+        open={isDepartmentModalVisible}
+        onCancel={() => setIsDepartmentModalVisible(false)!}
+        footer={false}
+      >
+        <AddDepartment />
+      </Modal>
+      )}
+
+      {isLocationModalVisible && 
+          (<Modal
+          title="Dodavanje lokacije"
+          open={isLocationModalVisible}
+          onCancel={() => setIsLocationModalVisible(false)!}
+          footer={false}
+        >
+          <AddLocation />
+        </Modal>
+      )}
+
+      {isJobModalVisible && 
+          (<Modal
+          title="Dodavanje radnog mjesta"
+          open={isJobModalVisible}
+          onCancel={() => setIsJobModalVisible(false)!}
+          footer={false}
+        >
+          <AddJob />
+        </Modal>
+      )}
     </div>
   );
 };

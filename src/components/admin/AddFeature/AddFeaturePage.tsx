@@ -1,28 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { Select, Card, Input, Button, List, Form, notification } from "antd";
 import { ApiResponse, useApi } from "../../../API/api";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
-import CategoryType from "../../../types/CategoryType";
-import AdminMenu from "../../SpeedDial/SpeedDial";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Input,
-  Listbox,
-  ListboxItem,
-  ListboxSection,
-  Select,
-  SelectItem,
-} from "@nextui-org/react";
-import { useNavigate } from "react-router-dom";
-import Toast from "../../custom/Toast";
+import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useUserContext } from "../../UserContext/UserContext";
+
+const { Option } = Select;
 
 interface AddFeatureState {
-  categories: CategoryType[];
-  message: { message: string; variant: string };
-  isLoggedIn: boolean;
   addNewFeature: {
     name: string;
     categoryId: number;
@@ -42,18 +26,17 @@ interface FeatureBaseType {
 
 const AddFeaturePage: React.FC = () => {
   const { api } = useApi();
+  const { role } = useUserContext();
+  const { error, success, warning } = useNotificationContext();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [categories, setCategories] = useState<any[]>([]);
   const [state, setState] = useState<AddFeatureState>({
-    message: {message: "", variant:""},
-    categories: [],
-    isLoggedIn: true,
     addNewFeature: {
       name: "",
       categoryId: 0,
       features: [],
     },
   });
-
-  const navigate = useNavigate();
 
   const setAddNewFeatureStringState = (fieldName: string, newValue: string) => {
     setState((prev) => ({
@@ -72,216 +55,155 @@ const AddFeaturePage: React.FC = () => {
     }));
   };
 
-  const setErrorMessage = (message: string, variant: string) => {
-    setState((prev) => ({
-      ...prev,
-      message: { message, variant },
-    }));
-  };
-
-  const setLogginState = (isLoggedIn: boolean) => {
-    setState((prev) => ({ ...prev, isLoggedIn: isLoggedIn }));
-
-    if (isLoggedIn === false) {
-      navigate("/login/");
+  const getCategories = async () => {
+    setLoading(true);
+    try {
+      const res: ApiResponse = await api(
+        "api/category/?filter=parentCategoryId||$notnull",
+        "get",
+        {},
+        role
+      );
+      if (res.status === "error") {
+        warning.notification("Greška prilikom dohvaćanja glavnih kategorija!");
+        return;
+      }
+      const filteredData = res.data.filter((category:any) => category.parentCategoryId !== null)
+      setCategories(filteredData);
+    } catch (err) {
+      error.notification("Došlo je do greške prilikom dohvaćanja podataka.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const setCategoryData = (category: CategoryType[]) => {
-    setState((prev) => ({ ...prev, categories: category }));
+  const getFeaturesByCatId = async (categoryId: number): Promise<FeatureBaseType[]> => {
+    setLoading(true);
+    try {
+      const res: ApiResponse = await api(
+        `api/feature/cat/${categoryId}/`,
+        "get",
+        {},
+        role
+      );
+      if (res.status === "error") {
+        warning.notification(
+          "Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije."
+        );
+        return [];
+      }
+      return res.data.map((item: any) => ({
+        featureId: item.featureId,
+        name: item.name,
+        categoryId: categoryId,
+      }));
+    } catch (err) {
+      error.notification("Došlo je do greške prilikom dohvaćanja podataka.");
+      return [];
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const addFeatureCategoryChanged = async (selectedValue: any) => {
-    const categoryId = Number(selectedValue.target.value);
+  const addFeatureCategoryChanged = async (categoryId: number) => {
     setAddNewFeatureNumberState("categoryId", categoryId);
     const features = await getFeaturesByCatId(categoryId);
-    const stateFeatures = features.map((feature) => ({
-      featureId: feature.featureId,
-      name: feature.name,
-      categoryId: categoryId,
-    }));
-
     setState((prev) => ({
       ...prev,
       addNewFeature: {
         ...prev.addNewFeature,
         categoryId: categoryId,
-        features: stateFeatures,
+        features,
       },
     }));
   };
 
-  /* KRAJ SET */
-
-  /* GET */
-  const getCategories = () => {
-    api(
-      "api/category/?filter=parentCategoryId||$notnull",
-      "get",
-      {},
-      "administrator",
-    ).then((res: ApiResponse) => {
-      if (res.status === "login") {
-        setLogginState(false);
+  const doAddFeature = async () => {
+    setLoading(true);
+    try {
+      const res: ApiResponse = await api(
+        "/api/feature/",
+        "post",
+        {
+          categoryId: state.addNewFeature.categoryId,
+          name: state.addNewFeature.name,
+        },
+        role
+      );
+      if (res.status === "error") {
+        error.notification(
+          "Greška prilikom dodavanja nove osobine. Provjerite da li se osobina već nalazi u listi iznad. Osvježite ili pokušajte ponovo kasnije."
+        );
         return;
       }
-      setCategoryData(res.data);
-    });
-  };
-
-  const getFeaturesByCatId = async (
-    categoryId: number,
-  ): Promise<FeatureBaseType[]> => {
-    return new Promise((resolve) => {
-      api(
-        "api/feature/cat/" + categoryId + "/",
-        "get",
-        {},
-        "administrator",
-      ).then((res: ApiResponse) => {
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom učitavanja detalja. Osvježite ili pokušajte ponovo kasnije",
-            "danger",
-          );
-        }
-
-        const features: FeatureBaseType[] = res.data.map((item: any) => ({
-          featureId: item.featureId,
-          name: item.name,
-        }));
-        resolve(features);
-      });
-    });
+      const features = await getFeaturesByCatId(state.addNewFeature.categoryId);
+      setState((prev) => ({
+        ...prev,
+        addNewFeature: {
+          ...prev.addNewFeature,
+          features,
+        },
+      }));
+      success.notification("Dodavanje uspješno završeno.");
+    } catch (err) {
+      error.notification("Došlo je do greške prilikom dodavanja nove osobine.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     getCategories();
   }, []);
 
-  const addFeatureInput = (feature: any) => {
-    return <ListboxItem key={feature.name}>{feature.name}</ListboxItem>;
-  };
-
-  const doAddFeature = () => {
-    api(
-      "/api/feature/",
-      "post",
-      {
-        categoryId: state.addNewFeature.categoryId,
-        name: state.addNewFeature.name,
-      },
-      "administrator",
-    ).then(async (res: ApiResponse) => {
-      if (res.status === "login") {
-        setLogginState(false);
-        return;
-      }
-      if (res.status === "error") {
-        setErrorMessage(
-          "Greška prilikom dodavanja nove osobine. Provjerite da li se osobina već nalazi u listi iznad. Osvježite ili pokušajte ponovo kasnije",
-          "danger",
-        );
-        return;
-      }
-      setErrorMessage("Dodavanje uspješno završeno", "success");
-      const categoryId = Number(state.addNewFeature.categoryId);
-      const features = await getFeaturesByCatId(categoryId);
-      const stateFeatures = features.map((feature) => ({
-        featureId: feature.featureId,
-        name: feature.name,
-        categoryId: categoryId,
-      }));
-
-      setState((prev) => ({
-        ...prev,
-        addNewFeature: {
-          ...prev.addNewFeature,
-          categoryId: categoryId,
-          features: stateFeatures,
-        },
-      }));
-    });
-  };
-
-  const addForm = () => {
-    return (
-      <div>
-        <Card className="mb-3">
-          <CardHeader>Detalji osobine</CardHeader>
-          <CardBody>
-            <div className="flex flex-col">
-              <div className="w-full lg:flex">
-                <div className="mb-3 mr-3 w-full">
-                  <Select
-                    id="categoryId"
-                    label="Kategorija"
-                    placeholder="Odaberite kategoriju"
-                    onChange={(value) => addFeatureCategoryChanged(value)}
-                  >
-                    {state.categories.map((category, index) => (
-                      <SelectItem
-                        key={category.categoryId || index}
-                        textValue={`${category.categoryId} - ${category.name}`}
-                        value={Number(category.categoryId)}
-                      >
-                        {category.categoryId} - {category.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-              <div>
-                <Listbox variant="flat" aria-label="Trenutne osobine">
-                  <ListboxSection
-                    className={state.addNewFeature.categoryId ? "" : "hidden"}
-                  >
-                    {state.addNewFeature.features.map(addFeatureInput, this)}
-                  </ListboxSection>
-                </Listbox>
-              </div>
-              <div className="mb-3 mr-3 w-full">
-                <Input
-                  id="name"
-                  type="text"
-                  label="Nova osobina (naziv)"
-                  labelPlacement="inside"
-                  value={state.addNewFeature.name}
-                  onChange={(e) =>
-                    setAddNewFeatureStringState("name", e.target.value)
-                  }
-                ></Input>
-              </div>
-            </div>
-          </CardBody>
-          <CardFooter>
-            <div style={{ alignItems: "end" }}>
-              <Button
-                onClick={() => doAddFeature()}
-                color="success"
-                className={state.addNewFeature.name ? "" : "hidden"}
-              >
-                <i className="bi bi-plus-circle" /> Dodaj osobinu
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
-    );
-  };
-
   return (
-    <div>
-      <RoledMainMenu />
-      <div className="container mx-auto mt-3 h-max lg:px-4">
-        {addForm()}
-        <Toast
-          variant={state.message?.variant}
-          message={state.message?.message}
-        />
-        <AdminMenu />
-      </div>
-    </div>
+    <Card loading={loading} title="Dodaj osobinu">
+      <Form layout="vertical">
+        <Form.Item label="Kategorija">
+          <Select
+            placeholder="Odaberite kategoriju"
+            onChange={addFeatureCategoryChanged}
+            style={{ width: "100%" }}
+          >
+            {categories.map((category) => (
+              <Option key={category.categoryId} value={category.categoryId}>
+                {category.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        {state.addNewFeature.features.length > 0 && (
+          <Form.Item label="Trenutne osobine">
+            <List
+              bordered
+              dataSource={state.addNewFeature.features}
+              renderItem={(item) => <List.Item>{item.name}</List.Item>}
+              style={{ marginBottom: "1rem" }}
+            />
+          </Form.Item>
+        )}
+
+        <Form.Item label="Nova osobina">
+          <Input
+            placeholder="Unesite naziv osobine"
+            value={state.addNewFeature.name}
+            onChange={(e) => setAddNewFeatureStringState("name", e.target.value)}
+          />
+        </Form.Item>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            onClick={doAddFeature}
+            loading={loading}
+            disabled={!state.addNewFeature.name}
+          >
+            Dodaj osobinu
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
   );
 };
 

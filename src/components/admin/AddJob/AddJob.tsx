@@ -1,192 +1,130 @@
 import React, { useEffect, useState } from "react";
-import { ApiResponse, useApi } from "../../../API/api";
-import {
-  Button,
-  Input,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Textarea,
-} from "@nextui-org/react";
-import Toast from "../../custom/Toast";
-interface JobType {
-  jobId: number;
-  title: string;
-  description: string;
-  jobCode: string;
-}
+import { useApi } from "../../../API/api";
+import { Button, Input, Form, notification } from "antd";
+import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useUserContext } from "../../UserContext/UserContext";
 
-interface AddJobState {
-  message: {
-    message: string;
-    variant: string;
-  };
-  jobBase: JobType[];
-  isLoggedIn: boolean;
-  add: {
+const AddJob: React.FC = () => {
+  const { api } = useApi();
+  const { role } = useUserContext();
+  const { success, error } = useNotificationContext();
+
+  const [state, setState] = useState<{
     job: {
       title: string;
       description: string;
       jobCode: string;
     };
-  };
-}
-
-const AddJob: React.FC = () => {
-  const { api } = useApi();
-  const [state, setState] = useState<AddJobState>({
-    message: {message: "", variant: ""},
-    isLoggedIn: true,
-    jobBase: [],
-    add: {
-      job: {
-        title: "",
-        description: "",
-        jobCode: "",
-      },
+  }>({
+    job: {
+      title: "",
+      description: "",
+      jobCode: "",
     },
   });
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     getJobs();
   }, []);
 
-  /* SET */
-  const setAddNewJobStringState = (fieldName: string, newValue: string) => {
-    setState((prevState) => ({
-      ...prevState,
-      add: {
-        ...prevState.add,
-        job: {
-          ...prevState.add.job,
-          [fieldName]: newValue,
-        },
-      },
-    }));
-  };
-
-  const setErrorMessage = (message: string, variant: string) => {
-    setState((prev) => ({
-      ...prev,
-      message: { message, variant },
-    }));
-  };
-
-  const setLoggedInStatus = (isLoggedIn: boolean) => {
-    setState((prev) => ({ ...prev, isLoggedIn: isLoggedIn }));
-  };
-
-  const setJobData = (jobData: JobType[]) => {
-    setState(
-      Object.assign(state, {
-        jobBase: jobData,
-      }),
-    );
-  };
-
   /* GET */
-
-  const getJobs = () => {
-    api("api/job?sort=title,ASC", "get", {}, "administrator").then(
-      (res: ApiResponse) => {
-        if (res.status === "login") {
-          setLoggedInStatus(false);
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom učitavanja radnih mjesta.",
-            "danger",
-          );
-          return;
-        }
-        setJobData(res.data);
-      },
-    );
+  const getJobs = async () => {
+    try {
+      setLoading(true);
+      const res = await api("api/job?sort=title,ASC", "get", {}, role);
+      if (res.status === "error") {
+        notification.error({
+          message: "Greška prilikom učitavanja radnih mjesta.",
+        });
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
+    } catch (error) {
+      notification.error({
+        message: "Greška prilikom učitavanja radnih mjesta.",
+      });
+      setLoading(false);
+    }
   };
 
-  const doAddJob = () => {
-    api("api/job/", "post", state.add.job, "administrator").then(
-      (res: ApiResponse) => {
-        if (res.status === "login") {
-          setLoggedInStatus(false);
-          return;
-        }
-        if (res.status === "error") {
-          setErrorMessage("Greška prilikom dodavanja radnog mjesta.", "danger");
-          return;
-        }
-        setErrorMessage("Uspješno dodano radno mjesto", "success");
-        getJobs();
-      },
-    );
+  const doAddJob = async () => {
+    try {
+      setLoading(true);
+      const res = await api("api/job/", "post", state.job, role);
+      if (res.status === "error") {
+        error.notification("Greška prilikom dodavanja radnog mjesta.");
+        setLoading(false);
+        return;
+      }
+      success.notification("Uspješno dodano radno mjesto");
+      getJobs();
+      setLoading(false);
+    } catch (err: any) {
+      error.notification(err.data.message);
+      setLoading(false);
+    }
   };
 
-  const addForm = () => {
-    return (
-      <ModalContent>
-        <ModalHeader>Detalji radnog mjesta</ModalHeader>
-        <ModalBody>
-          <div className="flex flex-col">
-            <div className="mb-3 mr-3 w-full">
-              <Input
-                id="jobTitle"
-                type="text"
-                label="Naziv radnog mjesta"
-                labelPlacement="inside"
-                value={state.add.job.title}
-                onChange={(e) => {
-                  setAddNewJobStringState("title", e.target.value);
-                }}
-              ></Input>
-            </div>
-            <div className="mb-3 mr-3 w-full">
-              <Textarea
-                id="jobDescription"
-                label="Opis"
-                placeholder="Opišite radno mjesto"
-                value={state.add.job.description}
-                onChange={(e) =>
-                  setAddNewJobStringState("description", e.target.value)
-                }
-              />
-            </div>
-            <div className="w-full lg:flex">
-              <Input
-                id="jobCode"
-                type="text"
-                label="Šifra radnog mjesta"
-                labelPlacement="inside"
-                value={state.add.job.jobCode}
-                onChange={(e) =>
-                  setAddNewJobStringState("jobCode", e.target.value)
-                }
-              ></Input>
-            </div>
-          </div>
-          <ModalFooter className={state.add.job.title ? "" : "hidden"}>
-            <div style={{ alignItems: "end" }}>
-              <Button onClick={() => doAddJob()} color="success">
-                <i className="bi bi-plus-circle" />
-                Dodaj radno mjesto
-              </Button>
-            </div>
-          </ModalFooter>
-        </ModalBody>
-      </ModalContent>
-    );
-  };
+  const addForm = () => (
+    <Form
+      layout="vertical"
+      initialValues={state.job}
+      onFinish={doAddJob}
+      onFinishFailed={() => notification.warning({ message: "Molimo popunite sva polja" })}
+    >
+      <Form.Item
+        label="Naziv radnog mjesta"
+        name="title"
+        rules={[{ required: true, message: "Naziv radnog mjesta je obavezan" }]}
+      >
+        <Input
+          value={state.job.title}
+          onChange={(e) => setState({ ...state, job: { ...state.job, title: e.target.value } })}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Opis"
+        name="description"
+        rules={[{ required: true, message: "Opis je obavezan" }]}
+      >
+        <Input.TextArea
+          value={state.job.description}
+          onChange={(e) => setState({ ...state, job: { ...state.job, description: e.target.value } })}
+          rows={4}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Šifra radnog mjesta"
+        name="jobCode"
+        rules={[{ required: true, message: "Šifra radnog mjesta je obavezna" }]}
+      >
+        <Input
+          value={state.job.jobCode}
+          onChange={(e) => setState({ ...state, job: { ...state.job, jobCode: e.target.value } })}
+        />
+      </Form.Item>
+
+      <Button
+        type="primary"
+        htmlType="submit"
+        loading={loading}
+        disabled={!state.job.title}
+      >
+        Dodaj radno mjesto
+      </Button>
+    </Form>
+  );
+
   return (
     <div>
-      <div>
-        {addForm()}
-        <Toast
-          variant={state.message?.variant}
-          message={state.message?.message}
-        />
-      </div>
+      {addForm()}
     </div>
   );
 };
+
 export default AddJob;

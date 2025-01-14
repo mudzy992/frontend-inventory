@@ -23,3 +23,7 @@
     backdrop-filter: blur(10px); /* Možete promeniti 10px u željeni intenzitet blura */
     -webkit-backdrop-filter: blur(10px); /* Za bolje podržavanje u WebKit browserima */
   }
+
+  .ant-tag {
+    border-radius: 12px;
+  }

@@ -70,7 +70,7 @@ const App = () => {
               "colorInfo": "#1668dc",
               "colorSuccess": "#3c8618",
               "colorLink": "#b2f1e8",
-              "wireframe": true
+              "wireframe": false
             },
             "components": {
               "Button": {
@@ -84,6 +84,9 @@ const App = () => {
               "Select": {
                 "borderRadius": 12,
                 "controlHeight": 44,
+              },
+              "Tag": {
+                "borderRadius":20
               },
             },
             "algorithm": theme.darkAlgorithm

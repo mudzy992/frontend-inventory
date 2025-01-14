@@ -146,7 +146,6 @@ const AddNewCategoryPage: React.FC = () => {
               </Form.Item>
             </Form>
           </Card>
-        <AdminMenu />
       </div>
   );
 };

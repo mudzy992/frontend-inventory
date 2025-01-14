@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useApi } from "../../../API/api";
-import { Button, Form, Input, Modal, Select, Spin, notification } from "antd";
+import { Button, Form, Input, Modal, Select } from "antd";
 import { useNotificationContext } from "../../Notification/NotificationContext";
 const { TextArea } = Input;
 const { Option } = Select;
@@ -56,13 +56,6 @@ const AddDepartment: React.FC = () => {
   };
 
   return (
-    <Modal
-      title="Dodavanje sektora/službe/odjeljenja"
-      open={modalVisible}
-      onCancel={() => setModalVisible(false)}
-      footer={null}
-      loading={loading}
-    >
         <Form layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label="Naziv sektora/službe/odjeljenja"
@@ -99,6 +92,8 @@ const AddDepartment: React.FC = () => {
                 </Option>
               ))}
             </Select>
+            <p className="text-xs mt-2 pl-4">U slučaju da se kreira sektor nije potrebno popuniti polje ispod. Polje se popunjava
+                                isključivo ako se dodaje služba/odjeljenje koje pripada nekom sektoru/službi.</p>
           </Form.Item>
 
           <Form.Item>
@@ -107,7 +102,6 @@ const AddDepartment: React.FC = () => {
             </Button>
           </Form.Item>
         </Form>
-    </Modal>
   );
 };
 

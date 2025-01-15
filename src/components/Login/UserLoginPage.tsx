@@ -9,9 +9,6 @@ interface UserLoginPageState {
   email: string;
   password: string;
   userID: number;
-  errorMessage: { message: string; variant: string };
-  isLoggedIn: boolean;
-  isAlertClosed: boolean;
 }
 
 const UserLoginPage: React.FC = () => {
@@ -21,9 +18,6 @@ const UserLoginPage: React.FC = () => {
     email: "",
     password: "",
     userID: 0,
-    errorMessage: { message: "", variant: "" },
-    isLoggedIn: false,
-    isAlertClosed: false,
   });
 
   const navigate = useNavigate();
@@ -41,13 +35,6 @@ const UserLoginPage: React.FC = () => {
     }
   };
 
-  const setLogginState = (isLoggedIn: boolean) => {
-    setState({
-      ...state,
-      isLoggedIn: isLoggedIn,
-    });
-  };
-
   const setUserID = (userID: number) => {
     setState({
       ...state,
@@ -60,7 +47,6 @@ const UserLoginPage: React.FC = () => {
       email: state.email,
       password: state.password,
     }).then(async (res: ApiResponse) => {
-      console.log(res)
       if (res.status === "error") {
         error.notification(res.data.message);
         return;
@@ -81,7 +67,6 @@ const UserLoginPage: React.FC = () => {
           return;
         }
         if (res.status === "ok") {
-          await setLogginState(true);
           await saveIdentity(res.data.role, res.data.id, setRole, setUserId, setIsAuthenticated);
           await setUserID(res.data.id);
           await saveToken(res.data.token);

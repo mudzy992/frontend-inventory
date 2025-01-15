@@ -31,6 +31,7 @@ import RoledMainMenu from "./components/RoledMainMenu/RoledMainMenu";
 import { themeToken } from "./config/theme.token.config";
 import { NotificationProvider } from "./components/Notification/NotificationContext";
 import SpeedDial from "./components/SpeedDial/SpeedDial";
+import BackgroundParticles from "./components/custom/BackgroundParticles";
 
 const { Content, Footer } = Layout;
 
@@ -131,7 +132,11 @@ const App = () => {
 const rootElement = document.getElementById("root");
 
 if (rootElement) {
-  createRoot(rootElement).render(<App />);
+  createRoot(rootElement).render(<>
+  <BackgroundParticles />
+  <App />
+  </>
+);
 } else {
   console.error("Element with id 'root' not found.");
 }

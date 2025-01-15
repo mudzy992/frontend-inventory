@@ -4,7 +4,7 @@ import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
 import moment from "moment";
 import { Button, Card, Col, Row, Input, Table, Pagination, Tooltip, Tag, Space, Typography, Popover } from "antd";
-import { SearchOutlined, FileExcelOutlined } from "@ant-design/icons";
+import { SearchOutlined, FileExcelOutlined, LinkOutlined } from "@ant-design/icons";
 import { useApi } from "../../../../API/api";
 import ArticleType from "../../../../types/ArticleType";
 import { useNotificationContext } from "../../../Notification/NotificationContext";
@@ -216,7 +216,10 @@ const ArticlePage: React.FC = () => {
             pagination={false}
             columns={[
               { title: "Naziv", key: "name", render: (record: ArticleType) => record.stock?.name },
-              { title: "Serijski broj", dataIndex: "serialNumber", key: "serialNumber" },
+              { title: "Serijski broj", dataIndex: "serialNumber", key: "serialNumber",
+                render: (serialNumber: string) => (
+                <a href={`#/admin/article/${serialNumber}`} ><LinkOutlined /> {serialNumber}</a>
+              ), },
               { title: "Inventurni broj", dataIndex: "invNumber", key: "invNumber" },
               { title: "Nadogradnja", dataIndex: "upgradeFeatures", key: "upgradeFeatures", render: (features) => (
                 <Space size="small">
@@ -228,7 +231,9 @@ const ArticlePage: React.FC = () => {
                 </Space>
               )},
               { title: "Kategorija", key: "category", render: (record: ArticleType) => record.category?.name },
-              { title: "Korisnik", key: "user", render: (record: ArticleType) => record.user?.fullname },
+              { title: "Korisnik", key: "user", render: (record: ArticleType) => (
+                <a href={`#/user/profile/${record.user?.userId}`}><LinkOutlined /> {record.user?.fullname}</a>
+              )},
               { title: "Organizacija", key: "organization", render: (record: ArticleType) => record.user?.organization?.name },
               { title: "Status", dataIndex: "status", key: "status" },
             ]}

@@ -86,9 +86,9 @@ const UserLoginPage: React.FC = () => {
 
   return (
     <div className="grid gap-3">
-      <div className="mb-2 rounded-xl bg-content1 p-2 text-left text-lg h-12 text-black">
+      <div className="mb-2 rounded-xl p-2 text-left text-lg h-12 border-1">
         <p>
-          <i className="bi bi-person-fill text-xl text-black" /> Korisnička prijava
+          <i className="bi bi-person-fill text-xl" /> Korisnička prijava
         </p> 
       </div>
       <Input

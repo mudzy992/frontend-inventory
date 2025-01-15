@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useApi } from "../../../API/api";
 import DocumentsType from "../../../types/DocumentsType";
-import { Button, Card, Input, MenuProps, Modal, Pagination, Table } from "antd";
+import { Button, Card, Input, Modal, Pagination, Table } from "antd";
 import DocumentsDetails from "./moduls/DocumentDetails";
 import UnsignedDocumnts from "./moduls/UnsignedDocuments";
+import { LinkOutlined } from "@ant-design/icons";
 
 const AdminDocumentsPage = () => {
   const { api } = useApi();
@@ -102,21 +103,21 @@ useEffect(() => {
         record.article?.stock?.name
     )},
     { key: "serijski-broj", title: "Serijski broj", render:(record: DocumentsType) => (
-        record.article?.serialNumber
+      <a href={`#/admin/article/${record.article?.serialNumber}`} ><LinkOutlined /> {record.article?.serialNumber}</a>
     )},
     { key: "inventurni-broj", title: "Inventurni broj", render:(record: DocumentsType) => (
         record.article?.invNumber
     )},
     { key: "predao", title: "Predao", render:(record: DocumentsType) => {
-        const predao = record.articleTimelines && record.articleTimelines[0].subbmited?.fullname
+        const predao = record.articleTimelines && record.articleTimelines[0].subbmited
         return (
-            predao
+          <a href={`#/user/profile/${predao?.userId}`}><LinkOutlined /> {predao?.fullname}</a>
         )
     }},
     { key: "preuzeo", title: "Preuzeo", render:(record: DocumentsType) => {
-        const predao = record.articleTimelines && record.articleTimelines[0].user?.fullname
+        const preuzeo = record.articleTimelines && record.articleTimelines[0].user
         return (
-            predao
+          <a href={`#/user/profile/${preuzeo?.userId}`}><LinkOutlined /> {preuzeo?.fullname}</a>
         )
     }},
     {

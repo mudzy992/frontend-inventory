@@ -14,8 +14,7 @@ const BackgroundParticles: React.FC = () => {
   // Pokreni inicijalizaciju samo jednom
   useEffect(() => {
     initParticlesEngine(async (engine) => {
-      // Učitaj potrebne funkcionalnosti
-      await loadSlim(engine); // Možeš zameniti sa loadFull za više opcija
+      await loadSlim(engine);
     }).then(() => {
       setInit(true);
     });
@@ -30,7 +29,7 @@ const BackgroundParticles: React.FC = () => {
       interactivity: {
         events: {
           onClick: {
-            enable: true,
+            enable: false,
             mode: "push",
           },
           onHover: {
@@ -39,9 +38,6 @@ const BackgroundParticles: React.FC = () => {
           },
         },
         modes: {
-          push: {
-            quantity: 4,
-          },
           repulse: {
             distance: 200,
             duration: 0.4,

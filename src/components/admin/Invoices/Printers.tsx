@@ -242,41 +242,40 @@ const Printers = () => {
     const tableHeader = () => {
         return (
             <div>
-            <div className='flex flex-row justify-between flex-nowrap overflow-auto mb-2'>
-                <div className="flex flex-row gap-2 h-10 items-center">
-                    <span className="flex gap-1">
-                        <i className="bi bi-printer text-white" />
-                        {invoice?.blackAndWhite ? invoice.blackAndWhite.toLocaleString() : "n/a"}
-                    </span>
-                    <span className="flex gap-1">
-                        <i className="bi bi-palette text-danger-500" />
-                        {invoice?.color ? invoice.color.toLocaleString() : "n/a"}
-                    </span>
-                    <span className="flex gap-1">
-                        <i className="bi bi-phone-landscape text-secondary-500" />
-                        {invoice?.scan ? invoice.scan.toLocaleString() : "n/a"}
-                    </span>
-                    <span className="flex gap-1 min-w-fit">
-                        <i className="bi bi-cash-stack text-primary-500" />
-                        {invoice?.rentPrice ? invoice.rentPrice : "n/a"} KM
-                    </span>
-                    <span className="flex gap-1 min-w-fit">
-                        <i className="bi bi-cash-coin text-green-500" />
-                        {invoice?.totalAmount ? invoice.totalAmount : "n/a"} KM
-                    </span>
-                
-                </div>
-                {!isPaid && (
-                    <div className="border-1 border-green-500 p-2 rounded-xl">
-                        <Link
-                            className="text-sm text-green-500 flex flex-row min-w-20"
-                            onClick={() => calculateInvoice()}
-                        >
-                            <i className="bi bi-calculator mr-1"></i>obračunaj 
-                        </Link>
+                <div className='flex flex-row flex-nowrap overflow-auto'>
+                    <div className="flex flex-row gap-2 h-10 items-center">
+                        <span className="flex gap-1">
+                            <i className="bi bi-printer text-white" />
+                            {invoice?.blackAndWhite ? invoice.blackAndWhite.toLocaleString() : "n/a"}
+                        </span>
+                        <span className="flex gap-1">
+                            <i className="bi bi-palette text-danger-500" />
+                            {invoice?.color ? invoice.color.toLocaleString() : "n/a"}
+                        </span>
+                        <span className="flex gap-1">
+                            <i className="bi bi-phone-landscape text-secondary-500" />
+                            {invoice?.scan ? invoice.scan.toLocaleString() : "n/a"}
+                        </span>
+                        <span className="flex gap-1 min-w-fit">
+                            <i className="bi bi-cash-stack text-primary-500" />
+                            {invoice?.rentPrice ? invoice.rentPrice : "n/a"} KM
+                        </span>
+                        <span className="flex gap-1 min-w-fit">
+                            <i className="bi bi-cash-coin text-green-500" />
+                            {invoice?.totalAmount ? invoice.totalAmount : "n/a"} KM
+                        </span>
+                        <div >
+                            {!isPaid && (
+                                <Link
+                                    className="flex flex-row min-w-20"
+                                    onClick={() => calculateInvoice()}
+                                >
+                                    <i className="bi bi-calculator mr-1"></i>obračunaj 
+                                </Link>
+                            )}
+                        </div>
                     </div>
-                )}
-            </div>
+                </div>
                 <Input
                     placeholder="Pretraga po korisniku, serijskom broju, vezi..."
                     value={searchText}

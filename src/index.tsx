@@ -17,7 +17,7 @@ import AddArticlePage from "./components/admin/AddArticle/AddArticlePage";
 import AddUserPage from "./components/admin/AddUser/AddUserPage";
 import AddFeaturePage from "./components/admin/AddFeature/AddFeaturePage";
 import AddNewCategoryPage from "./components/admin/AddCategory/AddCategoryPage";
-import AddDepartmentAndJob from "./components/admin/AddDepartmentJobLocation/AddDepartmetAndJob";
+import AddDepartmentAndJob from "./components/admin/AddDepartmentJobLocation/MainAddDepartmentJobLocation";
 import StockPage from "./components/APP/Stock/StockPage";
 import AdminDocumentsPage from "./components/admin/Documents/AdminDocumentsPage";
 import LoginPage from "./components/Login/LoginPage";

@@ -3,9 +3,9 @@ import { ApiResponse, useApi } from "../../../API/api";
 import LocationType from "../../../types/LocationType";
 import DepartmentType from "../../../types/DepartmentType";
 import JobType from "../../../types/JobType";
-import AddDepartment from "../AddDepartment/AddDepartment";
-import AddJob from "../AddJob/AddJob";
-import AddLocation from "../AddLocation/AddLocation";
+import AddDepartment from "../AddDepartmentJobLocation/AddDepartment/AddDepartment";
+import AddJob from "../AddDepartmentJobLocation/AddJob/AddJob";
+import AddLocation from "../AddDepartmentJobLocation/AddLocation/AddLocation";
 import AddDepartmentJobLocation from "./AddDepartmentJobLocation";
 import {
   Button,

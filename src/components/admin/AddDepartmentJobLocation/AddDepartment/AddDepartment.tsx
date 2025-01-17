@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useApi } from "../../../../API/api";
-import { Button, Form, Input, Modal, Select } from "antd";
+import { Button, Form, Input, Select, Spin } from "antd";
 import { useNotificationContext } from "../../../Notification/NotificationContext";
 const { TextArea } = Input;
 const { Option } = Select;
@@ -15,26 +15,50 @@ interface DepartmentType {
 
 const AddDepartment: React.FC = () => {
   const { api } = useApi();
-  const { warning, error, success } = useNotificationContext();
+  const { warning, error, success, info } = useNotificationContext();
   const [departmentBase, setDepartmentBase] = useState<DepartmentType[]>([]);
+  const [filteredDepartments, setFilteredDepartments] = useState<DepartmentType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [selectLoading, setSelectLoading] = useState<boolean>(false);
   const [selectedParentDepartmentId, setSelectedParentDepartmentId] = useState<number | undefined>(undefined);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    getDepartments();
-  }, []);
-
-  const getDepartments = async () => {
+  const fetchDepartments = async () => {
+    setSelectLoading(true);
     try {
       const res = await api("api/department?sort=title,ASC", "get", {}, "administrator");
       if (res.status === "error") {
-        warning.notification("Greška prilikom učitavanja sektora/službi/odjeljenja");
+        warning.notification("Greška prilikom učitavanja sektora/službi/odjeljenja.");
         return;
       }
       setDepartmentBase(res.data);
+      setFilteredDepartments(res.data);
     } catch (err: any) {
       error.notification(err.data.message);
+    } finally {
+      setSelectLoading(false);
     }
+  };
+
+  const handleSearch = (value: string) => {
+    if (!value) {
+      setFilteredDepartments(departmentBase);
+    } else {
+      const filtered = departmentBase.filter((dept) =>
+        dept.title.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredDepartments(filtered);
+    }
+  };
+
+  const handleDropdownVisibleChange = (open: boolean) => {
+    if (open && departmentBase.length === 0) {
+      fetchDepartments();
+    }
+  };
+
+  const handleClear = () => {
+    setFilteredDepartments(departmentBase);
   };
 
   const handleSubmit = async (values: any) => {
@@ -44,21 +68,33 @@ const AddDepartment: React.FC = () => {
       description: values.description,
       parentDepartmentId: values.parentDepartmentId,
     };
+    setLoading(true);
     try {
       const res = await api("api/department/", "post", data, "administrator");
       if (res.status === "error") {
-        error.notification('Greška prilikom dodavanja sektora, službe ili odjeljenja.');
+        error.notification("Greška prilikom dodavanja sektora, službe ili odjeljenja.");
         return;
       }
-      success.notification('Sektor, služba ili odjeljeno uspješno kreirano.');
-      getDepartments();
+      success.notification("Sektor, služba ili odjeljenje uspješno kreirano.");
+      setDepartmentBase([]);
+      setFilteredDepartments([]);
+      form.resetFields();
     } catch (err: any) {
       error.notification(err.data.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={handleSubmit}>
+    <Form 
+      form={form} 
+      layout="vertical" 
+      onFinish={handleSubmit}
+      onFinishFailed={() =>
+        info.notification("Polja sa oznakom * su obavezna")
+      }
+    >
       <Form.Item
         label="Naziv sektora/službe/odjeljenja"
         name="title"
@@ -89,20 +125,23 @@ const AddDepartment: React.FC = () => {
         rules={[{ required: false, message: "Molimo odaberite sektorsku jedinicu ako je potrebno." }]}
       >
         <Select
-          showSearch
           placeholder="Odaberite glavnu službu/odjeljenje"
-          optionFilterProp="label"
-          filterSort={(optionA, optionB) =>
-            (optionA?.label ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())
-          }
+          showSearch
+          loading={selectLoading}
+          onSearch={handleSearch}
+          onDropdownVisibleChange={handleDropdownVisibleChange}
+          filterOption={false}
           allowClear
-          value={selectedParentDepartmentId} // Prikazuje trenutno selektovani ID
-          onChange={(value: number | undefined) => {
-            setSelectedParentDepartmentId(value); // Ažurira selektovani sektor
-          }}
+          onClear={handleClear}
+          onChange={(value: number | undefined) => setSelectedParentDepartmentId(value)}
+          value={selectedParentDepartmentId}
         >
-          {Array.isArray(departmentBase) && departmentBase.map((department) => (
-            <Option key={department.departmentId} value={department.departmentId} label={department.title}>
+          {filteredDepartments.map((department) => (
+            <Option
+              key={department.departmentId}
+              value={department.departmentId}
+              label={department.title}
+            >
               {`${department.departmentId} - ${department.title}`}
             </Option>
           ))}
@@ -110,11 +149,7 @@ const AddDepartment: React.FC = () => {
       </Form.Item>
 
       <Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          disabled={!form.isFieldsTouched(true) || form.getFieldsError().filter(({ errors }) => errors.length).length > 0}
-        >
+        <Button type="primary" htmlType="submit" loading={loading}>
           Dodaj sektor/službu/odjeljenje
         </Button>
       </Form.Item>

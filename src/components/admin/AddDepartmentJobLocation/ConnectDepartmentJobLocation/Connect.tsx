@@ -35,47 +35,147 @@ interface AddDepartmentAndJobState {
 const ConnectDepartmentJobLocation: React.FC = () => {
   const { api } = useApi();
   const { role } = useUserContext();
-  const { warning, error, success } = useNotificationContext();
+  const [form] = Form.useForm();
+  const { warning, error, success, info } = useNotificationContext();
   const [departments, setDepartments] = useState<DepartmentType[]>([]);
+  const [filteredDepartments, setFilteredDepartments] = useState<DepartmentType[]>([]);
   const [jobs, setJobs] = useState<JobType[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<JobType[]>([]);
   const [locations, setLocations] = useState<LocationType[]>([]);
-  const [state, setState] = useState<AddDepartmentAndJobState>({
-    departmentId: 0,
-    jobId: 0,
-    locationId: 0,
-  });
+  const [filteredLocations, setFilteredLocations] = useState<LocationType[]>([]);
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [state, setState] = useState<AddDepartmentAndJobState>();
 
-  useEffect(() => {
-    getData();
-  }, []);
+  const [departmentLoading, setDepartmentLoading] = useState<boolean>(false);
+  const [jobsLoading, setJobsLoading] = useState<boolean>(false);
+  const [locationsLoading, setLocationsLoading] = useState<boolean>(false);
 
-  const getData = async () => {
+  const getDepartments = async () => {
+    setDepartmentLoading(true)
     try {
-      setLoading(true);
-      const [departments, jobs, locations] = await Promise.all([
-        api("api/department?sort=title,ASC", "get", {}, role),
-        api("api/job?sort=title,ASC", "get", {}, role),
-        api("api/location?sort=name,ASC", "get", {}, "administrator"),
-      ]);
-
-      if (
-        departments.status === "error" ||
-        jobs.status === "error" ||
-        locations.status === "error"
-      ) {
-        warning.notification("Greška pri učitavanju podataka.");
+      const departments = await api("api/department?sort=title,ASC", "get", {}, role);
+      if (departments.status === "error") {
+        warning.notification("Greška pri učitavanju sektora.");
         return;
       }
       setDepartments(departments.data);
-      setJobs(jobs.data);
-      setLocations(locations.data);
-      setLoading(false);
+      setFilteredDepartments(departments.data);
     } catch (err: any) {
       error.notification(err.data.message);
-      setLoading(false);
+    } finally {
+      setDepartmentLoading(false)
     }
+  };
+
+  const handleDepartmentSearch = (value: string) => {
+    if (!value) {
+      setFilteredDepartments(departments);
+    } else {
+      const filtered = departments.filter((department) =>
+        department.title.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredDepartments(filtered);
+    }
+  };
+
+  const handleDepartmentClear = () => {
+    setFilteredDepartments(departments);
+  };
+
+  const handleDropdownDepartmentVisibleChange = (open: boolean) => {
+    if (open && departments.length === 0) {
+      getDepartments();
+    }
+  };
+
+  const getJobs = async () => {
+    setJobsLoading(true);
+    try {
+      
+      const jobs = await api("api/job?sort=title,ASC", "get", {}, role);
+      if (jobs.status === "error") {
+        warning.notification("Greška pri učitavanju radnih mjesta.");
+        return;
+      }
+      setJobs(jobs.data);
+      setFilteredJobs(jobs.data)
+    } catch (err: any) {
+      error.notification(err.data.message);
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
+  const handleJobSearch = (value: string) => {
+    if (!value) {
+      setFilteredJobs(jobs);
+    } else {
+      const filtered = jobs.filter((job) =>
+        job.title.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredJobs(filtered);
+    }
+  };
+
+  const handleJobClear = () => {
+    setFilteredJobs(jobs);
+  };
+
+  const handleDropdownJobsVisibleChange = (open: boolean) => {
+    if (open && jobs.length === 0) {
+      getJobs();
+    }
+  };
+
+  const getLocations = async () => {
+    setLocationsLoading(true)
+    try {
+      setLocationsLoading(true);
+      const locations = await api("api/location?sort=name,ASC", "get", {}, "administrator");
+      if (locations.status === "error") {
+        warning.notification("Greška pri učitavanju lokacija.");
+        return;
+      }
+      setLocations(locations.data);
+      setFilteredLocations(locations.data)
+    } catch (err: any) {
+      error.notification(err.data.message);
+    } finally {
+      setLocationsLoading(false)
+    }
+  };
+
+  const handleLocationSearch = (value: string) => {
+    if (!value) {
+      setFilteredLocations(locations);
+    } else {
+      const filtered = locations.filter((loc) =>
+        loc.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredLocations(filtered);
+    }
+  };
+
+  const handleLocationClear = () => {
+    setFilteredLocations(locations);
+  };
+
+  const handleDropdownLocationsVisibleChange = (open: boolean) => {
+    if (open && locations.length === 0) {
+      getLocations();
+    }
+  };
+
+  
+
+  const handleSubmit = (values: any) => {
+    const departmentJobLocation = {
+      departmentId: values.departmentId,
+      jobId: values.jobId,
+      locationId: values.locationId,
+    };
+    setState(departmentJobLocation);
+    doAddDepartmentJobLocation(departmentJobLocation);
   };
 
   const doAddDepartmentJobLocation = (departmentJobLocation: {
@@ -94,55 +194,38 @@ const ConnectDepartmentJobLocation: React.FC = () => {
         success.notification(
           "Uspješno dodan sektor/služba/odjeljenje, pripadajuće radno mjesto te lokacija."
         );
-        getData();
       }
     );
   };
 
-  const handleSubmit = (values: any) => {
-    const departmentJobLocation = {
-      departmentId: values.departmentId,
-      jobId: values.jobId,
-      locationId: values.locationId,
-    };
-    setState(departmentJobLocation);
-    
-    doAddDepartmentJobLocation(departmentJobLocation);
-  };
-
-  const isJobDisabled = state.departmentId === 0;
-  const isLocationDisabled = state.jobId === 0;
-
   return (
     <div>
-      <Spin spinning={loading}>
         <Form
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={state}
+          form={form}
+          onFinishFailed={() =>
+            info.notification("Polja sa oznakom * su obavezna")
+          }
         >
           <Form.Item
             label="Sektor/služba/odjeljenje"
             name="departmentId"
             rules={[{ required: true, message: "Odaberite Sektor/služba/odjeljenje!" }]}
-            onSelect={(value: number) => {
-              setState((prevState) => ({
-                ...prevState,
-                departmentId: value,
-                jobId: 0, // Reset job when department changes
-                locationId: 0, // Reset location when department changes
-              }));
-            }}
           >
             <Select
-              showSearch
               placeholder="Odaberite Sektor/služba/odjeljenje"
-              optionFilterProp="label"
-              filterSort={(optionA, optionB) =>
-                (optionA?.label ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())
-              }
+              loading={departmentLoading}
+              showSearch
+              onSearch={handleDepartmentSearch}
+              allowClear
+              onClear={handleDepartmentClear}
+              filterOption={false}
+              onDropdownVisibleChange={handleDropdownDepartmentVisibleChange}
+              
             >
-              {departments.map((department) => (
+              {filteredDepartments.map((department) => (
                 <Select.Option key={department.departmentId} value={department.departmentId} label={department.title}>
                   {department.departmentId} - {department.title}
                 </Select.Option>
@@ -154,24 +237,18 @@ const ConnectDepartmentJobLocation: React.FC = () => {
             label="Naziv radnog mjesta"
             name="jobId"
             rules={[{ required: true, message: "Odaberite radno mjesto!" }]}
-            onSelect={(value: number) => {
-              setState((prevState) => ({
-                ...prevState,
-                jobId: value,
-                locationId: 0, // Reset location when job changes
-              }));
-            }}
           >
             <Select
-              showSearch
               placeholder="Odaberite radno mjesto"
-              optionFilterProp="label"
-              filterSort={(optionA, optionB) =>
-                (optionA?.label ?? "").toLowerCase().localeCompare((optionB?.label ?? "").toLowerCase())
-              }
-              disabled={isJobDisabled}
+              loading={jobsLoading}
+              showSearch
+              onSearch={handleJobSearch}
+              allowClear
+              onClear={handleJobClear}
+              filterOption={false}
+              onDropdownVisibleChange={handleDropdownJobsVisibleChange}
             >
-              {jobs.map((job) => (
+              {filteredJobs.map((job) => (
                 <Select.Option key={job.jobId} value={job.jobId} label={job.title}>
                   {job.jobId} - {job.title}
                 </Select.Option>
@@ -183,18 +260,18 @@ const ConnectDepartmentJobLocation: React.FC = () => {
             label="Lokacija"
             name="locationId"
             rules={[{ required: true, message: "Odaberite lokaciju!" }]}
-            onSelect={(value:number) => {
-              setState((prevState) => ({
-                ...prevState,
-                locationId: value,
-              }));
-            }}
           >
             <Select
               placeholder="Odaberite lokaciju"
-              disabled={isLocationDisabled}
+              loading={locationsLoading}
+              showSearch
+              onSearch={handleLocationSearch}
+              allowClear
+              onClear={handleLocationClear}
+              filterOption={false}
+              onDropdownVisibleChange={handleDropdownLocationsVisibleChange}
             >
-              {locations.map((location) => (
+              {filteredLocations.map((location) => (
                 <Select.Option key={location.locationId} value={location.locationId}>
                   {location.locationId} - {location.name}
                 </Select.Option>
@@ -208,7 +285,6 @@ const ConnectDepartmentJobLocation: React.FC = () => {
             </Button>
           </Form.Item>
         </Form>
-      </Spin>
     </div>
   );
 };

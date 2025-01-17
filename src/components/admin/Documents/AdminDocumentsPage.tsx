@@ -180,7 +180,6 @@ const tableFooter = () => {
         title="Detalji dokumenta"
         open={documentDetailsModalVisible}
         onCancel={() => setDocumentDetailsModalVisible(false)}
-        bodyStyle={{padding:10}}
     >
         <DocumentsDetails documentId={selectedDocument!} documents={documentsData!} />
     </Modal>)

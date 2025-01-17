@@ -49,7 +49,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <RoledMainMenu />
     </div>
     )}
-    <Content className="container mx-auto p-4">
+    <Content className="container mx-auto px-4 md:px-24 py-4">
       {children}
     </Content>
     

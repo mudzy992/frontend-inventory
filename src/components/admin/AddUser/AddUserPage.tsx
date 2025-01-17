@@ -1,689 +1,350 @@
 import React, { useEffect, useState } from "react";
-import { ApiResponse, useApi } from "../../../API/api";
+import { Form, Input, Select, Button, Card, Divider, Steps, Typography } from "antd";
+import { useApi } from "../../../API/api";
+import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useUserContext } from "../../UserContext/UserContext";
 import LocationType from "../../../types/LocationType";
 import DepartmentType from "../../../types/DepartmentType";
 import JobType from "../../../types/JobType";
-import AddDepartment from "../AddDepartmentJobLocation/AddDepartment/AddDepartment";
-import AddJob from "../AddDepartmentJobLocation/AddJob/AddJob";
-import AddLocation from "../AddDepartmentJobLocation/AddLocation/AddLocation";
-import AddDepartmentJobLocation from "./AddDepartmentJobLocation";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Input,
-  Link,
-  Select,
-  SelectItem,
-} from "@nextui-org/react";
-import { useNavigate } from "react-router-dom";
-import Toast from "../../custom/Toast";
-import { Modal } from "antd";
 
-interface LocationDto {
-  locationId: number;
-  name: string;
-  code: string;
-  parentLocationId: number;
+const { Option } = Select;
+const { Step } = Steps;
+const { Title, Paragraph } = Typography;
+
+interface UserDTO {
+  surname: string;
+  forname: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  telephone: string;
+  localNumber: string;
+  departmentId?: number;
+  jobId?: number;
+  gender?: string;
+  locationId?: number;
+  organizationId?: number;
+  status: string;
+  code: number;
 }
 
-interface JobBaseType {
-  jobId: number;
-  title: string;
-  jobCode: string;
-}
-interface AddUserPageState {
-  message: { message: string; variant: string };
-  isLoggedIn: boolean;
-  addUser: {
-    surname: string;
-    forname: string;
-    email: string;
-    localNumber: string;
-    telephone: string;
-    jobId: number;
-    departmentId: number;
-    locationId: number;
-    password: string;
-    status: string;
-    code: number;
-    gender: string;
-    organizationId: number;
-  };
-  modal: {
-    department: {
-      visible: boolean;
-    };
-    job: {
-      visible: boolean;
-    };
-    location: {
-      visible: boolean;
-    };
-    departmentJobLocation: {
-      visible: boolean;
-    };
-  };
-  location: LocationType[];
-  department: DepartmentType[];
-  job: JobType[];
-  errorMessage: string;
-}
 const AddUserPage: React.FC = () => {
   const { api } = useApi();
-  const [state, setState] = useState<AddUserPageState>({
-    isLoggedIn: true,
-    message: { message: "", variant: "" },
-    addUser: {
-      surname: "",
-      forname: "",
-      email: "",
-      localNumber: "",
-      telephone: "",
-      jobId: Number(),
-      departmentId: Number(),
-      locationId: Number(),
-      password: "",
-      status: "",
-      code: Number(),
-      gender: '',
-      organizationId: Number(),
-    },
-    modal: {
-      department: {
-        visible: false,
-      },
-      job: {
-        visible: false,
-      },
-      location: {
-        visible: false,
-      },
-      departmentJobLocation: {
-        visible: false,
-      },
-    },
-    location: [],
-    department: [],
-    job: [],
-    errorMessage: "",
+  const { role } = useUserContext();
+  const { warning, error, success } = useNotificationContext();
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [form] = Form.useForm();
+
+  const [userData, setUserData] = useState<UserDTO>({
+    surname: '',
+    forname: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    telephone: '',
+    localNumber: '',
+    status: 'neaktivan',
+    code: 0,
+    gender: "",
+    organizationId: undefined,
+    departmentId: undefined,
+    jobId: undefined,
+    locationId: undefined,
   });
 
-  const navigate = useNavigate();
-  const [isVisible, setIsVisible] = React.useState(false);
-  const [isDepartmentModalVisible, setIsDepartmentModalVisible ] = useState<boolean>(false)
-  const [isLocationModalVisible, setIsLocationModalVisible ] = useState<boolean>(false)
-  const [isJobModalVisible, setIsJobModalVisible ] = useState<boolean>(false)
-  const toggleVisibility = () => setIsVisible(!isVisible);
+  const [locations, setLocations] = useState<LocationType[]>([]);
+  const [departments, setDepartments] = useState<DepartmentType[]>([]);
+  const [filteredDepartments, setFilteredDepartments] = useState<DepartmentType[]>([]);
+  const [jobs, setJobs] = useState<JobType[]>([]);
 
-  /* SET */
-  const setErrorMessage = (message: string, variant: string) => {
-    setState((prev) => ({
-      ...prev,
-      message: { message, variant },
-    }));
-  };
+  const [loading, setLoading] = useState({
+    location: false,
+    department: false,
+    job: false,
+  });
 
-  const setAddUserStringFieldState = (fieldName: string, newValue: string) => {
-    setState((prev) => ({
-      ...prev,
-      addUser: { ...prev.addUser, [fieldName]: newValue },
-    }));
-  };
+  useEffect(() => {
+    form.setFieldsValue(userData);
+  }, [userData]);
+  
 
-  const setAddUserNumberFieldState = (fieldName: string, newValue: any) => {
-    setState((prev) => ({
-      ...prev,
-      addUser: {
-        ...prev.addUser,
-        [fieldName]: newValue === "null" ? null : Number(newValue),
-      },
-    }));
-  };
-
-  const setLocation = (location: LocationDto[]) => {
-    const locData: LocationType[] = location.map((details) => {
-      return {
-        locationId: details.locationId,
-        code: details.code,
-        name: details.name,
-        parentLocationId: details.parentLocationId,
-      };
-    });
-    setState((prev) => ({ ...prev, location: locData }));
-  };
-
-  const setDepartment = (department: DepartmentType[]) => {
-    setState((prev) => ({ ...prev, department: department }));
-  };
-
-  const addJobDepartmentChange = async (selectedValue: any) => {
-    setAddUserNumberFieldState("departmentId", selectedValue);
-
-    const jobs = await getJobsByDepartmentId(selectedValue);
-    const stateJobs = jobs.map((job) => ({
-      jobId: job.jobId,
-      title: job.title,
-      jobCode: job.jobCode,
-    }));
-
-    setState((prev) => ({ ...prev, job: stateJobs }));
-  };
-
-  const showDepartmentModal = async () => {
-    setIsDepartmentModalVisible(true);
-    getData()
-  };
-
-  const showLocationModal = async () => {
-    setIsLocationModalVisible(true);
-  };
-
-  const showJobModal = async () => {
-    setIsJobModalVisible(true);
-  };
-
-
-  const showDepartmentJobLocationModal = async () => {
-    setDepartmentJobLocationModalVisibleState(true);
-  };
-
-  const setDepartmentJobLocationModalVisibleState = (newState: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      modal: {
-        ...prev.modal,
-        departmentJobLocation: {
-          ...prev.modal.departmentJobLocation,
-          visible: newState,
-        },
-      },
-    }));
-    getJobsByDepartmentId(state.addUser.departmentId);
-  };
-
-  const setLogginState = (isLoggedIn: boolean) => {
-    setState((prev) => ({ ...prev, isLoggedIn: isLoggedIn }));
-
-    if (isLoggedIn === false) {
-      navigate("/login/");
+  const onLocationDropdownVisibleChange = async (visible: boolean) => {
+    if (visible && locations.length === 0) {
+      setLoading((prev) => ({ ...prev, location: true }));
+      try {
+        const res = await api("api/location?sort=name,ASC", "get", {}, role);
+        setLocations(res.data);
+      } catch {
+        warning.notification("Neuspješno dohvaćanje lokacija!");
+      } finally {
+        setLoading((prev) => ({ ...prev, location: false }));
+      }
     }
   };
 
-  /* Kraj SET */
-  /* GET */
-  const getData = () => {
-    api("api/location?sort=name,ASC", "get", {}, "administrator").then(
-      async (res: ApiResponse) => {
-        if (res.status === "error") {
-          setErrorMessage("Greška prilikom hvatanja lokacija", "danger");
-        }
-        if (res.status === "login") {
-          return setLogginState(false);
-        }
-        setLocation(res.data);
-      },
-    );
-
-    api("api/department?sort=title,ASC", "get", {}, "administrator").then(
-      async (res: ApiResponse) => {
-        if (res.status === "error") {
-          setErrorMessage(
-            "Greška prilikom hvatanja sektora i odjeljenja",
-            "danger",
-          );
-        }
-        setDepartment(res.data);
-      },
-    );
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
-
-  const getJobsByDepartmentId = async (
-    departmentId: number,
-  ): Promise<JobBaseType[]> => {
-    return new Promise((resolve) => {
-      api(
-        `api/job/department/${departmentId}`,
-        "get",
-        {},
-        "administrator",
-      ).then((res: ApiResponse) => {
-        if (res.status === "login") {
-          return setLogginState(false);
-        }
-        if (res.status === "error") {
-          setErrorMessage("Greška prilikom hvatanja radnih mjesta", "danger");
-        }
-
-        const jobs: JobBaseType[] = res.data.map((item: any) => ({
-          jobId: item.jobId,
-          title: item.title,
-          jobCode: item.jobCode,
-        }));
-        resolve(jobs);
-      });
-    });
-  };
-
-  /* Kraj GET */
-  const doAddUser = () => {
-    api(
-      "api/user/add/",
-      "post",
-      {
-        surname: state.addUser.surname,
-        forname: state.addUser.forname,
-        password: state.addUser.password,
-        email: state.addUser.email,
-        localNumber: state.addUser.localNumber,
-        telephone: state.addUser.telephone,
-        jobId: state.addUser.jobId,
-        departmentId: state.addUser.departmentId,
-        locationId: state.addUser.locationId,
-        status: state.addUser.status,
-        code: state.addUser.code,
-        gender: state.addUser.gender,
-        organizationId: state.addUser.organizationId,
-      },
-      "administrator",
-    ).then(async (res: ApiResponse) => {
-      if (res.status === "login") {
-        return setLogginState(false);
+  const onDepartmentDropdownVisibleChange = async (visible: boolean) => {
+    if (visible && departments.length === 0) {
+      setLoading((prev) => ({ ...prev, department: true }));
+      try {
+        const res = await api("api/department?sort=title,ASC", "get", {}, role);
+        setDepartments(res.data);
+        setFilteredDepartments(res.data);
+      } catch {
+        warning.notification("Neuspješno dohvaćanje sektora!");
+      } finally {
+        setLoading((prev) => ({ ...prev, department: false }));
       }
+    }
+  };
 
+  const handleDepartmentSearch = (value: string) => {
+    if(!value){
+      setFilteredDepartments(departments)
+    } else {
+      const filtered = departments.filter((department) =>
+      department.title?.toLowerCase().includes(value.toLowerCase())
+    );
+      setFilteredDepartments(filtered);
+    }
+  };
+
+  const handleClear = () => {
+    setFilteredDepartments(departments);
+  };
+
+  const onDepartmentChange = async (value: number) => {
+    setLoading((prev) => ({ ...prev, job: true }));
+    try {
+      const res = await api(`api/job/department/${value}`, "get", {}, role);
+      setJobs(res.data);
+      form.setFieldsValue({ jobId: undefined });
+    } catch {
+      warning.notification("Neuspješno dohvaćanje radnih mjesta!");
+    } finally {
+      setLoading((prev) => ({ ...prev, job: false }));
+    }
+  };
+
+  const doAddUser = async (userData: UserDTO) => {
+    try {
+      const res = await api("api/user/add/", "post", userData, role);
       if (res.status === "ok") {
-        setErrorMessage("Korisnik uspješno dodan", "success");
-        setState((prev) => ({
-          ...prev,
-          addUser: {
-            surname: "",
-            forname: "",
-            email: "",
-            localNumber: "",
-            telephone: "",
-            jobId: Number(),
-            departmentId: Number(),
-            locationId: Number(),
-            password: "",
-            status: "",
-            code: Number(),
-            gender: "",
-            organizationId: Number(),
-          },
-        }));
+        success.notification("Novi radnik uspješno dodan!");
+        form.resetFields()
+        setCurrentStep(0)
       }
-    });
+    } catch {
+      error.notification("Neuspješno dodavanje novog radnika!");
+    }
   };
-  const addForm = () => {
-    return (
-      <div>
-        <Card className="mb-3">
-          <CardHeader>
-            <i className="bi bi-person-lines-fill" /> Informacije o korisniku
-          </CardHeader>
-          <CardBody className="">
-            <div className="flex flex-col lg:flex-row">
-              <div className="w-full lg:flex">
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="surname"
-                    type="text"
-                    label="Ime"
-                    labelPlacement="inside"
-                    value={state.addUser.surname}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("surname", e.target.value)
-                    }
-                  ></Input>
-                </div>
-                <div className="mb-3 w-full">
-                  <Input
-                    id="forname"
-                    type="text"
-                    label="Prezime"
-                    labelPlacement="inside"
-                    value={state.addUser.forname}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("forname", e.target.value)
-                    }
-                  ></Input>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col lg:flex-row">
-              <div className="w-full lg:flex">
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="email"
-                    type="text"
-                    label="Email"
-                    labelPlacement="inside"
-                    value={state.addUser.email}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("email", e.target.value)
-                    }
-                  ></Input>
-                </div>
-                <div className="mb-3 w-full">
-                  <Input
-                    id="password"
-                    endContent={
-                      <button
-                        className="focus:outline-none"
-                        type="button"
-                        onClick={toggleVisibility}
-                      >
-                        {isVisible ? (
-                          <i className="bi bi-eye-fill pointer-events-none text-2xl text-default-400" />
-                        ) : (
-                          <i className="bi bi-eye-slash-fill pointer-events-none text-2xl text-default-400" />
-                        )}
-                      </button>
-                    }
-                    type={isVisible ? "text" : "password"}
-                    label="Lozinka"
-                    labelPlacement="inside"
-                    value={state.addUser.password}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("password", e.target.value)
-                    }
-                  ></Input>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col lg:flex-row">
-              <div className="w-full lg:flex">
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="telephone"
-                    type="text"
-                    label="Telefon"
-                    labelPlacement="inside"
-                    value={state.addUser.telephone}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("telephone", e.target.value)
-                    }
-                  ></Input>
-                </div>
-                <div className="mb-3 w-full">
-                  <Input
-                    id="local"
-                    type="number"
-                    label="Broj u lokalu"
-                    labelPlacement="inside"
-                    value={state.addUser.localNumber}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("localNumber", e.target.value)
-                    }
-                  ></Input>
-                </div>
-              </div>
-            </div>
 
-            <div className="flex flex-col lg:flex-row">
-              <div className="w-full lg:flex">
-                <div className="mb-3 mr-3 w-full">
-                  <Input
-                    id="code"
-                    type="number"
-                    label="Kadrovski broj"
-                    labelPlacement="inside"
-                    value={state.addUser.code.toString()}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("code", e.target.value)
-                    }
-                  ></Input>
-                </div>
-                <div className="mb-3 mr-3 w-full">
-                  <Select
-                    id="gender"
-                    label="Spol"
-                    placeholder="Odaberite spol"
-                    value={state.addUser.gender}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("gender", e.target.value)
-                    }
-                  >
-                    <SelectItem key={"muško"} value={"muško"}>
-                      muško
-                    </SelectItem>
-                    <SelectItem key={"žensko"} value={"žensko"}>
-                      žensko
-                    </SelectItem>
-                  </Select>
-                </div>
-                <div className="mb-3 mr-3 w-full">
-                  <Select
-                    id="status"
-                    label="Status"
-                    placeholder="Odaberite status"
-                    value={state.addUser.status}
-                    onChange={(e) =>
-                      setAddUserStringFieldState("status", e.target.value)
-                    }
-                  >
-                    <SelectItem key={"aktivan"} value={"aktivan"}>
-                      aktivan
-                    </SelectItem>
-                    <SelectItem key={"neaktivan"} value={"neaktivan"}>
-                      neaktivan
-                    </SelectItem>
-                  </Select>
-                </div>
-                <div className="mb-3 w-full">
-                  <Select
-                    id="organizacija"
-                    label="Organizacija"
-                    placeholder="Odaberite organizaciju"
-                    value={state.addUser.organizationId}
-                    onChange={(e) =>
-                      setAddUserNumberFieldState("organizationId", e.target.value)
-                    }
-                  >
-                    <SelectItem key={"1"} value={"1"}>
-                      Distribucija
-                    </SelectItem>
-                    <SelectItem key={"2"} value={"2"}>
-                      Snabdjevanje
-                    </SelectItem>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-row">
-              <div className="flex w-full">
-                <div className="mb-3 mr-3 w-full">
-                  <Select
-                    id="departmentId"
-                    label="Sektor ili odjeljenje"
-                    placeholder="Odaberite sektor ili odjeljenje"
-                    onChange={(e) => {
-                      setAddUserNumberFieldState(
-                        "departmentId",
-                        e.target.value,
-                      );
-                      addJobDepartmentChange(e.target.value);
-                    }}
-                  >
-                    {state.department.map((dep, index) => (
-                      <SelectItem
-                        key={dep.departmentId || index}
-                        textValue={dep.title}
-                        value={Number(dep.departmentId)}
-                      >
-                        {" "}
-                        {dep.title} - {dep.departmendCode}{" "}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-                <div className="mb-3 flex items-center justify-center">
-                  <Button
-                    color="warning"
-                    variant="flat"
-                    size="lg"
-                    onClick={() => showDepartmentModal()}
-                  >
-                    <i className="bi bi-plus-circle-fill" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col lg:flex-row">
-              <div className="flex w-full">
-                <div className="mb-3 mr-3 w-full">
-                  <Select
-                    id="jobId"
-                    label="Radno mjesto"
-                    placeholder="Odaberite radno mjesto"
-                    onChange={(e) =>
-                      setAddUserNumberFieldState("jobId", e.target.value)
-                    }
-                  >
-                    {state.job.map((jo, index) => (
-                      <SelectItem
-                        key={jo.jobId || index}
-                        textValue={jo.title}
-                        value={jo.jobId}
-                      >
-                        {jo.jobCode} - {jo.title}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-                <div className="mb-3 flex items-center justify-center">
-                  <Button
-                    color="warning"
-                    variant="flat"
-                    size="lg"
-                    onClick={() => showJobModal()}
-                  >
-                    <i className="bi bi-plus-circle-fill" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="mb-3 flex flex-col pl-3 text-sm text-default-500 lg:flex-row">
-              Ukoliko je lista radnih mjesta prazna ili radno mjesto ne postoji
-              u istoj, potrebno je izvršiti povezivanje radnog mjesta sa
-              lokacijom i sektorom. To možete učiniti klikom
-              <Link
-                className="cursor-pointer pl-1 text-sm"
-                color="danger"
-                showAnchorIcon
-                onClick={() => showDepartmentJobLocationModal()}
-              >
-                {" "}
-                ovdje
-              </Link>
-              <Modal
-                open={state.modal.departmentJobLocation.visible}
-                onClose={() => setDepartmentJobLocationModalVisibleState(false)}
-              >
-                <AddDepartmentJobLocation />
-              </Modal>
-            </div>
-
-            <div className="flex flex-col lg:flex-row">
-              <div className="flex w-full">
-                <div className="mb-3 mr-3 w-full">
-                  <Select
-                    id="locationId"
-                    label="Lokacija"
-                    placeholder="Odaberite lokaciju"
-                    onChange={(e) =>
-                      setAddUserNumberFieldState("locationId", e.target.value)
-                    }
-                  >
-                    {state.location.map((loc, index) => (
-                      <SelectItem
-                        key={loc.locationId || index}
-                        textValue={loc.name}
-                        value={loc.locationId}
-                      >
-                        {loc.code} - {loc.name}{" "}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
-                <div className="mb-3 flex items-center justify-center">
-                  <Button
-                    color="warning"
-                    variant="flat"
-                    size="lg"
-                    onClick={() => showLocationModal()}
-                  >
-                    <i className="bi bi-plus-circle-fill" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-          <CardFooter className="gap-3">
-            <div>
-              <Button onClick={() => doAddUser()} color="success">
-                {" "}
-                <i className="bi bi-person-check-fill" />
-                Dodaj korisnika
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
-    );
+  const handleNext = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        setUserData((prevData) => ({
+          ...prevData,
+          ...values,
+        }));
+        setCurrentStep((prevStep) => prevStep + 1);
+      })
+      .catch((error) => {
+        console.log('Validation failed:', error);
+      });
   };
-  /* Kraj dodatnih funkcija */
+
+  const onFinish = () => {
+    const formData = form.getFieldsValue();
+    const finalData = {...userData, ...formData, code: Number(userData.code)}
+    doAddUser(finalData);
+  };
+
+  const steps = [
+    {
+      title: "Osnovni podaci",
+      content: (
+        <>
+          <Title level={4}>Unesite osnovne podatke korisnika</Title>
+          <Paragraph>Molimo vas da unesete osnovne informacije kao što su ime, prezime, email i kontakt informacije.</Paragraph>
+            <div className="min-h-fit grid grid-cols-1 gap-3 md:grid-cols-2">
+              <Form.Item label="Ime" name="surname" rules={[{ required: true, message: "Unesite ime!" }]}>
+                <Input />
+              </Form.Item>
+              <Form.Item label="Prezime" name="forname" rules={[{ required: true, message: "Unesite prezime!" }]}>
+                <Input />
+              </Form.Item>
+              <Form.Item label="Email" name="email" rules={[{required:true, type: "email", message: "Unesite validan email!" }]}>
+                <Input />
+              </Form.Item>
+              <Form.Item label="Telefon" name="telephone">
+                <Input />
+              </Form.Item>
+              <Form.Item label="Broj u lokalu" name="localNumber">
+                <Input type="number" />
+              </Form.Item>
+              <Form.Item label="Spol" name="gender" rules={[{ required: true, message: "Molimo odaberite spol!" }]}>
+                <Select placeholder="Odaberite spol">
+                  <Option value="muško">Muško</Option>
+                  <Option value="žensko">Žensko</Option>
+                </Select>
+              </Form.Item>
+            </div>
+        </>
+      ),
+    },
+    {
+      title: "Poslovni podaci",
+      content: (
+        <>
+          <Title level={4}>Unesite poslovne podatke korisnika</Title>
+          <Paragraph>Odaberite poslovne podatke kao što su kadrovski broj, sektor, organizacija i radno mjesto.</Paragraph>
+          <div className="min-h-fit grid grid-cols-1 gap-3 md:grid-cols-2">
+          <Form.Item label="Kadrovski broj" name="code">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item label="Status" name="status">
+            <Select placeholder="Odaberite status">
+              <Option value="aktivan">Aktivan</Option>
+              <Option value="neaktivan">Neaktivan</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item label="Organizacija" name="organizationId" rules={[{ required: true, message: "Molimo odaberite odgovarajuću organizaciju!" }]}>
+            <Select placeholder="Odaberite organizaciju">
+              <Option value={1}>Distribucija</Option>
+              <Option value={2}>Snabdjevanje</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item label="Sektor/odjeljenje" name="departmentId" rules={[{ required: true, message: "Molimo odaberite odgovarajući sektor/odjeljenje/službu!" }]}>
+            <Select
+              placeholder="Odaberite sektor"
+              onChange={onDepartmentChange}
+              onDropdownVisibleChange={onDepartmentDropdownVisibleChange}
+              showSearch
+              onSearch={handleDepartmentSearch}
+              filterOption={false}
+              onClear={handleClear}
+              loading={loading.department}
+            >
+              {filteredDepartments.map((dep) => (
+                <Option key={dep.departmentId} value={dep.departmentId}>
+                  {dep.title}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Radno mjesto" name="jobId" rules={[{ required: true, message: "Molimo odaberite odgovarajuće radno mjesto" }]}>
+            <Select placeholder="Odaberite radno mjesto" loading={loading.job} disabled={!jobs.length}>
+              {jobs.map((job) => (
+                <Option key={job.jobId} value={job.jobId}>
+                  {job.title}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Lokacija" name="locationId" rules={[{ required: true, message: "Molimo odberite lokaciju zaposlenika!" }]}>
+            <Select placeholder="Odaberite lokaciju" onDropdownVisibleChange={onLocationDropdownVisibleChange} loading={loading.location}>
+              {locations.map((loc) => (
+                <Option key={loc.locationId} value={loc.locationId}>
+                  {loc.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          </div>
+        </>
+      ),
+    },
+    {
+      title: "Lozinka",
+      content: (
+        <>
+          <Title level={4}>Unesite lozinku</Title>
+          <Paragraph>Unesite lozinku za korisnički račun i potvrdite je.</Paragraph>
+          <Form.Item
+            label="Lozinka"
+            name="password"
+            rules={[{ required: true, message: "Unesite lozinku!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            label="Potvrda lozinke"
+            name="confirmPassword"
+            dependencies={["password"]}
+            rules={[{ required: true, message: "Potvrdite lozinku!" }, {
+                validator: (_, value) =>
+                  value && value !== form.getFieldValue("password")
+                    ? Promise.reject("Lozinke se ne podudaraju!")
+                    : Promise.resolve(),
+              }]}
+          >
+            <Input.Password />
+          </Form.Item>
+        </>
+      ),
+    },
+  ];
+
+  const handleStepChange = (newStep: number) => {
+    form
+      .validateFields()
+      .then((values) => {
+        setUserData((prevData) => ({ ...prevData, ...values }));
+        setCurrentStep(newStep);
+      })
+      .catch((error) => console.log(error));
+  };
+
   return (
-    <div>
-      <div className="container mx-auto mt-3 h-max lg:px-4">
-        {addForm()}
-        <Toast
-          variant={state.message?.variant}
-          message={state.message?.message}
-        />
-      </div>
-      {isDepartmentModalVisible && 
-        (<Modal
-        title="Dodavanje sektora/službe/odjeljenja"
-        open={isDepartmentModalVisible}
-        onCancel={() => setIsDepartmentModalVisible(false)!}
-        footer={false}
-      >
-        <AddDepartment />
-      </Modal>
-      )}
+    <Card title="Dodavanje novog korisnika">
+      <div className="hidden md:block">
+      <Steps current={currentStep} onChange={handleStepChange} >
+        {steps.map((item, index) => (
+          <Step key={index} title={item.title} />
+        ))}
+      </Steps></div>
+      <Form form={form} layout="vertical" >
+        <div style={{ marginTop: "20px" }}>
+          {steps[currentStep].content}
+        </div>
+        <Divider />
+        <div className="flex flex-col md:flex-row md:justify-between gap-4 mt-6">
+          <Button
+            className="w-full md:w-auto"
+            type="default"
+            onClick={() => setCurrentStep(currentStep - 1)}
+            disabled={currentStep === 0}
+          >
+            Prethodni
+          </Button>
+          <Button
+            className="w-full md:w-auto"
+            type="default"
+            onClick={() => form.resetFields()}
+            danger
+          >
+            Resetuj
+          </Button>
+          <Button
+            className="w-full md:w-auto"
+            type="primary"
+            onClick={() => {
+              if (currentStep === steps.length - 1) {
+                onFinish();
+              } else {
+                handleNext();
+              }
+            }}
+            loading={loading.location || loading.department || loading.job}
+          >
+            {currentStep === steps.length - 1 ? "Završi" : "Sljedeći"}
+          </Button>
+        </div>
 
-      {isLocationModalVisible && 
-          (<Modal
-          title="Dodavanje lokacije"
-          open={isLocationModalVisible}
-          onCancel={() => setIsLocationModalVisible(false)!}
-          footer={false}
-        >
-          <AddLocation />
-        </Modal>
-      )}
-
-      {isJobModalVisible && 
-          (<Modal
-          title="Dodavanje radnog mjesta"
-          open={isJobModalVisible}
-          onCancel={() => setIsJobModalVisible(false)!}
-          footer={false}
-        >
-          <AddJob />
-        </Modal>
-      )}
-    </div>
+      </Form>
+    </Card>
   );
 };
 
-export default AddUserPage;
+export default AddUserPage

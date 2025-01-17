@@ -131,6 +131,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
   return (
     <Modal
       open={show}
+      onCancel={onHide}
       width={800}
       style={{top:20}}
       title={`Tiket #${ticketState?.ticketId}`}

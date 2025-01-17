@@ -23,6 +23,7 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const {warning} = useNotificationContext();
+  const [expandedRowKey, setExpandedRowKey] = useState(null);
 
   const getArticleData = async () => {
     try {
@@ -36,7 +37,7 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
       if (res.status === "ok") {
         setArticles(res.data);
       }
-    } catch (err) {
+    } catch (err:any) {
       warning.notification(err.data.message);
       throw err;
     } finally {
@@ -49,6 +50,14 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
       getArticleData();
     }
   }, [userID]);
+
+  const handleExpand = (expanded:any, record:any) => {
+    setExpandedRowKey(expanded ? record.key : null);
+  };
+
+  const handleRowClick = (record:any) => {
+    setExpandedRowKey((prevKey) => (prevKey === record.key ? null : record.key));
+  };
 
   const columns = [
     {
@@ -113,6 +122,13 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
           </Descriptions>
         </div>
       )}
+      expandable={{
+        expandedRowKeys: expandedRowKey ? [expandedRowKey] : [],
+        onExpand: handleExpand,
+      }}
+      onRow={(record) => ({
+        onClick: () => handleRowClick(record),
+      })}
       scroll={{ x: "max-content" }}
     />
   );

@@ -7,7 +7,7 @@ import { Layout, ConfigProvider, theme } from "antd";
 import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
 import { NextUIProvider } from "@nextui-org/react";
-import { UserContextProvider, useUserContext } from "./components/UserContext/UserContext";
+import { UserContextProvider, useUserContext } from "./components/Contexts/UserContext/UserContext";
 import CategoryPage from "./components/APP/Categories/Categories";
 import HomePage from "./components/APP/Home/HomePage";
 import ArticleOnUserPage from "./components/APP/ArticleOnUser/ArticleOnUserPage";
@@ -29,7 +29,7 @@ import InvoiceList from "./components/admin/Invoices/InvoiceList";
 import Printers from "./components/admin/Invoices/Printers";
 import RoledMainMenu from "./components/RoledMainMenu/RoledMainMenu";
 import { themeToken } from "./config/theme.token.config";
-import { NotificationProvider } from "./components/Notification/NotificationContext";
+import { NotificationProvider } from "./components/Contexts/Notification/NotificationContext";
 import SpeedDial from "./components/SpeedDial/SpeedDial";
 
 const { Content, Footer } = Layout;

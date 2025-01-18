@@ -5,8 +5,8 @@ import AdminMenu from "../../SpeedDial/SpeedDial";
 import { Card, Row, Col, Typography } from "antd";
 import AllUsersTable from "../Users/AllUsersTable";
 import { UserRole } from "../../../types/UserRoleType";
-import { useUserContext } from "../../UserContext/UserContext";
-import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useUserContext } from "../../Contexts/UserContext/UserContext";
+import { useNotificationContext } from "../../Contexts/Notification/NotificationContext";
 
 const { Title } = Typography;
 

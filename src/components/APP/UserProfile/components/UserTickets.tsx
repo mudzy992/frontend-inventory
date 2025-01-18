@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Moment from "moment";
 import { ApiResponse, useApi } from "../../../../API/api";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import ViewSingleTicketModal from "../../../admin/HelpDesk/view/ViewSingleTicket";
 import NewTicketWithoutArticle from "../../../admin/HelpDesk/new/WithoutArticle/NewTicketWithoutArticleModal";
 

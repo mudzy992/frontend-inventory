@@ -5,7 +5,7 @@ import CategoryType from "../../../types/CategoryType";
 import AdminMenu from "../../SpeedDial/SpeedDial";
 import { Button, Card, Form, Input, Select, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useNotificationContext } from "../../Contexts/Notification/NotificationContext";
 
 const { Option } = Select;
 

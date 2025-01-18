@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../API/api";
 import { useNavigate, useParams } from "react-router-dom";
 import UserType from "../../../types/UserType";
-import { useUserContext } from "../../UserContext/UserContext";
+import { useUserContext } from "../../Contexts/UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
 import ResponsibilityArticles from "./components/ResponsibilityArticles";
 import UserTickets from "./components/UserTickets";

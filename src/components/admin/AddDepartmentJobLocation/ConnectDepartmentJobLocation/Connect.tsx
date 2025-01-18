@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { Button, Form, Select, Spin, notification } from "antd";
-import { useUserContext } from "../../../UserContext/UserContext";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
+import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
 
 interface DepartmentType {
   departmentId: number;

@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import DocumentsType from "../../../../types/DocumentsType";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
-import { useUserContext } from "../../../UserContext/UserContext";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
+import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
 
 const UnsignedDocuments = () => {
     const { api } = useApi();

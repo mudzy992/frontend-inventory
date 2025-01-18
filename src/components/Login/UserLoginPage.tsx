@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { ApiResponse, saveRefreshToken, saveToken, useApi } from "../../API/api";
 import { useNavigate } from "react-router-dom";
 import { Button, Divider, Input } from "antd";
-import { saveIdentity, useUserContext } from "../UserContext/UserContext";
-import { useNotificationContext } from "../Notification/NotificationContext";
+import { saveIdentity, useUserContext } from "../Contexts/UserContext/UserContext";
+import { useNotificationContext } from "../Contexts/Notification/NotificationContext";
 
 interface UserLoginPageState {
   email: string;

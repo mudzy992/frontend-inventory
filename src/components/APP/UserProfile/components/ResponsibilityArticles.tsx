@@ -3,12 +3,12 @@ import { Table, Button, Popover, Typography, Spin, Descriptions } from "antd";
 import { SaveOutlined, FileTextOutlined } from "@ant-design/icons";
 import { ApiConfig } from "../../../../config/api.config";
 import saveAs from "file-saver";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
 import ArticleType from "../../../../types/ArticleType";
 import DocumentsType from "../../../../types/DocumentsType";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
 
 const { Text } = Typography;
 

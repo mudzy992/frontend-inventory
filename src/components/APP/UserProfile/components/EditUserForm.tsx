@@ -4,7 +4,7 @@ import DepartmentType from "../../../../types/DepartmentType";
 import JobType from "../../../../types/JobType";
 import LocationType from "../../../../types/LocationType";
 import { UserRole } from "../../../../types/UserRoleType";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { useApi } from "../../../../API/api";
 
 type EditUserFormProps = {

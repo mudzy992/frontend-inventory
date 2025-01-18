@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useApi } from "../../../../API/api";
 import { Button, Input, Form, notification } from "antd";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import JobType from "../../../../types/JobType";
 
 const AddJob: React.FC = () => {

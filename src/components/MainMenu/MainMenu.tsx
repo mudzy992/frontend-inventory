@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import UserType from "../../types/UserType";
 import { ApiResponse, useApi } from "../../API/api";
-import { removeIdentity, useUserContext } from "../UserContext/UserContext";
+import { removeIdentity, useUserContext } from "../Contexts/UserContext/UserContext";
 
 export interface MainMenuItem {
   text: string;

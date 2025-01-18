@@ -3,7 +3,7 @@ import { Avatar, Button, Descriptions, message } from "antd";
 import EditUserForm from "./EditUserForm";
 import UserType from "../../../../types/UserType";
 import { UserRole } from "../../../../types/UserRoleType";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { useApi } from "../../../../API/api";
 
 const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ data, onRefresh }) => {

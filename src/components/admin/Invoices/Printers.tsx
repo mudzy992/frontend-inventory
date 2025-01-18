@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Input, Table, Tag } from 'antd';
 import { useParams } from 'react-router-dom';
-import { useUserContext } from '../../UserContext/UserContext';
+import { useUserContext } from '../../Contexts/UserContext/UserContext';
 import Link from 'antd/es/typography/Link';
 import { useApi } from '../../../API/api';
-import { useNotificationContext } from '../../Notification/NotificationContext';
+import { useNotificationContext } from '../../Contexts/Notification/NotificationContext';
 
 type PrinterDTO = {
     printerId: string;

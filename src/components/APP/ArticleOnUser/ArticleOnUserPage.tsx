@@ -28,7 +28,7 @@ import { LangBa } from "../../../config/lang.ba";
 import ArticleType from "../../../types/ArticleType";
 import saveAs from "file-saver";
 import { ApiConfig } from "../../../config/api.config";
-import { useUserContext } from "../../UserContext/UserContext";
+import { useUserContext } from "../../Contexts/UserContext/UserContext";
 import { UserRole } from "../../../types/UserRoleType";
 import NewTicketByArticleModal from "../../admin/HelpDesk/new/ByArticle/NewTicketByArticleModal";
 

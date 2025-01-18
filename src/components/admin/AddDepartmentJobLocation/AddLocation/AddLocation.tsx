@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Button, Input, Form, Select } from "antd";
 import { useApi } from "../../../../API/api";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 
 interface LocationType {
   locationId: number;

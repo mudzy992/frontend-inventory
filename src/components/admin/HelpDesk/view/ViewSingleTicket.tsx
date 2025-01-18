@@ -11,12 +11,12 @@ import {
 } from "antd";
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
 import Moment from "moment";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { UserRole } from "../../../../types/UserRoleType";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
 
 type ModalProps = {
   show: boolean;

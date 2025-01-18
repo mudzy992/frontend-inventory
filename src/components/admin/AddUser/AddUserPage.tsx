@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Select, Button, Card, Divider, Steps, Typography } from "antd";
 import { useApi } from "../../../API/api";
-import { useNotificationContext } from "../../Notification/NotificationContext";
-import { useUserContext } from "../../UserContext/UserContext";
+import { useNotificationContext } from "../../Contexts/Notification/NotificationContext";
+import { useUserContext } from "../../Contexts/UserContext/UserContext";
 import LocationType from "../../../types/LocationType";
 import DepartmentType from "../../../types/DepartmentType";
 import JobType from "../../../types/JobType";

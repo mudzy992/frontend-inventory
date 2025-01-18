@@ -23,7 +23,7 @@ import {
 import HelpdeskTicketsType from "../../../../types/HelpdeskTicketsType";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
-import { useUserContext } from "../../../UserContext/UserContext";
+import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import ModeratorGroupMappingType from "../../../../types/ModeratorGroupMappingType";
 import UserType from "../../../../types/UserType";

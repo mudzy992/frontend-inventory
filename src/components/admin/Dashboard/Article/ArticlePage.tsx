@@ -7,7 +7,7 @@ import { Button, Card, Col, Row, Input, Table, Pagination, Tooltip, Tag, Space, 
 import { SearchOutlined, FileExcelOutlined, LinkOutlined } from "@ant-design/icons";
 import { useApi } from "../../../../API/api";
 import ArticleType from "../../../../types/ArticleType";
-import { useNotificationContext } from "../../../Notification/NotificationContext";
+import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
 
 interface CategoryCount {
   [key: string]: number;

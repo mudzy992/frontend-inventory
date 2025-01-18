@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import UserType from "../../../types/UserType";
 import { ApiResponse, useApi } from "../../../API/api";
 import { UserRole } from "../../../types/UserRoleType";
-import { useUserContext } from "../../UserContext/UserContext";
+import { useUserContext } from "../../Contexts/UserContext/UserContext";
 import { LinkOutlined, SearchOutlined } from '@ant-design/icons';
-import { useNotificationContext } from "../../Notification/NotificationContext";
+import { useNotificationContext } from "../../Contexts/Notification/NotificationContext";
 
 const AllUsersTable = () => {
     const { api } = useApi();

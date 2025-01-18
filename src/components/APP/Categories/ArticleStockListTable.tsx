@@ -3,7 +3,7 @@ import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiResponse, useApi } from "../../../API/api";
 import { UserRole } from "../../../types/UserRoleType";
-import { useUserContext } from "../../UserContext/UserContext";
+import { useUserContext } from "../../Contexts/UserContext/UserContext";
 import {  SearchOutlined } from '@ant-design/icons';
 import ArticleListTable from "./ArticleListTable";
 

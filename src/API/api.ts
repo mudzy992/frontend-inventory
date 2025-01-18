@@ -1,11 +1,13 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { ApiConfig } from "../config/api.config";
-import { removeIdentity, useUserContext } from "../components/UserContext/UserContext";
+import { removeIdentity, useUserContext } from "../components/Contexts/UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
+import { useLoading } from "../components/Contexts/LoadingIndicator/LoadingProvider";
 
 export function useApi() {
     const { setIsAuthenticated, setUserId, setRole } = useUserContext();
     const navigate = useNavigate()
+    const { setLoading } = useLoading();
     async function api(
         path: string,
         method: 'get' | 'post' | 'patch' | 'delete' | 'put',
@@ -14,7 +16,7 @@ export function useApi() {
         options: { useMultipartFormData?: boolean } = {},
     ): Promise<ApiResponse> {
         const requestData = createRequestConfig(path, method, body, options);
-
+        setLoading(true)
         try {
             const res = await axios(requestData);
             if (res.status < 200 || res.status >= 300) {
@@ -41,6 +43,8 @@ export function useApi() {
             }
 
             return handleErrorResponse(err);
+        } finally {
+            setLoading(false)
         }
     }
 

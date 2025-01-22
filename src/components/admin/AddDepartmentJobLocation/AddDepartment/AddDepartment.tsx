@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useApi } from "../../../../API/api";
-import { Button, Form, Input, Select, Spin } from "antd";
+import { Button, Form, Input, Select, Typography } from "antd";
 import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
 const { TextArea } = Input;
 const { Option } = Select;
+const { Text, Link } = Typography;
 
 interface DepartmentType {
   departmentId: number;
@@ -120,6 +121,7 @@ const AddDepartment: React.FC = () => {
       </Form.Item>
 
       <Form.Item
+      className="border-1 p-2 border-dashed rounded-xl border-red-700"
         label="Pripada sektoru/službi"
         name="parentDepartmentId"
         rules={[{ required: false, message: "Molimo odaberite sektorsku jedinicu ako je potrebno." }]}
@@ -146,6 +148,9 @@ const AddDepartment: React.FC = () => {
             </Option>
           ))}
         </Select>
+        <Text type="secondary">
+          Ako služba ili odjeljenje pripadaju nekom sektoru, odaberite odgovarajući sektor u polju "Pripada sektoru/službi".
+        </Text>
       </Form.Item>
 
       <Form.Item>

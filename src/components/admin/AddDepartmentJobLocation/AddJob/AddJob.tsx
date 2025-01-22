@@ -42,7 +42,7 @@ const AddJob: React.FC = () => {
           name="title"
           rules={[{ required: true, message: "Naziv radnog mjesta je obavezan" }]}
         >
-          <Input />
+          <Input placeholder="Naziv radnog mjesta"/>
         </Form.Item>
 
         <Form.Item
@@ -51,6 +51,7 @@ const AddJob: React.FC = () => {
           rules={[{ required: true, message: "Opis je obavezan" }]}
         >
           <Input.TextArea
+            placeholder="Opis"
             rows={4}
           />
         </Form.Item>
@@ -60,7 +61,7 @@ const AddJob: React.FC = () => {
           name="jobCode"
           rules={[{ required: true, message: "Šifra radnog mjesta je obavezna" }]}
         >
-          <Input />
+          <Input placeholder="Šifra radnog mjesta"/>
         </Form.Item>
 
         <Button

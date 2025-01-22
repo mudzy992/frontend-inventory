@@ -91,7 +91,7 @@ const AddLocation: React.FC = () => {
         name="name"
         rules={[{ required: true, message: "Molimo unesite naziv lokacije!" }]}
       >
-        <Input />
+        <Input placeholder="Naziv lokacije"/>
       </Form.Item>
 
       <Form.Item
@@ -99,7 +99,7 @@ const AddLocation: React.FC = () => {
         name="code"
         rules={[{ required: true, message: "Molimo unesite šifru lokacije!" }]}
       >
-        <Input />
+        <Input placeholder="Šifra lokacije"/>
       </Form.Item>
 
       <Form.Item 

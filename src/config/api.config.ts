@@ -1,4 +1,4 @@
-const url = 'http://inventory.hopto.org:3005'; // PRODUKCIJA
+const url = 'https://inventory.hopto.org/backend/'; // PRODUKCIJA
 //const url = "http://192.168.12.69:3006"; // LOKALNA POSAO
 //const url = 'http://192.168.0.29:3005'; // LOKALNA KUĆI
 //const url = 'http://192.168.0.33:3006'; // HOTSPOT

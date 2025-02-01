@@ -96,6 +96,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           onMouseLeave={() => {
             if (!isMobile) setCollapsed(true);
           }}
+          width={250}
         >
           <SiderNavigationMenu collapsed={collapsed} />
         </Sider>
@@ -124,7 +125,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
         <span className="font-bold text-xl"><Link to='/'>Inventry DB</Link></span>
         <div>
-          <UserDropdown isAuthenticated={isAuthenticated} />
+          <UserDropdown />
         </div>
       </Header>
     

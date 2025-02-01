@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 
 
-const UserDropdown = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
-  const {userId, setRole, setUserId, setIsAuthenticated} = useUserContext()
+const UserDropdown = () => {
+  const {userId, isAuthenticated, setRole, setUserId, setIsAuthenticated} = useUserContext()
   const navigate = useNavigate()
   const logOut = async () => {
     if(isAuthenticated){

@@ -4,9 +4,7 @@ import * as ExcelJS from "exceljs";
 import StockType from "../../../types/UserArticleType";
 import ArticleType from "../../../types/ArticleType";
 import DocumentsType from "../../../types/DocumentsType";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import ArticleTimlineModal from "../../APP/ArticleTimeline/ArticleTimelinePageModal";
-import AdminMenu from "../../SpeedDial/SpeedDial";
 import moment from "moment";
 import {
   Button,
@@ -304,7 +302,6 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <div>
-      <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         <div className="mb-14 flex flex-col">
           <div className="lg:flex lg:flex-row">
@@ -562,7 +559,6 @@ const AdminDashboardPage: React.FC = () => {
         variant={messageData.message.variant}
         message={messageData.message.message}
       />
-      <AdminMenu />
     </div>
   );
 };

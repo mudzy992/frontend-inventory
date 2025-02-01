@@ -22,7 +22,6 @@ import {
 } from "@nextui-org/react";
 import { ApiResponse, useApi } from "../../../API/api";
 import Moment from "moment";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import { useParams, useNavigate } from "react-router-dom";
 import { LangBa } from "../../../config/lang.ba";
 import ArticleType from "../../../types/ArticleType";
@@ -523,7 +522,6 @@ export default function ArticleOnUserPage() {
 
   return (
     <div >
-      <RoledMainMenu />
       <div className="container mt-2 lg:mt-4 h-max px-2 lg:px-4 mx-auto">
         <Card>
           <CardHeader>

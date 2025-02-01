@@ -2,7 +2,6 @@ import React, { Key, useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../../API/api";
 import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { UserRole } from "../../../../types/UserRoleType";
-import RoledMainMenu from "../../../RoledMainMenu/RoledMainMenu";
 import {
   Chip,
   Input,
@@ -192,7 +191,6 @@ const HelpdeskTicketPage: React.FC = () => {
 
   return (
     <div>
-      <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         <div id="kontejner-tiketa" className="flex w-full flex-col gap-3"></div>
         <Tabs

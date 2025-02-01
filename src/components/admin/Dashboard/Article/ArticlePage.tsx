@@ -148,7 +148,7 @@ const ArticlePage: React.FC = () => {
     <div>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={loading} title="Broj artikala po kategorijama" className="flex flex-col h-full">
+          <Card title="Broj artikala po kategorijama" className="flex flex-col h-full">
             {Object.keys(categoryCount).map((category) => (
               <p key={category}>
                 {category}: <strong>{categoryCount[category]}</strong>
@@ -157,7 +157,7 @@ const ArticlePage: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={loading}  title="Broj artikala po organizacijama" className="flex flex-col h-full">
+          <Card title="Broj artikala po organizacijama" className="flex flex-col h-full">
             {Object.keys(organizationCount).map((organization) => (
               <p key={organization}>
                 {organization}: <strong>{organizationCount[organization]}</strong>
@@ -166,7 +166,7 @@ const ArticlePage: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={loading}  className="flex flex-col h-full justify-center">
+          <Card className="flex flex-col h-full justify-center">
             <div style={{ textAlign: "center" }}>
               <Title level={3}>Ukupan broj opreme</Title>
               <Text type="secondary">u svim kategorijama</Text>
@@ -175,7 +175,7 @@ const ArticlePage: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={loading}  className="flex flex-col h-full justify-center">
+          <Card className="flex flex-col h-full justify-center">
             <Button type="primary" block onClick={() => navigate("add")}>
               Dodaj novi artikal
             </Button>
@@ -183,7 +183,7 @@ const ArticlePage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card loading={loading}  title="Svi artikli" style={{ marginTop: 16 }}>
+      <Card title="Svi artikli" style={{ marginTop: 16 }}>
         <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
           <Col xs={24} sm={12} md={8} lg={24} className="flex flex-row gap-3 flex-nowrap">
             <Input
@@ -214,6 +214,7 @@ const ArticlePage: React.FC = () => {
             dataSource={paginedArticleData}
             rowKey="articleId"
             pagination={false}
+            loading={loading}
             columns={[
               { title: "Naziv", key: "name", render: (record: ArticleType) => record.stock?.name },
               { title: "Serijski broj", dataIndex: "serialNumber", key: "serialNumber",

@@ -28,11 +28,9 @@ import TelecomInvoice from "./components/APP/TelecomInvoices/TelecomInvoice";
 import InvoiceList from "./components/admin/Invoices/InvoiceList";
 import Printers from "./components/admin/Invoices/Printers";
 import { NotificationProvider } from "./components/Contexts/Notification/NotificationContext";
-import SpeedDial from "./components/SpeedDial/SpeedDial";
 import { Header } from "antd/es/layout/layout";
 
-import { UploadOutlined, UserOutlined, VideoCameraOutlined, MenuFoldOutlined,
-  MenuUnfoldOutlined, } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, } from '@ant-design/icons';
 import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigationMenu";
 import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
 
@@ -110,7 +108,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </div>
     )}
     <Layout>
-      <Header className={`sticky-header flex flex-row justify-between items-center transition-all duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
+      <Header className={`h-14 sticky-header flex flex-row justify-between items-center transition-all duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
         <div>
           <Button
             type="text"
@@ -123,7 +121,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           />
         
         </div>
-        <span className="font-bold text-xl"><Link to='/'>Inventry DB</Link></span>
+        <span className="font-bold text-xl"><Link to='/'>Inventory database</Link></span>
         <div>
           <UserDropdown />
         </div>

@@ -1,61 +1,173 @@
-import {  Menu } from "antd";
-import { DashboardOutlined, AppstoreAddOutlined, FileTextOutlined, StarOutlined, ProfileOutlined, UserAddOutlined, ApartmentOutlined } from "@ant-design/icons";
+import {  Menu, MenuProps } from "antd";
+import { FileDoneOutlined, AppstoreOutlined, CustomerServiceOutlined, GlobalOutlined, DashboardOutlined, AppstoreAddOutlined, FileTextOutlined, StarOutlined, ProfileOutlined, UserAddOutlined, ApartmentOutlined } from "@ant-design/icons";
 import { useUserContext } from "../Contexts/UserContext/UserContext";
+import { useEffect, useState } from "react";
 
-interface MenuProps {
+interface MenuProp {
     collapsed:boolean
 }
 
-const SiderNavigationMenu:React.FC<MenuProps> = ({collapsed}) => {
+type MenuItem = Required<MenuProps>['items'][number];
+
+const SiderNavigationMenu:React.FC<MenuProp> = ({collapsed}) => {
   const { role } = useUserContext(); 
-  const adminMenu = [
+  const [selectedKey, setSelectedKey] = useState<string>("");
+  const adminMenu: MenuItem[] = [
     {
+      key: "admin-dashboard",
       icon: <DashboardOutlined />,
-      name: "Dashboard",
-      link: "#/"
+      label: (
+        <a
+        rel="noopener noreferrer" 
+        href={`#/`}>
+        Naslovna
+        </a>
+      ),
     },
     {
-      icon: <AppstoreAddOutlined  />,
-      name: "Artikli",
-      link: "#/admin/article"
+      type: 'divider',
     },
     {
-      icon: <StarOutlined/>,
-      name: "Osobine",
-      link: "#/admin/feature"
+      key:"admin-helpdesk",
+      icon: <CustomerServiceOutlined  />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/helpdesk`}>
+        Helpdesk
+        </a>
+      )
     },
     {
-      icon: <ProfileOutlined />,
-      name: "Kategorije",
-      link: "#/admin/category"
+      key:"admin-invoices",
+      icon: <FileDoneOutlined  />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/invoices`}>
+        Fakture
+        </a>
+      )
     },
     {
-      icon: <UserAddOutlined />,
-      name: "Korisnici",
-      link: "#/admin/user/"
-    },
-    {
+      key:"admin-documents",
       icon: <FileTextOutlined />,
-      name: "Dokumenti",
-      link: "#/admin/documents/"
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/documents`}>
+        Dokumenti
+        </a>
+      )
     },
     {
+      key:"admin-article",
+      icon: <AppstoreOutlined  />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/article`}>
+        Artikli
+        </a>
+      ),
+      children:[
+        {
+          key:"admin-article-add",
+          label: (
+            <a 
+            rel="noopener noreferrer" 
+            href={`#/admin/article/add`}>
+            Dodaj novi artikal
+            </a>
+          ),
+        }
+      ]
+    },
+    {
+      key:"admin-feature",
+      icon: <StarOutlined/>,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/feature`}>
+        Osobine
+        </a>
+      )
+    },
+    {
+      key:"admin-category",
+      icon: <ProfileOutlined />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/category`}>
+        Kategorije
+        </a>
+      )
+    },
+    {
+      key:"admin-user",
+      icon: <UserAddOutlined />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/user`}>
+        Korisnici
+        </a>
+      )
+    },
+    {
+      key:"admin-department",
       icon: <ApartmentOutlined />,
-      name: "Sektor/služba/odjeljenje",
-      link: "#/admin/department/"
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/department`}>
+        Sektori/službe/odjeljenja
+        </a>
+      )
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key:"admin-telecom",
+      icon: <GlobalOutlined  />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/telecom`}>
+        Telekom priprema
+        </a>
+      )
+    },
+  ];
+
+  const commonMenu: MenuItem[] = [
+    {
+      key: "home",
+      icon: <DashboardOutlined />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/`}>
+        Početna
+        </a>
+      ),
     }
   ];
 
-  const commonMenu = [
-    { text: "Početna", link: "/" }
-  ];
+  useEffect(() => {
+    const path = window.location.hash.replace("#", ""); 
+    if (path === "/") {
+      setSelectedKey("admin-dashboard"); 
+    } else {
+      setSelectedKey(`admin-${path.split("/")[2]}` || "admin-dashboard");
+    }
+  }, [selectedKey]);
 
-  const renderMenuItems = (menu: any) => {
-    return menu.map((item: any) => (
-      <Menu.Item className="flex items-center justify-center" key={item.name} icon={item.icon}>
-        <a href={item.link}>{item.name}</a>
-      </Menu.Item>
-    ));
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    setSelectedKey(e.key);
   };
 
   return (
@@ -65,16 +177,11 @@ const SiderNavigationMenu:React.FC<MenuProps> = ({collapsed}) => {
         style={{
             border: "none",
         }}
-        mode="inline" 
-    >
-        {role === "user" && renderMenuItems(commonMenu)}
-
-        {(role === "administrator" || role === "moderator") && (
-            <>
-            {renderMenuItems(adminMenu)}
-            </>
-        )}
-    </Menu>
+        mode="inline"
+        items={role === 'user' ? commonMenu : adminMenu}
+        selectedKeys={[selectedKey]}
+        onClick={handleMenuClick}
+    />
   );
 };
 

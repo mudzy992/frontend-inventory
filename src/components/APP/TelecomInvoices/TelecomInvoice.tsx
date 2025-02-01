@@ -1,7 +1,6 @@
 import { Button, Checkbox, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from "@nextui-org/react";
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 
 interface RowData {
   [key: string]: string | number | boolean;
@@ -25,8 +24,6 @@ const TelecomInvoice: React.FC = () => {
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
   const [loading, setLoading] = useState<boolean>(false)
 
-
-  // Handle file change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
     setFile(selectedFile);
@@ -35,7 +32,6 @@ const TelecomInvoice: React.FC = () => {
     }
   };
 
-  // Handle sheet selection
   const handleSheetSelection = (sheet: string) => {
     if (selectedSheets.includes(sheet)) {
       setSelectedSheets(selectedSheets.filter((s) => s !== sheet));
@@ -52,10 +48,10 @@ const TelecomInvoice: React.FC = () => {
 
     tableData.forEach((row, rowIndex) => {
       Object.keys(row).forEach((colKey) => {
-        const checkKey = `${rowIndex}-${colKey}`; // Kombinuj indeks reda i kolonu
-        initialChecks[checkKey] = true; // Inicijalno postavi sve na true
+        const checkKey = `${rowIndex}-${colKey}`; 
+        initialChecks[checkKey] = true;
         if (!row[colKey]) {
-          initialValues[checkKey] = ''; // Inicijalizuj prazne inpute za prazna polja
+          initialValues[checkKey] = '';
         }
       });
     });
@@ -66,27 +62,26 @@ const TelecomInvoice: React.FC = () => {
 
   const handleSaveDialog = () => {
     const updatedData = tableData.filter((row, rowIndex) => {
-      const checkKey = `${rowIndex}`; // Kombinuj indeks reda i kolonu
-      return !fieldChecks[checkKey]; // Zadrži red ako nije čekiran
+      const checkKey = `${rowIndex}`;
+      return !fieldChecks[checkKey];
     }).map((row, rowIndex) => {
       const updatedRow: TableData = {};
       Object.keys(row).forEach((colKey) => {
-        const checkKey = `${rowIndex}-${colKey}`; // Kombinuj indeks reda i kolonu
+        const checkKey = `${rowIndex}-${colKey}`; 
         updatedRow[colKey] = fieldValues[checkKey] !== undefined ? fieldValues[checkKey] : row[colKey];
       });
-      return updatedRow; // Vraća ažurirani red
+      return updatedRow;
     });
 
-    setTableData(updatedData); // Ažuriraj stanje sa novim redovima
+    setTableData(updatedData);
   };
 
   const handleDeleteCheckedRows = () => {
     const updatedData = tableData.filter((_, rowIndex) => !fieldChecks[`${rowIndex}`]);
     setTableData(updatedData);
-    setFieldChecks({}); // Resetuj sve čekirane vrednosti
+    setFieldChecks({});
   };
 
-  // Handle file upload
   const handleFileUpload = async (file: File) => {
     const reader = new FileReader();
     reader.onload = (e: any) => {
@@ -94,12 +89,11 @@ const TelecomInvoice: React.FC = () => {
       const workbook = XLSX.read(binaryStr, { type: "binary" });
       const sheetNames = workbook.SheetNames;
       setSheets(sheetNames);
-      setSelectedSheets(sheetNames); // Initially select all sheets
+      setSelectedSheets(sheetNames);
     };
     reader.readAsBinaryString(file);
   };
 
-  // Show data from selected sheets
   const handleShowData = () => {
     if (!file) return;
     const reader = new FileReader();
@@ -110,15 +104,12 @@ const TelecomInvoice: React.FC = () => {
       const filteredData: SheetData[] = selectedSheets.map((sheet) => {
         const sheetData: RowData[] = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]) as RowData[];
 
-        // Filter rows to include only those starting with "Za priključak:"
         const filteredRows = sheetData.filter((row: RowData) =>
           Object.values(row).some((value) => typeof value === 'string' && value.startsWith("Za priključak:"))
         );
 
-        // Define columns to exclude
         const columnsToExclude = ['Ukupno za priključak', '__EMPTY_9', '__EMPTY_18'];
 
-        // Filter rows to include only allowed columns
         const filteredData = filteredRows.map(row => {
           const filteredRow: RowData = {};
           Object.keys(row).forEach(key => {
@@ -140,7 +131,6 @@ const TelecomInvoice: React.FC = () => {
     reader.readAsBinaryString(file);
   };
 
-  // Funkcija za prebacivanje podataka iz tabele u stanje
   const handleSaveTableData = () => {
     const rows = document.querySelectorAll<HTMLTableRowElement>('table tbody tr');
     const rowData: TableData[] = [];
@@ -148,12 +138,11 @@ const TelecomInvoice: React.FC = () => {
     rows.forEach((row, index) => {
       const cells = row.querySelectorAll<HTMLTableCellElement>('td');
 
-      // Pretpostavimo da je prva ćelija broj, a druga iznos
       const amount = cells[1]?.innerText || ''; 
       const number = cells[0]?.innerText || ''; 
 
       const rowObject: TableData = {
-        name: number, // Broj reda kao string
+        name: number,
         amount: amount,
       };
 
@@ -166,14 +155,11 @@ const TelecomInvoice: React.FC = () => {
     const worksheet = XLSX.utils.json_to_sheet(tableData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Table Data");
-  
-    // Preimenuj datoteku i pokreni preuzimanje
     XLSX.writeFile(workbook, "faktura-radna.xlsx");
   };
 
   return (
     <>
-    <RoledMainMenu />
     {loading ? (
       <div className="container mx-auto flex items-center justify-center">
       <Spinner label="Učitavanje..." labelColor="warning" color="warning" />

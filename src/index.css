@@ -2,26 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Sticky header with background blur */
 .sticky-header {
+    padding: 0px 7px !important;
     position: sticky;
     top: 0;
-    z-index: 1000; /* Ensures the header is above other content */
+    z-index: 1;
     width: 100%;
     border-bottom: 1px solid #424242;
-    backdrop-filter: blur(5px);  /* Apply blur effect */
-    background: rgba(0, 0, 0, 0.5);  /* Semi-transparent background to make blur effect visible */
-    transition: background 0.3s ease;  /* Smooth transition when header changes */
+    backdrop-filter: blur(5px); 
+    background: rgba(0, 0, 0, 0.5);
+    transition: background 0.3s ease;
   }
   
-  /* Optional: If you want the background color to be more transparent or change on scroll */
   .sticky-header.scrolled {
-    background: rgba(0, 0, 0, 0.8); /* Darker background when scrolled */
+    background: rgba(0, 0, 0, 0.8);
   }
   
   .ant-modal-root .ant-modal-mask {
-    backdrop-filter: blur(10px); /* Možete promeniti 10px u željeni intenzitet blura */
-    -webkit-backdrop-filter: blur(10px); /* Za bolje podržavanje u WebKit browserima */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   .ant-tag {

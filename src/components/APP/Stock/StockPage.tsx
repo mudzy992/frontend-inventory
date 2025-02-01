@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../API/api";
 import FeaturesType from "../../../types/FeaturesType";
 import Moment from "moment";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import StockType from "../../../types/StockType";
 import { useParams } from "react-router-dom";
 import ArticleInStockTable from "./StockArticleTableNew";
@@ -955,7 +954,6 @@ const StockPage: React.FC = () => {
 
   return (
     <div>
-      <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         {loading ? (
           <div className="flex items-center justify-center">

@@ -1,12 +1,12 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import reportWebVitals from "./reportWebVitals";
-import { HashRouter, Routes, Route } from "react-router-dom";
-import { Layout, ConfigProvider, theme } from "antd";
+import { HashRouter, Routes, Route, Link } from "react-router-dom";
+import { Layout, ConfigProvider, theme, Menu, Button } from "antd";
 import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
-import { NextUIProvider } from "@nextui-org/react";
+import { MenuItem, NextUIProvider } from "@nextui-org/react";
 import { UserContextProvider, useUserContext } from "./components/Contexts/UserContext/UserContext";
 import CategoryPage from "./components/APP/Categories/Categories";
 import HomePage from "./components/APP/Home/HomePage";
@@ -27,33 +27,114 @@ import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
 import TelecomInvoice from "./components/APP/TelecomInvoices/TelecomInvoice";
 import InvoiceList from "./components/admin/Invoices/InvoiceList";
 import Printers from "./components/admin/Invoices/Printers";
-import RoledMainMenu from "./components/RoledMainMenu/RoledMainMenu";
-import { themeToken } from "./config/theme.token.config";
 import { NotificationProvider } from "./components/Contexts/Notification/NotificationContext";
 import SpeedDial from "./components/SpeedDial/SpeedDial";
+import { Header } from "antd/es/layout/layout";
 
-const { Content, Footer } = Layout;
+import { UploadOutlined, UserOutlined, VideoCameraOutlined, MenuFoldOutlined,
+  MenuUnfoldOutlined, } from '@ant-design/icons';
+import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigationMenu";
+import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
+
+const { Content, Footer, Sider } = Layout;
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
+const siderStyle: React.CSSProperties = {
+  overflow: 'auto',
+  height: '100vh',
+  position: 'sticky',
+  insetInlineStart: 0,
+  top: 0,
+  bottom: 0,
+  scrollbarWidth: 'thin',
+  scrollbarGutter: 'stable',
+};
+
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const curentYear = new Date().getFullYear();
   const {isAuthenticated, role} = useUserContext()
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  
 
   return (
+  
   <Layout className="min-h-screen ">
     {isAuthenticated && (
-      <div className="sticky-header">
-        <RoledMainMenu />
-    </div>
+      <div>
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          trigger={null}
+          style={siderStyle}
+          className={`bg-[#141414] transition-all duration-300 ${isMobile && "fixed top-0 left-0 h-full z-50"}`}
+          breakpoint="lg"
+          collapsedWidth={isMobile ? 0 : 70}
+          onBreakpoint={(broken) => {
+            setCollapsed(true)
+          }}
+          onCollapse={(collapsed, type) => {
+            setCollapsed(collapsed);
+          }}
+          onMouseEnter={() => {
+            if (!isMobile) setCollapsed(false);
+          }}
+          onMouseLeave={() => {
+            if (!isMobile) setCollapsed(true);
+          }}
+        >
+          <SiderNavigationMenu collapsed={collapsed} />
+        </Sider>
+
+        {isMobile && !collapsed && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40" 
+              onClick={() => setCollapsed(true)}
+            />
+          )}
+      </div>
     )}
-    <Content className="container mx-auto px-4 md:px-24 py-4">
-      {children}
-    </Content>
+    <Layout>
+      <Header className={`sticky-header flex flex-row justify-between items-center transition-all duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
+        <div>
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            className={isAuthenticated && isMobile ? 'flex items-center font-lg' : 'hidden' }
+            style={{
+              fontSize: '16px',
+            }}
+          />
+        
+        </div>
+        <span className="font-bold text-xl"><Link to='/'>Inventry DB</Link></span>
+        <div>
+          <UserDropdown isAuthenticated={isAuthenticated} />
+        </div>
+      </Header>
     
-    <Footer className="text-center text-gray-400">Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić {(isAuthenticated && role !== 'user') && <SpeedDial />} </Footer>
+      <Content className={`container mx-auto px-4 py-4 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
+        {children}
+      </Content>
+
+    
+    <Footer className={`text-center text-gray-400 z-10 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić </Footer>
+  </Layout>
   </Layout>
 )};
 

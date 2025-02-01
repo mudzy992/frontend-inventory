@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ApiResponse, useApi } from "../../../API/api";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import CategoryType from "../../../types/CategoryType";
-import AdminMenu from "../../SpeedDial/SpeedDial";
 import {
   Button,
   Card,
@@ -484,7 +482,6 @@ const AddArticlePage: React.FC = () => {
   };
   return (
     <div>
-      <RoledMainMenu />
       <div className="container mx-auto mt-3 h-max lg:px-4">
         {loading ? (
           <div className="flex h-screen items-center justify-center">
@@ -497,7 +494,6 @@ const AddArticlePage: React.FC = () => {
           variant={state.message.variant}
           message={state.message.message}
         />
-        <AdminMenu />
       </div>
     </div>
   );

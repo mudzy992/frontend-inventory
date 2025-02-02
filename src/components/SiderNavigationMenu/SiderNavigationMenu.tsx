@@ -142,6 +142,17 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
         </a>
       )
     },
+    {
+      key:"admin-artikal",
+      icon: <GlobalOutlined  />,
+      label: (
+        <a 
+        rel="noopener noreferrer" 
+        href={`#/admin/article/s/S4PT4033`}>
+        Telekom priprema
+        </a>
+      )
+    },
   ];
 
   const commonMenu: MenuItem[] = [

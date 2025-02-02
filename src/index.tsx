@@ -6,7 +6,7 @@ import { HashRouter, Routes, Route, Link } from "react-router-dom";
 import { Layout, ConfigProvider, theme, Menu, Button } from "antd";
 import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
-import { MenuItem, NextUIProvider } from "@nextui-org/react";
+import { NextUIProvider } from "@nextui-org/react";
 import { UserContextProvider, useUserContext } from "./components/Contexts/UserContext/UserContext";
 import CategoryPage from "./components/APP/Categories/Categories";
 import HomePage from "./components/APP/Home/HomePage";
@@ -33,6 +33,7 @@ import { Header } from "antd/es/layout/layout";
 import { MenuFoldOutlined, MenuUnfoldOutlined, } from '@ant-design/icons';
 import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigationMenu";
 import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
+import ArticleComponent from "./components/admin/Article/ArticleComponent";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -168,6 +169,10 @@ const App = () => {
               "Tag": {
                 "borderRadius":20
               },
+              "Card": {
+                "padding": 5,
+                "paddingLG": 14
+              }
             },
             "algorithm": theme.darkAlgorithm
           }}
@@ -197,6 +202,7 @@ const App = () => {
                   <Route path="/admin/invoices" element={<InvoiceList />} />
                   <Route path="/admin/invoices/:invoiceId/printers" element={<Printers />} />
                   <Route path="/admin/telecom" element={<TelecomInvoice />} />
+                  <Route path="/admin/article/s/:serialnumber" element={<ArticleComponent />} />
                 </Routes>
               </AppLayout>
               </NotificationProvider>

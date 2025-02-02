@@ -1,15 +1,16 @@
 import {  Menu, MenuProps } from "antd";
-import { FileDoneOutlined, AppstoreOutlined, CustomerServiceOutlined, GlobalOutlined, DashboardOutlined, AppstoreAddOutlined, FileTextOutlined, StarOutlined, ProfileOutlined, UserAddOutlined, ApartmentOutlined } from "@ant-design/icons";
+import { FileDoneOutlined, AppstoreOutlined, CustomerServiceOutlined, GlobalOutlined, DashboardOutlined, FileTextOutlined, StarOutlined, ProfileOutlined, UserAddOutlined, ApartmentOutlined } from "@ant-design/icons";
 import { useUserContext } from "../Contexts/UserContext/UserContext";
 import { useEffect, useState } from "react";
 
-interface MenuProp {
-    collapsed:boolean
+interface SiderNavigationMenuProps {
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
 }
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const SiderNavigationMenu:React.FC<MenuProp> = ({collapsed}) => {
+const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setCollapsed }) => {
   const { role } = useUserContext(); 
   const [selectedKey, setSelectedKey] = useState<string>("");
   const adminMenu: MenuItem[] = [
@@ -36,7 +37,7 @@ const SiderNavigationMenu:React.FC<MenuProp> = ({collapsed}) => {
         href={`#/admin/helpdesk`}>
         Helpdesk
         </a>
-      )
+      ),
     },
     {
       key:"admin-invoices",
@@ -180,7 +181,10 @@ const SiderNavigationMenu:React.FC<MenuProp> = ({collapsed}) => {
         mode="inline"
         items={role === 'user' ? commonMenu : adminMenu}
         selectedKeys={[selectedKey]}
-        onClick={handleMenuClick}
+        onClick={({ key }) => {
+          setSelectedKey(key);
+          setCollapsed(true);  // <-- Zatvara Sider na klik
+        }}
     />
   );
 };

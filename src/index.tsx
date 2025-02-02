@@ -96,7 +96,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           }}
           width={250}
         >
-          <SiderNavigationMenu collapsed={collapsed} />
+          <SiderNavigationMenu collapsed={collapsed} setCollapsed={setCollapsed}/>
         </Sider>
 
         {isMobile && !collapsed && (

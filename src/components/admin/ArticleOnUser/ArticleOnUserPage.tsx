@@ -3,7 +3,6 @@ import { ApiResponse, useApi } from "../../../API/api";
 import { useNavigate, useParams } from "react-router-dom";
 import Moment from "moment";
 import UserArticleDto from "../../../dtos/UserArticleDto";
-import RoledMainMenu from "../../RoledMainMenu/RoledMainMenu";
 import { ApiConfig } from "../../../config/api.config";
 import saveAs from "file-saver";
 import { LangBa } from "../../../config/lang.ba";
@@ -53,7 +52,6 @@ import { UserRole } from "../../../types/UserRoleType";
 import NewTicketByArticleModal from "../HelpDesk/new/ByArticle/NewTicketByArticleModal";
 import ViewSingleTicketModal from "../HelpDesk/view/ViewSingleTicket";
 import Toast from "../../custom/Toast";
-import ArticleFeatureType from "../../../types/ArticleFeatureType";
 
 interface upgradeFeaturesType {
   upgradeFeatureId: number;

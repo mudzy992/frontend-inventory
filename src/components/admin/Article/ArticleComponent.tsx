@@ -5,12 +5,15 @@ import { ApiResponse, useApi } from '../../../API/api';
 import { useUserContext } from '../../Contexts/UserContext/UserContext';
 import { useNotificationContext } from '../../Contexts/Notification/NotificationContext';
 import ArticleType from '../../../types/ArticleType';
-import { EyeOutlined, SaveOutlined } from '@ant-design/icons';
+import { EyeOutlined, SaveOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
 import ViewSingleTicketModal from '../HelpDesk/view/ViewSingleTicket';
 import StatusChangeModal from '../ChangeArticleStatus/ChangeStatusModal';
+import AdditionSettingsModal from './models/AdditionSpecification';
+import UpgradeFeaturesType from '../../../types/UpgradeFeaturesType';
+import UpgradeFeaturesModal from './models/UpgradeFeatures';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -19,25 +22,29 @@ const { Panel } = Collapse;
 const ArticleComponent: React.FC = () => {
   const { api } = useApi();
   const { role } = useUserContext();
-  const { serialnumber } = useParams<{ serialnumber: string }>();
+  const { serial } = useParams<{ serial: string }>();
   const [loading, setLoading] = useState<boolean>(false);
-  const { warning, error, success } = useNotificationContext();
+  const { warning, error } = useNotificationContext();
   const [article, setArticle] = useState<ArticleType>();
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [changeStatusModalVisible, setChangeStatusModalVisible] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<ArticleType | null>(null);
+  const [additionalSettingModalVisible, setAdditionModalVisible] = useState(false);
+  const [upgradeFeatures, setUpgradeFeatures] = useState<UpgradeFeaturesType[]>([])
+  const [upgradeFeaturesModalVisible, setUpgradeFeaturesModalVisible] = useState(false);
 
   useEffect(() => {
-    if (serialnumber) {
+    if (serial) {
       getArticleData();
+      getUpgradeFeature()
     }
-  }, [serialnumber]);
+  }, [serial]);
 
   const getArticleData = async () => {
     try {
       setLoading(true);
-      const res: ApiResponse = await api(`api/article/sb/${serialnumber}`, 'get', {}, role);
+      const res: ApiResponse = await api(`api/article/sb/${serial}`, 'get', {}, role);
       if (res.status === 'error') {
         warning.notification(res.data.message);
         return;
@@ -49,6 +56,23 @@ const ArticleComponent: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const getUpgradeFeature = async () => {
+      try {
+        await api(
+          `api/upgradeFeature/get/${serial}`,
+          "get",
+          {},
+          role,
+        ).then((res: ApiResponse) => {
+          setUpgradeFeatures(res.data);
+        });
+      } catch (err) {
+        error.notification(
+          "Greška prilikom dohvaćanja dodataka (ArticleComponent)."
+        );
+      }
+    }
   
   const handleShowViewModal = () => {
     setShowViewModal(true);
@@ -73,11 +97,21 @@ const ArticleComponent: React.FC = () => {
     setSelectedArticle(null);
   };
 
+  const handleOpenAdditionalSettingModal = (article: ArticleType) => {
+    setSelectedArticle(article);
+    setAdditionModalVisible(true);
+  };
+
+  const handleCloseAdditionalSettingModal = () => {
+    setAdditionModalVisible(false);
+    setSelectedArticle(null);
+  };
+
   const refreshDataAfterChangeStatus = () => {
     getArticleData()
   };
 
-  if (!serialnumber) {
+  if (!serial) {
     return <div>Serijski broj nije naveden</div>;
   }
 
@@ -103,6 +137,15 @@ const ArticleComponent: React.FC = () => {
       .then(blob => saveAs(blob, fileName))
       .catch(error => console.error("Greška pri preuzimanju fajla:", error));
   };
+
+  const genExtraAdditionalSetting = () => (
+    <i className="bi bi-gear text-warning text-lg" onClick={() => handleOpenAdditionalSettingModal(article!)}/>
+  );
+
+  const genExtraUpgradeFeatures = () => (
+    <i className="bi bi-wrench-adjustable-circle text-success text-lg" onClick={() => setUpgradeFeaturesModalVisible(true)}/>
+  );
+
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={16}>
@@ -131,7 +174,7 @@ const ArticleComponent: React.FC = () => {
             </Col>
             <Col xs={24} md={16} className='flex flex-col'>
             <Collapse defaultActiveKey={['1']}>
-              <Panel header="Tehničke karakteristike" extra={<i className="bi bi-cpu text-primary text-lg" />} key="1" >
+              <Panel header="Tehničke karakteristike" extra={<i className="bi bi-cpu text-primary text-lg"/>} key="1" >
                 <Descriptions column={1} className="max-h-[200px] overflow-y-auto overflow-hidden">
                   {article?.stock?.stockFeatures!.map((feature, index) => (
                     <Descriptions.Item key={index} label={feature.feature?.name}>
@@ -146,12 +189,40 @@ const ArticleComponent: React.FC = () => {
                   </Descriptions.Item>
                 </Descriptions>
               </Panel>
-              <Panel header={"Dodatne specifikacije"} extra={<i className="bi bi-gear text-warning text-lg" />} key="2">
-                <Text>{article?.stock?.description}</Text>
-              </Panel>
+              <Panel header={"Dodatne specifikacije"} extra={genExtraAdditionalSetting()} key="2">
+              {article?.articleFeatures?.length ? article?.articleFeatures?.map(af => (
+                <Descriptions>
+                  <Descriptions.Item label={af.feature?.name}>{af.featureValue}</Descriptions.Item>
+                </Descriptions>
+              )) : "Nema definisanih dodatnih specifikacija"}
 
-              <Panel header="Nadogradnje" extra={<i className="bi bi-wrench-adjustable-circle text-success text-lg" />} key="3">
-                <Text>Nema nadogradnji trenutno.</Text>
+              {additionalSettingModalVisible && (
+                  <AdditionSettingsModal
+                    visible={additionalSettingModalVisible}
+                    onClose={handleCloseAdditionalSettingModal}
+                    data={selectedArticle!}
+                    refreshData={refreshDataAfterChangeStatus}
+                  />
+                )}
+              </Panel>
+              
+              <Panel header="Nadogradnje" extra={genExtraUpgradeFeatures()} key="3">
+              {upgradeFeatures.length ? upgradeFeatures?.map(up => (
+                <Descriptions>
+                  <Descriptions.Item className='flex flex-row flex-nowrap' label={up.name}>{up.value} <span className='ml-2 text-default-500 truncate'> - {up.comment}</span></Descriptions.Item>
+                </Descriptions>
+              )) : "Nema definisanih dodatnih nadogradnji"}
+
+              {upgradeFeaturesModalVisible && (
+                  <UpgradeFeaturesModal
+                    serial={serial}
+                    articleId={article?.articleId!}
+                    visible={upgradeFeaturesModalVisible}
+                    onClose={() => setUpgradeFeaturesModalVisible(false)}
+                    data={upgradeFeatures!}
+                    refreshData={refreshDataAfterChangeStatus}
+                  />
+                )}
               </Panel>
             </Collapse>
             </Col>
@@ -261,12 +332,15 @@ const ArticleComponent: React.FC = () => {
               },
             ]}
           />
-          <ViewSingleTicketModal
-              show={showViewModal}
-              onHide={handleHideViewModal}
-              ticketId={selectedTicketId!}
-              data={article?.helpdeskTickets!}
-            />
+          {showViewModal && 
+            <ViewSingleTicketModal
+                show={showViewModal}
+                onHide={handleHideViewModal}
+                ticketId={selectedTicketId!}
+                data={article?.helpdeskTickets!}
+              />
+          }
+          
           </TabPane>
           </Tabs>
         </Card>
@@ -305,14 +379,15 @@ const ArticleComponent: React.FC = () => {
           <Text><span className='font-bold'>Datum posljednje izmjene: </span>{dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}</Text>
         </Card>
 
-        <StatusChangeModal 
-          data={selectedArticle!}
-          type='article'
-          visible={changeStatusModalVisible}
-          onClose={handleCloseChangeStatusModal}
-          refreshData={refreshDataAfterChangeStatus}
-        />
-
+        {changeStatusModalVisible && 
+          <StatusChangeModal 
+            data={selectedArticle!}
+            type='article'
+            visible={changeStatusModalVisible}
+            onClose={handleCloseChangeStatusModal}
+            refreshData={refreshDataAfterChangeStatus}
+          />
+        }
         <Card title="Skladište" style={{ marginTop: 20 }}>
           <Text><span className='font-bold'>Stanje po ugovoru: </span>{article?.stock?.valueOnContract}</Text><br />
           <Text><span className='font-bold'>Trenutno stanje: </span>{article?.stock?.valueAvailable}</Text><br />
@@ -321,6 +396,7 @@ const ArticleComponent: React.FC = () => {
         </Card>
       </Col>
     </Row>
+    
   );
 };
 

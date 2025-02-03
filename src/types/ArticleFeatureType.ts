@@ -8,5 +8,12 @@ export default class ArticleFeatureType {
     featureValue?: string;
     article?:ArticleType;
     feature?: FeaturesType;
+    use?: number;
   }
-  
+
+export interface FeatureBaseType {
+    featureId?: number;
+    name: string;
+    articleFeatureId: number;
+    value: string;
+  };

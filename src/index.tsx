@@ -185,7 +185,7 @@ const App = () => {
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
-                  <Route path="/admin/article/:serial" element={<AdminArticleOnUserPage />} />
+                  <Route path="/admin/article/s/:serial" element={<AdminArticleOnUserPage />} />
                   <Route path="/user/profile/:userID" element={<AdminUserProfilePage />} />
                   <Route path="/" element={<HomePage />} />
                   <Route path="/category/:categoryID" element={<CategoryPage />} />
@@ -202,7 +202,7 @@ const App = () => {
                   <Route path="/admin/invoices" element={<InvoiceList />} />
                   <Route path="/admin/invoices/:invoiceId/printers" element={<Printers />} />
                   <Route path="/admin/telecom" element={<TelecomInvoice />} />
-                  <Route path="/admin/article/s/:serialnumber" element={<ArticleComponent />} />
+                  <Route path="/admin/article/:serial" element={<ArticleComponent />} />
                 </Routes>
               </AppLayout>
               </NotificationProvider>

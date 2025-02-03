@@ -77,10 +77,17 @@ const StatusChangeModal:React.FC<StatusChangeModalProps> = ({ type, data, stockI
           ]}/>
         </Form.Item>
 
-        <Form.Item name="userId" label="Korisnik" rules={[{ required: true, message: "Odaberite korisnika" }]}>
+        <Form.Item name="userId" label="Korisnik" 
+        rules={[
+          {
+            required: statusValue && statusValue !== "otpisano" && statusValue !== "razduženo",
+            message: "Odaberite korisnika",
+          },
+        ]}
+        >
             <Select
             showSearch
-            disabled={!statusValue || statusValue === "otpisano"}
+            disabled={!statusValue || statusValue === "otpisano" || statusValue === "razduženo"}
             filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
             options={users.map((user) => ({
                 value: user.userId,

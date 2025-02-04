@@ -46,16 +46,13 @@ const AllUsersTable = () => {
                 <div className="flex flex-row items-center gap-2">
                 <Avatar
                 size={40}
-                className="bg-gray-300 border-1"
-                style={{borderRadius:"15px", fontSize:"12px", color:"black"}}
-                shape="square"
+                shape="circle"
                 > {inicials} </Avatar>
                 <Button 
                     onClick={()=>handleOpenUserProfile(record.userId!)} 
                     icon={<LinkOutlined />} 
-                    className="rounded-xl" 
-                    color="primary" 
-                    variant="link"
+                    type="text"
+                    size="small"
                 >
                     {record.fullname}
                 </Button>
@@ -65,19 +62,19 @@ const AllUsersTable = () => {
         {key: 'departmentTitle', dataIndex: '', title: 'Sektor/Odjeljenje', render: (record: UserType) => (
             <div className="flex flex-col">
                 <span>{record.department?.title}</span>
-                <span className="text-xs text-gray-400">{record.job?.title}</span>
+                <span className="text-xs text-default-400">{record.job?.title}</span>
             </div>
         )},
         {key: 'location', dataIndex: '', title: 'Lokacija', render: (record: UserType) => (
             <div className="flex flex-col">
                 <span>{record.location?.name}</span>
-                <span className="text-xs text-gray-400">{record.location?.parentLocation?.name}</span>
+                <span className="text-xs text-default-400">{record.location?.parentLocation?.name}</span>
             </div>
         )},
         {key: 'telephone', title: 'Telefon', render: (record:UserType) => (
             <div className="flex flex-col">
                 <span>{record.telephone}</span>
-                <span className="text-xs text-gray-400">{record.localNumber}</span>
+                <span className="text-xs text-default-400">{record.localNumber}</span>
             </div>
         )},
         {key: 'status', dataIndex: 'status', title: 'Status', render: (text: string) => (
@@ -130,7 +127,7 @@ const AllUsersTable = () => {
     }
 
     return (
-        <Card loading={loading} bodyStyle={{padding:0}}>
+        <Card loading={loading} >
             <Table
             size="middle"
             pagination={{style:{marginRight:'12px'}}}

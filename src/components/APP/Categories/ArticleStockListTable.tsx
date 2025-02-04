@@ -133,9 +133,8 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
     }
 
     return (
-        <Card bodyStyle={{padding:0}} loading={loading} className="mb-3" title={tableHeader()}>
+        <Card loading={loading} title={tableHeader()}>
             <Table
-                pagination={{style:{marginRight:'12px'}}}
                 dataSource={filteredData} 
                 columns={columns}
                 scroll={{ x: "max-content" }}

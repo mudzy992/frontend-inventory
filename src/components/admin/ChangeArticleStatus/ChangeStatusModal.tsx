@@ -65,6 +65,8 @@ const StatusChangeModal:React.FC<StatusChangeModalProps> = ({ type, data, stockI
     <Modal title="Promjena statusa" open={visible} onCancel={onClose} footer={null}>
       <Form form={form} layout="vertical" onFinish={handleSubmit} 
       initialValues={{
+        status: "",
+        comment: "",
         invNumber: type === "article" ? data?.invNumber : "",
         serialNumber: type === "article" ? data?.serialNumber : ""
     }}

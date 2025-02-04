@@ -5,7 +5,8 @@ import { ApiResponse, useApi } from '../../../API/api';
 import { useUserContext } from '../../Contexts/UserContext/UserContext';
 import { useNotificationContext } from '../../Contexts/Notification/NotificationContext';
 import ArticleType from '../../../types/ArticleType';
-import { EyeOutlined, SaveOutlined, SettingOutlined } from '@ant-design/icons';
+import { EyeOutlined, SaveOutlined, UserOutlined, MailOutlined, BuildOutlined, AppstoreAddOutlined, 
+  IdcardOutlined, InfoCircleOutlined, CalendarOutlined, FileTextOutlined, ContainerOutlined, FileSearchOutlined, HistoryOutlined, BellOutlined  } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
@@ -229,12 +230,12 @@ const ArticleComponent: React.FC = () => {
           </Row>
           <Divider />
 
-          <Title level={5}>Opis</Title>
+          <Title level={5}><FileTextOutlined /> Opis</Title>
           <Text>{article?.stock?.description}</Text>
 
           <Divider />
           <Tabs defaultActiveKey="1" style={{ marginTop: 20 }}>
-          <TabPane tab="Article Timelines" key="1">
+          <TabPane tab={<><HistoryOutlined /> Kretanje opreme</>} key="1">
             <Table
               dataSource={article?.articleTimelines}
               rowKey="id"
@@ -264,7 +265,7 @@ const ArticleComponent: React.FC = () => {
                   key: 'status',
                   render: (record) => (
                     <Tag color={getStatusColor(record, 'article')}>
-                      {article?.status}
+                      {record}
                     </Tag>
                     ),
                   width:80
@@ -281,14 +282,16 @@ const ArticleComponent: React.FC = () => {
                   key: 'document',
                   width:80,
                   render: (text, record) => (
+                    <div className='flex items-center justify-center'>
                     <Button size='large' icon={<SaveOutlined className='text-primary' />} type="text"
                     onClick={() => handleDownload(record.document?.path!, record.document?.path || 'dokument.pdf')} />
+                    </div>
                   ),
                 },
               ]}
             />
           </TabPane>
-          <TabPane tab="Helpdesk" key="2">
+          <TabPane tab={<><BellOutlined /> Helpdesk</>} key="2">
           <Table
             dataSource={article?.helpdeskTickets}
             rowKey="ticketId"
@@ -345,7 +348,7 @@ const ArticleComponent: React.FC = () => {
           </Tabs>
         </Card>
       </Col>
-
+      {!loading && 
       <Col xs={24} lg={8} className='flex flex-col gap-4'>
       {article?.status === "razduženo" && (
         <Alert message="Detalji o korisniku nedostupni, oprema razdužena." showIcon type="warning" />
@@ -357,11 +360,31 @@ const ArticleComponent: React.FC = () => {
 
       {article?.status === "zaduženo" && (
         <Descriptions title="Detalji korisnika" bordered size='small' column={1}>
-          <Descriptions.Item label="Korisnik">{article?.user?.fullname}</Descriptions.Item>
-          <Descriptions.Item label="Email">{article?.user?.email}</Descriptions.Item>
-          <Descriptions.Item label="Organizacija">{article?.user?.organization?.name}</Descriptions.Item>
-          <Descriptions.Item label="Sektor/služba/odjeljenje">{article?.user?.department?.title}</Descriptions.Item>
-          <Descriptions.Item label="Radno mjesto">{article?.user?.job?.title}</Descriptions.Item>
+          <Descriptions.Item 
+            label={<><UserOutlined /> Korisnik</>} 
+          >
+            {article?.user?.fullname}
+          </Descriptions.Item>
+          <Descriptions.Item 
+            label={<><MailOutlined /> Email</>} 
+          >
+            {article?.user?.email}
+          </Descriptions.Item>
+          <Descriptions.Item 
+            label={<><BuildOutlined /> Organizacija</>} 
+          >
+            {article?.user?.organization?.name}
+          </Descriptions.Item>
+          <Descriptions.Item 
+            label={<><AppstoreAddOutlined /> Sektor/služba/odjeljenje</>} 
+          >
+            {article?.user?.department?.title}
+          </Descriptions.Item>
+          <Descriptions.Item 
+            label={<><IdcardOutlined /> Radno mjesto</>} 
+          >
+            {article?.user?.job?.title}
+          </Descriptions.Item>
         </Descriptions>
       )}
 
@@ -369,17 +392,23 @@ const ArticleComponent: React.FC = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Status</span>
-            <Button size='small'  onClick={() => handleOpenChangeStatusModal(article!)}>
+            <Button size="small" type="link" onClick={() => handleOpenChangeStatusModal(article!)}>
               Promjeni status
             </Button>
           </div>
         }
         bordered
-        size='small'
+        size="small"
         column={1}
       >
-        <Descriptions.Item label="Status">{article?.status}</Descriptions.Item>
-        <Descriptions.Item label="Datum posljednje izmjene">
+        <Descriptions.Item
+          label={<><InfoCircleOutlined /> Status</>}
+        >
+          {article?.status}
+        </Descriptions.Item>
+        <Descriptions.Item
+          label={<><CalendarOutlined /> Datum posljednje izmjene</>}
+        >
           {dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}
         </Descriptions.Item>
       </Descriptions>
@@ -394,13 +423,30 @@ const ArticleComponent: React.FC = () => {
           />
         }
 
-        <Descriptions title="Skladište" bordered size='small' column={1}>
-          <Descriptions.Item label="Stanje po ugovoru">{article?.stock?.valueOnContract}</Descriptions.Item>
-          <Descriptions.Item label="Trenutno stanje">{article?.stock?.valueAvailable}</Descriptions.Item>
-          <Descriptions.Item label="Ugovor">{article?.stock?.contract}</Descriptions.Item>
-          <Descriptions.Item label="Datum posljednje izmjene">{dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}</Descriptions.Item>
-        </Descriptions>
+      <Descriptions title="Skladište" bordered size="small" column={1}>
+        <Descriptions.Item
+          label={<><FileTextOutlined /> Stanje po ugovoru</>}
+        >
+          {article?.stock?.valueOnContract}
+        </Descriptions.Item>
+        <Descriptions.Item
+          label={<><ContainerOutlined /> Trenutno stanje</>}
+        >
+          {article?.stock?.valueAvailable}
+        </Descriptions.Item>
+        <Descriptions.Item
+          label={<><FileSearchOutlined /> Ugovor</>}
+        >
+          {article?.stock?.contract}
+        </Descriptions.Item>
+        <Descriptions.Item
+          label={<><CalendarOutlined /> Datum posljednje izmjene</>}
+        >
+          {dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}
+        </Descriptions.Item>
+      </Descriptions>
       </Col>
+      }
     </Row>
     
   );

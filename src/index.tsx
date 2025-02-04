@@ -109,7 +109,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </div>
     )}
     <Layout>
-      <Header className={`h-14 sticky-header flex flex-row justify-between items-center transition-all duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
+      <Header className={`h-14 sticky-header flex flex-row justify-between items-center transition-all duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}>
         <div>
           <Button
             type="text"
@@ -168,7 +168,7 @@ const App = () => {
                 "controlHeight": 44,
               },
               "Tag": {
-                "borderRadius":10
+                "borderRadius":8
               }
             },
             "algorithm": theme.compactAlgorithm

@@ -199,22 +199,33 @@ const CategoryPage: React.FC = () => {
   };
 
   return (
-      <div>
-        <div
-            className={
-              state.category?.stocks?.length && state.category.stocks.length > 0
-                ? "mt-3"
-                : "hidden"
-            }
-          >
-          <Title level={5}>
-            <i className="bi bi-list" />
-            {state.category?.name}
-          </Title>
-          <div>{showArticles()}</div>
-        </div>
-        <div>{showSubcategories()}</div>
-    </div>
+    <Row gutter={[16, 16]} justify="center">
+      <Col xs={24} sm={24} md={24} lg={24}>
+        {state.category?.stocks?.length! > 0 && (
+          <div>
+          <Row>
+          <Col span={24}>
+            <Title level={5}>
+              <i className="bi bi-list" />
+              {state.category?.name}
+            </Title>
+          </Col>
+        </Row>
+          <Row>
+            <Col span={24}>
+              <div>{showArticles()}</div>
+            </Col>
+          </Row>
+          </div>
+        )}
+
+        <Row gutter={[16, 16]}>
+          <Col span={24}>
+            <div>{showSubcategories()}</div>
+          </Col>
+        </Row>
+      </Col>
+    </Row>
   );
 };
 

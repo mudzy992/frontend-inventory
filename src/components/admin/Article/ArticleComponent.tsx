@@ -149,7 +149,7 @@ const ArticleComponent: React.FC = () => {
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={16}>
-        <Card loading={loading}>
+        <Card loading={loading} >
           <Row justify="space-between" align="middle" className='mb-4'>
             <Col>
               <Text>
@@ -346,7 +346,7 @@ const ArticleComponent: React.FC = () => {
         </Card>
       </Col>
 
-      <Col xs={24} lg={8}>
+      <Col xs={24} lg={8} className='flex flex-col gap-4'>
       {article?.status === "razduženo" && (
         <Alert message="Detalji o korisniku nedostupni, oprema razdužena." showIcon type="warning" />
       )}
@@ -356,28 +356,33 @@ const ArticleComponent: React.FC = () => {
       )}
 
       {article?.status === "zaduženo" && (
-        <Card title="Detalji korisnika">
-          <Text><span className="font-bold">Korisnik: </span>{article?.user?.fullname}</Text><br />
-          <Text><span className="font-bold">Email: </span>{article?.user?.email}</Text><br />
-          <Text><span className="font-bold">Organizacija: </span>{article?.user?.organization?.name}</Text><br />
-          <Text><span className="font-bold">Sektor/služba/odjeljenje: </span>{article?.user?.department?.title}</Text><br />
-          <Text><span className="font-bold">Radno mjesto: </span>{article?.user?.job?.title}</Text><br />
-        </Card>
+        <Descriptions title="Detalji korisnika" bordered size='small' column={1}>
+          <Descriptions.Item label="Korisnik">{article?.user?.fullname}</Descriptions.Item>
+          <Descriptions.Item label="Email">{article?.user?.email}</Descriptions.Item>
+          <Descriptions.Item label="Organizacija">{article?.user?.organization?.name}</Descriptions.Item>
+          <Descriptions.Item label="Sektor/služba/odjeljenje">{article?.user?.department?.title}</Descriptions.Item>
+          <Descriptions.Item label="Radno mjesto">{article?.user?.job?.title}</Descriptions.Item>
+        </Descriptions>
       )}
-        <Card style={{ marginTop: 20 }}>
-          <Row justify="space-between" align="middle" className='border-b-2 pb-2'>
-              <Col>
-                <Text className='font-bold text-md'>Status</Text>
-              </Col>
-              <Col>
-              <Button size='middle' onClick={() => handleOpenChangeStatusModal(article!)}>
-                Promjeni status
-              </Button>
-              </Col>
-            </Row>
-          <Text><span className='font-bold'>Status: </span>{article?.status}</Text><br />
-          <Text><span className='font-bold'>Datum posljednje izmjene: </span>{dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}</Text>
-        </Card>
+
+      <Descriptions
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Status</span>
+            <Button size='small'  onClick={() => handleOpenChangeStatusModal(article!)}>
+              Promjeni status
+            </Button>
+          </div>
+        }
+        bordered
+        size='small'
+        column={1}
+      >
+        <Descriptions.Item label="Status">{article?.status}</Descriptions.Item>
+        <Descriptions.Item label="Datum posljednje izmjene">
+          {dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}
+        </Descriptions.Item>
+      </Descriptions>
 
         {changeStatusModalVisible && 
           <StatusChangeModal 
@@ -388,12 +393,13 @@ const ArticleComponent: React.FC = () => {
             refreshData={refreshDataAfterChangeStatus}
           />
         }
-        <Card title="Skladište" style={{ marginTop: 20 }}>
-          <Text><span className='font-bold'>Stanje po ugovoru: </span>{article?.stock?.valueOnContract}</Text><br />
-          <Text><span className='font-bold'>Trenutno stanje: </span>{article?.stock?.valueAvailable}</Text><br />
-          <Text><span className='font-bold'>Ugovor: </span>{article?.stock?.contract}</Text><br />
-          <Text><span className='font-bold'>Datum posljednje izmjene: </span>{dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}</Text>
-        </Card>
+
+        <Descriptions title="Skladište" bordered size='small' column={1}>
+          <Descriptions.Item label="Stanje po ugovoru">{article?.stock?.valueOnContract}</Descriptions.Item>
+          <Descriptions.Item label="Trenutno stanje">{article?.stock?.valueAvailable}</Descriptions.Item>
+          <Descriptions.Item label="Ugovor">{article?.stock?.contract}</Descriptions.Item>
+          <Descriptions.Item label="Datum posljednje izmjene">{dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}</Descriptions.Item>
+        </Descriptions>
       </Col>
     </Row>
     

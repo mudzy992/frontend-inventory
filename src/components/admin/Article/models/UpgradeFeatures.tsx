@@ -124,6 +124,7 @@ const UpgradeFeaturesModal: React.FC<UpgradeFeaturesModalProps> = ({
         columns={columns}
         dataSource={tempFeatures}
         rowKey="upgradeFeatureId"
+        scroll={{ x: "max-content" }}
         pagination={false}
         locale={{
           emptyText: "Nema definisanih dodatnih specifikacija",

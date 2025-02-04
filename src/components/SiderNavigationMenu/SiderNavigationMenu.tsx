@@ -178,10 +178,6 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
     }
   }, [selectedKey]);
 
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
-    setSelectedKey(e.key);
-  };
-
   return (
     <Menu
         inlineCollapsed={collapsed}
@@ -190,11 +186,12 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
             border: "none",
         }}
         mode="inline"
+        theme="dark"
         items={role === 'user' ? commonMenu : adminMenu}
         selectedKeys={[selectedKey]}
         onClick={({ key }) => {
           setSelectedKey(key);
-          setCollapsed(true);  // <-- Zatvara Sider na klik
+          setCollapsed(true); 
         }}
     />
   );

@@ -80,7 +80,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           collapsed={collapsed}
           trigger={null}
           style={siderStyle}
-          className={`bg-[#141414] transition-all duration-300 ${isMobile && "fixed top-0 left-0 h-full z-50"}`}
+          className={`transition-all duration-300 flex flex-col justify-center pl-2 ${isMobile && "fixed top-0 left-0 h-full z-50"}`}
           breakpoint="lg"
           collapsedWidth={isMobile ? 0 : 70}
           onBreakpoint={(broken) => {
@@ -150,12 +150,13 @@ const App = () => {
               "colorPrimary": "#33bcb7",
               "colorInfo": "#1668dc",
               "colorSuccess": "#3c8618",
-              "colorLink": "#b2f1e8",
+              
               "wireframe": false
             },
             "components": {
               "Button": {
                 "borderRadius": 15,
+                "borderRadiusSM": 9,
                 "controlHeight": 40
               },
               "Input": {
@@ -167,14 +168,10 @@ const App = () => {
                 "controlHeight": 44,
               },
               "Tag": {
-                "borderRadius":20
-              },
-              "Card": {
-                "padding": 5,
-                "paddingLG": 14
+                "borderRadius":10
               }
             },
-            "algorithm": theme.darkAlgorithm
+            "algorithm": theme.compactAlgorithm
           }}
         >
 

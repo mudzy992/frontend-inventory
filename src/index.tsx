@@ -98,7 +98,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
           width={250}
         >
           <SiderNavigationMenu collapsed={collapsed} setCollapsed={setCollapsed}/>
-          <div className={`${collapsed ? 'hidden' : 'block'} flex flex-col gap-2 items-start ml-6 mr-1 p-2 justify-end bg-default-600 rounded-md`}>
+          <div className={`${collapsed ? 'hidden' : 'block'} flex flex-col gap-2 items-start mx-1 px-6 py-2 justify-end bg-default-600 rounded-md text-xs`}>
             <div className="flex flex-row justify-between items-center w-full">
               <span className="text-default">Tema</span>
               <Switch

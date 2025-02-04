@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import reportWebVitals from "./reportWebVitals";
 import { HashRouter, Routes, Route, Link } from "react-router-dom";
-import { Layout, ConfigProvider, theme, Menu, Button } from "antd";
+import { Layout, ConfigProvider, theme, Menu, Button, Switch } from "antd";
 import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
 import { NextUIProvider } from "@nextui-org/react";
@@ -52,7 +52,7 @@ const siderStyle: React.CSSProperties = {
   scrollbarGutter: 'stable',
 };
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode: (value: boolean) => void; isCompact: boolean; setIsCompact: (value: boolean) => void; }> = ({ children, isDarkMode, setIsDarkMode, isCompact, setIsCompact }) => {
   const curentYear = new Date().getFullYear();
   const {isAuthenticated, role} = useUserContext()
   const [collapsed, setCollapsed] = useState(false);
@@ -80,7 +80,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           collapsed={collapsed}
           trigger={null}
           style={siderStyle}
-          className={`transition-all duration-300 flex flex-col justify-center pl-2 ${isMobile && "fixed top-0 left-0 h-full z-50"}`}
+          className={`transition-all duration-300 flex flex-col justify-center ${isMobile && "fixed top-0 left-0 h-full z-50"}`}
           breakpoint="lg"
           collapsedWidth={isMobile ? 0 : 70}
           onBreakpoint={(broken) => {
@@ -98,6 +98,28 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           width={250}
         >
           <SiderNavigationMenu collapsed={collapsed} setCollapsed={setCollapsed}/>
+          <div className={`${collapsed ? 'hidden' : 'block'} flex flex-col gap-2 items-start ml-6 mr-1 p-2 justify-end bg-default-600 rounded-md`}>
+            <div className="flex flex-row justify-between items-center w-full">
+              <span className="text-default">Tema</span>
+              <Switch
+                title="Tema"
+                checked={isDarkMode}
+                onChange={() => setIsDarkMode(!isDarkMode)}
+                checkedChildren="🌙"
+                unCheckedChildren="☀️"
+              />
+            </div>
+            <div className="flex flex-row justify-between items-center w-full">
+              <span className="text-default">Pregled </span>
+              <Switch
+                title="Prikaz"
+                checked={isCompact}
+                onChange={() => setIsCompact(!isCompact)}
+                checkedChildren="Pregledno"
+                unCheckedChildren="Standardno"
+              />
+            </div>
+          </div>
         </Sider>
 
         {isMobile && !collapsed && (
@@ -109,7 +131,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </div>
     )}
     <Layout>
-      <Header className={`h-14 sticky-header flex flex-row justify-between items-center transition-all duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}>
+      <Header 
+      className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md flex flex-row justify-between items-center transition-all 
+      duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}
+      >
         <div>
           <Button
             type="text"
@@ -123,22 +148,23 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         
         </div>
         <span className="font-bold text-xl"><Link to='/'>Inventory database</Link></span>
-        <div>
+        
+        <div className="flex flex-row items-center gap-2">
+        
           <UserDropdown />
         </div>
       </Header>
-    
       <Content className={`container mx-auto px-4 py-4 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
         {children}
       </Content>
-
-    
     <Footer className={`text-center text-gray-400 z-10 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić </Footer>
   </Layout>
   </Layout>
 )};
 
 const App = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
   return (
     <React.StrictMode>
       <NextUIProvider>
@@ -171,14 +197,18 @@ const App = () => {
                 "borderRadius":8
               }
             },
-            "algorithm": theme.compactAlgorithm
+            "algorithm": isCompact
+            ? [isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm, theme.compactAlgorithm]
+            : isDarkMode
+            ? theme.darkAlgorithm
+            : theme.defaultAlgorithm,
           }}
         >
 
             <HashRouter>
             <UserContextProvider>
               <NotificationProvider>
-              <AppLayout>
+              <AppLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} isCompact={isCompact} setIsCompact={setIsCompact}>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />

@@ -11,7 +11,9 @@ type UserRole = "administrator" | "moderator" | "user";
 interface UserContextType {
   userId: number | undefined;
   role: UserRole | undefined;
+  phoneIp: string | null;
   isAuthenticated: boolean;
+  setPhoneIp: (phoneIp: string | null) => void;
   setUserId: (id: number | undefined) => void;
   setRole: (role: UserRole | undefined) => void;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
@@ -29,6 +31,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
   initialRole,
 }) => {
   const [userId, setUserId] = useState<number | undefined>(undefined);
+  const [phoneIp, setPhoneIp] = useState<string | null>(null);
   const [role, setRole] = useState<UserRole | undefined>(initialRole);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
@@ -45,13 +48,16 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
   useEffect(() => {
     const fetchUserFromLocalStorage = () => {
       let storedUserIDKey: string;
+      let storedPhoneIpKey: string;
       let storedUserRoleKey;
 
       const storedUserRole = localStorage.getItem(`api_identity_role`);
       const storedUserID = localStorage.getItem(`api_identity_id`);
+      const storedPhoneIp = localStorage.getItem(`api_identity_phone_ip`);
 
-      if (storedUserRole && storedUserID) {
+      if (storedUserRole && storedUserID && storedPhoneIp) {
         setRole(storedUserRole as UserRole);
+        setPhoneIp(storedPhoneIp)
         setUserId(parseInt(storedUserID, 10));
       } else if (initialRole) {
         setRole(initialRole);
@@ -60,6 +66,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
       if (storedUserRole) {
         storedUserIDKey = `api_identity_id`;
         storedUserRoleKey = `api_identity_role`;
+        storedPhoneIpKey = `api_identity_phone_ip`
 
         const storedUserID = localStorage.getItem(storedUserIDKey);
 
@@ -70,10 +77,12 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
       } else if (initialRole) {
         storedUserIDKey = `api_identity_id`;
         storedUserRoleKey = `api_identity_role`;
+        storedPhoneIpKey = `api_identity_phone_ip`
         setRole(initialRole);
       } else {
         storedUserIDKey = "api_identity_id_default";
         storedUserRoleKey = "api_identity_default";
+        storedPhoneIpKey = `api_identity_phone_ip_default`
       }
     };
 
@@ -85,6 +94,7 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
     // Možete koristiti localStorage, sessionStorage ili druge mehanizme za pohranu stanja između osvježavanja
     const storedUserRole = localStorage.getItem(`api_identity_role`);
     const storedUserID = localStorage.getItem(`api_identity_id`);
+    const storedPhoneIp = localStorage.getItem(`api_identity_phone_ip`);
 
     if (storedUserRole) {
       setRole(storedUserRole as UserRole);
@@ -92,6 +102,10 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
 
     if (storedUserID) {
       setUserId(parseInt(storedUserID, 10));
+    }
+
+    if (storedPhoneIp) {
+      setPhoneIp(storedPhoneIp)
     }
   };
 
@@ -109,9 +123,11 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
     userId,
     role,
     isAuthenticated,
+    phoneIp,
     setUserId,
     setRole,
     setIsAuthenticated,
+    setPhoneIp
   };
 
   return (
@@ -122,17 +138,21 @@ export const UserContextProvider: React.FC<UserContextProviderProps> = ({
 export function saveIdentity(
   role: "user" | "administrator" | "moderator",
   userId: string,
+  phoneIp: string,
   setRole: (role: UserRole | undefined) => void,
   setUserId: (id: number | undefined) => void,
   setIsAuthenticated: (isAuthenticated: boolean) => void,
+  setPhoneIp: (phoneIp: string | null) => void,
 ) {
   if (role === "administrator" || role === "moderator" || role === "user") {
     localStorage.setItem(`api_identity_role`, role);
     localStorage.setItem(`api_identity_id`, userId);
+    localStorage.setItem(`api_identity_phone_ip`, phoneIp);
 
     setRole(role);
     setUserId(parseInt(userId, 10));
     setIsAuthenticated(true);
+    setPhoneIp(phoneIp)
   } else {
     console.error("Invalid user role:", role);
   }
@@ -141,10 +161,11 @@ export function saveIdentity(
 export async function removeIdentity(
   setIsAuthenticated: (isAuthenticated: boolean) => void,
   setUserId: (id: number | undefined) => void,
-  setRole: (role: UserRole | undefined) => void
+  setRole: (role: UserRole | undefined) => void,
+  setPhoneIp: (phoneIp: string | null) => void,
 ) {
   await Promise.all(
-      ['api_token', 'api_refresh_token', 'api_identity_role', 'api_identity_id'].map((key) => {
+      ['api_token', 'api_refresh_token', 'api_identity_role', 'api_identity_id', 'api_identity_phone_ip'].map((key) => {
           if (localStorage.getItem(key)) {
               localStorage.removeItem(key);
           }
@@ -155,6 +176,7 @@ export async function removeIdentity(
   setIsAuthenticated(false);
   setUserId(undefined);
   setRole(undefined);
+  setPhoneIp(null)
 }
 
 

@@ -9,6 +9,7 @@ interface UserLoginPageState {
   email: string;
   password: string;
   userID: number;
+  phoneIp?: string;
 }
 
 const UserLoginPage: React.FC = () => {
@@ -23,7 +24,7 @@ const UserLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const { setUserId, setRole, setIsAuthenticated } = useUserContext();
+  const { setUserId, setRole, setIsAuthenticated, setPhoneIp } = useUserContext();
 
   const formInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, [event.target.id]: event.target.value });
@@ -67,7 +68,7 @@ const UserLoginPage: React.FC = () => {
           return;
         }
         if (res.status === "ok") {
-          await saveIdentity(res.data.role, res.data.id, setRole, setUserId, setIsAuthenticated);
+          await saveIdentity(res.data.role, res.data.id, res.data.phoneIp, setRole, setUserId, setIsAuthenticated, setPhoneIp);
           await setUserID(res.data.id);
           await saveToken(res.data.token);
           await saveRefreshToken(res.data.refreshToken);

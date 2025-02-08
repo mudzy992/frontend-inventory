@@ -5,13 +5,15 @@ import UserType from "../../../../types/UserType";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { useApi } from "../../../../API/api";
+import { PhoneOutlined, CloseOutlined } from "@ant-design/icons";
 
 const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ data, onRefresh }) => {
   const { api } = useApi();
-  const { role } = useUserContext();
+  const { role, phoneIp } = useUserContext();
   const [userData, setUserData] = React.useState(data);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [size, setSize] = useState<'default' | 'small'>('default')
+  const [isCalling, setIsCalling] = useState(false);
 
   useEffect(() => {
     setUserData(data); 
@@ -74,11 +76,63 @@ const UserDetails: React.FC<{ data: UserType; onRefresh?: () => void }> = ({ dat
     lastActivityText = "Nema prijava!";
   }
 
+  const handleCall = async () => {
+    if (!phoneIp || (!userData.localNumber && !userData.telephone)) return;
+  
+    const availableNumber = userData.localNumber || userData.telephone;
+    const username = "admin";
+    const password = "epbih";
+  
+    try {
+      const response = await fetch(`http://${phoneIp}/servlet?key=number=${availableNumber}`, {
+        mode: 'no-cors',
+        method: "GET",
+        headers: {
+          "Authorization": "Basic " + btoa(`${username}:${password}`)
+        }
+      });
+  
+      if (!response.ok) throw new Error(`Greška pri pozivu! Status: ${response.status}`);
+  
+      console.log("✅ Poziv pokrenut!");
+    } catch (error) {
+      console.error("❌ Greška pri upućivanju poziva:", error);
+    }
+  };
+  
+    const handleEndCall = () => {
+      if (!phoneIp) return;
+    
+      fetch(`http://${phoneIp}/servlet?key=CallEnd`)
+        .then(() => {
+          console.log("Poziv prekinut");
+          setIsCalling(false); // Resetujemo stanje poziva
+        })
+        .catch((error) => {
+          console.error("Greška pri prekidu poziva:", error);
+        });
+    };
+  
+    const renderCallButton = () => {
+      if (!phoneIp || (!userData.localNumber && !userData.telephone)) return null;
+    
+      return (
+        <Button
+          type="primary"
+          shape="circle"
+          icon={isCalling ? <CloseOutlined /> : <PhoneOutlined />}
+          onClick={isCalling ? handleEndCall : handleCall}
+          style={{ position: "absolute", top: 10, left: 10 }}
+        />
+      );
+    };
+
   return (
     <div className="">
       <div className="flex flex-col lg:flex-row gap-3 lg:p-2">
         <div className="lg:w-[35%] flex flex-col items-center justify-center col-span-2 rounded-lg border-0 bg-gradient-to-r from-cyan-500 to-blue-500">
           <div className="text-md flex flex-col items-center w-full p-4">
+            {renderCallButton()}
             <Avatar
               className="w-[150px] h-[150px] text-5xl"
               style={{ border: `10px solid ${genderColor}` }}

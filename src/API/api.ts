@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLoading } from "../components/Contexts/LoadingIndicator/LoadingProvider";
 
 export function useApi() {
-    const { setIsAuthenticated, setUserId, setRole } = useUserContext();
+    const { setIsAuthenticated, setUserId, setRole, setPhoneIp } = useUserContext();
     const navigate = useNavigate()
     const { setLoading } = useLoading();
     async function api(
@@ -30,7 +30,7 @@ export function useApi() {
             if (err.response?.status === 401) {
                 const newToken = await refreshToken();
                 if (!newToken) {
-                    await removeIdentity(setIsAuthenticated, setUserId, setRole);
+                    await removeIdentity(setIsAuthenticated, setUserId, setRole, setPhoneIp);
                     navigate('/login')
                     return { status: 'login', data: null };
                 }

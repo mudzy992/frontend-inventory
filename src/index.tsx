@@ -22,7 +22,7 @@ import StockPage from "./components/APP/Stock/StockPage";
 import AdminDocumentsPage from "./components/admin/Documents/AdminDocumentsPage";
 import LoginPage from "./components/Login/LoginPage";
 import AdminDashboardPage from "./components/admin/Dashboard/DashboardPage";
-import HelpdeskTicketPage from "./components/admin/HelpDesk/main/HelpdeskTicketPage";
+import HelpdeskTicketPage from "./components/admin/HelpDesk/Helpdesk";
 import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
 import TelecomInvoice from "./components/APP/TelecomInvoices/TelecomInvoice";
 import InvoiceList from "./components/admin/Invoices/InvoiceList";
@@ -34,6 +34,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined, } from '@ant-design/icons';
 import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigationMenu";
 import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
 import ArticleComponent from "./components/admin/Article/ArticleComponent";
+import HelpdeskDetails from "./components/admin/HelpDesk/main/Details/HelpdeskDetails";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -226,6 +227,7 @@ const App = () => {
                   <Route path="/admin/stock/:stockID" element={<StockPage />} />
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
+                  <Route path="/admin/helpdesk/:ticketId" element={<HelpdeskDetails />} />
                   <Route path="/admin/invoices" element={<InvoiceList />} />
                   <Route path="/admin/invoices/:invoiceId/printers" element={<Printers />} />
                   <Route path="/admin/telecom" element={<TelecomInvoice />} />

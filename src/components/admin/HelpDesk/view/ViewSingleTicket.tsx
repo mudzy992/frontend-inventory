@@ -212,7 +212,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                               comment.user?.forname || "",
                             )}</Avatar>
                           </div>
-                          <div className="grid w-full grid-flow-row rounded-xl bg-default-900 p-3 text-sm shadow">
+                          <div className="grid w-full grid-flow-row rounded-xl bg-default-50 p-3 text-sm shadow">
                             <div className="flex h-full justify-between">
                               <span className="text-sm font-bold">
                                 {comment?.user?.fullname}
@@ -274,7 +274,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                         >
                           <div className="lg:w-full">
                             <div className="flex flex-row">
-                              <div className="grid w-full grid-flow-row rounded-xl bg-default text-black p-3 text-sm shadow">
+                              <div className="grid w-full grid-flow-row rounded-xl bg-default-100 text-black p-3 text-sm shadow">
                                 <span className="text-sm font-bold text-default-700">
                                   {replies.user?.fullname}
                                 </span>

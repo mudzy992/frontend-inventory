@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Input, Table, Tag } from 'antd';
+import { Input, Table, Tag, Flex, Pagination, Card } from 'antd';
 import { useParams } from 'react-router-dom';
 import { useUserContext } from '../../Contexts/UserContext/UserContext';
 import Link from 'antd/es/typography/Link';
@@ -287,21 +287,17 @@ const Printers = () => {
     }
 
     return (
-        <div>
-            <div>
-                <div className="overflow-auto bg-[#141414] scrollbar-hide rounded-md text-black">
-                    <Table 
-                        title={tableHeader} 
-                        loading={loading} 
-                        size='small' 
-                        dataSource={filteredData} 
-                        columns={columns} 
-                        scroll={{ x: "max-content" }}
-                        pagination={{style:{paddingRight:"20px"}}}
-                        />
-                </div>
-            </div>
-        </div>
+        <Card>
+            <Table 
+                title={tableHeader} 
+                loading={loading} 
+                size='small' 
+                dataSource={filteredData} 
+                columns={columns} 
+                scroll={{ x: "max-content" }}
+                pagination={{style:{paddingRight:"20px"}}}
+                />
+        </Card>
     );
 };
 

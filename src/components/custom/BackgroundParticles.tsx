@@ -11,7 +11,6 @@ import { loadSlim } from "@tsparticles/slim";
 const BackgroundParticles: React.FC = () => {
   const [init, setInit] = useState(false);
 
-  // Pokreni inicijalizaciju samo jednom
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
@@ -46,10 +45,10 @@ const BackgroundParticles: React.FC = () => {
       },
       particles: {
         color: {
-          value: "#b4fcbc", // Bela boja čestica
+          value: "#7bfe8a", // Bela boja čestica
         },
         links: {
-          color: "#5be6fc", // Bela boja linija između čestica
+          color: "#00ddff", // Bela boja linija između čestica
           distance: 150,
           enable: true,
           opacity: 0.5,

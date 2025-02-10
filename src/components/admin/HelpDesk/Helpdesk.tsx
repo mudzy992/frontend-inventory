@@ -177,12 +177,12 @@ const HelpdeskTicketPage: React.FC = () => {
 
   const renderTicketTable = (currentPage: number) => {
     return (
-      <div className="w-full">
+      <div className="w-full overflow-x-auto">
         <Table
           columns={[
             { title: "#", dataIndex: "ticketId", width:60 },
             { title: "Prijavio/la", render: (record) => (record.user.fullname), width:200 },
-            { title: "Opis tiketa", dataIndex: "description", ellipsis:true },
+            { title: "Opis tiketa", dataIndex: "description", ellipsis:true, width:150 },
             { title: "Grupa", render: (record) => (record.group.groupName), width:150},
             { title: "Datum prijave", dataIndex: "createdAt", render: (text) => Moment(text).format("DD.MM.YYYY - HH:mm"), width:150 },
             { title: "Datum izvršetka", dataIndex: "duoDate", render: (text) => text ? Moment(text).format("DD.MM.YYYY - HH:mm") : '', width:150 },
@@ -194,7 +194,7 @@ const HelpdeskTicketPage: React.FC = () => {
           pagination={false}
           title={tableTopContent}
           footer={() => tableBottomContent(currentPage, setAssignedTicketsCurrentPage)}
-          scroll={{ x: "max-content" }}
+          tableLayout="fixed"
         />
       </div>
     );

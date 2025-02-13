@@ -13,27 +13,24 @@ const breadcrumbMap: Record<string, string> = {
   category: 'Kategorije',
   dashboard: 'Kontrolna Tabla',
   user: 'Korisnici',
-  department: 'Sektori/službe/odjeljenja',
+  department: "Sektori/službe/odjeljenja"
 };
 
 const AppBreadcrumb = () => {
   const location = useLocation();
-  let pathnames = location.pathname.split('/').filter((x) => x);
+
+  const pathnames = location.pathname.split('/').filter((x) => x);
 
   if (location.pathname === '/') {
     return null;
   }
 
-  // Posebna provera za /admin/user
-  let modifiedPathnames = pathnames.filter((value) => value !== 'admin'); // Uklanjamo "admin" iz svih slučajeva
-
-  if (pathnames.join('/') === 'admin/user') {
-    modifiedPathnames = ['user']; // Ako je /admin/user, ostavi samo "user"
-  }
-
-  const breadcrumbItems = modifiedPathnames.map((value, index) => {
-    const last = index === modifiedPathnames.length - 1;
-    const to = `/${modifiedPathnames.slice(0, index + 1).join('/')}`;
+  const breadcrumbItems = pathnames.map((value, index) => {
+    if (value === 'admin' || value === 'user') {
+      return null;
+    }
+    const last = index === pathnames.length - 1;
+    const to = `/${pathnames.slice(0, index + 1).join('/')}`;
 
     const breadcrumbLabel = breadcrumbMap[value] || value.charAt(0).toUpperCase() + value.slice(1);
 

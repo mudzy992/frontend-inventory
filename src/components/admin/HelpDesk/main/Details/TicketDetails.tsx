@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Checkbox, Col, DatePicker, Descriptions, Form, Input, Row, Select, Tooltip } from "antd";
+import { Button, Checkbox, Col, DatePicker, Descriptions, Divider, Form, Input, Row, Select, Tooltip } from "antd";
 import dayjs from "dayjs";
 import HelpdeskTicketsType from "../../../../../types/HelpdeskTicketsType";
 import { useApi } from "../../../../../API/api";
 import { useUserContext } from "../../../../Contexts/UserContext/UserContext";
+import { ClockCircleOutlined } from '@ant-design/icons';
 
 interface TicketDetailsProps {
   helpdeskState: HelpdeskTicketsType | undefined;
@@ -72,15 +73,21 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
 
   const resolvedTimespandDescription = () => {
     const resolvedTimespand = helpdeskState?.resolveTimespand;
-
+  
     if (resolvedTimespand) {
       const minutes = parseInt(resolvedTimespand, 10);
       const days = Math.floor(minutes / (24 * 60));
       const hours = Math.floor((minutes % (24 * 60)) / 60);
       const remainingMinutes = minutes % 60;
-
-      const descriptionText = `Utrošeno: ${days} dan/a, ${hours} sat/i i ${remainingMinutes} minuta`;
-      return descriptionText;
+  
+      const descriptionText = `Utrošeno vremena: ${days} dan/a, ${hours} sat/i i ${remainingMinutes} minuta`;
+  
+      return (
+        <div className="border-1 p-2 rounded-xl">
+          <ClockCircleOutlined style={{ marginRight: 8 }} />
+          {descriptionText}
+        </div>
+      );
     }
   };
 
@@ -98,7 +105,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
           { name: "duoDate", value: calculatedDueDate } 
         ]);
       } else {
-        console.error("Calculated due date is invalid!");
+        console.error("Izračun datuma završeta je pogrešan");
       }
     }
   };
@@ -232,6 +239,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
         <Checkbox
           aria-label="Označi kako bi zatvorio zahtjev"
           checked={closeTicketStatus}
+          disabled={isDisabled}
           onChange={() => setCloseTicketStatus((prev) => !prev)}
         >
           <Button
@@ -248,10 +256,10 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
   return (
     <Row gutter={16}>
       <Col xs={24} lg={12}>
-        <Descriptions bordered column={1}>
+        <Descriptions bordered column={1} size="small">
           <Descriptions.Item label="Korisnik">{helpdeskState?.user?.fullname}</Descriptions.Item>
           <Descriptions.Item label="Kontakt">{helpdeskState?.user?.localNumber}</Descriptions.Item>
-          <Descriptions.Item label="Sektor/služba/odjeljenje">{helpdeskState?.user?.department?.title}</Descriptions.Item>
+          <Descriptions.Item label="Sektor/ služba/ odjeljenje">{helpdeskState?.user?.department?.title}</Descriptions.Item>
           <Descriptions.Item label="Lokacija korisnika">{helpdeskState?.user?.location?.name}</Descriptions.Item>
           <Descriptions.Item label="Datum prijave">{dayjs(helpdeskState?.createdAt).format("DD.MM.YYYY - HH:mm")}</Descriptions.Item>
           <Descriptions.Item label="Željeni rok realizacije">{dayjs(helpdeskState?.clientDuoDate).format("DD.MM.YYYY - HH:mm")}</Descriptions.Item>
@@ -261,6 +269,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
         </Descriptions>
       </Col>
       <Col xs={24} lg={12}>
+      <Divider className="lg:hidden"/>
         <Form form={form} 
         layout="vertical" 
         onFinish={() => doEditTicket(helpdeskState?.ticketId!)}
@@ -282,7 +291,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
               readOnly
             />
           </Form.Item>
-
+          
           {helpdeskState?.status !== 'otvoren' && (
             <>
               <Form.Item label="Rješenje zahtjeva" name="resolveDescription">
@@ -300,16 +309,24 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({
               <Form.Item label="Utrošeno vrijeme (minute)" name="resolveTimespand">
                 <Input disabled={isDisabled} onChange={(e) => updateResolvedTimespandFromInput(e.target.value)} />
               </Form.Item>
-              <span>{resolvedTimespandDescription()}</span>
+              <div className="flex flex-row justify-end text-green-500">{resolvedTimespandDescription()}</div>
             </>
           )}
+          <div className="flex flex-row justify-between">
+            <Button 
+            disabled={isDisabled} 
+            type="primary" 
+            htmlType="submit" 
+            className={`${helpdeskState?.status !== 'izvršenje' && 'hidden'}`}>
+              Sačuvaj izmjene
+            </Button>
+            <div></div>
+            {changeStatus(helpdeskState?.status!)}
+          </div>
           <Form.Item name="status" initialValue={helpdeskState?.status} hidden />
           <Form.Item name="assignedTo" initialValue={helpdeskState?.assignedTo} hidden />
           <Form.Item name="resolveDate" initialValue={helpdeskState?.resolveDate} hidden />
           <Form.Item name="createdAt" initialValue={helpdeskState?.createdAt} hidden />
-          {changeStatus(helpdeskState?.status!)}
-
-          <Button type="primary" htmlType="submit" className={`${helpdeskState?.status === 'zatvoren' && 'hidden'}`}>Izmjeni</Button>
         </Form>
       </Col>
     </Row>

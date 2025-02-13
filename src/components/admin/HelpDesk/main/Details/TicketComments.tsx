@@ -39,19 +39,17 @@ const TicketComments = ({ ticket }: TicketCommentsProps) => {
             </div>
           }
         />
-        {/* Renderovanje odgovora na main komentar */}
         {comment.comments && comment.comments.length > 0 && (
           <List
             itemLayout="horizontal"
             dataSource={comment.comments}
             renderItem={renderComment}
-            style={{ marginLeft: '30px' }} // Stilizovanje odgovora da bude uvučeno
+            style={{ marginLeft: '30px' }} 
           />
         )}
-        {/* Prikazivanje dugmeta za odgovaranje samo ako je korisnik prijavljen i nije autor komentara */}
         {ticket?.userId === userId && replyToCommentId === null && !isReply && (
           <Button onClick={() => handleReplyToComment(comment.commentId)} size="small" style={{ marginTop: '10px' }}>
-            Reply
+            Odgovori
           </Button>
         )}
       </List.Item>
@@ -60,36 +58,33 @@ const TicketComments = ({ ticket }: TicketCommentsProps) => {
 
   return (
     <div>
-      {/* Lista komentara */}
       <List
         itemLayout="vertical"
         dataSource={ticket?.comments}
         renderItem={renderComment}
+        locale={{ emptyText: "Nema traženih dodatnih infomacija za ovaj tiket" }}
       />
-
-      {/* Input za novi komentar prikazuje se samo ako je korisnik dodeljen tiket (assignedTo) */}
-      {ticket?.assignedTo === userId && !replyToCommentId && (
+     {ticket?.assignedTo === userId && !replyToCommentId && (
         <div>
           <Input.TextArea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             rows={4}
-            placeholder="Add a comment"
+            placeholder="Opis tražene informacije"
           />
-          <Button onClick={handleAddComment} style={{ marginTop: '10px' }}>Add Comment</Button>
+          <Button onClick={handleAddComment} style={{ marginTop: '10px' }}>Traži infomaciju</Button>
         </div>
       )}
 
-      {/* Input za odgovor na komentar */}
       {replyToCommentId !== null && (
         <div>
           <Input.TextArea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             rows={4}
-            placeholder="Reply to the comment"
+            placeholder="Odgovor na traženu informaciju"
           />
-          <Button onClick={handleAddComment} style={{ marginTop: '10px' }}>Add Reply</Button>
+          <Button onClick={handleAddComment} style={{ marginTop: '10px' }}>Dodaj odgovor</Button>
         </div>
       )}
     </div>

@@ -52,6 +52,7 @@ interface ValidationMessages {
   resolveTimespand?: string;
   resolveDescription?: string;
 }
+
 interface HelpdeskTicketState {
   editTicket: {
     groupId?: number | null;

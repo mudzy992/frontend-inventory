@@ -35,6 +35,7 @@ import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigatio
 import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
 import ArticleComponent from "./components/admin/Article/ArticleComponent";
 import HelpdeskDetails from "./components/admin/HelpDesk/main/Details/HelpdeskDetails";
+import AppBreadcrumb from "./components/APP/Breadcrumb/AppBreadcrumb";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -156,6 +157,11 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
         </div>
       </Header>
       <Content className={`container mx-auto px-4 py-4 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
+      {isAuthenticated && (
+          <div className="px-4 py-2">
+            <AppBreadcrumb />
+          </div>
+        )}
         {children}
       </Content>
     <Footer className={`text-center text-gray-400 z-10 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić </Footer>

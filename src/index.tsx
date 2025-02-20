@@ -10,10 +10,8 @@ import { NextUIProvider } from "@nextui-org/react";
 import { UserContextProvider, useUserContext } from "./components/Contexts/UserContext/UserContext";
 import CategoryPage from "./components/APP/Categories/Categories";
 import HomePage from "./components/APP/Home/HomePage";
-import ArticleOnUserPage from "./components/APP/ArticleOnUser/ArticleOnUserPage";
-import AdminArticleOnUserPage from "./components/admin/ArticleOnUser/ArticleOnUserPage";
 import AdminUserProfilePage from "./components/APP/UserProfile/UserProfilePage";
-import AddArticlePage from "./components/admin/AddArticle/AddArticlePage";
+import AddArticlePage from "./components/admin/Article/AddArticle/AddArticlePage";
 import AddUserPage from "./components/admin/AddUser/AddUserPage";
 import AddFeaturePage from "./components/admin/AddFeature/AddFeaturePage";
 import AddNewCategoryPage from "./components/admin/AddCategory/AddCategoryPage";
@@ -21,7 +19,6 @@ import AddDepartmentAndJob from "./components/admin/AddDepartmentJobLocation/Mai
 import StockPage from "./components/APP/Stock/StockPage";
 import AdminDocumentsPage from "./components/admin/Documents/AdminDocumentsPage";
 import LoginPage from "./components/Login/LoginPage";
-import AdminDashboardPage from "./components/admin/Dashboard/DashboardPage";
 import HelpdeskTicketPage from "./components/admin/HelpDesk/Helpdesk";
 import ArticlePage from "./components/admin/Dashboard/Article/ArticlePage";
 import TelecomInvoice from "./components/APP/TelecomInvoices/TelecomInvoice";
@@ -64,16 +61,16 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     handleResize();
     window.addEventListener("resize", handleResize);
-    
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
 
   return (
-  
+
   <Layout className="min-h-screen ">
     {isAuthenticated && (
       <div>
@@ -125,16 +122,16 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
         </Sider>
 
         {isMobile && !collapsed && (
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 z-40" 
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={() => setCollapsed(true)}
             />
           )}
       </div>
     )}
     <Layout>
-      <Header 
-      className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md flex flex-row justify-between items-center transition-all 
+      <Header
+      className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md flex flex-row justify-between items-center transition-all
       duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}
       >
         <div>
@@ -147,12 +144,12 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
               fontSize: '16px',
             }}
           />
-        
+
         </div>
         <span className="font-bold text-xl"><Link to='/'>Inventory database</Link></span>
-        
+
         <div className="flex flex-row items-center gap-2">
-        
+
           <UserDropdown />
         </div>
       </Header>
@@ -175,7 +172,7 @@ const App = () => {
   return (
     <React.StrictMode>
       <NextUIProvider>
-        
+
       <ConfigProvider
           locale={hrHR}
           theme={{
@@ -183,7 +180,7 @@ const App = () => {
               "colorPrimary": "#33bcb7",
               "colorInfo": "#1668dc",
               "colorSuccess": "#3c8618",
-              
+
               "wireframe": false
             },
             "components": {
@@ -217,12 +214,11 @@ const App = () => {
               <NotificationProvider>
               <AppLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} isCompact={isCompact} setIsCompact={setIsCompact}>
                 <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/user/article/:serial" element={<ArticleOnUserPage />} />
-                  <Route path="/admin/article/s/:serial" element={<AdminArticleOnUserPage />} />
-                  <Route path="/user/profile/:userID" element={<AdminUserProfilePage />} />
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/profile/:userID" element={<AdminUserProfilePage />} />
                   <Route path="/category/:categoryID" element={<CategoryPage />} />
+                  <Route path="/article/:serial" element={<ArticleComponent />} />
                   <Route path="/admin/article/" element={<ArticlePage />} />
                   <Route path="/admin/article/add" element={<AddArticlePage />} />
                   <Route path="/admin/user/" element={<AddUserPage />} />
@@ -231,13 +227,12 @@ const App = () => {
                   <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
                   <Route path="/admin/documents/" element={<AdminDocumentsPage />} />
                   <Route path="/admin/stock/:stockID" element={<StockPage />} />
-                  <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
                   <Route path="/admin/helpdesk/:ticketId" element={<HelpdeskDetails />} />
                   <Route path="/admin/invoices" element={<InvoiceList />} />
                   <Route path="/admin/invoices/:invoiceId/printers" element={<Printers />} />
                   <Route path="/admin/telecom" element={<TelecomInvoice />} />
-                  <Route path="/admin/article/:serial" element={<ArticleComponent />} />
+
                 </Routes>
               </AppLayout>
               </NotificationProvider>

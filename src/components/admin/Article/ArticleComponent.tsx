@@ -5,16 +5,17 @@ import { ApiResponse, useApi } from '../../../API/api';
 import { useUserContext } from '../../Contexts/UserContext/UserContext';
 import { useNotificationContext } from '../../Contexts/Notification/NotificationContext';
 import ArticleType from '../../../types/ArticleType';
-import { EyeOutlined, SaveOutlined, UserOutlined, MailOutlined, BuildOutlined, AppstoreAddOutlined, 
+import { EyeOutlined, SaveOutlined, UserOutlined, MailOutlined, BuildOutlined, AppstoreAddOutlined,
   IdcardOutlined, InfoCircleOutlined, CalendarOutlined, FileTextOutlined, ContainerOutlined, FileSearchOutlined, HistoryOutlined, BellOutlined  } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
 import ViewSingleTicketModal from '../HelpDesk/view/ViewSingleTicket';
-import StatusChangeModal from '../ChangeArticleStatus/ChangeStatusModal';
+import StatusChangeModal from './models/ChangeStatusModal';
 import AdditionSettingsModal from './models/AdditionSpecification';
 import UpgradeFeaturesType from '../../../types/UpgradeFeaturesType';
 import UpgradeFeaturesModal from './models/UpgradeFeatures';
+import { useCanEdit } from '../../../config/permissions';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -23,6 +24,7 @@ const { Panel } = Collapse;
 const ArticleComponent: React.FC = () => {
   const { api } = useApi();
   const { role } = useUserContext();
+  const canEdit = useCanEdit();
   const { serial } = useParams<{ serial: string }>();
   const [loading, setLoading] = useState<boolean>(false);
   const { warning, error } = useNotificationContext();
@@ -74,7 +76,7 @@ const ArticleComponent: React.FC = () => {
         );
       }
     }
-  
+
   const handleShowViewModal = () => {
     setShowViewModal(true);
   };
@@ -128,10 +130,10 @@ const ArticleComponent: React.FC = () => {
       otvoren: 'volcano',
     },
   };
-  
-  const getStatusColor = (status: string, type: 'article' | 'helpdesk') => 
+
+  const getStatusColor = (status: string, type: 'article' | 'helpdesk') =>
     statusColors[type]?.[status] || 'default';
-  
+
   const handleDownload = (filePath: string, fileName: string) => {
     fetch(`${ApiConfig.TEMPLATE_PATH}/${filePath}`)
       .then(response => response.blob())
@@ -140,11 +142,20 @@ const ArticleComponent: React.FC = () => {
   };
 
   const genExtraAdditionalSetting = () => (
-    <i className="bi bi-gear text-warning text-lg" onClick={() => handleOpenAdditionalSettingModal(article!)}/>
+    canEdit ? (
+        <i className="bi bi-gear text-warning text-lg" onClick={() => handleOpenAdditionalSettingModal(article!)}/>
+    ) : (
+        <i className="bi bi-gear text-warning text-lg" />
+    )
   );
 
   const genExtraUpgradeFeatures = () => (
-    <i className="bi bi-wrench-adjustable-circle text-success text-lg" onClick={() => setUpgradeFeaturesModalVisible(true)}/>
+    canEdit ? (
+        <i className="bi bi-wrench-adjustable-circle text-success text-lg" onClick={() => setUpgradeFeaturesModalVisible(true)}/>
+    ) : (
+        <i className="bi bi-wrench-adjustable-circle text-success text-lg" />
+    )
+
   );
 
   return (
@@ -206,7 +217,7 @@ const ArticleComponent: React.FC = () => {
                   />
                 )}
               </Panel>
-              
+
               <Panel header="Nadogradnje" extra={genExtraUpgradeFeatures()} key="3">
               {upgradeFeatures.length ? upgradeFeatures?.map(up => (
                 <Descriptions>
@@ -304,7 +315,7 @@ const ArticleComponent: React.FC = () => {
                 title: 'Opis',
                 dataIndex: 'description',
                 key: 'description',
-                ellipsis: true, 
+                ellipsis: true,
               },
               {
                 title: 'Datum prijave',
@@ -335,7 +346,7 @@ const ArticleComponent: React.FC = () => {
               },
             ]}
           />
-          {showViewModal && 
+          {showViewModal &&
             <ViewSingleTicketModal
                 show={showViewModal}
                 onHide={handleHideViewModal}
@@ -343,12 +354,12 @@ const ArticleComponent: React.FC = () => {
                 data={article?.helpdeskTickets!}
               />
           }
-          
+
           </TabPane>
           </Tabs>
         </Card>
       </Col>
-      {!loading && 
+      {!loading &&
       <Col xs={24} lg={8} className='flex flex-col gap-4'>
       {article?.status === "razduženo" && (
         <Alert message="Detalji o korisniku nedostupni, oprema razdužena." showIcon type="warning" />
@@ -360,28 +371,28 @@ const ArticleComponent: React.FC = () => {
 
       {article?.status === "zaduženo" && (
         <Descriptions title="Detalji korisnika" bordered size='small' column={1}>
-          <Descriptions.Item 
-            label={<><UserOutlined /> Korisnik</>} 
+          <Descriptions.Item
+            label={<><UserOutlined /> Korisnik</>}
           >
             {article?.user?.fullname}
           </Descriptions.Item>
-          <Descriptions.Item 
-            label={<><MailOutlined /> Email</>} 
+          <Descriptions.Item
+            label={<><MailOutlined /> Email</>}
           >
             {article?.user?.email}
           </Descriptions.Item>
-          <Descriptions.Item 
-            label={<><BuildOutlined /> Organizacija</>} 
+          <Descriptions.Item
+            label={<><BuildOutlined /> Organizacija</>}
           >
             {article?.user?.organization?.name}
           </Descriptions.Item>
-          <Descriptions.Item 
-            label={<><AppstoreAddOutlined /> Sektor/služba/odjeljenje</>} 
+          <Descriptions.Item
+            label={<><AppstoreAddOutlined /> Sektor/služba/odjeljenje</>}
           >
             {article?.user?.department?.title}
           </Descriptions.Item>
-          <Descriptions.Item 
-            label={<><IdcardOutlined /> Radno mjesto</>} 
+          <Descriptions.Item
+            label={<><IdcardOutlined /> Radno mjesto</>}
           >
             {article?.user?.job?.title}
           </Descriptions.Item>
@@ -392,9 +403,9 @@ const ArticleComponent: React.FC = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Status</span>
-            <Button size="small" type="link" onClick={() => handleOpenChangeStatusModal(article!)}>
+            {canEdit && <Button size="small" type="link" onClick={() => handleOpenChangeStatusModal(article!)}>
               Promjeni status
-            </Button>
+            </Button>}
           </div>
         }
         bordered
@@ -412,9 +423,8 @@ const ArticleComponent: React.FC = () => {
           {dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}
         </Descriptions.Item>
       </Descriptions>
-
-        {changeStatusModalVisible && 
-          <StatusChangeModal 
+        {changeStatusModalVisible &&
+          <StatusChangeModal
             data={selectedArticle!}
             type='article'
             visible={changeStatusModalVisible}
@@ -448,7 +458,7 @@ const ArticleComponent: React.FC = () => {
       </Col>
       }
     </Row>
-    
+
   );
 };
 

@@ -62,7 +62,7 @@ const ArticleListTable: FC<StockProps> = ({ stockId }) => {
         key: 'user',
         render: (record: ArticleType) => (
             record ? (
-                <a rel="noopener noreferrer" href={`#/user/profile/${record.user?.userId}`}>{record.user?.fullname}</a>
+                <a rel="noopener noreferrer" href={`#/profile/${record.user?.userId}`}>{record.user?.fullname}</a>
             ) : ('N/A')),
       },
     {
@@ -70,7 +70,7 @@ const ArticleListTable: FC<StockProps> = ({ stockId }) => {
       dataIndex: 'serialNumber',
       key: 'serialNumber',
       render: (serialNumber: string) => (
-        <a rel="noopener noreferrer" href={`#/admin/article/${serialNumber}`}>{serialNumber}</a>
+        <a rel="noopener noreferrer" href={`#/article/${serialNumber}`}>{serialNumber}</a>
       )
     },
     {
@@ -92,7 +92,7 @@ const ArticleListTable: FC<StockProps> = ({ stockId }) => {
       key: 'timestamp',
       render: (timestamp:string) => <span>{dayjs(timestamp).format('DD.MM.YYYY HH:mm')}</span>
     },
-    
+
   ];
 
   const handleSearch = (e:any) => {

@@ -71,7 +71,7 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
       dataIndex: "serialNumber",
       key: "serialNumber",
       render: (serialNumber: string) => (
-        <a href={`#/admin/article/${serialNumber}`}>{serialNumber}</a>
+        <a href={`#/article/${serialNumber}`}>{serialNumber}</a>
       ),
     },
     {
@@ -106,7 +106,7 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
         stockName: article.stock?.name,
         serialNumber: article.serialNumber,
         invNumber: article.invNumber,
-        categoryName: article.category?.name, 
+        categoryName: article.category?.name,
         documents: article.documents,
         stock:article.stock,
       }))}

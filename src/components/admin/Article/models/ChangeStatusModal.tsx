@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Select, Input, Button } from "antd";
-import { useApi } from "../../../API/api";
-import UserType from "../../../types/UserType";
-import ArticleType from "../../../types/ArticleType";
+import { useApi } from "../../../../API/api";
+import UserType from "../../../../types/UserType";
+import ArticleType from "../../../../types/ArticleType";
 import { useWatch } from "antd/es/form/Form";
 
 interface StatusChangeModalProps {
@@ -63,7 +63,7 @@ const StatusChangeModal:React.FC<StatusChangeModalProps> = ({ type, data, stockI
 
   return (
     <Modal title="Promjena statusa" open={visible} onCancel={onClose} footer={null}>
-      <Form form={form} layout="vertical" onFinish={handleSubmit} 
+      <Form form={form} layout="vertical" onFinish={handleSubmit}
       initialValues={{
         status: "",
         comment: "",
@@ -79,7 +79,7 @@ const StatusChangeModal:React.FC<StatusChangeModalProps> = ({ type, data, stockI
           ]}/>
         </Form.Item>
 
-        <Form.Item name="userId" label="Korisnik" 
+        <Form.Item name="userId" label="Korisnik"
         rules={[
           {
             required: statusValue && statusValue !== "otpisano" && statusValue !== "razduženo",
@@ -98,10 +98,10 @@ const StatusChangeModal:React.FC<StatusChangeModalProps> = ({ type, data, stockI
             }))}
             />
         </Form.Item>
-        <Form.Item name="serialNumber" label="Serijski broj" rules={[{ required: true }]}> 
+        <Form.Item name="serialNumber" label="Serijski broj" rules={[{ required: true }]}>
             <Input disabled={type === 'article'}/>
         </Form.Item>
-        <Form.Item name="invNumber" label="Inventurni broj" rules={[{ required: true }]}> 
+        <Form.Item name="invNumber" label="Inventurni broj" rules={[{ required: true }]}>
             <Input disabled={type === 'article'}/>
         </Form.Item>
 

@@ -36,7 +36,7 @@ const AllUsersTable = () => {
     }}, [searchText, users]);
 
     const handleOpenUserProfile = (userId:number) => {
-        navigate(`/user/profile/${userId}`)
+        navigate(`/profile/${userId}`)
     }
 
     const columns = [
@@ -48,9 +48,9 @@ const AllUsersTable = () => {
                 size={40}
                 shape="circle"
                 > {inicials} </Avatar>
-                <Button 
-                    onClick={()=>handleOpenUserProfile(record.userId!)} 
-                    icon={<LinkOutlined />} 
+                <Button
+                    onClick={()=>handleOpenUserProfile(record.userId!)}
+                    icon={<LinkOutlined />}
                     type="text"
                     size="small"
                 >
@@ -131,7 +131,7 @@ const AllUsersTable = () => {
             <Table
             size="middle"
             pagination={{style:{marginRight:'12px'}}}
-            dataSource={filteredData} 
+            dataSource={filteredData}
             columns={columns}
             title={tableHeader}
             scroll={{ x: "max-content" }}

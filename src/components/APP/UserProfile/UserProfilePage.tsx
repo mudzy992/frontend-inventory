@@ -59,7 +59,6 @@ const AdminUserProfilePage: React.FC = () => {
         </div>
       ) : (
         <Card>
-        
             <Tabs defaultActiveKey="profile" >
               <TabPane tab="Profil" key="profile">
                   <UserDetails data={user} />
@@ -73,7 +72,7 @@ const AdminUserProfilePage: React.FC = () => {
                 </TabPane>
               )}
             </Tabs>
-        
+
         </Card>
       )}
     </>

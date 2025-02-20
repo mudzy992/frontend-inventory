@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ApiResponse, useApi } from "../../../API/api";
-import CategoryType from "../../../types/CategoryType";
 import {
   Button,
   Card,
@@ -15,7 +13,8 @@ import {
   Textarea,
   Tooltip,
 } from "@nextui-org/react";
-import Toast from "../../custom/Toast";
+import CategoryType from "../../../../types/CategoryType";
+import { ApiResponse, useApi } from "../../../../API/api";
 
 interface AddArticlePageState {
   categories: CategoryType[];
@@ -490,10 +489,6 @@ const AddArticlePage: React.FC = () => {
         ) : (
           addForm()
         )}
-        <Toast
-          variant={state.message.variant}
-          message={state.message.message}
-        />
       </div>
     </div>
   );

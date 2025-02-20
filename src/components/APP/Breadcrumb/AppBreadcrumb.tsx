@@ -26,7 +26,7 @@ const AppBreadcrumb = () => {
   }
 
   const breadcrumbItems = pathnames.map((value, index) => {
-    if (value === 'admin' || value === 'user') {
+    if (value === 'admin') {
       return null;
     }
     const last = index === pathnames.length - 1;

@@ -25,7 +25,7 @@ import Printers from "./components/admin/Invoices/Printers";
 import { NotificationProvider } from "./components/Contexts/Notification/NotificationContext";
 import { Header } from "antd/es/layout/layout";
 
-import { MenuFoldOutlined, MenuUnfoldOutlined, } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, AppstoreOutlined } from '@ant-design/icons';
 import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigationMenu";
 import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
 import ArticleComponent from "./components/admin/Article/ArticleComponent";
@@ -70,7 +70,9 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
 
   return (
 
-  <Layout className="min-h-screen ">
+    <Layout
+        className={`min-h-screen`}
+    >
     {isAuthenticated && (
       <div>
         <Sider
@@ -96,7 +98,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
           width={250}
         >
           <SiderNavigationMenu collapsed={collapsed} setCollapsed={setCollapsed}/>
-          <div className={`${collapsed ? 'hidden' : 'block'} flex flex-col gap-2 items-start mx-1 px-6 py-2 justify-end bg-default-600 rounded-md text-xs`}>
+          <div className={`${collapsed ? 'hidden' : 'block'} flex flex-col gap-2 items-start mx-3 px-5 py-2 justify-end bg-teal-950 rounded-md text-sm text-white`}>
             <div className="flex flex-row justify-between items-center w-full">
               <span className="text-default">Tema</span>
               <Switch
@@ -128,7 +130,12 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
           )}
       </div>
     )}
-    <Layout>
+    <Layout
+    className={`min-h-screen transition-all duration-500
+        ${isDarkMode ? "background-dark" : "background-light"}
+        background-animated`}
+    >
+
       <Header
       className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md flex flex-row justify-between items-center transition-all
       duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}
@@ -143,12 +150,12 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
               fontSize: '16px',
             }}
           />
-
         </div>
-        <span className="font-bold text-xl"><Link to='/'>Inventory database</Link></span>
-
+        <span className="flex items-center gap-2 font-extrabold text-xl">
+                <AppstoreOutlined className="text-primary text-xl" />
+                <Link to='/'>Inventory database</Link>
+        </span>
         <div className="flex flex-row items-center gap-2">
-
           <UserDropdown />
         </div>
       </Header>
@@ -160,13 +167,13 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
         )}
         {children}
       </Content>
-    <Footer className={`text-center text-gray-400 z-10 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić </Footer>
+    <Footer className={`text-center text-gray-400 z-10 bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić </Footer>
   </Layout>
   </Layout>
 )};
 
 const App = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [isCompact, setIsCompact] = useState(false);
   return (
     <React.StrictMode>
@@ -177,7 +184,6 @@ const App = () => {
               "colorPrimary": "#33bcb7",
               "colorInfo": "#1668dc",
               "colorSuccess": "#3c8618",
-
               "wireframe": false
             },
             "components": {

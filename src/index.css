@@ -10,11 +10,11 @@
     width: 100%;
     border-bottom: 1px solid #424242;
   }
-  
+
   .sticky-header.scrolled {
     background: rgba(0, 0, 0, 0.8);
   }
-  
+
   .ant-modal-root .ant-modal-mask {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -27,3 +27,24 @@
   ::-webkit-scrollbar {
     display: none;
   }
+
+  .background-light {
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+}
+
+.background-dark {
+    background: radial-gradient(circle, #222831, #121212);
+}
+
+.background-animated {
+    animation: bgAnimation 10s infinite alternate ease-in-out;
+}
+
+@keyframes bgAnimation {
+    0% {
+        background-size: 100% 100%;
+    }
+    100% {
+        background-size: 120% 120%;
+    }
+}

@@ -219,7 +219,7 @@ const ArticlePage: React.FC = () => {
               { title: "Naziv", key: "name", render: (record: ArticleType) => record.stock?.name },
               { title: "Serijski broj", dataIndex: "serialNumber", key: "serialNumber",
                 render: (serialNumber: string) => (
-                <a href={`#/admin/article/${serialNumber}`} ><LinkOutlined /> {serialNumber}</a>
+                <a href={`#/article/${serialNumber}`} ><LinkOutlined /> {serialNumber}</a>
               ), },
               { title: "Inventurni broj", dataIndex: "invNumber", key: "invNumber" },
               { title: "Nadogradnja", dataIndex: "upgradeFeatures", key: "upgradeFeatures", render: (features) => (
@@ -233,7 +233,7 @@ const ArticlePage: React.FC = () => {
               )},
               { title: "Kategorija", key: "category", render: (record: ArticleType) => record.category?.name },
               { title: "Korisnik", key: "user", render: (record: ArticleType) => (
-                <a href={`#/user/profile/${record.user?.userId}`}><LinkOutlined /> {record.user?.fullname}</a>
+                <a href={`#/profile/${record.user?.userId}`}><LinkOutlined /> {record.user?.fullname}</a>
               )},
               { title: "Organizacija", key: "organization", render: (record: ArticleType) => record.user?.organization?.name },
               { title: "Status", dataIndex: "status", key: "status" },

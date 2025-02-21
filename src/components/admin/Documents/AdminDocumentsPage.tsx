@@ -103,7 +103,7 @@ useEffect(() => {
         record.article?.stock?.name
     )},
     { key: "serijski-broj", title: "Serijski broj", render:(record: DocumentsType) => (
-      <a href={`#/admin/article/${record.article?.serialNumber}`} ><LinkOutlined /> {record.article?.serialNumber}</a>
+      <a href={`#/article/${record.article?.serialNumber}`} ><LinkOutlined /> {record.article?.serialNumber}</a>
     )},
     { key: "inventurni-broj", title: "Inventurni broj", render:(record: DocumentsType) => (
         record.article?.invNumber
@@ -111,13 +111,13 @@ useEffect(() => {
     { key: "predao", title: "Predao", render:(record: DocumentsType) => {
         const predao = record.articleTimelines && record.articleTimelines[0].subbmited
         return (
-          <a href={`#/user/profile/${predao?.userId}`}><LinkOutlined /> {predao?.fullname}</a>
+          <a href={`#/profile/${predao?.userId}`}><LinkOutlined /> {predao?.fullname}</a>
         )
     }},
     { key: "preuzeo", title: "Preuzeo", render:(record: DocumentsType) => {
         const preuzeo = record.articleTimelines && record.articleTimelines[0].user
         return (
-          <a href={`#/user/profile/${preuzeo?.userId}`}><LinkOutlined /> {preuzeo?.fullname}</a>
+          <a href={`#/profile/${preuzeo?.userId}`}><LinkOutlined /> {preuzeo?.fullname}</a>
         )
     }},
     {
@@ -174,7 +174,7 @@ const tableFooter = () => {
             pagination={false}
         />
     </Card>
-    {documentDetailsModalVisible && 
+    {documentDetailsModalVisible &&
     (<Modal
         okText={'Uredu'}
         title="Detalji dokumenta"
@@ -184,7 +184,7 @@ const tableFooter = () => {
         <DocumentsDetails documentId={selectedDocument!} documents={documentsData!} />
     </Modal>)
     }
-    
+
     </div>
   );
 };

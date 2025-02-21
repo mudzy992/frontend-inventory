@@ -52,7 +52,7 @@ const siderStyle: React.CSSProperties = {
 
 const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode: (value: boolean) => void; isCompact: boolean; setIsCompact: (value: boolean) => void; }> = ({ children, isDarkMode, setIsDarkMode, isCompact, setIsCompact }) => {
   const curentYear = new Date().getFullYear();
-  const {isAuthenticated, role} = useUserContext()
+  const {isAuthenticated, role, userId} = useUserContext()
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -153,7 +153,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
         </div>
         <span className="flex items-center gap-2 font-extrabold text-xl">
                 <AppstoreOutlined className="text-primary text-xl" />
-                <Link to='/'>Inventory database</Link>
+                <Link to={role === 'user' ? `/profile/${userId}` : '/'}>Inventory database</Link>
         </span>
         <div className="flex flex-row items-center gap-2">
           <UserDropdown />

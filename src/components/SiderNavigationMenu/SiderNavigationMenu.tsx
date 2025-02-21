@@ -11,7 +11,7 @@ interface SiderNavigationMenuProps {
 type MenuItem = Required<MenuProps>['items'][number];
 
 const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setCollapsed }) => {
-  const { role } = useUserContext();
+  const { role, userId } = useUserContext();
   const [selectedKey, setSelectedKey] = useState<string>("");
   const adminMenu: MenuItem[] = [
     {
@@ -20,7 +20,7 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       label: (
         <a
         rel="noopener noreferrer"
-        href={`#/`}>
+        href={'/#'}>
         Naslovna
         </a>
       ),
@@ -151,7 +151,7 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       label: (
         <a
         rel="noopener noreferrer"
-        href={`#/`}>
+        href={`#/profile/${userId}`}>
         Početna
         </a>
       ),

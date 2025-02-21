@@ -74,7 +74,7 @@ const UserLoginPage: React.FC = () => {
           await saveRefreshToken(res.data.refreshToken);
 
           if (res.data.role === "user") {
-            navigate(`/user/profile/${res.data.id}`);
+            navigate(`/profile/${res.data.id}`);
             success.message('Dobrodošli nazad!')
           } else if (res.data.role === "administrator" || "moderator") {
             navigate(`/`);
@@ -90,7 +90,7 @@ const UserLoginPage: React.FC = () => {
       <div className="mb-2 rounded-xl p-2 text-left text-lg h-12 border-1">
         <p>
           <i className="bi bi-person-fill text-xl" /> Korisnička prijava
-        </p> 
+        </p>
       </div>
       <Input
         className="rounded-xl h-12"

@@ -1,7 +1,7 @@
-import React from 'react';
 import { Breadcrumb } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import { HomeOutlined } from '@ant-design/icons';
+import { useUserContext } from '../../Contexts/UserContext/UserContext';
 
 const breadcrumbMap: Record<string, string> = {
   helpdesk: 'Helpdesk',
@@ -18,6 +18,7 @@ const breadcrumbMap: Record<string, string> = {
 
 const AppBreadcrumb = () => {
   const location = useLocation();
+  const { role, userId } = useUserContext();
 
   const pathnames = location.pathname.split('/').filter((x) => x);
 
@@ -46,7 +47,7 @@ const AppBreadcrumb = () => {
   return (
     <Breadcrumb>
       <Breadcrumb.Item>
-        <Link to="/">
+        <Link to={role === 'user' ? `/profile/${userId}` : '/'}>
           <HomeOutlined />
         </Link>
       </Breadcrumb.Item>

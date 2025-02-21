@@ -21,7 +21,7 @@ const UserDropdown = () => {
       label: (
         <a
         rel="noopener noreferrer"
-        href={`#/user/profile/${userId}`}>
+        href={`#/profile/${userId}`}>
         Profil
         </a>
       ),

@@ -6,7 +6,6 @@ import { HashRouter, Routes, Route, Link } from "react-router-dom";
 import { Layout, ConfigProvider, theme, Menu, Button, Switch } from "antd";
 import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
-import { NextUIProvider } from "@nextui-org/react";
 import { UserContextProvider, useUserContext } from "./components/Contexts/UserContext/UserContext";
 import CategoryPage from "./components/APP/Categories/Categories";
 import HomePage from "./components/APP/Home/HomePage";
@@ -16,7 +15,6 @@ import AddUserPage from "./components/admin/AddUser/AddUserPage";
 import AddFeaturePage from "./components/admin/AddFeature/AddFeaturePage";
 import AddNewCategoryPage from "./components/admin/AddCategory/AddCategoryPage";
 import AddDepartmentAndJob from "./components/admin/AddDepartmentJobLocation/MainAddDepartmentJobLocation";
-import StockPage from "./components/APP/Stock/StockPage";
 import AdminDocumentsPage from "./components/admin/Documents/AdminDocumentsPage";
 import LoginPage from "./components/Login/LoginPage";
 import HelpdeskTicketPage from "./components/admin/HelpDesk/Helpdesk";
@@ -33,6 +31,7 @@ import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
 import ArticleComponent from "./components/admin/Article/ArticleComponent";
 import HelpdeskDetails from "./components/admin/HelpDesk/main/Details/HelpdeskDetails";
 import AppBreadcrumb from "./components/APP/Breadcrumb/AppBreadcrumb";
+import Stock from "./components/APP/Stock/Stock";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -171,8 +170,6 @@ const App = () => {
   const [isCompact, setIsCompact] = useState(false);
   return (
     <React.StrictMode>
-      <NextUIProvider>
-
       <ConfigProvider
           locale={hrHR}
           theme={{
@@ -219,6 +216,7 @@ const App = () => {
                   <Route path="/profile/:userID" element={<AdminUserProfilePage />} />
                   <Route path="/category/:categoryID" element={<CategoryPage />} />
                   <Route path="/article/:serial" element={<ArticleComponent />} />
+                  <Route path="/stock/:stockId" element={<Stock />} />
                   <Route path="/admin/article/" element={<ArticlePage />} />
                   <Route path="/admin/article/add" element={<AddArticlePage />} />
                   <Route path="/admin/user/" element={<AddUserPage />} />
@@ -226,7 +224,6 @@ const App = () => {
                   <Route path="/admin/category/" element={<AddNewCategoryPage />} />
                   <Route path="/admin/department/" element={<AddDepartmentAndJob />} />
                   <Route path="/admin/documents/" element={<AdminDocumentsPage />} />
-                  <Route path="/admin/stock/:stockID" element={<StockPage />} />
                   <Route path="/admin/helpdesk" element={<HelpdeskTicketPage />} />
                   <Route path="/admin/helpdesk/:ticketId" element={<HelpdeskDetails />} />
                   <Route path="/admin/invoices" element={<InvoiceList />} />
@@ -239,7 +236,6 @@ const App = () => {
               </UserContextProvider>
             </HashRouter>
           </ConfigProvider>
-      </NextUIProvider>
     </React.StrictMode>
   );
 };

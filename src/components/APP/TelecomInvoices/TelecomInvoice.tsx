@@ -1,4 +1,4 @@
-import { Button, Checkbox, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from "@nextui-org/react";
+import { Button, Checkbox, Input, Modal, Table, Spin, Row, Col } from "antd";
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
 
@@ -12,17 +12,16 @@ interface TableData {
   [key: string]: string | number | null;
 }
 
-
 const TelecomInvoice: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [sheets, setSheets] = useState<string[]>([]);
   const [selectedSheets, setSelectedSheets] = useState<string[]>([]);
   const [data, setData] = useState<SheetData[] | null>(null);
-  const [tableData, setTableData] = useState<TableData[]>([]); 
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  const [fieldChecks, setFieldChecks] = useState<Record<string, boolean>>({}); 
+  const [tableData, setTableData] = useState<TableData[]>([]);
+  const [fieldChecks, setFieldChecks] = useState<Record<string, boolean>>({});
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
@@ -41,14 +40,13 @@ const TelecomInvoice: React.FC = () => {
   };
 
   const handleOpenDialog = () => {
-    onOpen();
-
+    setIsModalOpen(true);
     const initialChecks: Record<string, boolean> = {};
     const initialValues: Record<string, string | number> = {};
 
     tableData.forEach((row, rowIndex) => {
       Object.keys(row).forEach((colKey) => {
-        const checkKey = `${rowIndex}-${colKey}`; 
+        const checkKey = `${rowIndex}-${colKey}`;
         initialChecks[checkKey] = true;
         if (!row[colKey]) {
           initialValues[checkKey] = '';
@@ -67,7 +65,7 @@ const TelecomInvoice: React.FC = () => {
     }).map((row, rowIndex) => {
       const updatedRow: TableData = {};
       Object.keys(row).forEach((colKey) => {
-        const checkKey = `${rowIndex}-${colKey}`; 
+        const checkKey = `${rowIndex}-${colKey}`;
         updatedRow[colKey] = fieldValues[checkKey] !== undefined ? fieldValues[checkKey] : row[colKey];
       });
       return updatedRow;
@@ -138,8 +136,8 @@ const TelecomInvoice: React.FC = () => {
     rows.forEach((row, index) => {
       const cells = row.querySelectorAll<HTMLTableCellElement>('td');
 
-      const amount = cells[1]?.innerText || ''; 
-      const number = cells[0]?.innerText || ''; 
+      const amount = cells[1]?.innerText || '';
+      const number = cells[0]?.innerText || '';
 
       const rowObject: TableData = {
         name: number,
@@ -154,19 +152,13 @@ const TelecomInvoice: React.FC = () => {
   const handleExportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(tableData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Table Data");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Vrijednosti tabele");
     XLSX.writeFile(workbook, "faktura-radna.xlsx");
   };
 
   return (
-    <>
-    {loading ? (
-      <div className="container mx-auto flex items-center justify-center">
-      <Spinner label="Učitavanje..." labelColor="warning" color="warning" />
-    </div>
-    ) : (
-      <div className="container  mx-auto mt-3 h-max">
-      <h1 className="text-xl font-bold mb-4">Telekom faktura</h1>
+    <div className="container mx-auto mt-6 p-4 bg-white rounded shadow-md">
+      <h1 className="text-2xl font-bold mb-4 text-center">Telekom faktura</h1>
 
       {/* Input for file selection */}
       <div className="mb-4">
@@ -174,164 +166,117 @@ const TelecomInvoice: React.FC = () => {
           type="file"
           accept=".xlsx, .xls"
           onChange={handleFileChange}
-          className="mb-2"
+          className="w-full p-2 border rounded-md"
         />
       </div>
 
       {sheets.length > 0 && (
         <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Select Sheets:</h2>
-          <div className="flex flex-wrap space-x-4">
+          <h2 className="text-xl font-semibold mb-2">Odaberi tabele:</h2>
+          <div className="flex flex-wrap gap-4">
             {sheets.map((sheet) => (
-              <div key={sheet} className="flex items-center">
-                <Checkbox
-                  aria-label={`Select ${sheet}`}
-                  checked={selectedSheets.includes(sheet)}
-                  onChange={() => handleSheetSelection(sheet)}
-                  className="mr-2"
-                >
-                  {sheet}
-                </Checkbox>
-              </div>
+              <Checkbox
+                key={sheet}
+                checked={selectedSheets.includes(sheet)}
+                onChange={() => handleSheetSelection(sheet)}
+                className="mb-2"
+              >
+                {sheet}
+              </Checkbox>
             ))}
           </div>
         </div>
       )}
 
-      <div className="flex flex-row gap-2">
-        <Button
-          onClick={handleShowData}
-          color="primary"
-        >
-          Show Data
-        </Button>
-        <Button
-        onClick={handleSaveTableData}
-        color="secondary"
-      >
-        Prebaci podatke u stanje
-      </Button>
+      <div className="flex justify-between mb-4">
+        <Button onClick={handleShowData} type="primary">Prikaži vrijednosti</Button>
+        <Button onClick={handleSaveTableData} type="default">Prebaci podatke u stanje</Button>
 
-      {tableData.length > 0 && (
-        <Button
-          onClick={handleOpenDialog}
-          color="warning"
-        >
-          Validiraj podatke
-        </Button>
-      )}
+        {tableData.length > 0 && (
+          <Button onClick={handleOpenDialog} type="primary">Validiraj podatke</Button>
+        )}
       </div>
 
-      {isOpen && (
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} scrollBehavior={"inside"} aria-label="modal">
-          <ModalContent aria-label="modal-content">
-            {(onClose) => (
-              <>
-                <ModalHeader aria-label="modal-header">Validacija podataka</ModalHeader>
-                <ModalBody aria-label="modal-body">
-                  <div>
-                    <Table className="min-w-full" removeWrapper aria-label="tabela">
-                      <TableHeader aria-label="tabela-header">
-                        <TableColumn>Označi</TableColumn>
-                        <TableColumn>Broj</TableColumn>
-                        <TableColumn>Trošak</TableColumn>
-                      </TableHeader>
-                      <TableBody>
-                        {tableData.map((row, rowIndex) => (
-                          <TableRow key={rowIndex} aria-label={`Red-tabela ${rowIndex}`}>
-                            <TableCell >
-                              <Checkbox
-                                aria-label={`Select row ${rowIndex}`} // Dodano aria-label
-                                checked={fieldChecks[`${rowIndex}`] || false}
-                                onChange={() =>
-                                  setFieldChecks((prev) => ({
-                                    ...prev,
-                                    [`${rowIndex}`]: !prev[`${rowIndex}`],
-                                  }))
-                                }
-                              />
-                            </TableCell>
-                            <TableCell>{row.name}</TableCell>
-                            <TableCell>
-                              <Input
-                                aria-label={`Input for amount in row ${rowIndex}`} // Dodano aria-label
-                                type="text"
-                                value={fieldValues[`${rowIndex}-${"amount"}`] !== undefined ? fieldValues[`${rowIndex}-${"amount"}`].toString() : (row.amount !== null && row.amount !== undefined ? row.amount.toString() : '')}
-                                onChange={(e) =>
-                                  setFieldValues((prev) => ({
-                                    ...prev,
-                                    [`${rowIndex}-${"amount"}`]: e.target.value,
-                                  }))
-                                }
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </ModalBody>
-
-                <ModalFooter>
-                  <Button color="danger" onClick={handleDeleteCheckedRows}>
-                    Obriši označene
-                  </Button>
-                  <Button color="primary" onClick={handleSaveDialog}>
-                    Snimi
-                  </Button>
-                  <Button onClick={handleExportToExcel} color="success">
-                    Export to Excel
-                  </Button>
-                  <Button color="primary" onPress={onClose}>
-                    Izadji
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
+      {/* Modal */}
+      {isModalOpen && (
+        <Modal
+          title="Validacija podataka"
+          visible={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={null}
+        >
+          <Table
+            dataSource={tableData}
+            columns={[
+              {
+                title: "Označi",
+                dataIndex: "check",
+                render: (_, __, rowIndex) => (
+                  <Checkbox
+                    checked={fieldChecks[`${rowIndex}`] || false}
+                    onChange={() =>
+                      setFieldChecks((prev) => ({
+                        ...prev,
+                        [`${rowIndex}`]: !prev[`${rowIndex}`],
+                      }))
+                    }
+                  />
+                ),
+              },
+              { title: "Broj", dataIndex: "name" },
+              {
+                title: "Trošak",
+                dataIndex: "amount",
+                render: (_, record, rowIndex) => (
+                  <Input
+                    value={fieldValues[`${rowIndex}-${"amount"}`] ?? record.amount ?? ''}
+                    onChange={(e) =>
+                      setFieldValues((prev) => ({
+                        ...prev,
+                        [`${rowIndex}-${"amount"}`]: e.target.value,
+                      }))
+                    }
+                  />
+                ),
+              },
+            ]}
+          />
+          <div className="flex gap-2 mt-4">
+            <Button onClick={handleDeleteCheckedRows} danger>Obriši označene</Button>
+            <Button onClick={handleSaveDialog} type="primary">Snimi</Button>
+            <Button onClick={handleExportToExcel} type="default">Export to Excel</Button>
+          </div>
         </Modal>
       )}
-      
-      {data && (
+
+      {/* Display data */}
+      {loading ? (
+        <div className="flex justify-center">
+          <Spin tip="Učitavanje..." />
+        </div>
+      ) : (
         <div>
-          {data.map((sheetData: SheetData, idx: number) => (
-            <div key={idx}>
-              <h3 className="text-lg font-bold mt-4">{sheetData.sheetName}</h3>
-              <table className="text-small min-w-full border-collapse border border-gray-300">
+          {data && data.map((sheetData, idx) => (
+            <div key={idx} className="mb-6">
+              <h3 className="text-lg font-semibold mb-4">{sheetData.sheetName}</h3>
+              <table className="w-full border-collapse table-auto">
                 <thead>
-                  <tr>
-                    <th>
-                      Broj
-                    </th>
-                    <th>
-                      Amount
-                    </th>
+                  <tr className="bg-gray-200">
+                    <th className="px-4 py-2 text-left">Broj</th>
+                    <th className="px-4 py-2 text-left">Vrijednost</th>
                   </tr>
                 </thead>
-                <tbody >
-                  <tr>
-                    {Object.keys(sheetData.data[0] || {}).map((col, index) => {
-                      if (col.includes('Ukupno za priključak') || col === '__EMPTY_9' || col === '__EMPTY_18') {
-                        return null;
-                      }
-
-                      return (
-                        <td key={index} className="px-4 py-2 border border-gray-300">
-                          {col.replace('Za priključak: ', '')}
-                        </td>
-                      );
-                    })}
-                  </tr>
+                <tbody>
                   {sheetData.data.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
+                    <tr key={rowIndex} className="border-b hover:bg-gray-50">
                       {Object.keys(row).map((colKey, colIndex) => {
                         const value = row[colKey];
                         if (typeof value === 'string' && value.includes('Ukupno za priključak')) {
                           return null;
                         }
                         return (
-                          <td key={colIndex} className="px-4 py-2 border border-gray-300">
-                            {typeof value === 'string' ? value.replace('Za priključak: ', '') : value}
+                          <td key={colIndex} className="px-4 py-2">
+                            {value}
                           </td>
                         );
                       })}
@@ -341,15 +286,9 @@ const TelecomInvoice: React.FC = () => {
               </table>
             </div>
           ))}
-
-          
         </div>
       )}
     </div>
-    )
-  }
-    </>
-    
   );
 };
 

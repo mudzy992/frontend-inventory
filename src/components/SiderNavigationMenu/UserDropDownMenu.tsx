@@ -7,11 +7,11 @@ import { useNavigate } from 'react-router-dom';
 
 
 const UserDropdown = () => {
-  const {userId, isAuthenticated, setRole, setUserId, setIsAuthenticated} = useUserContext()
+  const {userId, isAuthenticated, setRole, setUserId, setIsAuthenticated, setPhoneIp} = useUserContext()
   const navigate = useNavigate()
   const logOut = async () => {
     if(isAuthenticated){
-      await removeIdentity(setIsAuthenticated, setUserId, setRole);
+      await removeIdentity(setIsAuthenticated, setUserId, setRole, setPhoneIp);
       navigate('/login')
     }
   }
@@ -19,8 +19,8 @@ const UserDropdown = () => {
     {
       key: '1',
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/user/profile/${userId}`}>
         Profil
         </a>
@@ -30,7 +30,7 @@ const UserDropdown = () => {
     {
       key: '2',
       label: (
-        <a 
+        <a
         onClick={logOut}
         >
         Odjavi se
@@ -41,7 +41,7 @@ const UserDropdown = () => {
     }
   ]
 
-  
+
 
   return (
     <div>

@@ -71,11 +71,6 @@ const CategoryPage: React.FC = () => {
           {},
           "administrator"
         );
-        if (response.status === "login") {
-          navigate("/login");
-          return;
-        }
-
         if (response.status === "error") {
           return setErrorMessage(
             "Greška prilikom učitavanja kategorije. Osvježite ili pokušajte ponovo kasnije"
@@ -194,7 +189,7 @@ const CategoryPage: React.FC = () => {
     }
 
     return (<ArticlesListTable categoryId={categoryID}/>
-      
+
     );
   };
 

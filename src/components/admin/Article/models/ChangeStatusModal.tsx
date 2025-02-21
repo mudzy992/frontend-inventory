@@ -7,7 +7,7 @@ import { useWatch } from "antd/es/form/Form";
 
 interface StatusChangeModalProps {
     type: "article" | "stock";
-    data: ArticleType;
+    data?: ArticleType;
     stockId?: number;
     visible: boolean;
     onClose: () => void;
@@ -40,11 +40,11 @@ const StatusChangeModal:React.FC<StatusChangeModalProps> = ({ type, data, stockI
       userId: values.userId,
       comment: values.comment,
       status: values.status,
-      invNumber: type === "article" ? data.invNumber : values.invNumber,
-      serialNumber: type === "article" ? data.serialNumber : values.serialNumber,
+      invNumber: type === "article" ? data?.invNumber : values.invNumber,
+      serialNumber: type === "article" ? data?.serialNumber : values.serialNumber,
     };
 
-    const endpoint = type === "article" ? `api/article/status/${data.articleId}` : `api/article/${stockId}`;
+    const endpoint = type === "article" ? `api/article/status/${data?.articleId}` : `api/article/${stockId}`;
     const method = type === "article" ? "patch" : "post";
 
     try {

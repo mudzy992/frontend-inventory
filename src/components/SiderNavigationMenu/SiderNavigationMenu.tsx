@@ -11,7 +11,7 @@ interface SiderNavigationMenuProps {
 type MenuItem = Required<MenuProps>['items'][number];
 
 const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setCollapsed }) => {
-  const { role } = useUserContext(); 
+  const { role } = useUserContext();
   const [selectedKey, setSelectedKey] = useState<string>("");
   const adminMenu: MenuItem[] = [
     {
@@ -19,7 +19,7 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       icon: <DashboardOutlined />,
       label: (
         <a
-        rel="noopener noreferrer" 
+        rel="noopener noreferrer"
         href={`#/`}>
         Naslovna
         </a>
@@ -32,8 +32,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-helpdesk",
       icon: <CustomerServiceOutlined  />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/helpdesk`}>
         Helpdesk
         </a>
@@ -43,8 +43,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-invoices",
       icon: <FileDoneOutlined  />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/invoices`}>
         Fakture
         </a>
@@ -54,8 +54,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-documents",
       icon: <FileTextOutlined />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/documents`}>
         Dokumenti
         </a>
@@ -65,8 +65,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-article",
       icon: <AppstoreOutlined  />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/article`}>
         Artikli
         </a>
@@ -75,8 +75,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
         {
           key:"admin-article-add",
           label: (
-            <a 
-            rel="noopener noreferrer" 
+            <a
+            rel="noopener noreferrer"
             href={`#/admin/article/add`}>
             Dodaj novi artikal
             </a>
@@ -88,8 +88,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-feature",
       icon: <StarOutlined/>,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/feature`}>
         Osobine
         </a>
@@ -99,8 +99,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-category",
       icon: <ProfileOutlined />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/category`}>
         Kategorije
         </a>
@@ -110,8 +110,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-user",
       icon: <UserAddOutlined />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/user`}>
         Korisnici
         </a>
@@ -121,8 +121,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-department",
       icon: <ApartmentOutlined />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/department`}>
         Sektori/službe/odjeljenja
         </a>
@@ -135,20 +135,9 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key:"admin-telecom",
       icon: <GlobalOutlined  />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/admin/telecom`}>
-        Telekom priprema
-        </a>
-      )
-    },
-    {
-      key:"admin-artikal",
-      icon: <GlobalOutlined  />,
-      label: (
-        <a 
-        rel="noopener noreferrer" 
-        href={`#/admin/article/s/S4PT4033`}>
         Telekom priprema
         </a>
       )
@@ -160,8 +149,8 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
       key: "home",
       icon: <DashboardOutlined />,
       label: (
-        <a 
-        rel="noopener noreferrer" 
+        <a
+        rel="noopener noreferrer"
         href={`#/`}>
         Početna
         </a>
@@ -170,9 +159,9 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
   ];
 
   useEffect(() => {
-    const path = window.location.hash.replace("#", ""); 
+    const path = window.location.hash.replace("#", "");
     if (path === "/") {
-      setSelectedKey("admin-dashboard"); 
+      setSelectedKey("admin-dashboard");
     } else {
       setSelectedKey(`admin-${path.split("/")[2]}` || "admin-dashboard");
     }
@@ -191,7 +180,7 @@ const SiderNavigationMenu:React.FC<SiderNavigationMenuProps> = ({collapsed, setC
         selectedKeys={[selectedKey]}
         onClick={({ key }) => {
           setSelectedKey(key);
-          setCollapsed(true); 
+          setCollapsed(true);
         }}
     />
   );

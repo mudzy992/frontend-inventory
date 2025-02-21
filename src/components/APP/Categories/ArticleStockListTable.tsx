@@ -41,7 +41,7 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
             setFilteredData(
                 articles.filter((article) => {
                     return (
-                        article.name.toLowerCase().includes(searchText.toLowerCase()) || 
+                        article.name.toLowerCase().includes(searchText.toLowerCase()) ||
                         article.sapNumber.toLowerCase().includes(searchText.toLowerCase())
                     );
                 })
@@ -65,9 +65,9 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
           );
         }
       };
-    
+
     const handleOpenStockPage = (stockId: number) => (
-        navigate(`/admin/stock/${stockId}`)
+        navigate(`/stock/${stockId}`)
     )
 
     const hanleOpenArticleTableModal = (stockId: number) => (
@@ -98,22 +98,12 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
                         message.error('Korisnik nema dovoljno prava za učitavanje podataka')
                         return;
                     }
-                    if (res.status === 'error'){
-                        message.error('Greška prilikom učitavanja podataka');
-                        navigate('/login')
-                        return;
-                    }
-                    if(res.status === 'login'){
-                        message.warning('Vaša prijava je istekla, molimo prijavite se ponovo!')
-                        navigate('/login')
-                        return;
-                    }
                     setArticles(res.data)
                 },
             );
         } catch (error){
             message.error('Sistemska greška, molim kontaktirajte administratora:' + error)
-            navigate('/login')
+            return;
         } finally {
             setLoading(false);
         }
@@ -135,7 +125,7 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
     return (
         <Card loading={loading} title={tableHeader()}>
             <Table
-                dataSource={filteredData} 
+                dataSource={filteredData}
                 columns={columns}
                 scroll={{ x: "max-content" }}
                 size="small"
@@ -145,7 +135,7 @@ const ArticleStockListTable: FC<TabelaProps> = ({categoryId}) => {
                 closable={false}
                 style={{ top: 20 }}
                 width={900}
-                open={articleTableModalVisible} 
+                open={articleTableModalVisible}
                 onCancel={() => setArticleTableModalVisible(false)}
             >
                 <ArticleListTable stockId={selectedStockId!} />

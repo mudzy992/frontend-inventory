@@ -58,7 +58,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
 
   return (
     <Layout
-        className={`min-h-screen`}
+    className={`min-h-screen`}
     >
     {isAuthenticated && (
       <div className="z-[1]">
@@ -124,15 +124,14 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             )}
       </div>
     )}
-    <Layout
-        className={`transition-all duration-500 w-full lg:ml-16
-            ${isDarkMode ? "background-dark" : "background-light"}
-            background-animated`}
+    <Layout className={`transition-all duration-500 w-full ${isAuthenticated && 'ml-16'}
+        ${isDarkMode ? "background-dark" : "background-light"}
+        background-animated`}
         >
         <Header
             className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)]
             backdrop-blur-md flex flex-row justify-between items-center
-            transition-all duration-300 ${isAuthenticated && !collapsed ? "blur-md" : ""}`}
+            transition-all duration-300 ${!isAuthenticated && 'hidden'} ${isAuthenticated && !collapsed ? "blur-md" : ""}`}
         >
             <Button
             type="text"

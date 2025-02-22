@@ -17,6 +17,7 @@ import { ApiResponse, useApi } from "../../../../API/api";
 import { useNavigate } from "react-router-dom";
 import TabPane from "antd/es/tabs/TabPane";
 import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
+import dayjs from "dayjs";
 
 type ModalProps = {
   show: boolean;
@@ -125,7 +126,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
     else if (minutes < 60) return <span>prije {minutes} minuta</span>;
     else if (hours < 24) return <span>prije {hours} sati</span>;
     else if (days < 7) return <span>prije {days} dana</span>;
-    else return <span>{pastDate.toLocaleDateString()}</span>;
+    else return <span>{dayjs(pastDate).format('DD.MM.YYYY. - hh:mm')}</span>;
   };
 
   return (
@@ -138,7 +139,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
       loading={isLoading}
       footer={[
         <Button key="cancel" onClick={onHide}>
-          Cancel
+          Izađi
         </Button>,
       ]}
     >
@@ -206,13 +207,13 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                             id="avatar-komentara"
                             className="mr-3 flex items-center"
                           >
-                            <Avatar
+                            <Avatar size={40}
                             >{combineFirstLetters(
                               comment.user?.surname || "",
                               comment.user?.forname || "",
                             )}</Avatar>
                           </div>
-                          <div className="grid w-full grid-flow-row rounded-xl bg-default-50 p-3 text-sm shadow">
+                          <div className="grid w-full grid-flow-row rounded-xl p-3 text-sm shadow-md border-[1px]">
                             <div className="flex h-full justify-between">
                               <span className="text-sm font-bold">
                                 {comment?.user?.fullname}
@@ -232,7 +233,7 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                           </div>
                         </div>
                         <div className="flex justify-end">
-                          <span className="mr-2 text-tiny">
+                          <span className="text-xs pr-2">
                             {formatDateTime(comment.createdAt!)}
                           </span>
                         </div>
@@ -254,7 +255,6 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
 
                     <div className="mb-2 flex justify-end">
                       <Button
-                        color="primary"
                         className="mt-2"
                         onClick={() => doAddNewReply(comment?.commentId!)}
                       >
@@ -274,25 +274,25 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
                         >
                           <div className="lg:w-full">
                             <div className="flex flex-row">
-                              <div className="grid w-full grid-flow-row rounded-xl bg-default-100 text-black p-3 text-sm shadow">
-                                <span className="text-sm font-bold text-default-700">
+                              <div className="grid w-full grid-flow-row rounded-xl p-3 text-sm shadow-md border-[1px]">
+                                <span className="text-sm font-bold">
                                   {replies.user?.fullname}
                                 </span>
-                                <Divider className="my-1 border-black" />
+                                <Divider className="my-1" />
                                 <div className="w-full">{replies.text}</div>
                               </div>
                               <div
                                 id="avatar-odgovora-komentara"
                                 className="ml-3 flex items-center"
                               >
-                                <Avatar
+                                <Avatar size={40}
                                 >{combineFirstLetters(
                                   replies.user?.surname || "",
                                   replies.user?.forname || "",
                                 )}</Avatar>
                               </div>
                             </div>
-                            <div className="text-tiny">{formatDateTime(replies.createdAt!)}</div>
+                            <div className="text-xs pl-2">{formatDateTime(replies.createdAt!)}</div>
                           </div>
                         </div>
                       </div>

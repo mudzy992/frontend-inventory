@@ -114,7 +114,7 @@ const Stock: React.FC = () => {
             </Col>
             <Col>
               {getStatusTag(stockData?.valueAvailable!)}
-              {canEdit && <Button size="small" type="link" onClick={() => handleOpenEditStockModal()}>
+              {canEdit && <Button size="small" onClick={() => handleOpenEditStockModal()}>
                 Izmjeni
             </Button>}
             </Col>
@@ -150,7 +150,7 @@ const Stock: React.FC = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Status</span>
-            {canEdit && <Button size="small" type="link" onClick={() => handleOpenChangeStatusModal()}>
+            {canEdit && <Button size="small" onClick={() => handleOpenChangeStatusModal()}>
               Promjeni status
             </Button>}
           </div>

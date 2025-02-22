@@ -69,18 +69,17 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
 
 
   return (
-
     <Layout
         className={`min-h-screen`}
     >
     {isAuthenticated && (
-      <div>
+      <div className="z-[1]">
         <Sider
           collapsible
           collapsed={collapsed}
           trigger={null}
           style={siderStyle}
-          className={`transition-all duration-300 flex flex-col justify-center ${isMobile && "fixed top-0 left-0 h-full z-50"}`}
+          className={`transition-all duration-300 flex flex-col justify-center ${isMobile && "fixed top-0 left-0 h-full"}`}
           breakpoint="lg"
           collapsedWidth={isMobile ? 0 : 70}
           onBreakpoint={(broken) => {
@@ -121,7 +120,6 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             </div>
           </div>
         </Sider>
-
         {isMobile && !collapsed && (
             <div
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -131,44 +129,47 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
       </div>
     )}
     <Layout
-    className={`min-h-screen transition-all duration-500
-        ${isDarkMode ? "background-dark" : "background-light"}
-        background-animated`}
-    >
+  className={`transition-all duration-500
+    ${isDarkMode ? "background-dark" : "background-light"}
+    background-animated`}
+>
 
-      <Header
-      className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md flex flex-row justify-between items-center transition-all
-      duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}
-      >
-        <div>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            className={isAuthenticated && isMobile ? 'flex items-center font-lg' : 'hidden' }
-            style={{
-              fontSize: '16px',
-            }}
-          />
-        </div>
-        <span className="flex items-center gap-2 font-extrabold text-xl">
+
+        <Header
+        className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md flex flex-row justify-between items-center transition-all
+        duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}
+        >
+            <div>
+            <Button
+                type="text"
+                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                className={isAuthenticated && isMobile ? 'flex items-center font-lg' : 'hidden' }
+                style={{
+                fontSize: '16px',
+                }}
+            />
+            </div>
+            <span className="flex items-center gap-2 font-extrabold text-xl">
                 <AppstoreOutlined className="text-primary text-xl" />
                 <Link to={role === 'user' ? `/profile/${userId}` : '/'}>Inventory database</Link>
-        </span>
-        <div className="flex flex-row items-center gap-2">
-          <UserDropdown />
-        </div>
-      </Header>
-      <Content className={`container mx-auto px-4 py-4 transition-all duration-300 ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
-      {isAuthenticated && (
-          <div className="px-4 py-2">
-            <AppBreadcrumb />
-          </div>
-        )}
-        {children}
-      </Content>
-    <Footer className={`text-center text-gray-400 z-10 bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić </Footer>
-  </Layout>
+            </span>
+            <div className="flex flex-row items-center gap-2">
+            <UserDropdown />
+            </div>
+        </Header>
+        <Content className={`container mx-auto px-4 py-4 transition-all duration-300 z-[1] ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
+        {isAuthenticated && (
+            <div className="px-4 py-2">
+                <AppBreadcrumb />
+            </div>
+            )}
+            {children}
+        </Content>
+        <Footer className={`text-center text-gray-400 z-[1] bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md
+            ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić
+        </Footer>
+    </Layout>
   </Layout>
 )};
 

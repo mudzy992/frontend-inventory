@@ -4,9 +4,9 @@
 
 .sticky-header {
     padding: 0px 7px !important;
-    position: sticky;
+    position: -webkit-sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
     border-bottom: 1px solid #424242;
   }
@@ -28,23 +28,49 @@
     display: none;
   }
 
-  .background-light {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  .background-dark {
+    background: radial-gradient(circle at 50% 50%, #111, #000);
+    position: relative;
+    overflow: hidden;
 }
 
-.background-dark {
-    background: radial-gradient(circle, #222831, #121212);
+.background-dark::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 350%;
+    height: 350%;
+    background: conic-gradient(from 0deg, rgba(51, 188, 183, 0.1), rgba(22, 104, 220, 0.1), rgba(60, 134, 24, 0.1), rgba(51, 188, 183, 0.1));
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    animation: rotateGlow 10s linear infinite, pulse 5s ease-in-out infinite;
+    filter: blur(100px);
 }
 
-.background-animated {
-    animation: bgAnimation 10s infinite alternate ease-in-out;
+@keyframes rotateGlow {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-@keyframes bgAnimation {
-    0% {
-        background-size: 100% 100%;
-    }
-    100% {
-        background-size: 120% 120%;
-    }
+
+.background-light {
+    background: linear-gradient(135deg, #ffffff, #e0e7ff);
+    position: relative;
+    overflow: hidden;
+}
+
+.background-light::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 5s infinite alternate ease-in-out;
+}
+
+@keyframes shimmer {
+    0% { opacity: 0.2; transform: scale(1); }
+    100% { opacity: 0.5; transform: scale(1.2); }
 }

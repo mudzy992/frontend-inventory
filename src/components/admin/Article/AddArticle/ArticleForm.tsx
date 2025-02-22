@@ -58,7 +58,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({ initialData, onSubmit, loadin
         ? { ...feature, value: existingFeature.value, use: !!existingFeature.value }
         : feature;
     });
-
+    setCategoryID(initialData.categoryId);
     form.setFieldsValue({ features: mergedFeatures });
   };
 

@@ -67,6 +67,7 @@ const Stock: React.FC = () => {
 
         const handleCloseEditStockModal = () => {
             setEditModalVisible(false);
+            getStockData();
         };
 
         const handleEditArticle = async (data: any) => {
@@ -85,6 +86,7 @@ const Stock: React.FC = () => {
               const res: ApiResponse = await api(`/api/stock/${stockId}`, "put", requestBody, role);
               if (res.status === "ok") {
                 success.notification("Artikal je uspješno izmjenjen");
+                handleCloseEditStockModal()
               }
             } catch (err: any) {
               warning.notification("Greška prilikom izmjene artikla");

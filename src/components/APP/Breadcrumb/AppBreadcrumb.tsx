@@ -11,7 +11,7 @@ const breadcrumbMap: Record<string, string> = {
   feature: 'Osobine',
   documents: 'Dokumenti',
   category: 'Kategorije',
-  dashboard: 'Kontrolna Tabla',
+  add: 'Dodaj',
   user: 'Korisnici',
   department: "Sektori/službe/odjeljenja"
 };

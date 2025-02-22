@@ -124,7 +124,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             )}
       </div>
     )}
-    <Layout className={`transition-all duration-500 w-full ${isAuthenticated && 'ml-16'}
+    <Layout className={`transition-all duration-500 w-full ${isAuthenticated && !isMobile && 'ml-16'}
         ${isDarkMode ? "background-dark" : "background-light"}
         background-animated`}
         >

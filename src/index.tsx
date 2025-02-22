@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import reportWebVitals from "./reportWebVitals";
 import { HashRouter, Routes, Route, Link } from "react-router-dom";
-import { Layout, ConfigProvider, theme, Menu, Button, Switch } from "antd";
+import { Layout, ConfigProvider, theme, Button, Switch } from "antd";
 import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
 import { UserContextProvider, useUserContext } from "./components/Contexts/UserContext/UserContext";
@@ -24,7 +24,6 @@ import InvoiceList from "./components/admin/Invoices/InvoiceList";
 import Printers from "./components/admin/Invoices/Printers";
 import { NotificationProvider } from "./components/Contexts/Notification/NotificationContext";
 import { Header } from "antd/es/layout/layout";
-
 import { MenuFoldOutlined, MenuUnfoldOutlined, AppstoreOutlined } from '@ant-design/icons';
 import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigationMenu";
 import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
@@ -38,17 +37,6 @@ const { Content, Footer, Sider } = Layout;
 interface AppLayoutProps {
   children: ReactNode;
 }
-
-const siderStyle: React.CSSProperties = {
-  overflow: 'auto',
-  height: '100vh',
-  position: 'sticky',
-  insetInlineStart: 0,
-  top: 0,
-  bottom: 0,
-  scrollbarWidth: 'thin',
-  scrollbarGutter: 'stable',
-};
 
 const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode: (value: boolean) => void; isCompact: boolean; setIsCompact: (value: boolean) => void; }> = ({ children, isDarkMode, setIsDarkMode, isCompact, setIsCompact }) => {
   const curentYear = new Date().getFullYear();
@@ -74,30 +62,38 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
     >
     {isAuthenticated && (
       <div className="z-[1]">
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          trigger={null}
-          style={siderStyle}
-          className={`transition-all duration-300 flex flex-col justify-center ${isMobile && "fixed top-0 left-0 h-full"}`}
-          breakpoint="lg"
-          collapsedWidth={isMobile ? 0 : 70}
-          onBreakpoint={(broken) => {
-            setCollapsed(true)
-          }}
-          onCollapse={(collapsed, type) => {
-            setCollapsed(collapsed);
-          }}
-          onMouseEnter={() => {
-            if (!isMobile) setCollapsed(false);
-          }}
-          onMouseLeave={() => {
-            if (!isMobile) setCollapsed(true);
-          }}
-          width={250}
-        >
-          <SiderNavigationMenu collapsed={collapsed} setCollapsed={setCollapsed}/>
-          <div className={`${collapsed ? 'hidden' : 'block'} flex flex-col gap-2 items-start mx-3 px-5 py-2 justify-end bg-teal-950 rounded-md text-sm text-white`}>
+            <Sider
+            collapsible
+            collapsed={collapsed}
+            trigger={null}
+            style={{
+                overflow: "auto",
+                height: "100vh",
+                transition: "width 0.3s ease-in-out",
+              }}
+            className={`
+                transition-all duration-300 flex flex-col justify-center fixed
+                ${isMobile ? "inset-0 z-[50] shadow-lg" : "left-0 top-0"}
+                ${collapsed ? "w-[70px]" : "w-[250px]"}
+              `}
+            breakpoint="lg"
+            collapsedWidth={isMobile ? 0 : 70}
+            onBreakpoint={(broken) => {
+                setCollapsed(true);
+            }}
+            onCollapse={(collapsed) => {
+                setCollapsed(collapsed);
+            }}
+            onMouseEnter={() => {
+                if (!isMobile) setCollapsed(false);
+            }}
+            onMouseLeave={() => {
+                if (!isMobile) setCollapsed(true);
+            }}
+            width={250}
+            >
+            <SiderNavigationMenu collapsed={collapsed} setCollapsed={setCollapsed} />
+            <div className={`${collapsed ? 'hidden' : 'block'} flex flex-col gap-2 items-start mx-3 px-5 py-2 justify-end bg-teal-950 rounded-md text-sm text-white`}>
             <div className="flex flex-row justify-between items-center w-full">
               <span className="text-default">Tema</span>
               <Switch
@@ -119,47 +115,45 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
               />
             </div>
           </div>
-        </Sider>
-        {isMobile && !collapsed && (
+            </Sider>
+            {isMobile && !collapsed && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={() => setCollapsed(true)}
+                className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                onClick={() => setCollapsed(true)}
             />
-          )}
+            )}
       </div>
     )}
     <Layout
-  className={`transition-all duration-500
-    ${isDarkMode ? "background-dark" : "background-light"}
-    background-animated`}
->
-
-
-        <Header
-        className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md flex flex-row justify-between items-center transition-all
-        duration-300 ${isAuthenticated ? "block" : 'hidden'} ${isAuthenticated && isMobile && !collapsed ? "blur-md" : ""}`}
+        className={`transition-all duration-500 w-full lg:ml-16
+            ${isDarkMode ? "background-dark" : "background-light"}
+            background-animated`}
         >
-            <div>
+        <Header
+            className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)]
+            backdrop-blur-md flex flex-row justify-between items-center
+            transition-all duration-300 ${isAuthenticated && !collapsed ? "blur-md" : ""}`}
+        >
             <Button
-                type="text"
-                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
-                className={isAuthenticated && isMobile ? 'flex items-center font-lg' : 'hidden' }
-                style={{
-                fontSize: '16px',
-                }}
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            className={isAuthenticated && isMobile ? "flex items-center font-lg" : "hidden"}
+            style={{ fontSize: "16px" }}
             />
-            </div>
-            <span className="flex items-center gap-2 font-extrabold text-xl">
+            <span className="flex items-center gap-2 font-extrabold text-xl w-full justify-center">
                 <AppstoreOutlined className="text-primary text-xl" />
                 <Link to={role === 'user' ? `/profile/${userId}` : '/'}>Inventory database</Link>
             </span>
             <div className="flex flex-row items-center gap-2">
-            <UserDropdown />
+                <UserDropdown />
             </div>
         </Header>
-        <Content className={`container mx-auto px-4 py-4 transition-all duration-300 z-[1] ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>
-        {isAuthenticated && (
+        <Content
+            className={`container mx-auto px-4 py-4 transition-all duration-300 z-[1]
+            ${isAuthenticated && !collapsed ? "blur-sm" : ""}`}
+        >
+            {isAuthenticated && (
             <div className="px-4 py-2">
                 <AppBreadcrumb />
             </div>
@@ -167,7 +161,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             {children}
         </Content>
         <Footer className={`text-center text-gray-400 z-[1] bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md
-            ${isAuthenticated && isMobile && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić
+            ${isAuthenticated && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić
         </Footer>
     </Layout>
   </Layout>
@@ -236,7 +230,6 @@ const App = () => {
                   <Route path="/admin/invoices" element={<InvoiceList />} />
                   <Route path="/admin/invoices/:invoiceId/printers" element={<Printers />} />
                   <Route path="/admin/telecom" element={<TelecomInvoice />} />
-
                 </Routes>
               </AppLayout>
               </NotificationProvider>

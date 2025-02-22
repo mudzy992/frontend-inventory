@@ -4,7 +4,7 @@
 
 .sticky-header {
     padding: 0px 7px !important;
-    position: -webkit-sticky;
+    position: sticky;
     top: 0;
     z-index: 2;
     width: 100%;
@@ -32,6 +32,7 @@
     background: radial-gradient(circle at 50% 50%, #111, #000);
     position: relative;
     overflow: hidden;
+    z-index: 0;
 }
 
 .background-dark::before {
@@ -57,6 +58,7 @@
     background: linear-gradient(135deg, #ffffff, #e0e7ff);
     position: relative;
     overflow: hidden;
+    z-index: 0;
 }
 
 .background-light::after {

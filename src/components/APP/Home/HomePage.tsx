@@ -65,18 +65,18 @@ const HomePage: React.FC<HomePageState> = () => {
               <div>
                 {<AllUsersTable />}
               </div>
-  
+
               <Title level={5} className="ml-2 mt-3">
                 <i className="bi bi-card-list" /> Kategorije artikala
               </Title>
-  
+
               <Row gutter={[16, 16]} className="ml-2 mr-2">
                 {categories &&
                   categories.map((category) => (
                     <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
                       <Card
-                        className="pt-7 ml-2"
-                        style={{ borderRadius: "14px" }}
+                        className="pt-7"
+
                         hoverable
                         cover={
                           <i
@@ -102,7 +102,7 @@ const HomePage: React.FC<HomePageState> = () => {
       )}
     </>
   );
-  
+
 };
 
 export default HomePage;

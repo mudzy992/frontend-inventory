@@ -19,7 +19,7 @@ const AdditionSettingsModal: React.FC<AdditionSettingsModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const { api } = useApi();
-  const [tempFeatures, setTempFeatures] = useState<any[]>([]); 
+  const [tempFeatures, setTempFeatures] = useState<any[]>([]);
   const { role } = useUserContext();
   const { error, warning, success } = useNotificationContext();
 
@@ -95,13 +95,13 @@ const AdditionSettingsModal: React.FC<AdditionSettingsModalProps> = ({
           featureValue: feature.featureValue,
         })),
     };
- 
+
     const featuresToDelete = tempFeatures
       .filter((feature: any) => feature.use === 0 && feature.articleFeatureId)
       .map((feature: any) => feature.articleFeatureId);
-  
+
     const deleteDataToSend = { articleFeatureIds: featuresToDelete };
- 
+
     const sendApiRequest = async (url: string, method: "put" | 'delete', data: any) => {
       try {
         const res = await api(url, method, data, role);
@@ -123,12 +123,12 @@ const AdditionSettingsModal: React.FC<AdditionSettingsModalProps> = ({
     if (dataToSend.features.length > 0) {
       await sendApiRequest('api/article-features', "put", dataToSend);
     }
-  
+
     if (featuresToDelete.length > 0) {
       await sendApiRequest('api/article-features', "delete", deleteDataToSend);
     }
   };
-  
+
 
   return (
     <Modal
@@ -151,11 +151,11 @@ const AdditionSettingsModal: React.FC<AdditionSettingsModalProps> = ({
               className="mt-8"
             >
               <Checkbox
-                checked={feature.use === 1} 
+                checked={feature.use === 1}
                 onChange={(e) => {
                   const newTempFeatures = [...tempFeatures];
-                  newTempFeatures[index].use = e.target.checked ? 1 : 0; 
-                  setTempFeatures(newTempFeatures); 
+                  newTempFeatures[index].use = e.target.checked ? 1 : 0;
+                  setTempFeatures(newTempFeatures);
                 }}
               />
             </Form.Item>
@@ -167,17 +167,14 @@ const AdditionSettingsModal: React.FC<AdditionSettingsModalProps> = ({
             >
               <Input
                 value={feature.featureValue}
-                placeholder="Unesite vrednost"
+                placeholder="Unesite vrijednost"
                 onChange={(e) => {
                   const newTempFeatures = [...tempFeatures];
                   newTempFeatures[index].featureValue = e.target.value;
-                  setTempFeatures(newTempFeatures); 
+                  setTempFeatures(newTempFeatures);
                 }}
               />
             </Form.Item>
-
-            
-
             <Form.Item
               name={['articleFeatures', index, 'featureId']}
               initialValue={feature.featureId}

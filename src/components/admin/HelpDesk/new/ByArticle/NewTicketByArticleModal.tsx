@@ -19,7 +19,7 @@ import { ApiResponse, useApi } from "../../../../../API/api";
 import { useUserContext } from "../../../../Contexts/UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import TicketGroupType from "../../../../../types/TicketGroupType";
-import Toast from "../../../../custom/Toast";
+import Toast from "../../../../Custom/Toast";
 import {now, getLocalTimeZone, DateValue } from "@internationalized/date";
 
 type ModalProps = {
@@ -273,7 +273,7 @@ const NewTicketByArticleModal: React.FC<ModalProps> = ({
                     setAddNewTicketFieldState("description", value)
                   }
                 />
-              <DatePicker 
+              <DatePicker
               onChange={handleDatePickerChange}
               label="Željeni datum rješenja"
               showMonthAndYearPickers

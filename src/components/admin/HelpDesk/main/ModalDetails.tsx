@@ -28,9 +28,9 @@ import { useNavigate } from "react-router-dom";
 import ModeratorGroupMappingType from "../../../../types/ModeratorGroupMappingType";
 import UserType from "../../../../types/UserType";
 import Moment from "moment";
-import TimelineProgressBar from "../../../custom/TimelineProgressBar";
+import TimelineProgressBar from "../../../Custom/TimelineProgressBar";
 import TicketGroupType from "../../../../types/TicketGroupType";
-import Toast from "../../../custom/Toast";
+import Toast from "../../../Custom/Toast";
 
 type ModalDetailsProps = {
   show: boolean;

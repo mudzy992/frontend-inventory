@@ -1,7 +1,8 @@
 import { Breadcrumb } from 'antd';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { HomeOutlined } from '@ant-design/icons';
 import { useUserContext } from '../../Contexts/UserContext/UserContext';
+import Link from 'antd/es/typography/Link';
 
 const breadcrumbMap: Record<string, string> = {
   helpdesk: 'Helpdesk',
@@ -13,7 +14,8 @@ const breadcrumbMap: Record<string, string> = {
   category: 'Kategorije',
   add: 'Dodaj',
   user: 'Korisnici',
-  department: "Sektori/službe/odjeljenja"
+  department: "Sektori/službe/odjeljenja",
+  stock: "Skladište"
 };
 
 const AppBreadcrumb = () => {
@@ -31,28 +33,34 @@ const AppBreadcrumb = () => {
       return null;
     }
     const last = index === pathnames.length - 1;
-    const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+    const to = `#/${pathnames.slice(0, index + 1).join('#/')}`;
 
     const breadcrumbLabel = breadcrumbMap[value] || value.charAt(0).toUpperCase() + value.slice(1);
 
     return last ? (
-      <Breadcrumb.Item key={to}>{breadcrumbLabel}</Breadcrumb.Item>
+      <Breadcrumb.Item key={to}>
+        <span>{breadcrumbLabel}</span>
+      </Breadcrumb.Item>
     ) : (
       <Breadcrumb.Item key={to}>
-        <Link to={to}>{breadcrumbLabel}</Link>
+        <Link href={to} >
+          {breadcrumbLabel}
+        </Link>
       </Breadcrumb.Item>
     );
   });
 
   return (
-    <Breadcrumb>
-      <Breadcrumb.Item>
-        <Link to={role === 'user' ? `/profile/${userId}` : '/'}>
-          <HomeOutlined />
-        </Link>
-      </Breadcrumb.Item>
-      {breadcrumbItems}
-    </Breadcrumb>
+    <div>
+      <Breadcrumb className="flex items-center">
+        <Breadcrumb.Item>
+          <Link href={role === 'user' ? `#/profile/${userId}` : '/'}>
+            <HomeOutlined className="text-xl" />
+          </Link>
+        </Breadcrumb.Item>
+        {breadcrumbItems}
+      </Breadcrumb>
+    </div>
   );
 };
 

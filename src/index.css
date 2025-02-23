@@ -45,7 +45,7 @@
     background: conic-gradient(from 0deg, rgba(51, 188, 183, 0.1), rgba(22, 104, 220, 0.1), rgba(60, 134, 24, 0.1), rgba(51, 188, 183, 0.1));
     transform: translate(-50%, -50%) rotate(0deg) scale(1);
     animation: rotateGlow 10s linear infinite, pulse 5s ease-in-out infinite;
-    filter: blur(100px);
+    filter: blur(15px);
 }
 
 @keyframes rotateGlow {

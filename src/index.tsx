@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import reportWebVitals from "./reportWebVitals";
-import { HashRouter, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Layout, ConfigProvider, theme, Button, Switch } from "antd";
 import 'antd/dist/reset.css';
 import hrHR from "antd/lib/locale/hr_HR";
@@ -25,12 +25,12 @@ import Printers from "./components/admin/Invoices/Printers";
 import { NotificationProvider } from "./components/Contexts/Notification/NotificationContext";
 import { Header } from "antd/es/layout/layout";
 import { MenuFoldOutlined, MenuUnfoldOutlined, AppstoreOutlined } from '@ant-design/icons';
-import SiderNavigationMenu from "./components/SiderNavigationMenu/SiderNavigationMenu";
-import UserDropdown from "./components/SiderNavigationMenu/UserDropDownMenu";
 import ArticleComponent from "./components/admin/Article/ArticleComponent";
 import HelpdeskDetails from "./components/admin/HelpDesk/main/Details/HelpdeskDetails";
 import AppBreadcrumb from "./components/APP/Breadcrumb/AppBreadcrumb";
 import Stock from "./components/APP/Stock/Stock";
+import SiderNavigationMenu from "./components/APP/SiderNavigationMenu/SiderNavigationMenu";
+import UserDropdown from "./components/APP/SiderNavigationMenu/UserDropDownMenu";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -72,7 +72,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
                 transition: "width 0.3s ease-in-out",
               }}
             className={`
-                transition-all duration-300 flex flex-col justify-center fixed
+                transition-all duration-300 flex flex-col justify-center fixed bg-[#141414] border-r-[1px] border-[#313131]
                 ${isMobile ? "inset-0 z-[50] shadow-lg" : "left-0 top-0"}
                 ${collapsed ? "w-[70px]" : "w-[250px]"}
               `}
@@ -124,7 +124,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             )}
       </div>
     )}
-    <Layout className={`transition-all duration-500 w-full ${isAuthenticated && !isMobile && 'ml-16'}
+    <Layout className={`transition-all duration-500 w-full ${isAuthenticated && !isMobile && 'pl-16'}
         ${isDarkMode ? "background-dark" : "background-light"}
         background-animated`}
         >
@@ -153,9 +153,9 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             ${isAuthenticated && !collapsed ? "blur-sm" : ""}`}
         >
             {isAuthenticated && (
-            <div className="px-4 py-2">
-                <AppBreadcrumb />
-            </div>
+                <div className={`p-2 ${isDarkMode ? "bg-[#141414] border-[#313131]" : "bg-white border-[#F3F4F8]"} mb-3  border-[1px] rounded-xl`}>
+                    <AppBreadcrumb />
+                </div>
             )}
             {children}
         </Content>
@@ -178,7 +178,9 @@ const App = () => {
               "colorPrimary": "#33bcb7",
               "colorInfo": "#1668dc",
               "colorSuccess": "#3c8618",
-              "wireframe": false
+              "wireframe": false,
+              colorLink: isDarkMode ? "#FACC15" : "#1668dc", // Menja boju linka u zavisnosti od teme
+              colorLinkHover: isDarkMode ? "#EAB308" : "#0F52BA",
             },
             "components": {
               "Button": {
@@ -196,7 +198,10 @@ const App = () => {
               },
               "Tag": {
                 "borderRadius":8
-              }
+              },
+              "Card": {
+                "borderRadiusLG": 16
+             }
             },
             "algorithm": isCompact
             ? [isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm, theme.compactAlgorithm]
@@ -206,7 +211,7 @@ const App = () => {
           }}
         >
 
-            <HashRouter>
+            <Router>
             <UserContextProvider>
               <NotificationProvider>
               <AppLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} isCompact={isCompact} setIsCompact={setIsCompact}>
@@ -233,7 +238,7 @@ const App = () => {
               </AppLayout>
               </NotificationProvider>
               </UserContextProvider>
-            </HashRouter>
+            </Router>
           </ConfigProvider>
     </React.StrictMode>
   );

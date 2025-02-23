@@ -159,9 +159,8 @@ const CategoryPage: React.FC = () => {
     <Col xs={12} sm={8} md={6} lg={4} key={category.categoryId}>
       <Card
         loading={loading}
-        className="pt-6"
+        className="pt-7"
         hoverable
-        style={{borderRadius:"14px"}}
         cover={
           <i
             className={`bg-gradient-to-r from-teal-400 to-yellow-200 bg-clip-text text-transparent ${category.imagePath}`}

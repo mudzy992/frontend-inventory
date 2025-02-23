@@ -3,7 +3,7 @@ import UserLoginPage from "./UserLoginPage";
 import { Card } from "antd";
 import { useUserContext } from "../Contexts/UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
-import BackgroundParticles from "../custom/BackgroundParticles";
+import BackgroundParticles from "../Custom/BackgroundParticles";
 
 const LoginPage: React.FC = () => {
   const {isAuthenticated} = useUserContext();
@@ -35,7 +35,7 @@ const LoginPage: React.FC = () => {
       </div>
       )}
     </>
-    
+
   );
 };
 

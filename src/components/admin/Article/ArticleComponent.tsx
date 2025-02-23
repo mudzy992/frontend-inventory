@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Typography, Row, Col, Tag, Tabs, Button, Divider, Collapse, Descriptions, Table, Alert } from 'antd';
 import { ApiResponse, useApi } from '../../../API/api';
@@ -12,10 +12,13 @@ import { ApiConfig } from '../../../config/api.config';
 import saveAs from 'file-saver';
 import ViewSingleTicketModal from '../HelpDesk/view/ViewSingleTicket';
 import StatusChangeModal from './models/ChangeStatusModal';
-import AdditionSettingsModal from './models/AdditionSpecification';
 import UpgradeFeaturesType from '../../../types/UpgradeFeaturesType';
-import UpgradeFeaturesModal from './models/UpgradeFeatures';
 import { useCanEdit } from '../../../config/permissions';
+import TechnicalSpecifications from './models/TechnicalSpecifications';
+import AdditionalSpecifications from './models/AdditionalSpecifications';
+import AdditionSettingsModal from './models/AdditionalSpecificationModal';
+import UpgradeFeaturesModal from './models/UpgradeFeaturesModal';
+import UpgradeFeatures from './models/UpgradeFeatures';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -36,6 +39,7 @@ const ArticleComponent: React.FC = () => {
   const [additionalSettingModalVisible, setAdditionModalVisible] = useState(false);
   const [upgradeFeatures, setUpgradeFeatures] = useState<UpgradeFeaturesType[]>([])
   const [upgradeFeaturesModalVisible, setUpgradeFeaturesModalVisible] = useState(false);
+  const [activeKey, setActiveKey] = useState<string | string[]>('1');
 
   useEffect(() => {
     if (serial) {
@@ -44,7 +48,7 @@ const ArticleComponent: React.FC = () => {
     }
   }, [serial]);
 
-  const getArticleData = async () => {
+  const getArticleData = useCallback(async () => {
     try {
       setLoading(true);
       const res: ApiResponse = await api(`api/article/sb/${serial}`, 'get', {}, role);
@@ -58,33 +62,19 @@ const ArticleComponent: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api, role, serial, warning, error]);
 
-  const getUpgradeFeature = async () => {
-      try {
-        await api(
-          `api/upgradeFeature/get/${serial}`,
-          "get",
-          {},
-          role,
-        ).then((res: ApiResponse) => {
-          setUpgradeFeatures(res.data);
-        });
-      } catch (err) {
-        error.notification(
-          "Greška prilikom dohvaćanja dodataka (ArticleComponent)."
-        );
-      }
+  const getUpgradeFeature = useCallback(async () => {
+    try {
+      const res: ApiResponse = await api(`api/upgradeFeature/get/${serial}`, "get", {}, role);
+      setUpgradeFeatures(res.data);
+    } catch (err) {
+      error.notification("Greška prilikom dohvaćanja dodataka (ArticleComponent).");
     }
+  }, [api, role, serial, error]);
 
-  const handleShowViewModal = () => {
-    setShowViewModal(true);
-  };
-
-  const handleHideViewModal = () => {
-    setShowViewModal(false);
-  };
-
+  const handleShowViewModal = () => setShowViewModal(true);
+  const handleHideViewModal = () => setShowViewModal(false);
   const openViewModalWithArticle = (ticketId: number) => {
     setSelectedTicketId(ticketId);
     handleShowViewModal();
@@ -94,7 +84,6 @@ const ArticleComponent: React.FC = () => {
     setSelectedArticle(article);
     setChangeStatusModalVisible(true);
   };
-
   const handleCloseChangeStatusModal = () => {
     setChangeStatusModalVisible(false);
     setSelectedArticle(null);
@@ -104,15 +93,12 @@ const ArticleComponent: React.FC = () => {
     setSelectedArticle(article);
     setAdditionModalVisible(true);
   };
-
   const handleCloseAdditionalSettingModal = () => {
     setAdditionModalVisible(false);
     setSelectedArticle(null);
   };
 
-  const refreshDataAfterChangeStatus = () => {
-    getArticleData()
-  };
+  const refreshDataAfterChange = () => getArticleData();
 
   if (!serial) {
     return <div>Serijski broj nije naveden</div>;
@@ -141,21 +127,14 @@ const ArticleComponent: React.FC = () => {
       .catch(error => console.error("Greška pri preuzimanju fajla:", error));
   };
 
-  const genExtraAdditionalSetting = () => (
-    canEdit ? (
-        <i className="bi bi-gear text-warning text-lg" onClick={() => handleOpenAdditionalSettingModal(article!)}/>
-    ) : (
-        <i className="bi bi-gear text-warning text-lg" />
-    )
-  );
-
-  const genExtraUpgradeFeatures = () => (
-    canEdit ? (
-        <i className="bi bi-wrench-adjustable-circle text-success text-lg" onClick={() => setUpgradeFeaturesModalVisible(true)}/>
-    ) : (
-        <i className="bi bi-wrench-adjustable-circle text-success text-lg" />
-    )
-
+  const genExtraIcon = (iconClass: string, onClick?: () => void) => (
+    <i
+      className={iconClass}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onClick) onClick();
+      }}
+    />
   );
 
   return (
@@ -165,9 +144,7 @@ const ArticleComponent: React.FC = () => {
           <Row justify="space-between" align="middle" className='mb-4'>
             <Col>
               <Text>
-              <i
-                className={`${article?.category?.imagePath} mr-2 text-lg`}
-              ></i>
+                <i className={`${article?.category?.imagePath} mr-2 text-lg`}></i>
                 <span className='font-bold text-lg'>{article?.stock?.name}</span>
               </Text>
             </Col>
@@ -179,286 +156,224 @@ const ArticleComponent: React.FC = () => {
           </Row>
           <Row gutter={[16, 16]} justify="space-between">
             <Col xs={24} md={7} className='justify-center items-center flex'>
-            <i
-                className={`${article?.category?.imagePath}`}
-                style={{ fontSize: 150 }}
-              ></i>
+              <i className={`${article?.category?.imagePath}`} style={{ fontSize: 150 }}></i>
             </Col>
             <Col xs={24} md={16} className='flex flex-col'>
-            <Collapse defaultActiveKey={['1']}>
-              <Panel header="Tehničke karakteristike" extra={<i className="bi bi-cpu text-primary text-lg"/>} key="1" >
-                <Descriptions column={1} className="max-h-[200px] overflow-y-auto overflow-hidden">
-                  {article?.stock?.stockFeatures!.map((feature, index) => (
-                    <Descriptions.Item key={index} label={feature.feature?.name}>
-                      {feature.value}
-                    </Descriptions.Item>
-                  ))}
-                  <Descriptions.Item label="Serijski broj">
-                    {article?.serialNumber}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Inventorni broj">
-                    {article?.invNumber}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Panel>
-              <Panel header={"Dodatne specifikacije"} extra={genExtraAdditionalSetting()} key="2">
-              {article?.articleFeatures?.length ? article?.articleFeatures?.map(af => (
-                <Descriptions>
-                  <Descriptions.Item label={af.feature?.name}>{af.featureValue}</Descriptions.Item>
-                </Descriptions>
-              )) : "Nema definisanih dodatnih specifikacija"}
-
-              {additionalSettingModalVisible && (
-                  <AdditionSettingsModal
-                    visible={additionalSettingModalVisible}
-                    onClose={handleCloseAdditionalSettingModal}
-                    data={selectedArticle!}
-                    refreshData={refreshDataAfterChangeStatus}
-                  />
-                )}
-              </Panel>
-
-              <Panel header="Nadogradnje" extra={genExtraUpgradeFeatures()} key="3">
-              {upgradeFeatures.length ? upgradeFeatures?.map(up => (
-                <Descriptions>
-                  <Descriptions.Item className='flex flex-row flex-nowrap' label={up.name}>{up.value} <span className='ml-2 text-default-500 truncate'> - {up.comment}</span></Descriptions.Item>
-                </Descriptions>
-              )) : "Nema definisanih dodatnih nadogradnji"}
-
-              {upgradeFeaturesModalVisible && (
-                  <UpgradeFeaturesModal
-                    serial={serial}
-                    articleId={article?.articleId!}
-                    visible={upgradeFeaturesModalVisible}
-                    onClose={() => setUpgradeFeaturesModalVisible(false)}
-                    data={upgradeFeatures!}
-                    refreshData={refreshDataAfterChangeStatus}
-                  />
-                )}
-              </Panel>
-            </Collapse>
+              <Collapse accordion activeKey={activeKey} onChange={(key) => setActiveKey(key)}>
+                <Panel header="Tehničke karakteristike" extra={genExtraIcon("bi bi-cpu text-primary text-lg")} key="1">
+                  <TechnicalSpecifications article={article} />
+                </Panel>
+                <Panel header="Dodatne specifikacije" extra={genExtraIcon("bi bi-gear text-warning text-lg", canEdit ? () => handleOpenAdditionalSettingModal(article!) : undefined)} key="2">
+                  <AdditionalSpecifications article={article!} />
+                  {additionalSettingModalVisible && (
+                    <AdditionSettingsModal
+                      visible={additionalSettingModalVisible}
+                      onClose={handleCloseAdditionalSettingModal}
+                      data={selectedArticle!}
+                      refreshData={refreshDataAfterChange}
+                    />
+                  )}
+                </Panel>
+                <Panel header="Nadogradnje" extra={genExtraIcon("bi bi-wrench-adjustable-circle text-success text-lg", canEdit ? () => setUpgradeFeaturesModalVisible(true) : undefined)} key="3">
+                  <UpgradeFeatures upgradeFeatures={upgradeFeatures} />
+                  {upgradeFeaturesModalVisible && (
+                    <UpgradeFeaturesModal
+                      serial={serial}
+                      articleId={article?.articleId!}
+                      visible={upgradeFeaturesModalVisible}
+                      onClose={() => setUpgradeFeaturesModalVisible(false)}
+                      data={upgradeFeatures!}
+                      refreshData={refreshDataAfterChange}
+                    />
+                  )}
+                </Panel>
+              </Collapse>
             </Col>
           </Row>
           <Divider />
-
           <Title level={5}><FileTextOutlined /> Opis</Title>
           <Text>{article?.stock?.description}</Text>
-
           <Divider />
           <Tabs defaultActiveKey="1" style={{ marginTop: 20 }}>
-          <TabPane tab={<><HistoryOutlined /> Kretanje opreme</>} key="1">
-            <Table
-              dataSource={article?.articleTimelines}
-              rowKey="id"
-              scroll={{ x: "max-content" }}
-              size='small'
-              pagination={{
-                pageSize: 5,
-              }}
-              columns={[
-                {
-                  title: 'Korisnik',
-                  key: 'korisnik',
-                  render: (text, record) => (
-                    record.user?.fullname
-                  ),
-                  width:200
-                },
-                {
-                  title: 'Komentar',
-                  dataIndex: 'comment',
-                  key: 'comment',
-                  ellipsis: true
-                },
-                {
-                  title: 'Status',
-                  dataIndex: 'status',
-                  key: 'status',
-                  render: (record) => (
-                    <Tag color={getStatusColor(record, 'article')}>
-                      {record}
-                    </Tag>
+            <TabPane tab={<><HistoryOutlined /> Kretanje opreme</>} key="1">
+              <Table
+                dataSource={article?.articleTimelines}
+                rowKey="id"
+                scroll={{ x: "max-content" }}
+                size='small'
+                pagination={{ pageSize: 5 }}
+                columns={[
+                  {
+                    title: 'Korisnik',
+                    key: 'korisnik',
+                    render: (text, record) => record.user?.fullname,
+                    width: 200
+                  },
+                  {
+                    title: 'Komentar',
+                    dataIndex: 'comment',
+                    key: 'comment',
+                    ellipsis: true
+                  },
+                  {
+                    title: 'Status',
+                    dataIndex: 'status',
+                    key: 'status',
+                    render: (record) => (
+                      <Tag color={getStatusColor(record, 'article')}>
+                        {record}
+                      </Tag>
                     ),
-                  width:80
-                },
-                {
-                  title: 'Datum akcije',
-                  dataIndex: 'timestamp',
-                  key: 'timestamp',
-                  width:130,
-                  render: (text: string) => dayjs(text).format('DD.MM.YYYY - HH:mm')
-                },
-                {
-                  title: 'Dokument',
-                  key: 'document',
-                  width:80,
-                  render: (text, record) => (
-                    <div className='flex items-center justify-center'>
-                    <Button size='large' icon={<SaveOutlined className='text-primary' />} type="text"
-                    onClick={() => handleDownload(record.document?.path!, record.document?.path || 'dokument.pdf')} />
-                    </div>
-                  ),
-                },
-              ]}
-            />
-          </TabPane>
-          <TabPane tab={<><BellOutlined /> Helpdesk</>} key="2">
-          <Table
-            dataSource={article?.helpdeskTickets}
-            rowKey="ticketId"
-            pagination={{
-              pageSize: 5,
-            }}
-            size="small"
-            columns={[
-              {
-                title: 'Opis',
-                dataIndex: 'description',
-                key: 'description',
-                ellipsis: true,
-              },
-              {
-                title: 'Datum prijave',
-                dataIndex: 'createdAt',
-                key: 'createdAt',
-                render: (text: string) => dayjs(text).format('DD.MM.YYYY - HH:mm'),
-                width: 130,
-              },
-              {
-                title: 'Status',
-                dataIndex: 'status',
-                key: 'status',
-                render: (record) => (
-                  <Tag color={getStatusColor(record, 'helpdesk')}>
-                    {record}
-                  </Tag>
-                  ),
-                width: 70,
-              },
-              {
-                title: '#',
-                dataIndex: 'ticketId',
-                key: 'ticketId',
-                render: (text) => <Button icon={<EyeOutlined />} type="text"
-                onClick={() => openViewModalWithArticle(text)}
-                />,
-                width: 55,
-              },
-            ]}
-          />
-          {showViewModal &&
-            <ViewSingleTicketModal
-                show={showViewModal}
-                onHide={handleHideViewModal}
-                ticketId={selectedTicketId!}
-                data={article?.helpdeskTickets!}
+                    width: 80
+                  },
+                  {
+                    title: 'Datum akcije',
+                    dataIndex: 'timestamp',
+                    key: 'timestamp',
+                    width: 130,
+                    render: (text: string) => dayjs(text).format('DD.MM.YYYY - HH:mm')
+                  },
+                  {
+                    title: 'Dokument',
+                    key: 'document',
+                    width: 80,
+                    render: (text, record) => (
+                      <div className='flex items-center justify-center'>
+                        <Button size='large' icon={<SaveOutlined className='text-primary' />} type="text"
+                          onClick={() => handleDownload(record.document?.path!, record.document?.path || 'dokument.pdf')} />
+                      </div>
+                    ),
+                  },
+                ]}
               />
-          }
-
-          </TabPane>
+            </TabPane>
+            <TabPane tab={<><BellOutlined /> Helpdesk</>} key="2">
+              <Table
+                dataSource={article?.helpdeskTickets}
+                rowKey="ticketId"
+                pagination={{ pageSize: 5 }}
+                size="small"
+                columns={[
+                  {
+                    title: 'Opis',
+                    dataIndex: 'description',
+                    key: 'description',
+                    ellipsis: true,
+                  },
+                  {
+                    title: 'Datum prijave',
+                    dataIndex: 'createdAt',
+                    key: 'createdAt',
+                    render: (text: string) => dayjs(text).format('DD.MM.YYYY - HH:mm'),
+                    width: 130,
+                  },
+                  {
+                    title: 'Status',
+                    dataIndex: 'status',
+                    key: 'status',
+                    render: (record) => (
+                      <Tag color={getStatusColor(record, 'helpdesk')}>
+                        {record}
+                      </Tag>
+                    ),
+                    width: 70,
+                  },
+                  {
+                    title: '#',
+                    dataIndex: 'ticketId',
+                    key: 'ticketId',
+                    render: (text) => <Button icon={<EyeOutlined />} type="text"
+                      onClick={() => openViewModalWithArticle(text)}
+                    />,
+                    width: 55,
+                  },
+                ]}
+              />
+              {showViewModal &&
+                <ViewSingleTicketModal
+                  show={showViewModal}
+                  onHide={handleHideViewModal}
+                  ticketId={selectedTicketId!}
+                  data={article?.helpdeskTickets!}
+                />
+              }
+            </TabPane>
           </Tabs>
         </Card>
       </Col>
       {!loading &&
-      <Col xs={24} lg={8} className='flex flex-col gap-4'>
-      {article?.status === "razduženo" && (
-        <Alert message="Detalji o korisniku nedostupni, oprema razdužena." showIcon type="warning" />
-      )}
-
-      {article?.status === "otpisano" && (
-        <Alert message="Detalji o korisniku nedostupni, oprema otpisana." showIcon type="error" />
-      )}
-
-      {article?.status === "zaduženo" && (
-        <Descriptions title="Detalji korisnika" bordered size='small' column={1}>
-          <Descriptions.Item
-            label={<><UserOutlined /> Korisnik</>}
+        <Col xs={24} lg={8} className='flex flex-col gap-4'>
+          {article?.status === "razduženo" && (
+            <Alert message="Detalji o korisniku nedostupni, oprema razdužena." showIcon type="warning" />
+          )}
+          {article?.status === "otpisano" && (
+            <Alert message="Detalji o korisniku nedostupni, oprema otpisana." showIcon type="error" />
+          )}
+          {article?.status === "zaduženo" && (
+            <Descriptions title="Detalji korisnika" bordered size='small' column={1}>
+              <Descriptions.Item label={<><UserOutlined /> Korisnik</>}>
+                {article?.user?.fullname}
+              </Descriptions.Item>
+              <Descriptions.Item label={<><MailOutlined /> Email</>}>
+                {article?.user?.email}
+              </Descriptions.Item>
+              <Descriptions.Item label={<><BuildOutlined /> Organizacija</>}>
+                {article?.user?.organization?.name}
+              </Descriptions.Item>
+              <Descriptions.Item label={<><AppstoreAddOutlined /> Sektor/služba/odjeljenje</>}>
+                {article?.user?.department?.title}
+              </Descriptions.Item>
+              <Descriptions.Item label={<><IdcardOutlined /> Radno mjesto</>}>
+                {article?.user?.job?.title}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+          <Descriptions
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Status</span>
+                {canEdit && <Button size="small" type="link" onClick={() => handleOpenChangeStatusModal(article!)}>
+                  Promjeni status
+                </Button>}
+              </div>
+            }
+            bordered
+            size="small"
+            column={1}
           >
-            {article?.user?.fullname}
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={<><MailOutlined /> Email</>}
-          >
-            {article?.user?.email}
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={<><BuildOutlined /> Organizacija</>}
-          >
-            {article?.user?.organization?.name}
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={<><AppstoreAddOutlined /> Sektor/služba/odjeljenje</>}
-          >
-            {article?.user?.department?.title}
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={<><IdcardOutlined /> Radno mjesto</>}
-          >
-            {article?.user?.job?.title}
-          </Descriptions.Item>
-        </Descriptions>
-      )}
-
-      <Descriptions
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Status</span>
-            {canEdit && <Button size="small" type="link" onClick={() => handleOpenChangeStatusModal(article!)}>
-              Promjeni status
-            </Button>}
-          </div>
-        }
-        bordered
-        size="small"
-        column={1}
-      >
-        <Descriptions.Item
-          label={<><InfoCircleOutlined /> Status</>}
-        >
-          {article?.status}
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={<><CalendarOutlined /> Datum posljednje izmjene</>}
-        >
-          {dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}
-        </Descriptions.Item>
-      </Descriptions>
-        {changeStatusModalVisible &&
-          <StatusChangeModal
-            data={selectedArticle!}
-            type='article'
-            visible={changeStatusModalVisible}
-            onClose={handleCloseChangeStatusModal}
-            refreshData={refreshDataAfterChangeStatus}
-          />
-        }
-
-      <Descriptions title="Skladište" bordered size="small" column={1}>
-        <Descriptions.Item
-          label={<><FileTextOutlined /> Stanje po ugovoru</>}
-        >
-          {article?.stock?.valueOnContract}
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={<><ContainerOutlined /> Trenutno stanje</>}
-        >
-          {article?.stock?.valueAvailable}
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={<><FileSearchOutlined /> Ugovor</>}
-        >
-          {article?.stock?.contract}
-        </Descriptions.Item>
-        <Descriptions.Item
-          label={<><CalendarOutlined /> Datum posljednje izmjene</>}
-        >
-          {dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}
-        </Descriptions.Item>
-      </Descriptions>
-      </Col>
+            <Descriptions.Item label={<><InfoCircleOutlined /> Status</>}>
+              {article?.status}
+            </Descriptions.Item>
+            <Descriptions.Item label={<><CalendarOutlined /> Datum posljednje izmjene</>}>
+              {dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}
+            </Descriptions.Item>
+          </Descriptions>
+          {changeStatusModalVisible &&
+            <StatusChangeModal
+              data={selectedArticle!}
+              type='article'
+              visible={changeStatusModalVisible}
+              onClose={handleCloseChangeStatusModal}
+              refreshData={refreshDataAfterChange}
+            />
+          }
+          <Descriptions title="Skladište" bordered size="small" column={1}>
+            <Descriptions.Item label={<><FileTextOutlined /> Stanje po ugovoru</>}>
+              {article?.stock?.valueOnContract}
+            </Descriptions.Item>
+            <Descriptions.Item label={<><ContainerOutlined /> Trenutno stanje</>}>
+              {article?.stock?.valueAvailable}
+            </Descriptions.Item>
+            <Descriptions.Item label={<><FileSearchOutlined /> Ugovor</>}>
+              {article?.stock?.contract}
+            </Descriptions.Item>
+            <Descriptions.Item label={<><CalendarOutlined /> Datum posljednje izmjene</>}>
+              {dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}
+            </Descriptions.Item>
+          </Descriptions>
+        </Col>
       }
     </Row>
-
   );
 };
 

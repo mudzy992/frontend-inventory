@@ -3,28 +3,54 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - master
+      - main  # Pokreće se kada push-uješ u main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout repo
+      # ✅ Provera koda iz repozitorijuma
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🚀 Setup SSH key and connect
+      # ✅ Postavljanje SSH ključa
+      - name: Setup SSH key
         run: |
+          set -x  # Detaljan prikaz svake komande
+          echo "Setting up SSH key..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          echo "SSH key setup completed."
 
-      - name: 🔄 Deploy and restart app
+      # ✅ Provera konekcije (test SSH)
+      - name: Test SSH Connection
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd ${{ secrets.APP_PATH }}  # Ulazimo u direktorijum aplikacije
-            git pull origin main        # Povlačimo najnoviji kod
-            docker-compose build        # Ponovno građenje Docker image-a ako je potrebno
-            docker-compose up -d --force-recreate  # Restartujemo kontejnere sa novim kodom
-          EOF
+          set -x
+          echo "Testing SSH connection..."
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH Connection Successful'"
+          echo "SSH connection test completed."
+
+      # ✅ Pull najnovijeg koda na serveru
+      - name: Pull latest changes
+        run: |
+          set -x
+          echo "Pulling latest changes from repository..."
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd /home/administrator/Documents/GitHub/frontend-inventory &&
+            git reset --hard &&
+            git pull origin main"
+          echo "Code pull completed."
+
+      # ✅ Restart Docker aplikacije
+      - name: Restart Docker Compose
+        run: |
+          set -x
+          echo "Restarting Docker Compose..."
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd /home/administrator/Documents/GitHub/frontend-inventory &&
+            docker compose up -d --build --remove-orphans"
+          echo "Docker Compose restart completed."
+

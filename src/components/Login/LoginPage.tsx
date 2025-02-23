@@ -4,7 +4,6 @@ import { Card } from "antd";
 import { useUserContext } from "../Contexts/UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import BackgroundParticles from "../Custom/BackgroundParticles";
-//import BackgroundParticles from "../Custom/BackgroundParticles";
 
 const LoginPage: React.FC = () => {
   const {isAuthenticated} = useUserContext();
@@ -17,7 +16,7 @@ const LoginPage: React.FC = () => {
   },[])
   return (
     <>
-    <BackgroundParticles />
+    {/* <BackgroundParticles /> */}
     {!isAuthenticated && (
       <div className="flex flex-col items-center justify-center px-6 py-8">
         <div className="col-span-4 col-start-5 w-full sm:max-w-md md:mt-0 xl:p-0">

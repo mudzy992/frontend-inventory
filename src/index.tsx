@@ -153,8 +153,8 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             ${isAuthenticated && !collapsed ? "blur-sm" : ""}`}
         >
             {isAuthenticated && (
-                <div className={`p-2 ${isDarkMode ? "bg-[#141414] border-[#313131]" : "bg-white border-[#F3F4F8]"} mb-3  border-[1px] rounded-xl`}>
-                    <AppBreadcrumb />
+                <div>
+                    <AppBreadcrumb isDark={isDarkMode}/>
                 </div>
             )}
             {children}

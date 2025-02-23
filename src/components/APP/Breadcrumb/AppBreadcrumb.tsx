@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { HomeOutlined } from '@ant-design/icons';
 import { useUserContext } from '../../Contexts/UserContext/UserContext';
 import Link from 'antd/es/typography/Link';
+import React from 'react';
 
 const breadcrumbMap: Record<string, string> = {
   helpdesk: 'Helpdesk',
@@ -18,7 +19,7 @@ const breadcrumbMap: Record<string, string> = {
   stock: "Skladište"
 };
 
-const AppBreadcrumb = () => {
+const AppBreadcrumb:React.FC<{isDark: boolean}> = ({isDark}) => {
   const location = useLocation();
   const { role, userId } = useUserContext();
 
@@ -51,7 +52,7 @@ const AppBreadcrumb = () => {
   });
 
   return (
-    <div>
+    <div className={`p-2 ${isDark ? "bg-[#141414] border-[#313131]" : "bg-white border-[#F3F4F8]"} mb-3  border-[1px] rounded-xl`}>
       <Breadcrumb className="flex items-center">
         <Breadcrumb.Item>
           <Link href={role === 'user' ? `#/profile/${userId}` : '/'}>

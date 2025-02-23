@@ -29,30 +29,11 @@
   }
 
   .background-dark {
-    background: radial-gradient(circle at 50% 50%, #111, #000);
+    background: linear-gradient(135deg, rgba(51, 188, 183, 0.1), rgba(22, 104, 220, 0.1), rgba(60, 134, 24, 0.1), rgba(51, 188, 183, 0.1));
     position: relative;
     overflow: hidden;
     z-index: 0;
-    will-change: background; /* Preporučljivo za bolje performanse */
-}
-
-.background-dark::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 350%;
-    height: 350%;
-    background: conic-gradient(from 0deg, rgba(51, 188, 183, 0.1), rgba(22, 104, 220, 0.1), rgba(60, 134, 24, 0.1), rgba(51, 188, 183, 0.1));
-    transform: translate(-50%, -50%) scale(1);
-    animation: rotateGlow 10s linear infinite;
-    filter: blur(15px);
-    will-change: transform, opacity; /* Preporučljivo za bolju performansu */
-}
-
-@keyframes rotateGlow {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    will-change: background;
 }
 
 .background-light {
@@ -60,5 +41,4 @@
     position: relative;
     overflow: hidden;
     z-index: 0;
-    will-change: background;
 }

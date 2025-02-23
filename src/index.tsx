@@ -125,8 +125,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
       </div>
     )}
     <Layout className={`transition-all duration-500 w-full ${isAuthenticated && !isMobile && 'pl-16'}
-        ${isDarkMode ? "background-dark" : "background-light"}
-        background-animated`}
+        ${isDarkMode ? "background-dark" : "background-light"}`}
         >
         <Header
             className={`h-14 sticky-header bg-[rgba(var(--antd-colorBgBaseRGB),0.5)]

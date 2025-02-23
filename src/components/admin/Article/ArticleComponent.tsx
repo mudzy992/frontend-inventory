@@ -309,7 +309,7 @@ const ArticleComponent: React.FC = () => {
           {article?.status === "otpisano" && (
             <Alert message="Detalji o korisniku nedostupni, oprema otpisana." showIcon type="error" />
           )}
-         {/*  {article?.status === "zaduženo" && (
+          {article?.status === "zaduženo" && (
             <Descriptions title="Detalji korisnika" bordered size='small' column={1}>
               <Descriptions.Item label={<><UserOutlined /> Korisnik</>}>
                 {article?.user?.fullname}
@@ -370,7 +370,7 @@ const ArticleComponent: React.FC = () => {
             <Descriptions.Item label={<><CalendarOutlined /> Datum posljednje izmjene</>}>
               {dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}
             </Descriptions.Item>
-          </Descriptions> */}
+          </Descriptions>
         </Col>
       }
     </Row>

@@ -141,7 +141,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             />
             <span className="flex items-center gap-2 font-extrabold text-xl w-full justify-center">
                 <AppstoreOutlined className="text-primary text-xl" />
-                <Link to={role === 'user' ? `/profile/${userId}` : '/'}>Inventory database!</Link>
+                <Link to={role === 'user' ? `/profile/${userId}` : '/'}>Inventory database</Link>
             </span>
             <div className="flex flex-row items-center gap-2">
                 <UserDropdown />

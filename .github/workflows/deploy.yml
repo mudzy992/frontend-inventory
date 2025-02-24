@@ -22,7 +22,7 @@ jobs:
           ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           echo "SSH ključ uspješno postavljen."
 
-      - name: Provera konekcije (test SSH)
+      - name: Provjera konekcije (test SSH)
         run: |
           set -x
           echo "Provjera SSH konekcije..."
@@ -34,7 +34,7 @@ jobs:
           set -x
           echo "Preuzimanje posljednjih izmjena iz repository-ja..."
           ssh -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
-            cd /home/administrator/Documents/GitHub/frontend-inventory &&
+            cd ${{ secrets.APP_PATH }} &&
             git reset --hard &&
             git pull origin master"
           echo "Kod uspješno preuzet."
@@ -44,6 +44,7 @@ jobs:
           set -x
           echo "Restartovanje Docker kontejnera..."
           ssh -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
-            cd /home/administrator/Documents/GitHub/frontend-inventory &&
+            cd ${{ secrets.APP_PATH }} &&
+            docker compose down &&
             docker compose up -d --build --remove-orphans"
           echo "Docker kontejner uspješno restartovan, aplikacija je online."

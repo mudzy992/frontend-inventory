@@ -36,7 +36,7 @@ const AddArticlePage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto mt-3 h-max lg:px-4">
+    <div className="container mx-auto mt-3 h-max ">
       {loading ? (
         <div className="flex h-screen items-center justify-center">
           <Spin tip="Učitavanje..." />

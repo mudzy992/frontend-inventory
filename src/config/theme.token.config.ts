@@ -1,44 +1,34 @@
-export const themeToken = {
-    // Primary colors
-    colorPrimary: '#2D4654',
-    colorPrimaryHover: '#344E5E',
-    colorPrimaryActive: '#243B4A',
-    colorPrimaryText: '#FFFFFF',
+export const temaToken = {
+    colorPrimary: "#33bcb7",
+    colorInfo: "#1668dc",
+    colorSuccess: "#3c8618",
+    wireframe: false,
+}
 
-    // Secondary colors
-    colorSecondary: '#9999A1',
-    colorSecondaryHover: '#A3A3AB',
-    colorSecondaryActive: '#8F8F96',
-    colorSecondaryText: '#2D4654',
-
-    // Background colors
-    colorBgBase: '#E6E6E9',
-    colorBgLight: '#F4F4F6',
-    colorBgDark: '#DADADA',
-    colorBgHighlight: '#FFFFFF',
-
-    // Border colors
-    colorBorder: '#9999A1',
-    colorBorderHover: '#A3A3AB',
-    colorBorderActive: '#8F8F96',
-
-    // Status colors
-    colorSuccess: '#56C596',
-    colorSuccessHover: '#6FD7A8',
-    colorSuccessActive: '#4AA27F',
-    colorWarning: '#FFD166',
-    colorWarningHover: '#FFDA80',
-    colorWarningActive: '#E6BC59',
-    colorError: '#E63946',
-    colorErrorHover: '#FF5A5F',
-    colorErrorActive: '#CC2C3B',
-    colorInfo: '#1D3557',
-    colorInfoHover: '#27486A',
-    colorInfoActive: '#162B45',
-
-    // Text colors
-    colorTextPrimary: '#2D4654',
-    colorTextSecondary: '#9999A1',
-    colorTextDisabled: '#A3A3AB',
-    colorTextInverse: '#FFFFFF',
-};
+export const components =
+{
+    Button: {
+        borderRadius: 15,
+        borderRadiusSM: 9,
+        controlHeight: 40
+    },
+    Input: {
+        borderRadius: 16,
+        controlHeight: 44,
+    },
+    Select: {
+        borderRadius: 12,
+        controlHeight: 44,
+    },
+    Tag: {
+        borderRadius:2
+    },
+    Card: {
+        borderRadiusLG: 16
+    },
+    "Menu": {
+      "darkItemBg": "rgb(20,20,20)",
+      "darkItemHoverColor": "rgb(234,179,8)",
+      "algorithm": true
+    }
+}

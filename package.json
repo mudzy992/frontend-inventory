@@ -1,6 +1,6 @@
 {
   "name": "inventory-frontend",
-  "version": "1.9.0-alpha",
+  "version": "1.9.6-alpha",
   "type": "module",
   "private": true,
   "dependencies": {

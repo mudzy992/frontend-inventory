@@ -177,7 +177,7 @@ const SiderNavigationMenu: React.FC<SiderNavigationMenuProps> = ({
       mode="inline"
       theme="dark"
       items={role === "user" ? commonMenu : adminMenu}
-      selectedKeys={[selectedKey]} // Koristi `selectedKey` za selektovani meni
+      selectedKeys={[selectedKey]}
       onClick={handleMenuClick}
     />
   );

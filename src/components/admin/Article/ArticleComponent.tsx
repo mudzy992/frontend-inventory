@@ -137,6 +137,10 @@ const ArticleComponent: React.FC = () => {
     />
   );
 
+function extractFirstWord(input: string): string {
+    return input.split(" ")[0];
+}
+
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={16}>
@@ -320,7 +324,7 @@ const ArticleComponent: React.FC = () => {
               <Descriptions.Item label={<><BuildOutlined /> Organizacija</>}>
                 {article?.user?.organization?.name}
               </Descriptions.Item>
-              <Descriptions.Item label={<><AppstoreAddOutlined /> Sektor/služba/odjeljenje</>}>
+              <Descriptions.Item label={<><AppstoreAddOutlined /> {extractFirstWord(article?.user?.department?.title!)}</>}>
                 {article?.user?.department?.title}
               </Descriptions.Item>
               <Descriptions.Item label={<><IdcardOutlined /> Radno mjesto</>}>
@@ -344,7 +348,7 @@ const ArticleComponent: React.FC = () => {
             <Descriptions.Item label={<><InfoCircleOutlined /> Status</>}>
               {article?.status}
             </Descriptions.Item>
-            <Descriptions.Item label={<><CalendarOutlined /> Datum posljednje izmjene</>}>
+            <Descriptions.Item label={<><CalendarOutlined /> Datum i vrijeme</>}>
               {dayjs(article?.timestamp).format('DD.MM.YYYY - HH:mm')}
             </Descriptions.Item>
           </Descriptions>
@@ -357,6 +361,7 @@ const ArticleComponent: React.FC = () => {
               refreshData={refreshDataAfterChange}
             />
           }
+          {role !== 'user' &&
           <Descriptions title="Skladište" bordered size="small" column={1}>
             <Descriptions.Item label={<><FileTextOutlined /> Stanje po ugovoru</>}>
               {article?.stock?.valueOnContract}
@@ -370,7 +375,7 @@ const ArticleComponent: React.FC = () => {
             <Descriptions.Item label={<><CalendarOutlined /> Datum posljednje izmjene</>}>
               {dayjs(article?.stock?.timestamp).format('DD.MM.YYYY - HH:mm')}
             </Descriptions.Item>
-          </Descriptions>
+          </Descriptions>}
         </Col>
       }
     </Row>

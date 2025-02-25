@@ -104,19 +104,14 @@ const Stock: React.FC = () => {
       <Col xs={24} lg={16}>
         <Card loading={loading} >
           <Row justify="space-between" align="middle" className='mb-4'>
-            <Col>
-              <Text>
-              <i
-                className={`${stockData?.category?.imagePath} mr-2 text-lg`}
-              ></i>
-                <span className='font-bold text-lg'>{stockData?.name}</span>
-              </Text>
+          <Col>
+                <Text className="max-w-[210px] lg:max-w-full overflow-hidden text-ellipsis whitespace-nowrap flex items-center">
+                    <i className={`${stockData?.category?.imagePath} mr-2 text-lg`}></i>
+                    <span className="font-bold text-lg truncate">{stockData?.name}</span>
+                </Text>
             </Col>
             <Col>
               {getStatusTag(stockData?.valueAvailable!)}
-              {canEdit && <Button size="small" onClick={() => handleOpenEditStockModal()}>
-                Izmjeni
-            </Button>}
             </Col>
           </Row>
           <Row gutter={[16, 16]} justify="space-between">
@@ -125,6 +120,9 @@ const Stock: React.FC = () => {
                 className={`${stockData?.category?.imagePath}`}
                 style={{ fontSize: 150 }}
               ></i>
+              {canEdit && <Button className='absolute top-0 right-0 border-[1px] hover:border-yellow-400 rounded-xl' size="small" type='link' onClick={() => handleOpenEditStockModal()}>
+                Izmjeni detalje
+            </Button>}
             </Col>
             <Col xs={24} md={16} className='flex flex-col'>
                 <Descriptions column={1} className="max-h-[200px] overflow-y-auto overflow-hidden">
@@ -150,7 +148,8 @@ const Stock: React.FC = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Status</span>
-            {canEdit && <Button size="small" onClick={() => handleOpenChangeStatusModal()}>
+            {canEdit && <Button size="small" type="link"
+             onClick={() => handleOpenChangeStatusModal()}>
               Promjeni status
             </Button>}
           </div>
@@ -188,7 +187,7 @@ const Stock: React.FC = () => {
         }
 
         {editStockModalVisible &&
-        <Modal width="640px" title="Promjena statusa" open={editStockModalVisible} onCancel={handleCloseEditStockModal} footer={null}>
+        <Modal width="640px" title="Izmjena detalja opreme" open={editStockModalVisible} onCancel={handleCloseEditStockModal} footer={null}>
              <ArticleForm initialData={stockData} onSubmit={handleEditArticle} loading={loading} />
         </Modal>
         }

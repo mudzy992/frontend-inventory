@@ -31,6 +31,8 @@ import AppBreadcrumb from "./components/APP/Breadcrumb/AppBreadcrumb";
 import Stock from "./components/APP/Stock/Stock";
 import SiderNavigationMenu from "./components/APP/SiderNavigationMenu/SiderNavigationMenu";
 import UserDropdown from "./components/APP/SiderNavigationMenu/UserDropDownMenu";
+import { components, temaToken } from "./config/theme.token.config";
+import packageJson from '../package.json';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -159,7 +161,7 @@ const AppLayout: React.FC<AppLayoutProps & { isDarkMode: boolean; setIsDarkMode:
             {children}
         </Content>
         <Footer className={`text-center text-gray-400 z-[1] bg-[rgba(var(--antd-colorBgBaseRGB),0.5)] backdrop-blur-md
-            ${isAuthenticated && !collapsed ? "blur-sm" : ""}`}>Inventory Database v1.3.6 ©{curentYear} Created by Mudžahid Cerić
+            ${isAuthenticated && !collapsed ? "blur-sm" : ""}`}>Inventory Database v{packageJson.version} ©{curentYear} Created by Mudžahid Cerić
         </Footer>
     </Layout>
   </Layout>
@@ -172,42 +174,19 @@ const App = () => {
     <React.StrictMode>
       <ConfigProvider
           locale={hrHR}
-          theme={{
-            "token": {
-              "colorPrimary": "#33bcb7",
-              "colorInfo": "#1668dc",
-              "colorSuccess": "#3c8618",
-              "wireframe": false,
-              colorLink: isDarkMode ? "#FACC15" : "#1668dc", // Menja boju linka u zavisnosti od teme
-              colorLinkHover: isDarkMode ? "#EAB308" : "#0F52BA",
+          theme={{token:
+            {...temaToken,
+            colorLink: isDarkMode ? "#FACC15" : "#1668dc",
+            colorLinkHover: isDarkMode ? "#EAB308" : "#0F52BA",
+
             },
-            "components": {
-              "Button": {
-                "borderRadius": 15,
-                "borderRadiusSM": 9,
-                "controlHeight": 40
-              },
-              "Input": {
-                "borderRadius": 12,
-                "controlHeight": 44,
-              },
-              "Select": {
-                "borderRadius": 12,
-                "controlHeight": 44,
-              },
-              "Tag": {
-                "borderRadius":8
-              },
-              "Card": {
-                "borderRadiusLG": 16
-             }
-            },
+            components: components,
             "algorithm": isCompact
             ? [isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm, theme.compactAlgorithm]
             : isDarkMode
             ? theme.darkAlgorithm
-            : theme.defaultAlgorithm,
-          }}
+            : theme.defaultAlgorithm,}
+           }
         >
 
             <Router>

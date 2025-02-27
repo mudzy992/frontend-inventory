@@ -78,7 +78,6 @@ const Printers = () => {
             error.notification(err.data.message)
         } finally {
           fatchInvoice()
-          fetchPrinterDataByInvoiceId()
         }
       };
 
@@ -133,7 +132,7 @@ const Printers = () => {
         const current = record.counters[oidKey]?.current?.value || "";
 
         const difference = current !== "" ? Number(current) - previous : null;
-    
+
         return (
             <div>
                 <div className='text-xs'>
@@ -160,12 +159,12 @@ const Printers = () => {
     };
 
     const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement>, 
-        printerId: string, 
+        e: React.ChangeEvent<HTMLInputElement>,
+        printerId: string,
         oidKey: string
     ) => {
         const value = e.target.value;
-    
+
         setPrinters((prev) =>
             prev.map((printer) =>
                 printer.printerId === printerId
@@ -186,16 +185,16 @@ const Printers = () => {
             )
         );
     };
-    
+
     const handleInputBlur = (
-        e: React.FocusEvent<HTMLInputElement>, 
-        printerId: string, 
+        e: React.FocusEvent<HTMLInputElement>,
+        printerId: string,
         oidKey: string
     ) => {
         const value = e.target.value;
         const numericValue = value !== "" ? Number(value) : undefined;
         const printerOidId = printers.find((p) => p.printerId === printerId)?.counters[oidKey]?.current?.printerOidId;
-    
+
         if (printerOidId) {
             api(`api/printer-oid/${printerOidId}`, "put", { value: numericValue })
                 .then((response) => {
@@ -210,7 +209,6 @@ const Printers = () => {
                 });
         }
     };
-    
 
     const columns = [
         { key: "printerId", dataIndex: "printerId", title: "ID" },
@@ -236,8 +234,6 @@ const Printers = () => {
             render: (record: PrinterDTO) => renderOidValues(record, "oid29"),
         },
     ];
-
-    
 
     const tableHeader = () => {
         return (
@@ -270,7 +266,7 @@ const Printers = () => {
                                     className="flex flex-row min-w-20"
                                     onClick={() => calculateInvoice()}
                                 >
-                                    <i className="bi bi-calculator mr-1"></i>obračunaj 
+                                    <i className="bi bi-calculator mr-1"></i>obračunaj
                                 </Link>
                             )}
                         </div>
@@ -288,12 +284,12 @@ const Printers = () => {
 
     return (
         <Card>
-            <Table 
-                title={tableHeader} 
-                loading={loading} 
-                size='small' 
-                dataSource={filteredData} 
-                columns={columns} 
+            <Table
+                title={tableHeader}
+                loading={loading}
+                size='small'
+                dataSource={filteredData}
+                columns={columns}
                 scroll={{ x: "max-content" }}
                 pagination={{style:{paddingRight:"20px"}}}
                 />

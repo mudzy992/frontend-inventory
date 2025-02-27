@@ -16,7 +16,8 @@ const breadcrumbMap: Record<string, string> = {
   add: 'Dodaj',
   user: 'Korisnici',
   department: "Sektori/službe/odjeljenja",
-  stock: "Skladište"
+  stock: "Skladište",
+  printers: "Printeri",
 };
 
 const AppBreadcrumb:React.FC<{isDark: boolean}> = ({isDark}) => {

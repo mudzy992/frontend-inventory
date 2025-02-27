@@ -78,6 +78,7 @@ const Printers = () => {
             error.notification(err.data.message)
         } finally {
           fatchInvoice()
+          setLoading(false)
         }
       };
 

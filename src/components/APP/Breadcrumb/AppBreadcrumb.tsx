@@ -35,7 +35,7 @@ const AppBreadcrumb:React.FC<{isDark: boolean}> = ({isDark}) => {
       return null;
     }
     const last = index === pathnames.length - 1;
-    const to = `#/${pathnames.slice(0, index + 1).join('#/')}`;
+    const to = `#/${pathnames.slice(0, index + 1).join('/')}`;
 
     const breadcrumbLabel = breadcrumbMap[value] || value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -56,7 +56,7 @@ const AppBreadcrumb:React.FC<{isDark: boolean}> = ({isDark}) => {
     <div className={`p-2 ${isDark ? "bg-[#141414] border-[#313131]" : "bg-white border-[#F3F4F8]"} mb-3  border-[1px] rounded-xl`}>
       <Breadcrumb className="flex items-center">
         <Breadcrumb.Item>
-          <Link href={role === 'user' ? `#/profile/${userId}` : '/'}>
+          <Link href={role === 'user' ? `/profile/${userId}` : '/'}>
             <HomeOutlined className="text-xl" />
           </Link>
         </Breadcrumb.Item>

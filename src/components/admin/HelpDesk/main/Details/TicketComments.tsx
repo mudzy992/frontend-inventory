@@ -22,7 +22,7 @@ const TicketComments = ({ ticket }: TicketCommentsProps) => {
   const handleAddComment = async () => {
     try {
       setLoading(true);
-      let url = replyToCommentId === null ? 'api/comments/' : `api/comments/reply/${replyToCommentId}`;
+      let url = replyToCommentId === null ? 'api/comment/' : `api/comment/reply/${replyToCommentId}`;
 
       const res: ApiResponse = await api.api(url, 'post', {
         text: newComment,

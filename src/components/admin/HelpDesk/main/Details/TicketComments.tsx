@@ -2,6 +2,8 @@ import { List, Input, Button, Avatar, Typography, Card } from 'antd';
 import { useState } from 'react';
 import HelpdeskTicketsType from '../../../../../types/HelpdeskTicketsType';
 import { useUserContext } from '../../../../Contexts/UserContext/UserContext';
+import { ApiResponse, useApi } from '../../../../../API/api';
+import { useNotificationContext } from '../../../../Contexts/Notification/NotificationContext';
 
 const { Text } = Typography;
 
@@ -10,14 +12,36 @@ interface TicketCommentsProps {
 }
 
 const TicketComments = ({ ticket }: TicketCommentsProps) => {
+  const api = useApi();
   const [newComment, setNewComment] = useState('');
   const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null);
   const { role, userId } = useUserContext();
+  const {error, success, warning} = useNotificationContext();
+  const [loading, setLoading] = useState(false);
 
-  const handleAddComment = () => {
-    // Logika za dodavanje komentara
-    setNewComment('');
-    setReplyToCommentId(null); // Resetuj nakon dodavanja komentara
+  const handleAddComment = async () => {
+    try {
+      setLoading(true);
+      let url = replyToCommentId === null ? 'api/comments/' : `api/comments/reply/${replyToCommentId}`;
+
+      const res: ApiResponse = await api.api(url, 'post', {
+        text: newComment,
+        ticketId: ticket?.ticketId,
+        userId: userId,
+      }, role);
+
+      if (res.status !== 'ok') {
+        throw new Error('Greška prilikom dodavanja komentara');
+      }
+
+      setNewComment('');
+      setReplyToCommentId(null);
+      success.notification('Uspješno dodan komentar');
+    } catch (err) {
+      error.notification('Greška prilikom dodavanja komentara: ' + err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReplyToComment = (commentId: number) => {
@@ -44,7 +68,7 @@ const TicketComments = ({ ticket }: TicketCommentsProps) => {
             itemLayout="horizontal"
             dataSource={comment.comments}
             renderItem={renderComment}
-            style={{ marginLeft: '30px' }} 
+            style={{ marginLeft: '30px' }}
           />
         )}
         {ticket?.userId === userId && replyToCommentId === null && !isReply && (
@@ -60,7 +84,7 @@ const TicketComments = ({ ticket }: TicketCommentsProps) => {
     <div>
       <List
         itemLayout="vertical"
-        dataSource={ticket?.comments}
+        dataSource={ticket?.comments ?? []}
         renderItem={renderComment}
         locale={{ emptyText: "Nema traženih dodatnih infomacija za ovaj tiket" }}
       />
@@ -84,7 +108,9 @@ const TicketComments = ({ ticket }: TicketCommentsProps) => {
             rows={4}
             placeholder="Odgovor na traženu informaciju"
           />
-          <Button onClick={handleAddComment} style={{ marginTop: '10px' }}>Dodaj odgovor</Button>
+          {newComment.trim() !== "" && (
+            <Button loading={loading} onClick={handleAddComment} style={{ marginTop: '10px' }}>Dodaj odgovor</Button>
+            )}
         </div>
       )}
     </div>

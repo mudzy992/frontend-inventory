@@ -71,13 +71,13 @@ const Printers = () => {
           const response = await api(`api/invoice`, "post", {}, role);
           if (response.status === "ok") {
             success.notification('Faktura uspješno obračunata')
+            fatchInvoice()
           } else {
             warning.notification('Desila se greška prilikom obračuna fakture, pokušajte ponovo!')
           }
         } catch (err:any) {
             error.notification(err.data.message)
         } finally {
-          fatchInvoice()
           setLoading(false)
         }
       };

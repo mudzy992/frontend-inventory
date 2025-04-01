@@ -307,7 +307,6 @@ const ViewSingleTicketModal: React.FC<ModalProps> = ({
     );
   }
 
-
   function combineFirstLetters(surname: string, forname: string) {
     const inicialLetters =
       surname.charAt(0).toUpperCase() + forname.charAt(0).toUpperCase();

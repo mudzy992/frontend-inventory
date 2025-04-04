@@ -19,6 +19,7 @@ import AdditionalSpecifications from './models/AdditionalSpecifications';
 import AdditionSettingsModal from './models/AdditionalSpecificationModal';
 import UpgradeFeaturesModal from './models/UpgradeFeaturesModal';
 import UpgradeFeatures from './models/UpgradeFeatures';
+import AddEditArticleCommentModal from './models/AddEditArticleCommentModal';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -39,6 +40,7 @@ const ArticleComponent: React.FC = () => {
   const [additionalSettingModalVisible, setAdditionModalVisible] = useState(false);
   const [upgradeFeatures, setUpgradeFeatures] = useState<UpgradeFeaturesType[]>([])
   const [upgradeFeaturesModalVisible, setUpgradeFeaturesModalVisible] = useState(false);
+  const [addEditArticleCommentModalVisible, setAddEditArticleCommentModalVisible] = useState(false);
   const [activeKey, setActiveKey] = useState<string | string[]>('1');
 
   useEffect(() => {
@@ -93,9 +95,14 @@ const ArticleComponent: React.FC = () => {
     setSelectedArticle(article);
     setAdditionModalVisible(true);
   };
+
   const handleCloseAdditionalSettingModal = () => {
     setAdditionModalVisible(false);
     setSelectedArticle(null);
+  };
+
+  const handleCloseAddEditArticleCommentModal = () => {
+    setAddEditArticleCommentModalVisible(false);
   };
 
   const refreshDataAfterChange = () => getArticleData();
@@ -198,6 +205,21 @@ function extractFirstWord(input: string): string {
           <Title level={5}><FileTextOutlined /> Opis</Title>
           <Text>{article?.stock?.description}</Text>
           <Divider />
+          {article?.comment && (
+            <Alert type='warning' description={
+            <div className='flex justify-between'>{article?.comment}
+                <Button size='small' type='link' color='gold' onClick={() => setAddEditArticleCommentModalVisible(true)}>Izmjeni</Button>
+            </div>}/>
+            )}
+            {addEditArticleCommentModalVisible && (
+                <AddEditArticleCommentModal
+                    articleId={article?.articleId!}
+                    comment={article?.comment!}
+                    visible={addEditArticleCommentModalVisible}
+                    onClose={handleCloseAddEditArticleCommentModal}
+                    refreshData={refreshDataAfterChange}
+                />
+            )}
           <Tabs defaultActiveKey="1" style={{ marginTop: 20 }}>
             <TabPane tab={<><HistoryOutlined /> Kretanje opreme</>} key="1">
               <Table

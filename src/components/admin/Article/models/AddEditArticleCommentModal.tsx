@@ -63,6 +63,7 @@ const AddEditArticleCommentModal: React.FC<AddEditArticleCommentModalProps> = ({
         form={form}
         layout="vertical"
         onFinish={addComment}
+        initialValues={{ comment: comment }}
         style={{ marginTop: 20 }}
       >
         <Form.Item

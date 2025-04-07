@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Popover, Typography, Spin, Descriptions } from "antd";
+import { Table, Button, Popover, Typography, Spin, Descriptions, Badge } from "antd";
 import { SaveOutlined, FileTextOutlined } from "@ant-design/icons";
 import { ApiConfig } from "../../../../config/api.config";
 import saveAs from "file-saver";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import ArticleType from "../../../../types/ArticleType";
 import DocumentsType from "../../../../types/DocumentsType";
 import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
+import { comment } from "postcss";
 
 const { Text } = Typography;
 
@@ -64,7 +65,15 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
       title: "Naziv",
       dataIndex: "stockName",
       key: "stockName",
-      render: (text: string) => text || "N/A",
+      render: (_: any, record:any) => {
+        const hasComment = !!record.comment;
+        return(<div>
+            {hasComment && (
+                    <Badge className="mr-2" status="processing" />)}
+                <Text strong>{record.stockName}</Text>
+            </div>
+        )
+      },
     },
     {
       title: "Serijski broj",
@@ -102,6 +111,7 @@ const ResponsibilityArticles: React.FC<UserProps> = ({ userID }) => {
     <Table
       columns={columns}
       dataSource={data.map((article) => ({
+        comment: article.comment,
         key: article.articleId,
         stockName: article.stock?.name,
         serialNumber: article.serialNumber,

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import * as ExcelJS from "exceljs";
 import moment from "moment";
-import { Button, Card, Col, Row, Input, Table, Pagination, Tooltip, Tag, Space, Typography, Popover } from "antd";
+import { Button, Card, Col, Row, Input, Table, Pagination, Tooltip, Tag, Space, Typography, Popover, Badge } from "antd";
 import { SearchOutlined, FileExcelOutlined, LinkOutlined } from "@ant-design/icons";
 import { useApi } from "../../../../API/api";
 import ArticleType from "../../../../types/ArticleType";
@@ -216,7 +216,14 @@ const ArticlePage: React.FC = () => {
             pagination={false}
             loading={loading}
             columns={[
-              { title: "Naziv", key: "name", render: (record: ArticleType) => record.stock?.name },
+              { title: "Naziv", key: "name", render: (record: ArticleType) => {
+                const hasComment = !!record.comment;
+                return(<div>
+                    {hasComment &&( <Badge status="processing" className="mr-2"/>)}
+                   {record.stock?.name}
+                   </div>
+                )
+                } },
               { title: "Serijski broj", dataIndex: "serialNumber", key: "serialNumber",
                 render: (serialNumber: string) => (
                 <a href={`#/article/${serialNumber}`} ><LinkOutlined /> {serialNumber}</a>

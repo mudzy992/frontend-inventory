@@ -39,7 +39,7 @@ const AddEditArticleCommentModal: React.FC<AddEditArticleCommentModalProps> = ({
         role
       );
       if (res.status === "ok") {
-        success.notification("Nadogradnja je uspešno dodata");
+        success.notification("Napomena uspješno dodana");
         refreshData(); // Osvježava podatke
         onClose(); // Zatvori modal
       } else {
@@ -52,7 +52,7 @@ const AddEditArticleCommentModal: React.FC<AddEditArticleCommentModalProps> = ({
 
   return (
     <Modal
-      title="Dodaj komentar"
+      title="Dodaj napomenu"
       open={visible}
       onCancel={onClose}
       footer={null}
@@ -67,15 +67,14 @@ const AddEditArticleCommentModal: React.FC<AddEditArticleCommentModalProps> = ({
         style={{ marginTop: 20 }}
       >
         <Form.Item
-          label="Komentar"
           name="comment"
         >
-            {comment} {articleId}
-          <Input.TextArea placeholder="Unesite komentar" />
+
+          <Input.TextArea placeholder="Unesite tekst napomene" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" block>
-            Dodaj komentar
+            {comment ? "Izmjeni napomenu" : "Dodaj napomenu"}
           </Button>
         </Form.Item>
       </Form>

@@ -205,12 +205,13 @@ function extractFirstWord(input: string): string {
           <Title level={5}><FileTextOutlined /> Opis</Title>
           <Text>{article?.stock?.description}</Text>
           <Divider />
-          {article?.comment && (
-            <Alert type='warning' description={
-            <div className='flex justify-between'>{article?.comment}
-                <Button size='small' type='link' color='gold' onClick={() => setAddEditArticleCommentModalVisible(true)}>Izmjeni</Button>
-            </div>}/>
-            )}
+            <Alert
+            showIcon
+            type={article?.comment ? 'warning' : 'info'}
+            message={article?.comment ? 'Napomena' : 'Nema napomene'}
+            description={article?.comment}
+            action={<Button size='small' type='link' onClick={() => setAddEditArticleCommentModalVisible(true)}>{article?.comment ? 'Izmjeni napomenu' : 'Dodaj napomenu'}</Button>}/>
+
             {addEditArticleCommentModalVisible && (
                 <AddEditArticleCommentModal
                     articleId={article?.articleId!}

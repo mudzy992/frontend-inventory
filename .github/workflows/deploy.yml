@@ -47,6 +47,6 @@ jobs:
             cd ${{ secrets.APP_PATH }} &&
             docker compose down &&
             sudo systemctl restart apache2 &&
-            docker rm -f $(docker ps -a -q --filter name=my_container_name) 2>/dev/null || true &&
+            docker rm -f $(docker ps -a -q --filter name=inventory-frontend) 2>/dev/null || true &&
             docker compose up -d --build --remove-orphans"
           echo "Docker kontejner uspješno restartovan, aplikacija je online."

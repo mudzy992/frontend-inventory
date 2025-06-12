@@ -3,6 +3,7 @@ import { Input, Button, Select, Form, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../Contexts/UserContext/UserContext";
 import { useApi } from "../../../API/api";
+import { useNotificationContext } from "../../Contexts/Notification/NotificationContext";
 
 interface InvoiceFormProps {
   invoiceId: number;
@@ -20,7 +21,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
   const { api } = useApi();
   const { role } = useUserContext();
   const navigate = useNavigate();
-  const [messageApi, contextHolder] = message.useMessage();
+  const {error, success} = useNotificationContext();
   const [form] = Form.useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,8 +37,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
         customer: invoice.customer,
         status: invoice.status,
       });
-    } catch (error) {
-      console.error("Error loading invoice:", error);
+    } catch (err:any) {
+        error.notification("Greška prilikom učitavanja fakture: " + err.message);
     }
   };
 
@@ -51,12 +52,12 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
     try {
       const response = await api(`api/invoice/${invoiceId}`, "patch", values, role);
       if (response.status === "ok") {
-        messageApi.success("Faktura je uspješno ažurirana!");
+        success.notification("Izmjene fakture su uspješno spremljene.");
       } else {
-        messageApi.error("Došlo je do greške prilikom ažuriranja fakture.");
+        error.notification("Došlo je do greške prilikom izmjene fakture.");
       }
-    } catch (error) {
-      messageApi.error("Greška prilikom ažuriranja fakture.");
+    } catch (err:any) {
+      error.notification("Greška prilikom izmjene fakture.");
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +65,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
 
   return (
     <div>
-      {contextHolder}
     <Form
       form={form}
       layout="vertical"
@@ -72,17 +72,17 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
       className="max-w-md p-4 space-y-6"
     >
       <Form.Item
-        label="Datum izdavanja"
+        label="Datum plaćanja fakture"
         name="issueDate"
-        rules={[{ required: true, message: "Unesite datum izdavanja" }]}
+        rules={[{ required: true, message: "Unesite datum plaćanja fakture" }]}
       >
         <Input type="date" />
       </Form.Item>
 
       <Form.Item
-        label="Kupac"
+        label="Naziv kupca"
         name="customer"
-        rules={[{ required: true, message: "Unesite naziv kupca" }]}
+        rules={[{ required: true, message: "Polje naziv kupca ne može biti prazno!" }]}
       >
         <Input />
       </Form.Item>
@@ -90,7 +90,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
       <Form.Item
         label="Status"
         name="status"
-        rules={[{ required: true, message: "Odaberite status" }]}
+        rules={[{ required: true, message: "Odaberite važeći status" }]}
       >
         <Select placeholder="Odaberite status">
           <Select.Option value="izvršenje">Izvršenje</Select.Option>
@@ -105,7 +105,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoiceId }) => {
           loading={isSubmitting}
           className="w-full"
         >
-          {isSubmitting ? "Ažuriranje..." : "Ažuriraj fakturu"}
+          {isSubmitting ? "Ažuriranje..." : "Izmjeni fakturu"}
         </Button>
       </Form.Item>
     </Form>

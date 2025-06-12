@@ -46,6 +46,7 @@ jobs:
           ssh -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
             cd ${{ secrets.APP_PATH }} &&
             docker compose down &&
+            pids=$(pgrep -f "docker-proxy.*:4001") && [ -n "$pids" ] && sudo kill -9 $pids || echo "No docker-proxy for 4001" &&
             sudo systemctl restart apache2 &&
             docker rm -f $(docker ps -a -q --filter name=inventory-frontend) 2>/dev/null || true &&
             docker compose up -d --build --remove-orphans"

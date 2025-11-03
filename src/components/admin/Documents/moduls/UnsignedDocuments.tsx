@@ -1,5 +1,5 @@
-import { Button, Card, Collapse, Modal, Table, Tag, Upload } from "antd";
-import { ExclamationCircleOutlined, UploadOutlined } from "@ant-design/icons";
+import { Alert, Button, Card, Checkbox, Collapse, Modal, Table, Tag, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DocumentsType from "../../../../types/DocumentsType";
@@ -7,8 +7,6 @@ import { ApiResponse, useApi } from "../../../../API/api";
 import { UserRole } from "../../../../types/UserRoleType";
 import { useUserContext } from "../../../Contexts/UserContext/UserContext";
 import { useNotificationContext } from "../../../Contexts/Notification/NotificationContext";
-
-const { confirm } = Modal;
 
 const UnsignedDocuments = () => {
   const { api } = useApi();
@@ -20,6 +18,7 @@ const UnsignedDocuments = () => {
   const [selectedUnsignedDocumentId, setSelectedUnsignedDocumentId] = useState<number | null>(null);
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [addWithoutFile, setAddWithoutFile] = useState(false);
   const navigate = useNavigate();
   const [size, setSize] = useState<{ padding: number }>({ padding: 24 });
 
@@ -30,24 +29,25 @@ const UnsignedDocuments = () => {
   const fetchUnsignedDocuments = async () => {
     setLoading(true);
     try {
-      const res: ApiResponse = await api(`api/document/unsigned`, "get", undefined, role as UserRole);
-      if (res.status === "forbidden") {
-        warning.notification("Korisnik nema dovoljno prava za učitavanje podataka");
-        return;
-      }
-      if (res.status === "error") {
-        error.notification("Greška prilikom učitavanja podataka");
-        navigate("/login");
-        return;
-      }
-      if (res.status === "login") {
-        warning.notification("Vaša prijava je istekla, molimo prijavite se ponovo!");
-        navigate("/login");
-        return;
-      }
-      const [documents, count] = res.data;
-      setUnsignedDocuments(documents);
-      setUnsignedDocumentCount(count);
+      api(`api/document/unsigned`, "get", undefined, role as UserRole).then(async (res: ApiResponse) => {
+        if (res.status === "forbidden") {
+          warning.notification("Korisnik nema dovoljno prava za učitavanje podataka");
+          return;
+        }
+        if (res.status === "error") {
+          error.notification("Greška prilikom učitavanja podataka");
+          navigate("/login");
+          return;
+        }
+        if (res.status === "login") {
+          warning.notification("Vaša prijava je istekla, molimo prijavite se ponovo!");
+          navigate("/login");
+          return;
+        }
+        const [documents, count] = res.data;
+        setUnsignedDocuments(documents);
+        setUnsignedDocumentCount(count);
+      });
     } catch (err: any) {
       error.notification(err.data?.message || "Greška prilikom učitavanja podataka");
       navigate("/login");
@@ -65,9 +65,9 @@ const UnsignedDocuments = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  const handleUpload = async (addWithoutFile?: boolean) => {
+  const handleUpload = async () => {
     if (!file && !addWithoutFile) {
-      warning.notification("Molimo odaberite fajl za upload ili koristite opciju bez fajla.");
+      warning.notification("Molimo odaberite fajl za upload ili označite opciju bez fajla.");
       return;
     }
     if (!selectedUnsignedDocumentId) return;
@@ -76,6 +76,7 @@ const UnsignedDocuments = () => {
       setLoading(true);
 
       if (addWithoutFile) {
+        // Poziv backend-a sa fiksnim path-om
         const response = await api(
           `api/document/${selectedUnsignedDocumentId}/upload`,
           "post",
@@ -85,6 +86,8 @@ const UnsignedDocuments = () => {
 
         if (response.status === "ok") {
           success.notification("Dokument uspješno dodan bez fajla!");
+          setUploadModalVisible(false);
+          setAddWithoutFile(false);
           fetchUnsignedDocuments();
         } else {
           error.notification("Greška prilikom dodavanja dokumenta.");
@@ -103,6 +106,7 @@ const UnsignedDocuments = () => {
 
         if (response.status === "ok") {
           success.notification("Fajl uspješno učitan!");
+          setUploadModalVisible(false);
           setFile(null);
           fetchUnsignedDocuments();
         } else {
@@ -113,22 +117,7 @@ const UnsignedDocuments = () => {
       error.notification(err.data?.message || "Greška prilikom učitavanja.");
     } finally {
       setLoading(false);
-      setUploadModalVisible(false);
     }
-  };
-
-  const showConfirmWithoutFile = () => {
-    confirm({
-      title: "Dodaj dokument bez fajla?",
-      icon: <ExclamationCircleOutlined />,
-      content: "Ova opcija će dodati dokument sa fiksnim PDF path-om.",
-      okText: "Da, dodaj",
-      okType: "danger",
-      cancelText: "Otkaži",
-      onOk() {
-        handleUpload(true);
-      },
-    });
   };
 
   const columns = [
@@ -160,31 +149,28 @@ const UnsignedDocuments = () => {
       dataIndex: "documentsId",
       title: "Upload",
       render: (documentsId: number) => (
-        <div className="flex gap-2">
-          <Button
-            icon={<UploadOutlined />}
-            type="primary"
-            onClick={() => {
-              setSelectedUnsignedDocumentId(documentsId);
-              setUploadModalVisible(true);
-            }}
-          >
-            Dodaj fajl
-          </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => {
-              setSelectedUnsignedDocumentId(documentsId);
-              showConfirmWithoutFile();
-            }}
-          >
-            Dodaj bez fajla
-          </Button>
-        </div>
+        <Button
+          icon={<UploadOutlined />}
+          onClick={() => {
+            setSelectedUnsignedDocumentId(documentsId);
+            setUploadModalVisible(true);
+          }}
+        >
+          Dodaj fajl
+        </Button>
       ),
     },
   ];
+
+  const listUnsigned = () => (
+    <Table
+      loading={loading}
+      dataSource={unsignedDocuments}
+      columns={columns}
+      scroll={{ x: "max-content" }}
+      size="small"
+    />
+  );
 
   return (
     <Card className="rounded-xl" bodyStyle={size}>
@@ -197,35 +183,48 @@ const UnsignedDocuments = () => {
             </>
           }
         >
-          <Table
-            loading={loading}
-            dataSource={unsignedDocuments}
-            columns={columns}
-            scroll={{ x: "max-content" }}
-            size="small"
-          />
+          {listUnsigned()}
         </Collapse.Panel>
       </Collapse>
 
       <Modal
-        title="Upload Fajla"
+        title="Dodavanje skenirane prenosnice"
         open={uploadModalVisible}
         onCancel={() => {
           setUploadModalVisible(false);
           setFile(null);
+          setAddWithoutFile(false);
         }}
-        onOk={() => handleUpload()}
+        cancelText="Izađi"
+        onOk={handleUpload}
+        okText="Snimi izmjene"
         confirmLoading={loading}
       >
-        <Upload
-          beforeUpload={(file) => {
-            setFile(file);
-            return false;
-          }}
-          maxCount={1}
-        >
-          <Button icon={<UploadOutlined />}>Odaberite fajl</Button>
-        </Upload>
+        <div className="flex flex-col gap-3">
+        <Alert description={
+            <div className="flex flex-col gap-2">
+            <span>Ako želite dodati dokument bez fajla, označite opciju ispod.</span>
+            <Checkbox
+            type="checkbox"
+            checked={addWithoutFile}
+            onChange={(e) => setAddWithoutFile(e.target.checked)}
+            id="without-file"
+            >Dodaj dokument bez fajla</Checkbox>
+        </div>
+        } type="error" showIcon />
+
+        {!addWithoutFile && (
+          <Upload
+            beforeUpload={(file) => {
+              setFile(file);
+              return false;
+            }}
+            maxCount={1}
+          >
+            <Button icon={<UploadOutlined />}>Odaberite fajl</Button>
+          </Upload>
+        )}
+        </div>
       </Modal>
     </Card>
   );

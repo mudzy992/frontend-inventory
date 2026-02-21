@@ -1,20 +1,29 @@
-version: '3.8'
+version: '3.9'
 
 services:
   frontend:
-    image: inventory-frontend-image
-    container_name: inventory-frontend
     build:
-      context: /home/administrator/Documents/GitHub/frontend-inventory
+      context: .
       dockerfile: Dockerfile
-    ports:
-      - "4001:5000"
+    container_name: inventory-frontend
+    restart: unless-stopped
     networks:
+      - web
       - inventory-network
     volumes:
-      - /home/administrator/Documents/GitHub/frontend-inventory:/usr/src/app:rw
-      - /mnt/shared-app-files/inventory:/usr/src/app/storage:rw
-    restart: always
+      - /mnt/shared-app-files/inventory:/app/storage
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.inventory.rule=Host(`inventory.hopto.org`)"
+      - "traefik.http.routers.inventory.entrypoints=websecure"
+      - "traefik.http.routers.inventory.tls=true"
+      - "traefik.http.routers.inventory.tls.certresolver=le"
+      - "traefik.http.services.inventory.loadbalancer.server.port=5000"
+    expose:
+      - "5000" # expose unutar mreže za Traefik
+
 networks:
+  web:
+    external: true
   inventory-network:
-    driver: bridge
+    external: true

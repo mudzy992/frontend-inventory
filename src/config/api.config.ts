@@ -1,4 +1,5 @@
-const url = 'https://inventory.hopto.org/backend/'; // PRODUKCIJA
+// const url = 'https://inventory.hopto.org/backend/'; // PRODUKCIJA
+const url = "http://backend:3006";
 //const url = "http://192.168.31.247:3006"; // LOKALNA kuci
 //const url = 'http://192.168.12.69:3006'; // LOKALNA posao
 //const url = 'http://192.168.0.33:3006'; // HOTSPOT

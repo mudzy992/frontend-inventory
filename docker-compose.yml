@@ -8,7 +8,6 @@ services:
     restart: unless-stopped
     networks:
       - web
-      - inventory-network
     volumes:
       - /mnt/shared-app-files/inventory:/app/storage
     labels:
@@ -18,12 +17,8 @@ services:
       - "traefik.http.routers.inventory.tls=true"
       - "traefik.http.routers.inventory.tls.certresolver=le"
       - "traefik.http.services.inventory.loadbalancer.server.port=5000"
-      - "traefik.http.services.inventory.loadbalancer.server.network=web"
     expose:
       - "5000"
-
 networks:
   web:
-    external: true
-  inventory-network:
     external: true

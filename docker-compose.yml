@@ -16,10 +16,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.inventory.rule=Host(`inventory.hopto.org`)"
-      - "traefik.http.routers.inventory.entrypoints=websecure"
+      - "traefik.http.routers.inventory.entrypoints=web,websecure"
       - "traefik.http.routers.inventory.tls=true"
       - "traefik.http.routers.inventory.tls.certresolver=le"
       - "traefik.http.services.inventory.loadbalancer.server.port=5000"
+    expose:
+      - "5000"
 
 networks:
   web:

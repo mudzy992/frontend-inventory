@@ -6,6 +6,6 @@ const url = 'https://inventory.hopto.org/backend/'; // PRODUKCIJA
 export const ApiConfig = {
   API_URL: url,
   TIMEOUT: 15000,
-  TEMPLATE_PATH: url + "/prenosnica/",
+  TEMPLATE_PATH: url + "prenosnica/",
   /* DODATI I PHOTO PATH AKO BUDE A BITI ĆE */
 };

@@ -82,7 +82,7 @@ function handleErrorResponse(err: any): ApiResponse {
         }
         return { status: 'error', data: { message: 'Nepoznata mrežna greška.' } };
     }
-    
+
     if (err.response?.status === 403) {
         return { status: 'forbidden', data: err.response.data };
     }
@@ -108,7 +108,7 @@ export function saveRefreshToken(token: string) {
 }
 
 async function refreshToken(): Promise<string | null> {
-    const path = '/auth/refresh';
+    const path = 'auth/refresh';
     const data = { token: getRefreshToken() };
 
     try {
